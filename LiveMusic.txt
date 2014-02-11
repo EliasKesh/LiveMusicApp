@@ -1,0 +1,1 @@
+./Debug/PrefsFile.o ./Debug/GTKMidiUI.o ./Debug/AlsaUtils.o ./Debug/HTML.o ./Debug/Connections.o ./Debug/ThirdParty_wmctrl.o ./Debug/PrefsGui.o
