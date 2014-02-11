@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MidiControlBase>
+  <SongPath>/home/Dropbox/FusionBlue/ChartsHTML/</SongPath>
+  <MainButtons>
+    <button1 Name="Elias1" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button2 Name="Elias2" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button3 Name="Elias3" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button4 Name="Elias4" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button5 Name="Elias5" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button6 Name="Elias6" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button7 Name="Elias7" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button8 Name="Elias8" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button9 Name="Elias9" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button10 Name="Elias10" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button11 Name="Elias11" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button12 Name="Elias12" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button13 Name="Elias13" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button14 Name="Elias14" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button15 Name="Elias15" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button16 Name="Elias16" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button17 Name="Elias17" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button18 Name="Elias18" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button19 Name="Elias19" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button20 Name="Elias20" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+  </MainButtons>
+  <NumOutPorts>005</NumOutPorts>
+  <OutPorts>
+    <Port000 Name="Port1"/>
+    <Port001 Name="Port2"/>
+    <Port002 Name=""/>
+    <Port003 Name=""/>
+    <Port004 Name=""/>
+  </OutPorts>
+</MidiControlBase>
