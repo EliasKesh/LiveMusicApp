@@ -2,33 +2,43 @@
 <MidiControlBase>
   <SongPath>/home/Dropbox/FusionBlue/ChartsHTML/</SongPath>
   <MainButtons>
-    <button1 Name="Elias1" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button2 Name="Elias2" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button3 Name="Elias3" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button4 Name="Elias4" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button5 Name="Elias5" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button6 Name="Elias6" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button7 Name="Elias7" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button8 Name="Elias8" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button9 Name="Elias9" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button10 Name="Elias10" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button11 Name="Elias11" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button12 Name="Elias12" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button13 Name="Elias13" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button14 Name="Elias14" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button15 Name="Elias15" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button16 Name="Elias16" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button17 Name="Elias17" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button18 Name="Elias18" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button19 Name="Elias19" Channel="001" Controller="032" OutPort="000" Patch="001"/>
-    <button20 Name="Elias20" Channel="001" Controller="032" OutPort="000" Patch="001"/>
+    <button1 Name="Elias1" Channel="002" Controller="255" OutPort="001" Patch="001"/>
+    <button2 Name="Dist" Channel="002" Controller="255" OutPort="001" Patch="002"/>
+    <button3 Name="Funk Chorus" Channel="002" Controller="255" OutPort="001" Patch="003"/>
+    <button4 Name="ThumpBass" Channel="002" Controller="255" OutPort="001" Patch="008"/>
+    <button5 Name="Chorus" Channel="002" Controller="255" OutPort="001" Patch="011"/>
+    <button6 Name="Jazz" Channel="002" Controller="255" OutPort="001" Patch="027"/>
+    <button7 Name="Heavenly" Channel="002" Controller="255" OutPort="001" Patch="030"/>
+    <button8 Name="Synth" Channel="002" Controller="255" OutPort="001" Patch="015"/>
+    <button9 Name="Extreme" Channel="002" Controller="255" OutPort="001" Patch="026"/>
+    <button10 Name="Change" Channel="002" Controller="255" OutPort="001" Patch="000"/>
+    <button11 Name="Piano" Channel="001" Controller="001" OutPort="000" Patch="063"/>
+    <button12 Name="Honky" Channel="001" Controller="000" OutPort="000" Patch="003"/>
+    <button13 Name="Breath" Channel="001" Controller="002" OutPort="000" Patch="053"/>
+    <button14 Name="De-Tuned Organ" Channel="001" Controller="011" OutPort="000" Patch="016"/>
+    <button15 Name="Flute" Channel="001" Controller="005" OutPort="000" Patch="073"/>
+    <button16 Name="Synth Lead" Channel="001" Controller="003" OutPort="000" Patch="024"/>
+    <button17 Name="Walky" Channel="001" Controller="001" OutPort="000" Patch="003"/>
+    <button18 Name="Trumpet" Channel="001" Controller="001" OutPort="000" Patch="066"/>
+    <button19 Name="Steel Drums" Channel="001" Controller="002" OutPort="000" Patch="114"/>
+    <button20 Name="Strings" Channel="001" Controller="001" OutPort="000" Patch="085"/>
+    <button21 Name="Drums" Channel="001" Controller="128" OutPort="000" Patch="026"/>
+    <button22 Name="Slap Bass" Channel="001" Controller="001" OutPort="000" Patch="024"/>
+    <button23 Name="Synth Hard" Channel="001" Controller="001" OutPort="000" Patch="060"/>
+    <button24 Name="Marimba" Channel="001" Controller="001" OutPort="000" Patch="012"/>
+    <button25 Name="Holdsworth" Channel="001" Controller="004" OutPort="000" Patch="048"/>
+    <button26 Name="Steel Drums" Channel="001" Controller="001" OutPort="000" Patch="114"/>
+    <button27 Name="Low Synth" Channel="001" Controller="001" OutPort="000" Patch="045"/>
+    <button28 Name="Mid0" Channel="001" Controller="255" OutPort="004" Patch="000"/>
+    <button29 Name="Mid-24" Channel="001" Controller="255" OutPort="004" Patch="002"/>
+    <button30 Name="Mid Screen" Channel="001" Controller="001" OutPort="000" Patch="000"/>
   </MainButtons>
-  <NumOutPorts>005</NumOutPorts>
+  <NumOutPorts>006</NumOutPorts>
   <OutPorts>
-    <Port000 Name="Port1"/>
-    <Port001 Name="Port2"/>
-    <Port002 Name=""/>
-    <Port003 Name=""/>
-    <Port004 Name=""/>
+    <Port000 Name="Fluid"/>
+    <Port001 Name="Rakarrak"/>
+    <Port002 Name="Looper"/>
+    <Port003 Name="Transport"/>
+    <Port004 Name="GI20"/>
   </OutPorts>
 </MidiControlBase>

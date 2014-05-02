@@ -34,16 +34,19 @@
 #include "PrefsFile.h"
 #include "Connections.h"
 
-	snd_seq_t *seq;
-	int seqPort;
+snd_seq_t *seq;
+int seqPort;
 //	GladeXML *gxml;
-	GtkBuilder *gxml;
-	void	SetUpMainButtons(PatchInfo  *PatchInfo);
-	GtkWidget* 	MainStatus;
-	GtkWidget	*TempoDraw;
-	
-	guint				   MainStatusid;
+GtkBuilder *gxml;
+GtkWidget* MainStatus;
+GtkWidget* CurrentModeWid;
+GtkWidget	*TempoDraw;
+unsigned int CurrentMode;
+guint		MainStatusid;
+GtkWidget *ModeSwitchButton;
 
+
+void	SetUpMainButtons(PatchInfo  *PatchInfo);
 void PrintDataStructure(GTKMidiInfo *myInfo);
 void CheckConnectionData(GTKMidiInfo *myInfo);
 void CreateHTMLGuide(GTKMidiInfo *myInfo);
@@ -53,6 +56,8 @@ void ToggleTempo(void);
 static gboolean	tempo_handler(GtkWidget *widget);
 void UpdateStatus(char *String);
 void ConnectSignals(void);
+void	 IncrementMode(void);
+
 
 enum {ToDesktop0 = 60, ToDesktop1,ToDesktop2,ToDesktop3,ToDesktop4,ToDesktop5,
 	ToAnalogApp, ToMidiSoundApp, ToLooperApp, ToTransportApp, ToMidiControl };
@@ -68,17 +73,17 @@ char	HoldStatusIndex;
 //PatchInfo  DefaultPatchInfo[] = {
 GTKMidiInfo  GlobalInfo = { 
 	{
-// 00	Button		Title		Bank		Patch	Outport		Chan	Custom->Chain
-	{"button1",		"Elias1",	0xff,		1,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button2",		"Dist",		0xff,		2,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button3",		"Funk Chorus",0xff,		3,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button4",		"ThumpBass",0xff,		8,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button5",		"Chorus",	0xff,		11,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button6",		"Jazz",		0xff,		27,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button7",		"Heavenly",	0xff,		30,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button8",		"Synth",	0xff,		15,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button9",		"Extreme",	0xff,		26,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button10",	"Change",	0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
+// 00	Button		Title			Bank		Patch	Outport		Chan	Custom->Chain
+	{"button1",	"Elias1",		0xff,		1,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button2",	"Dist",		0xff,		2,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button3",	"Funk Chorus",0xff,		3,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button4",	"ThumpBass",	0xff,		8,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button5",	"Chorus",		0xff,		11,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button6",	"Jazz",		0xff,		27,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button7",	"Heavenly",	0xff,		30,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button8",	"Synth",		0xff,		15,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button9",	"Extreme",		0xff,		26,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
 // 10	Button		Title		Bank	Patch	Outport			
 	{"button11",	"Piano",		SFDSF,		63,		FluidPort,		1,	NoCustom,	0 },
 	{"button12",	"Honky",		SF32GM,	3,		FluidPort,		1,	NoCustom,	0},
@@ -100,7 +105,7 @@ GTKMidiInfo  GlobalInfo = {
 	{"button27",	"Low Synth",	SFDSF,		45,		FluidPort,		1,	NoCustom,	0},
 	{"button28",	"Mid0",		0xff,		0,		GI20Port,		1,	NoCustom,	0},
 	{"button29",	"Mid-24",		0xff,		2,		GI20Port,		1,	NoCustom,	0},
-	{"button30",	"Mid Screen",	SFDSF,		0,		FluidPort,		1,	NoCustom,0},
+	{"button30",	"Mid Screen",	SFDSF,		0,		FluidPort,		1,	NoCustom,	0},
 // 30	Button		Title		Bank	Patch	Outport			
 	{"NoButton",	"Rak Eff6",	116,		11,		FluidPort,		1,	Controller,	0},
 	{"NoButton",	"Rak Eff7",	116,		13,		FluidPort,		1,	Controller,	0},
@@ -124,48 +129,52 @@ GTKMidiInfo  GlobalInfo = {
 	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
 	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
 // 50	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"LP Undo",		0xff,		70,		LooperPort,		1,	NoCustom,	0},
-	{"NoButton",	"LP 1",		0xff,		71,		LooperPort,		1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 2",		0xff,		72,		LooperPort,		1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 3",		0xff,		73,		LooperPort,		1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 4",		0xff,		74,		LooperPort,		1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP Rec",		0xff,		75,		LooperPort,		1,	NoCustom,	0},
-	{"NoButton",	"LP Pause",	0xff,		76,		LooperPort,		1,	NoCustom,	0},
-	{"NoButton",	"LP Tog",		0xff,		77,		LooperPort,		1,	NoCustom,	0},
-	{"NoButton",	"LP Tap",		0xff,		78,		LooperPort,		1,	NoCustom,	0},
-	{"NoButton",	"LP All",		0xff,		79,		LooperPort,		1,	NoCustom,	0},
+	{"NoButton",	"LP Undo",		0xff,		70,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP 1",		0xff,		71,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 2",		0xff,		72,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 3",		0xff,		73,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 4",		0xff,		74,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP Rec",		0xff,		75,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Pause",	0xff,		76,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Tog",		0xff,		77,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Tap",		0xff,		78,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP All",		0xff,		79,		LooperPort,	1,	NoCustom,	0},
 // 60	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"Switch0",		0xff,		0,		LooperPort,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch1",		0xff,		1,		LooperPort,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch2",		0xff,		2,		LooperPort,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch3",		0xff,		3,		LooperPort,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch4",		0xff,		4,		LooperPort,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch5",		0xff,		5,		LooperPort,		1,	ToDesktop,	0},
+	{"NoButton",	"AnalogApp",	0xff,		AnalogApp,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"MidiSoundApp",0xff,		MidiSoundApp,	0,		1,	RaiseApp,	0},
+	{"NoButton",	"LooperApp",	0xff,		LooperApp,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"MidiControl",0xff,		MidiControl,	0,		1,	RaiseApp,	0},
+	{"NoButton",	"MP3Player",	0xff,		MP3Player,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"TabPlayer",	0xff,		TabPlayer,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"PreTab",		0xff,		0		,		0,		1,	SwitchTab,	0},
+	{"NoButton",	"ScoreTab",	0xff,		1,				0,		1,	SwitchTab,	0},
 
-	{"NoButton",	"AnalogApp",	0xff,		AnalogApp,	LooperPort,	1,	RaiseApp,	0},
-	{"NoButton",	"MidiSoundApp",0xff,		MidiSoundApp,	LooperPort,	1,	RaiseApp,	0},
-	{"NoButton",	"LooperApp",	0xff,		LooperApp,	LooperPort,	1,	RaiseApp,	0},
-	{"NoButton",	"TransportApp",0xff,		TransportApp,	LooperPort,	1,	RaiseApp,	0},
-	{"NoButton",	"MidiControl",0xff,		MidiControl,	LooperPort,	1,	RaiseApp,	0},
+	{"NoButton",	"TransportApp",0xff,		TransportApp,	0,		1,	RaiseApp,	0},
+\
 
+	{"NoButton",	"Switch0",		0xff,		0,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch1",		0xff,		1,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch2",		0xff,		2,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch3",		0xff,		3,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch4",		0xff,		4,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch5",		0xff,		5,			0,		1,	ToDesktop,	0},
 
 
 	{"NoCustom",	"Elias1",		0xff,		0,		FluidPort,		2,	ToDesktop, 0}
   },
 "/home/Dropbox/FusionBlue/ChartsHTML/",
 // Number and name of the output ports
-	5,
-	{"Fluid", "Rakarrak", "Looper", "Transport", "GI20" },
+	6,
+	{"Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
 	
 	{"USB Audio CODEC", 0 },
 	{"FLUID", 0 },
 	{"sooperlooper", 0 },
 	{"audacity", 0 },
 	{"MidiLink", 0 },
-
-//
-	
+	{"Tempo", 0 },
 };
+
 
 /*--------------------------------------------------------------------
 * Function:		apply_font_to_widget
@@ -177,7 +186,7 @@ void apply_font_to_widget (GtkWidget *widget, gchar *fload) {
 	GtkStyle *style = gtk_style_new();
 	gdk_font_unref(style->font_desc);
 	style->font_desc = gdk_font_load(fload);
-style->font_desc = gdk_font_load("12x24");
+	style->font_desc = gdk_font_load("12x24");
 //	gtk_style_set_font(style,fload);
 	gtk_widget_set_style(GTK_WIDGET(widget), style);
 }
@@ -190,9 +199,9 @@ style->font_desc = gdk_font_load("12x24");
 *---------------------------------------------------------------------*/
 void SwitchToTab(char Tab) {
 	GtkWidget	*NoteBookPane;
-		NoteBookPane = GTK_WIDGET (gtk_builder_get_object (gxml, "notebook1" ) );
+		NoteBookPane = GTK_WIDGET (gtk_builder_get_object (gxml, "MainTab" ) );
 		gtk_notebook_set_current_page(NoteBookPane, Tab);
-
+		printf("Switch to Tab %d\n",Tab);
 }
 
 /*--------------------------------------------------------------------
@@ -202,8 +211,15 @@ void SwitchToTab(char Tab) {
 *
 *---------------------------------------------------------------------*/
 void on_button_clicked (GtkButton *button, gpointer	user_data ){
-	DoPatch(&gMyInfo.MyPatchInfo[(char )user_data - 1]);
+	DoPatch(&gMyInfo.MyPatchInfo[(char )GetModePreset(user_data - 1)]);
 	printf("User data %d\n", user_data);
+}
+
+void on_modebutton_clicked (GtkButton *button, gpointer	user_data ){
+
+	IncrementMode();
+	printf("Increment Mode called from Buttons \n");
+
 }
 
 void on_About_clicked (GtkButton *button, gpointer	user_data ){
@@ -294,7 +310,8 @@ main (int argc, char *argv[]) {
 	GtkWidget *main_tab;
 	GtkWidget *widget;
 	GError	 *error = NULL;
-	
+
+	CurrentMode = 0;
 		/* initialize the GTK+ library */
 		gtk_init (&argc, &argv);
 		gtk_rc_parse( MAINPREFS_FILE);
@@ -324,7 +341,9 @@ main (int argc, char *argv[]) {
 
 		/* setup and initialize our statusbar */
 		MainStatus = GTK_WIDGET (gtk_builder_get_object (gxml, "MainStatusBar") );
-//		gtk_widget_modify_font(MainStatus, pango_font_description_from_string("Sans Bold 12"));
+		CurrentModeWid = GTK_WIDGET (gtk_builder_get_object (gxml, "CurrentMode") );
+
+
 		HoldStatusIndex = 0;
 		memset(HoldStatus, 0, sizeof (HoldStatus));
 		TempoDraw = GTK_WIDGET (gtk_builder_get_object (gxml, "Tempo"));
@@ -343,12 +362,15 @@ main (int argc, char *argv[]) {
 		strcpy(&gMyInfo.Apps[LooperApp].Name, "slgui" );
 		strcpy(&gMyInfo.Apps[TransportApp].Name, "" );
 		strcpy(&gMyInfo.Apps[MidiControl].Name, "LiveMusic" );
+		strcpy(&gMyInfo.Apps[MP3Player].Name, "clementine" );
+		strcpy(&gMyInfo.Apps[TabPlayer].Name, "Tux" );
 //		memset(&thePorts, 0, sizeof (PortsInfo));
 		PrintDataStructure(&gMyInfo);
+
 //		InitPref();
 		InitGuiPrefs();
 
- //exit(0);
+// exit(0);
 		CreateHTMLGuide(&gMyInfo);
 
 		/*
@@ -365,7 +387,12 @@ printf("After InitHTML\n");
 		 * Set up the buttons test and patches.
 		 */
 		SetUpMainButtons(&gMyInfo.MyPatchInfo);
-printf("After SetUpMainButtons\n");
+printf("After SetUpMainButtons\n");	
+		ModeSwitchButton = GTK_WIDGET (gtk_builder_get_object  (gxml, "ModeSwitchButton"));
+		//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
+		g_signal_connect_data (G_OBJECT (ModeSwitchButton), "clicked", 
+			G_CALLBACK (on_modebutton_clicked), NULL, NULL, 0);
+
 		/*
 		 * Set up the Midi Sequencer port
 		 */
@@ -383,12 +410,14 @@ printf("After MyAlsaInit\n");
 		SetTempo(60);
 		/* show the main window */
 		gtk_widget_show (main_window);
+		gtk_widget_modify_font(CurrentModeWid, pango_font_description_from_string("Sans Bold 16"));
+		gtk_label_set_text (CurrentModeWid, "Switch");
 
 	  /* begin main GTK loop */
 		gtk_main ();
 
 
-//		WritePref();
+		WritePref();
 
 		return 0;
 }
@@ -508,9 +537,12 @@ GdkColor bgcolor;
 		gdk_color_parse ("white", &fgcolor);
 		TempoState = 1;
 	}
+	
+//	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, SND_SEQ_EVENT_TEMPO, 10);
 
 	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
 	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
+//	SND_SEQ_EVENT_TEMPO
 }
 /*--------------------------------------------------------------------
 * Function:		<Function name>
@@ -524,8 +556,9 @@ void	SetUpMainButtons(PatchInfo  *PatchInfo) {
 
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		myButton = GTK_WIDGET (gtk_builder_get_object  (gxml, gMyInfo.MyPatchInfo[Loop].Button));
+		
 		printf("SetUpMainButtons: %s %x\n", gMyInfo.MyPatchInfo[Loop].Button, myButton);
-	gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
+	gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
 	}
 
 }
@@ -622,6 +655,12 @@ GladeXML* xml;
 #endif
 
 
+/*--------------------------------------------------------------------
+* Function:		CreateHTMLGuide
+*
+* Description:		Writes and HTML file for the presets.
+*
+*---------------------------------------------------------------------*/
 void CreateHTMLGuide(GTKMidiInfo *myInfo) {
 FILE	*MyFile;
 char	FileName[255];
@@ -662,8 +701,84 @@ fprintf(MyFile, "<td style=\"vertical-align: top; font-weight: bold; width: 75px
 	fclose(MyFile);
 }
 
+/*--------------------------------------------------------------------
+* Function:		RaiseWindowsNum
+*
+* Description:		Bring the App/Window into the forground.
+*
+*---------------------------------------------------------------------*/
 void RaiseWindowsNum( char AppNumber ) {
 	RaiseWindows(&gMyInfo.Apps[AppNumber].Name);
 }
 
+/*--------------------------------------------------------------------
+* Function:		ModeSwitchPatch
+*
+* Description:		Based on the current mode convert an index.
+*
+*---------------------------------------------------------------------*/
+int	 GetModePreset(int Value) {
+int		NewValue;
 
+	switch(CurrentMode) {
+		case ModeSwitch:
+			NewValue = Value;
+		break;
+				
+		case ModeRehearsal:
+			NewValue = Value;
+		break;
+
+		case ModePractice:
+			NewValue = preModePractice[Value];
+		break;
+
+		case ModePerformance:
+			NewValue = Value;
+		break;
+
+		case ModeLooper:
+			NewValue = Value;
+		break;
+
+		default:
+			NewValue = Value;		
+		break;
+	}
+}
+
+/*--------------------------------------------------------------------
+* Function:		IncrementMode
+*
+* Description:		Based on the current mode do a different.
+*
+*---------------------------------------------------------------------*/
+void	 IncrementMode(void) {
+		if (CurrentMode++ > ModeLastItem)
+			CurrentMode = 0;
+
+		gtk_widget_modify_font(CurrentModeWid, pango_font_description_from_string("Sans Bold 16"));
+		gtk_label_set_text (CurrentModeWid, theModes[CurrentMode]);
+		SetUpMainButtons(&gMyInfo.MyPatchInfo);
+
+	printf("Increment Mode \n",CurrentMode);
+}
+
+/*--------------------------------------------------------------------
+* Function:		ModeSwitchPatch
+*
+* Description:		Based on the current mode do a different.
+*
+*---------------------------------------------------------------------*/
+int	 ModeSwitchPatch(int MidiIn) {
+
+	/* If the Midi command was a mode changes.
+	 */
+	if (MidiIn == ModeSwitchKey)
+		IncrementMode();
+	else
+		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
+
+// ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
+return(0);
+}

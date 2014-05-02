@@ -86,7 +86,7 @@ typedef struct {
 	char	theTempo;
 } WebLoadPresets;
 
-enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MaxApps };
+enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
 
 typedef struct {
 	// Preferences
@@ -111,8 +111,8 @@ typedef struct {
 	
 } GTKMidiInfo;
 
-enum {FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port };
-enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, RaiseApp, TransStart, TransCont,
+enum {FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port, TempoPort };
+enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, SwitchTab, RaiseApp, TransStart, TransCont,
   TransStop, TransPosition, TransTempo, MaxCommands };
 
 
@@ -128,6 +128,17 @@ enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, RaiseApp, T
 #define SFFluidGMLow 10
 #define SFA340Low 11
 #define SFA340High 15
+
+
+#define ModeSwitch		0
+#define ModeRehearsal		1
+#define ModePractice		2
+#define ModePerformance	3
+#define ModeLooper		4
+#define ModeLastItem		ModeLooper
+
+
+#define ModeSwitchKey		30
 
 /*
  * Place Static variables here.
@@ -145,6 +156,7 @@ char *CustomCommands[] = {
 		"ToPrevDesktop",
 		"ToDesktop",
 		"Controller",
+		"SwitchTab",
 		"RaiseApp",
 		"TransStart",
 		"TransStop",
@@ -152,17 +164,44 @@ char *CustomCommands[] = {
 		"TransTempo"
 	};
 
+
+char	*theModes[] = {
+	"Default",
+	"Rehearsal",
+	"Practice",
+	"Performance",
+	"Looper"
+};
+//int		ModeArray[ModeLastItem][Max_Patches];
+
+//int		preModeSwitch[Max_Patches];
+int		preModePractice[] = {
+	/* Front Row */
+	0,	1, 2, 3, 4, 5, 6, 7, 66, 67,
+	60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+	0,	1, 2, 3, 4, 5, 6, 7, 8, 9 
+	};
+
+int		preModeRehearsal[Max_Patches];
+int		preModePerformance[Max_Patches];
+
 #else
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo	gMyInfo;
 extern char *CustomCommands[];
 extern PortsInfo	theInPorts;
 extern PortsInfo	theOutPorts;
+extern char	*theModes[];
 #endif
+
+
 void NextDesktop(void);
 void PrevDesktop(void);
 void GoToDesktop(char Number);
 void SetTempo(unsigned char NewTempo);
 void RaiseWindows( char *AppName );
 void RaiseWindowsNum( char AppNumber );
+
+int	 ModeSwitchPatch(int MidiIn);
+
 #endif

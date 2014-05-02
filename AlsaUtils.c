@@ -184,6 +184,10 @@ int SendMidiPatch( PatchInfo *thePatch) {
 	
 	break;
 
+	case SwitchTab:
+		SwitchToTab(thePatch->Patch);
+	break;
+
 	case RaiseApp:
 		RaiseWindowsNum(thePatch->Patch);
 	break;
@@ -375,6 +379,9 @@ g_print("Midi Event:\n");
 	  case MIDI_CTL_MSB_DATA_ENTRY:
 		cc_name = "Data entry";
 		break;
+		
+	  /* Here is the main Volume Pedal.
+	   */
 	  case MIDI_CTL_MSB_MAIN_VOLUME:
 			// ejk SEND
 		cc_name = "Main volume";
@@ -417,6 +424,8 @@ g_print("Midi Event:\n");
 	  case MIDI_CTL_LSB_BREATH:
 		cc_name = "Breath";
 		break;
+		/* Possible use of Custom Pedal messages here.
+		 */
 	  case MIDI_CTL_LSB_FOOT:
 		cc_name = "Foot";
 		break;
@@ -596,17 +605,18 @@ g_print("Midi Event:\n");
 		  (unsigned int)event_ptr->data.control.value);
 	  }
 	  break;
+	/* Here is where Program change data comes in.
+	 */
 	case SND_SEQ_EVENT_PGMCHANGE:
 		sprintf(
 		msg_str_ptr,
 		"Program change, %d",
 		(unsigned int)event_ptr->data.control.value);
-		
+
 		/* Here is where Program changes happen from Program change inputs.
-		 */
-		
-		SendMidiPatch(&gMyInfo.MyPatchInfo[event_ptr->data.control.value]);
-// ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
+		 */		
+		ModeSwitchPatch(event_ptr->data.control.value);
+
 		break;
 	case SND_SEQ_EVENT_CHANPRESS:
 	  sprintf(msg_str_ptr, "Channel pressure");

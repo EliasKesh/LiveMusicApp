@@ -17,14 +17,19 @@
  */
 #include "GTKMidiUI.h"
 #include "PrefsFile.h"
+#include <stdio.h>
+#include <libxml/parser.h>
+#include "xmltok/xmlparse.h"
 
 
-
+// /usr/include/libxml2/
 /*
  * Place defines and Typedefs here
  */
 
 #define PREFSFILENAME "LiveMusic.xml"
+#define Test2
+
 /*
  * Place Local prototypes here
  */
@@ -34,9 +39,6 @@ void parseDoc(char *docname);
 /*
  * Place Static variables here
  */
-#include <stdio.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 
 /*--------------------------------------------------------------------
 * Function:		InitPref
@@ -110,6 +112,29 @@ void WritePref(void) {
     xmlCleanupParser();
 }
 
+#ifdef Test
+void startElement1(void *userData, const char *name, const char **atts)
+{
+  int i;
+  int *depthPtr = userData;
+  for (i = 0; i < *depthPtr; i++)
+    putchar('\t');
+//  puts(name);
+//	printf("%d Start [%s] %s %s %s %s %s\n",*depthPtr, name, atts[1],atts[3],atts[5],atts[7],atts[9]);
+//	printf("%d Start [%s] %s %s %s\n",*depthPtr, name, atts[1],atts[3],atts[5]);
+	printf("%d Start [%s] %s %s\n",*depthPtr, name, atts[1],atts[3]);
+//	printf("****  %d Start [%s] %s\n",*depthPtr, name, atts[1]);
+  *depthPtr += 1;
+}
+
+void endElement1(void *userData, const char *name)
+{
+  int *depthPtr = userData;
+  *depthPtr -= 1;	
+//  printf("end [%s]\n",name);
+
+}
+
 /*--------------------------------------------------------------------
 * Function:		ReadPrefs
 *
@@ -117,12 +142,33 @@ void WritePref(void) {
 *
 *---------------------------------------------------------------------*/
 void ReadPrefs(void) {
-	char *docname;
+  char buf[200];
+  XML_Parser parser = XML_ParserCreate(NULL);
+  int done;
+  int depth = 0;
+  XML_SetUserData(parser, &depth);
+  XML_SetElementHandler(parser, startElement1, endElement1);
+	FILE *myFile;
 
-	docname = PREFSFILENAME;
-	parseDoc (docname);
+//	parseDoc (PREFSFILENAME);
+	myFile = fopen(PREFSFILENAME, "r" );
+
+  do {
+    size_t len = fread(buf, 1, sizeof(buf), myFile);
+    done = len < sizeof(buf);
+    if (!XML_Parse(parser, buf, len, done)) {
+      fprintf(stderr,
+	      "%s at line %d\n",
+	      XML_ErrorString(XML_GetErrorCode(parser)),
+	      XML_GetCurrentLineNumber(parser));
+      return 1;
+    }
+  } while (!done);
+  XML_ParserFree(parser);
+
 }
-
+// Test
+#endif 
 /*--------------------------------------------------------------------
 * Function:		getReference
 *
@@ -265,3 +311,151 @@ void parseDoc(char *docname) {
 	return;
 }
 
+
+#ifdef Test1
+#include <stdio.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+ 
+static void print_element_names(xmlNode * a_node);
+ 
+void ReadPrefs()
+{
+ 
+        xmlDoc         *doc = NULL;
+        xmlNode        *root_element = NULL;
+        const char     *Filename = PREFSFILENAME;
+ 
+        doc = xmlReadFile(Filename, NULL, 0);
+ 
+        if (doc == NULL)
+          {
+                  printf("error: could not parse file %s\n", Filename);
+          }
+        else
+          {
+ 
+                  /*
+                   * Get the root element node
+                   */
+                  root_element = xmlDocGetRootElement(doc);
+ 
+                  print_element_names(root_element);
+ 
+                  /*
+                   * free the document
+                   */
+                  xmlFreeDoc(doc);;
+          }
+        /*
+         *Free the global variables that may
+         *have been allocated by the parser.
+         */
+        xmlCleanupParser();
+ 
+        return (0);
+ 
+}
+ 
+/* Recursive function that prints the XML structure */
+ 
+static void
+print_element_names(xmlNode * a_node)
+{
+    xmlNode *cur_node = NULL;
+ 
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            printf("node type: Element, name: %s %s %s\n", cur_node->name, 
+			xmlNodeGetContent(cur_node),xmlNodeGetContent(cur_node->next) );
+        }
+ 
+        print_element_names(cur_node->children);
+    }
+}
+// Test1
+#endif
+
+#ifdef Test2
+#include <libxml/xmlreader.h>
+// NodeType: The node type, 
+// 1 for start element, 
+// 2 for attributes, 
+// 3 for text nodes, 
+// 4 for CData sections, 
+// 5 for entity references, 
+// 6 for entity declarations, 
+// 7 for PIs, 
+// 8 for comments, 
+// 9 for the document nodes, 
+// 10 for DTD/Doctype nodes, 
+// 11 for document fragment and 
+// 12 for notation nodes.
+// 13 Whitespace
+// 14 SignificantWhitespace
+// 15 for end of element, 
+// 16 EndEntity
+// XML_ELEMENT_NODE
+// 
+static void processNode(xmlTextReaderPtr reader, char *Location) {
+    xmlChar *name, *value;
+	int		NodeType;
+	int		Depth;
+	
+    name = xmlTextReaderName(reader);
+    if (name == NULL)
+        name = xmlStrdup(BAD_CAST "--");
+    value = xmlTextReaderValue(reader);
+
+	NodeType = xmlTextReaderNodeType(reader);
+	Depth = xmlTextReaderDepth(reader);
+//	if (NodeType != 14 && NodeType != 3) {
+	if (NodeType == 1) {
+    printf("%s D=%d T=%d N=[%s] E=%d ",Location,
+            Depth,
+            NodeType,
+            name,
+            xmlTextReaderIsEmptyElement(reader));
+    xmlFree(name);
+	}
+
+#if 1
+    if (value != NULL) {
+        printf("V=[%s]", value);
+        xmlFree(value);
+    }
+#endif
+}
+
+void ReadPrefs() {
+    xmlTextReaderPtr reader;
+    int ret;
+	printf("----------------------\n");
+	printf("Reading prefs file\n");
+	printf("----------------------\n");
+    reader = xmlNewTextReaderFilename(PREFSFILENAME);
+    if (reader != NULL) {
+        ret = xmlTextReaderRead(reader);
+        while (ret == 1) {
+            processNode(reader,"First");
+				printf("\n");
+			while(xmlTextReaderMoveToNextAttribute(reader))
+				processNode(reader,"Sec");
+				printf("\n");
+
+
+            ret = xmlTextReaderRead(reader);
+        }
+        xmlFreeTextReader(reader);
+        if (ret != 0) {
+            printf("%s : failed to parse\n", PREFSFILENAME);
+        }
+    } else {
+        printf("Unable to open %s\n", PREFSFILENAME);
+    }
+	printf("----------------------\n");
+	printf("Reading prefs file\n");
+	printf("----------------------\n");
+}
+
+#endif

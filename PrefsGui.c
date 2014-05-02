@@ -87,7 +87,7 @@ printf("Main Gui Scroll Window %x %x\n",main_window, view);
                                            GTK_SHADOW_ETCHED_IN);
       gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_window),
                                       GTK_POLICY_AUTOMATIC,
-                                      GTK_POLICY_AUTOMATIC);
+					TK_POLICY_AUTOMATIC);
 #endif
 
 //			g_signal_connect (G_OBJECT (main_window), "destroy", 
