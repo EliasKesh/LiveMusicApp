@@ -5,7 +5,7 @@
 ## Debug
 ProjectName            :=LiveMusic
 ConfigurationName      :=Debug
-WorkspacePath          := "/mnt/Personal/home/elias/workspace"
+WorkspacePath          := "/mnt/Personal/home/elias/workspace/LiveMusic"
 ProjectPath            := "/mnt/Personal/home/elias/workspace/GTKMidiUI"
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Elias Kesh
-Date                   :=12/08/13
+Date                   :=05/02/14
 CodeLitePath           :="/mnt/Personal/home/elias/.codelite"
 LinkerName             :=gcc
 SharedObjectLinkerName :=gcc -shared -fPIC
@@ -36,11 +36,11 @@ ObjectsFileList        :="LiveMusic.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
 LinkOptions            :=  `pkg-config --libs gtk+-2.0` -export-dynamic
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)/usr/include/libsoup-2.4/ $(IncludeSwitch)/usr/include/libglade-2.0/ $(IncludeSwitch)/usr/include/webkitgtk-1.0/ $(IncludeSwitch)/usr/include/atk-1.0/ $(IncludeSwitch)/usr/include/gdk-pixbuf-2.0/ $(IncludeSwitch)/usr/lib/x86_64-linux-gnu/gtk-2.0/include/ $(IncludeSwitch)/usr/include/pango-1.0/ $(IncludeSwitch)/usr/include/nspr/ $(IncludeSwitch)/usr/include/gtk-2.0/ $(IncludeSwitch)/usr/include/alsa/ $(IncludeSwitch)/usr/include/glib-2.0/ $(IncludeSwitch)/usr/lib/x86_64-linux-gnu/glib-2.0/include/ $(IncludeSwitch)/usr/include/libxml2/ $(IncludeSwitch)/usr/include/gtk-2.0/gdk/ $(IncludeSwitch)/usr/include/xulrunner-2.0/cairo/ 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)/usr/include/libsoup-2.4/ $(IncludeSwitch)/usr/include/libglade-2.0/ $(IncludeSwitch)/usr/include/webkitgtk-1.0/ $(IncludeSwitch)/usr/include/atk-1.0/ $(IncludeSwitch)/usr/include/gdk-pixbuf-2.0/ $(IncludeSwitch)/usr/lib/x86_64-linux-gnu/gtk-2.0/include/ $(IncludeSwitch)/usr/include/pango-1.0/ $(IncludeSwitch)/usr/include/nspr/ $(IncludeSwitch)/usr/include/gtk-2.0/ $(IncludeSwitch)/usr/include/alsa/ $(IncludeSwitch)/usr/include/glib-2.0/ $(IncludeSwitch)/usr/lib/x86_64-linux-gnu/glib-2.0/include/ $(IncludeSwitch)/usr/include/gtk-2.0/gdk/ $(IncludeSwitch)/usr/include/xulrunner-2.0/cairo/ $(IncludeSwitch)/usr/include/libxml2/ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)pthread $(LibrarySwitch)xml2 $(LibrarySwitch)glade-2.0 $(LibrarySwitch)asound $(LibrarySwitch)webkitgtk-1.0 $(LibrarySwitch)X11 $(LibrarySwitch)Xmu 
-ArLibs                 :=  "pthread" "xml2" "glade-2.0" "asound" "webkitgtk-1.0" "X11" "Xmu" 
+Libs                   := $(LibrarySwitch)pthread $(LibrarySwitch)glade-2.0 $(LibrarySwitch)asound $(LibrarySwitch)webkitgtk-1.0 $(LibrarySwitch)X11 $(LibrarySwitch)Xmu $(LibrarySwitch)xmltok $(LibrarySwitch)xmlparse $(LibrarySwitch)xml2 
+ArLibs                 :=  "pthread" "glade-2.0" "asound" "webkitgtk-1.0" "X11" "Xmu" "xmltok" "xmlparse" "xml2" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/lib/x86_64-linux-gnu/ 
 
 ##
@@ -171,6 +171,6 @@ clean:
 	$(RM) $(IntermediateDirectory)/PrefsGui$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/PrefsGui$(PreprocessSuffix)
 	$(RM) $(OutputFile)
-	$(RM) "../.build-debug/LiveMusic"
+	$(RM) "../LiveMusic/.build-debug/LiveMusic"
 
 

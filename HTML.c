@@ -231,24 +231,36 @@ int Search_in_File(char *fname, WebLoadPresets *thePresets) {
 printf("Have file %x %s\n", fp, fname);
 	while(fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150) ) {
 		temp[MAXLINE] = 0;
+
+		/* Set up Preset 1 button.
+		 */
 		Found = strstr(temp, "Preset1");
 		if(Found != NULL) {
 			Found += 8;
 			Value = atoi(Found);
+			if (Value >= Max_Patches)
+				Value = 0;
+				
 			thePresets->thePreset1 = Value;
 			SetPatchTitles(Preset1Button, gMyInfo.MyPatchInfo[Value].Name);
 			printf("Preset1 %d %s\n",Value, gMyInfo.MyPatchInfo[Value].Name);
 		}
 
+		/* Set up Preset 2 Button.
+		 */
 		Found = strstr(temp, "Preset2");
 		if(Found != NULL) {
 			Found += 8;
 			Value = atoi(Found);
+			if (Value >= Max_Patches)
+				Value = 0;
 			thePresets->thePreset2 = Value;
 			SetPatchTitles(Preset2Button, gMyInfo.MyPatchInfo[Value].Name);
 			printf("Preset2 %d %s\n",Value, gMyInfo.MyPatchInfo[Value].Name);
 		}
 
+		/* Set the Tempo for this tune.
+		 */
 		Found = strstr(temp, "Tempo");
 		if(Found != NULL) {
 			Found += 6;
@@ -258,12 +270,14 @@ printf("Have file %x %s\n", fp, fname);
 			printf("Tempo %d\n",Value);
 		}
 
+		/* Set the current patch to this one.
+		 */
 		Found = strstr(temp, "SetNow");
 		if(Found != NULL) {
 			Found += 7;
 			Value = atoi(Found);
-			thePresets->theTempo = Value;
-			SetTempo(Value);
+			if (Value >= Max_Patches)
+				Value = 0;
 			printf("SetNow %d\n",Value);
 			DoPatch(&gMyInfo.MyPatchInfo[Value]);
 		}

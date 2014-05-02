@@ -79,8 +79,39 @@ Elias@kesh.com</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
+              <object class="GtkLabel" id="MainStatusBar">
+                <property name="width_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0.43000000715255737</property>
+                <property name="yalign">0.41999998688697815</property>
+                <property name="xpad">3</property>
+                <property name="label" translatable="yes">label</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="CurrentMode">
+                <property name="width_request">90</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Switch</property>
+                <property name="justify">center</property>
+                <property name="single_line_mode">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkDrawingArea" id="Tempo">
-                <property name="width_request">60</property>
+                <property name="width_request">80</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
@@ -92,15 +123,16 @@ Elias@kesh.com</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="MainStatusBar">
+              <object class="GtkButton" id="ModeSwitchButton">
+                <property name="label" translatable="yes">Mode Switch</property>
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">label</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -125,6 +157,18 @@ Elias@kesh.com</property>
                 <property name="can_focus">False</property>
                 <property name="n_rows">3</property>
                 <property name="n_columns">2</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <object class="GtkVBox" id="vbox3">
                     <property name="width_request">75</property>
@@ -192,7 +236,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button1_clicked" swapped="no"/>
                       </object>
                     </child>
@@ -202,7 +245,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button2_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -216,7 +258,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button3_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -230,7 +271,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button4_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -244,7 +284,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button5_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -258,7 +297,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button6_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -272,7 +310,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button7_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -288,7 +325,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button8_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -304,7 +340,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button9_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -320,7 +355,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button10_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -336,7 +370,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button11_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -350,7 +383,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button12_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -366,7 +398,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button13_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -382,7 +413,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button14_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -398,7 +428,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button15_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -414,7 +443,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button16_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -428,7 +456,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button17_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -444,7 +471,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button18_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -460,7 +486,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button19_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -476,7 +501,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button20_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -492,7 +516,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button21_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -506,7 +529,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="xalign">0.4699999988079071</property>
                         <signal name="clicked" handler="on_button22_clicked" swapped="no"/>
                       </object>
@@ -523,7 +545,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button23_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -539,7 +560,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button24_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -555,7 +575,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button25_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -571,7 +590,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button26_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -585,7 +603,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button27_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -601,7 +618,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button28_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -617,7 +633,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button29_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -633,7 +648,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_button30_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -650,6 +664,18 @@ Elias@kesh.com</property>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -688,12 +714,41 @@ Elias@kesh.com</property>
                     <property name="n_rows">8</property>
                     <property name="n_columns">2</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkButton" id="Patch1">
                         <property name="label" translatable="yes">Patch1</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_Patch1_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -707,7 +762,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_SaveWeb_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -721,7 +775,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_Patch2_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -735,7 +788,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_buttonV1_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -749,7 +801,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_toolbutton4_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -763,7 +814,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <signal name="clicked" handler="on_ProcessButton_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -777,7 +827,6 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
                         <signal name="clicked" handler="on_Back_clicked" swapped="no"/>
                       </object>
@@ -792,35 +841,10 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
                         <property name="image_position">right</property>
                         <signal name="clicked" handler="on_Forward_clicked" swapped="no"/>
                       </object>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -922,7 +946,6 @@ Elias@kesh.com</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -939,7 +962,6 @@ Elias@kesh.com</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

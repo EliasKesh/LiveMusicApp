@@ -7,7 +7,7 @@
 |
 |	Written By: 	Elias Keshishoglou on Sat May 11 20:19:37 PDT 2013
 |
-|	Copyright ©: 	2013 Elias Keshishoglou all rights reserved.
+|	Copyright Â©: 	2013 Elias Keshishoglou all rights reserved.
 |
 |
 |---------------------------------------------------------------------*/
@@ -30,4 +30,4 @@
  */
 
 
-#endif Connections.h_h
+#endif
