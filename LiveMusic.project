@@ -42,6 +42,7 @@
     <File Name="Connections.c"/>
     <File Name="ThirdParty/wmctrl.c"/>
     <File Name="PrefsGui.c"/>
+    <File Name="Chorder.c"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

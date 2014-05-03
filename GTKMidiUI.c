@@ -257,9 +257,7 @@ void on_hscale1_value_changed (GtkWidget *widget, gpointer user_data)
 * Description:		<Description/Comments>
 *
 *---------------------------------------------------------------------*/
-
-void
-on_window1_destroy (GtkWidget *widget, gpointer user_data)
+void on_window1_destroy (GtkWidget *widget, gpointer user_data)
 {
 	/* break gtk_main() loop */
 	gtk_main_quit();
@@ -280,10 +278,8 @@ void ConnectSignals(void) {
 
 		printf("Loop %d, Name %s %x %x\n",Loop, ButtonName, widget, gxml);
 	}
-
 }
 
-    
 /*--------------------------------------------------------------------
 * Function:		<Function name>
 *
@@ -310,7 +306,9 @@ main (int argc, char *argv[]) {
 	GtkWidget *main_tab;
 	GtkWidget *widget;
 	GError	 *error = NULL;
-
+	GtkWidget		*ChordWidget;
+	
+	
 	CurrentMode = 0;
 		/* initialize the GTK+ library */
 		gtk_init (&argc, &argv);
@@ -392,7 +390,7 @@ printf("After SetUpMainButtons\n");
 		//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
 		g_signal_connect_data (G_OBJECT (ModeSwitchButton), "clicked", 
 			G_CALLBACK (on_modebutton_clicked), NULL, NULL, 0);
-
+	
 		/*
 		 * Set up the Midi Sequencer port
 		 */
@@ -402,6 +400,9 @@ printf("After MyAlsaInit\n");
 		/* Set up the connections between applications.
 		 */
 		InitConnections();
+
+		ChordWidget = GTK_WIDGET (gtk_builder_get_object  (gxml, "ChordFrame") );
+		ChorderMain(ChordWidget);
 
 		/* Set up a timer for Tempo.
 		 */
