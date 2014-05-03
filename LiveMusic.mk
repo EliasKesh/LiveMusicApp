@@ -60,7 +60,7 @@ AS       := as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/PrefsFile$(ObjectSuffix) $(IntermediateDirectory)/GTKMidiUI$(ObjectSuffix) $(IntermediateDirectory)/AlsaUtils$(ObjectSuffix) $(IntermediateDirectory)/HTML$(ObjectSuffix) $(IntermediateDirectory)/Connections$(ObjectSuffix) $(IntermediateDirectory)/ThirdParty_wmctrl$(ObjectSuffix) $(IntermediateDirectory)/PrefsGui$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/PrefsFile$(ObjectSuffix) $(IntermediateDirectory)/GTKMidiUI$(ObjectSuffix) $(IntermediateDirectory)/AlsaUtils$(ObjectSuffix) $(IntermediateDirectory)/HTML$(ObjectSuffix) $(IntermediateDirectory)/Connections$(ObjectSuffix) $(IntermediateDirectory)/ThirdParty_wmctrl$(ObjectSuffix) $(IntermediateDirectory)/PrefsGui$(ObjectSuffix) $(IntermediateDirectory)/Chorder$(ObjectSuffix) 
 
 
 
@@ -143,6 +143,14 @@ $(IntermediateDirectory)/PrefsGui$(DependSuffix): PrefsGui.c
 $(IntermediateDirectory)/PrefsGui$(PreprocessSuffix): PrefsGui.c
 	@$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/PrefsGui$(PreprocessSuffix) "PrefsGui.c"
 
+$(IntermediateDirectory)/Chorder$(ObjectSuffix): Chorder.c $(IntermediateDirectory)/Chorder$(DependSuffix)
+	$(CC) $(SourceSwitch) "/mnt/Personal/home/elias/workspace/GTKMidiUI/Chorder.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Chorder$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Chorder$(DependSuffix): Chorder.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Chorder$(ObjectSuffix) -MF$(IntermediateDirectory)/Chorder$(DependSuffix) -MM "Chorder.c"
+
+$(IntermediateDirectory)/Chorder$(PreprocessSuffix): Chorder.c
+	@$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Chorder$(PreprocessSuffix) "Chorder.c"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -170,6 +178,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/PrefsGui$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/PrefsGui$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/PrefsGui$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Chorder$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Chorder$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Chorder$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) "../LiveMusic/.build-debug/LiveMusic"
 
