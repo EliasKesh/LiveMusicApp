@@ -15,8 +15,14 @@
 
 #define GTKMidiUI_c
 
+//#define UsingNewButtons	1
 
+#ifdef UsingNewButtons
+#define GLADE_FILE "GTKMidiUI.glade.Buttons"
+#else
 #define GLADE_FILE "GTKMidiUI.glade"
+#endif
+
 #define MAINPREFS_FILE ".GTKMidi"
 
 #define DefaultMidiChannel		1
@@ -44,7 +50,7 @@ GtkWidget	*TempoDraw;
 unsigned int CurrentMode;
 guint		MainStatusid;
 GtkWidget *ModeSwitchButton;
-
+GtkWidget *MainButtons[Max_Main_Buttons];
 
 void	SetUpMainButtons(PatchInfo  *PatchInfo);
 void PrintDataStructure(GTKMidiInfo *myInfo);
@@ -346,7 +352,6 @@ main (int argc, char *argv[]) {
 		memset(HoldStatus, 0, sizeof (HoldStatus));
 		TempoDraw = GTK_WIDGET (gtk_builder_get_object (gxml, "Tempo"));
 
-		ConnectSignals();
 
 		widget = GTK_WIDGET (gtk_builder_get_object (gxml, "AboutButton"));
 		g_signal_connect_data (G_OBJECT (widget), "clicked", 
@@ -384,8 +389,14 @@ printf("After InitHTML\n");
 		/*
 		 * Set up the buttons test and patches.
 		 */
+#ifdef UsingNewButtons
+		CreateMainButtons();
+#else
 		SetUpMainButtons(&gMyInfo.MyPatchInfo);
 printf("After SetUpMainButtons\n");	
+
+		ConnectSignals();
+#endif
 		ModeSwitchButton = GTK_WIDGET (gtk_builder_get_object  (gxml, "ModeSwitchButton"));
 		//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
 		g_signal_connect_data (G_OBJECT (ModeSwitchButton), "clicked", 
@@ -408,9 +419,9 @@ printf("After MyAlsaInit\n");
 		 */
 		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
 		gMyInfo.TempoTimerID = 0;
-		SetTempo(60);
+		SetTempo(90);
 		/* show the main window */
-		gtk_widget_show (main_window);
+		gtk_widget_show_all (main_window);
 		gtk_widget_modify_font(CurrentModeWid, pango_font_description_from_string("Sans Bold 16"));
 		gtk_label_set_text (CurrentModeWid, "Switch");
 
@@ -440,19 +451,19 @@ char	DisString[160];
 
 	switch (HoldStatusIndex) {
 		case 0:
-			sprintf(DisString, "[%15s] [%15s] [%15s] [%15s]", &HoldStatus[1], &HoldStatus[2], &HoldStatus[3], String);
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[1], &HoldStatus[2], &HoldStatus[3], String);
 		break;
 
 		case 1:
-			sprintf(DisString, "[%15s] [%15s] [%15s] [%15s]", &HoldStatus[2], &HoldStatus[3], &HoldStatus[0], String);
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[2], &HoldStatus[3], &HoldStatus[0], String);
 		break;
 
 		case 2:
-			sprintf(DisString, "[%15s] [%15s] [%15s] [%15s]", &HoldStatus[3], &HoldStatus[0], &HoldStatus[1], String);
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[3], &HoldStatus[0], &HoldStatus[1], String);
 		break;
 
 		case 3:
-			sprintf(DisString, "[%15s] [%15s] [%15s] [%15s]", &HoldStatus[0], &HoldStatus[1], &HoldStatus[2], String);
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[0], &HoldStatus[1], &HoldStatus[2], String);
 		break;
 
 	}
@@ -461,7 +472,7 @@ char	DisString[160];
 	if (HoldStatusIndex >= MaxStatusHold)
 			HoldStatusIndex = 0;
 
-	gtk_widget_modify_font(MainStatus, pango_font_description_from_string("Sans Bold 20"));
+	gtk_widget_modify_font(MainStatus, pango_font_description_from_string("Sans Bold 16"));
 		gtk_label_set_text (MainStatus, DisString);
 }
 
@@ -545,6 +556,47 @@ GdkColor bgcolor;
 	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
 //	SND_SEQ_EVENT_TEMPO
 }
+
+/*--------------------------------------------------------------------
+* Function:		CreateMainButtons
+*
+* Description:		Build the main button screen
+*---------------------------------------------------------------------*/
+void	CreateMainButtons(void) {
+	int			Loop, Row = 0, Col = 0;
+	GtkWidget *ButtonFrame;
+	GtkWidget *Table;
+
+	ButtonFrame = GTK_WIDGET (gtk_builder_get_object  (gxml, "ButtonFrame") );
+	printf("Button Frame %x\n", ButtonFrame);
+
+	Table = gtk_table_new(7,7,true);
+	printf("Table %x\n", Table);
+	
+
+	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+		MainButtons[Loop] = gtk_button_new_with_label (gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
+		g_signal_connect (MainButtons[Loop], "clicked",
+				G_CALLBACK (on_button_clicked), (void *)Loop);
+//		gtk_widget_show(MainButtons[Loop]);
+		gtk_widget_set_usize(MainButtons[Loop],120,40);
+//		gtk_table_attach_defaults(GTK_TABLE(Table), MainButtons[Loop], 
+//			Col, Col + 1, Row, Row + 1);
+		gtk_table_attach(GTK_TABLE(Table), MainButtons[Loop], 
+			Col, Col + 1, Row, Row + 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND,2, 2);
+		if (Col++ > 4) {
+				Col = 0;
+				Row++;
+		}
+		printf("Loop %d %d %d %x\n", Loop, Col, Row, MainButtons[Loop]);
+	}
+
+	gtk_container_add (GTK_CONTAINER (ButtonFrame), Table);
+
+// 		gtk_table_attach_defaults(GTK_TABLE(table), label, col, col+1, row, row+1);
+//	gtk_widget_show(Table);
+}
+
 /*--------------------------------------------------------------------
 * Function:		<Function name>
 *
