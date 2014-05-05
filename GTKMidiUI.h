@@ -138,7 +138,7 @@ enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, SwitchTab, 
 #define ModeLastItem		ModeLooper
 
 
-#define ModeSwitchKey		30
+#define ModeSwitchKey		29
 
 /*
  * Place Static variables here.

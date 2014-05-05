@@ -119,11 +119,11 @@ thePreChord 	pchMin[] = {
 
 thePreChord 	pchMaj7[] = {
     /* S  Fi D Fr     S  Fi D Fr     S  Fi  D  Fr    S  Fi D  Fr	*/
-    {  1, 2, 1, 0}, { 2, 3, 5, -1}, { 3, 3, 7, 1}, { 4, 4, 3, 1}, {-1,-1,-1,-1}
+    {  1, 2, 1, 0}, { 2, 3, 3, -1}, { 3, 3, 7, 1}, { 4, 4, 3, 1}, {-1,-1,-1,-1}
 };
 thePreChord 	pchMin7[] = {
     /* S  Fi D Fr     S  Fi D Fr     S  Fi  D  Fr    S  Fi D  Fr	*/
-    {  1, 2, 1, 0}, { 2, 3, 5, -2}, { 3, 3, 7, 0}, { 4, 4, 3, 0}, {-1,-1,-1,-1}
+    {  1, 2, 1, 0}, { 2, 3, 3, -2}, { 3, 3, 7, 0}, { 4, 4, 3, 0}, {-1,-1,-1,-1}
 };
 
 thePreChord 	pchMaj7O[] = {
@@ -136,7 +136,6 @@ thePreChord 	pchMin7O[] = {
 };
 
 
-
 PreChordMenu myPreChordMenu[] = {
     {	pchMaj,	"Maj" 	},
     {	pchMin,	"Min"	},
@@ -146,7 +145,6 @@ PreChordMenu myPreChordMenu[] = {
     {	pchMin7O,	"Min7 Open"	},
     {	NULL,		"Opps"	}
 };
-
 
 #define NValueA		0
 #define NValueBb		1
@@ -783,6 +781,10 @@ draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
             case 4:
             case 6:
             case 8:
+            case 14:
+            case 16:
+            case 18:
+            case 20:
                 gdk_draw_pixbuf( widget->window, gc, FingerboardDot,
                                  0, 0,
                                  XOffset+15+FretOffset/2 + Loop*FretOffset, StringOffset * NumStrings/2 - 15+YOffset,
