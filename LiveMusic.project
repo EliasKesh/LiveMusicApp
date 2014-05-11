@@ -88,12 +88,12 @@
         <Library Value="xml2"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="./LiveMusicApp" IntermediateDirectory="./Debug" Command="./LiveMusicApp" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="./" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
-      <Environment EnvVarSetName="Default" DbgSetName="">
+      <General OutputFile="./LiveMusicApp" IntermediateDirectory="../GTKMidiUI/Debug" Command="LiveMusicApp" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="Default" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
-        <DebuggerSearchPaths/>
+        <DebuggerSearchPaths>/mnt/Personal/home/elias/workspace/GTKMidiUI</DebuggerSearchPaths>
         <PostConnectCommands/>
         <StartupCommands/>
       </Debugger>

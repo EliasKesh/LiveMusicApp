@@ -39,6 +39,114 @@ void parseDoc(char *docname);
 /*
  * Place Static variables here
  */
+GTKMidiInfo  GlobalInfo = { 
+	{
+// 00	Button		Title			Bank		Patch	Outport		Chan	Custom->Chain
+	{"button1",	"Elias1",		0xff,		1,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button2",	"Dist",		0xff,		2,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button3",	"Funk Chorus",0xff,		3,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button4",	"ThumpBass",	0xff,		8,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button5",	"Chorus",		0xff,		11,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button6",	"Jazz",		0xff,		27,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button7",	"Heavenly",	0xff,		30,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button8",	"Synth",		0xff,		15,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button9",	"Extreme",		0xff,		26,		RakarrakPort,	2,	NoCustom,	0 },
+	{"button10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
+// 10	Button		Title		Bank	Patch	Outport			
+	{"button11",	"Piano",		SFDSF,		63,		FluidPort,		1,	NoCustom,	0 },
+	{"button12",	"Honky",		SF32GM,	3,		FluidPort,		1,	NoCustom,	0},
+	{"button13",	"Breath",		SFFluidGM,	53,	FluidPort,			1,	NoCustom,	0},
+	{"button14",	"De-Tuned Organ",SFA340Low,	16,	FluidPort,		1,	NoCustom,	0},
+	{"button15",	"Flute",		SFFlute,	73,	FluidPort,			1,	NoCustom,	0},
+	{"button16",	"Synth Lead",	SFA340Base,	24,	FluidPort,		1,	NoCustom,	0},
+	{"button17",	"Walky",		SFDSF,		3,		FluidPort,		1,	NoCustom,	0},
+	{"button18",	"Trumpet",		SFDSF,		66,		FluidPort,		1,	NoCustom,	0},
+	{"button19",	"Steel Drums",SFFluidGM,	114,FluidPort,		1,	NoCustom,	0},
+	{"button20",	"Strings",		SFDSF,		85,		FluidPort,		1,	NoCustom,	0},
+// 20	Button		Title		Bank	Patch	Outport			
+	{"button21",	"Drums",		128,		26,		FluidPort,		1,	NoCustom,	0},
+	{"button22",	"Slap Bass",	SFDSF,		24,		FluidPort,		1,	NoCustom,	0},
+	{"button23",	"Synth Hard",	SFDSF,		60,		FluidPort,		1,	NoCustom,	0},
+	{"button24",	"Marimba",		SFDSF,		12,		FluidPort,		1,	NoCustom,	0},
+	{"button25",	"Holdsworth", SFMusica,	48,		FluidPort,		1,	NoCustom,	0},
+	{"button26",	"Steel Drums",SFDSF,		114,	FluidPort,		1,	NoCustom,	0},
+	{"button27",	"Low Synth",	SFDSF,		45,		FluidPort,		1,	NoCustom,	0},
+	{"button28",	"Mid0",		0xff,		0,		GI20Port,		1,	NoCustom,	0},
+	{"button29",	"Mid-24",		0xff,		2,		GI20Port,		1,	NoCustom,	0},
+	{"button30",	"Mid Screen",	SFDSF,		0,		FluidPort,		1,	NoCustom,	0},
+// 30	Button		Title		Bank	Patch	Outport			
+	{"NoButton",	"Rak Eff6",	116,		11,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff7",	116,		13,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff8",	116,		15,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff9",	116,		17,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff10",	116,		18,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff1",	116,		0,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff2",	116,		2,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff3",	116,		4,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff4",	116,		6,		FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Rak Eff5",	116,		8,		FluidPort,		1,	Controller,	0},
+// 40	Button		Title		Bank	Patch	Outport			
+	{"NoButton",	"TransStart",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{"NoButton",	"TransCont",	0xff,		0,		TransportPort,	1,	TransCont,	0},
+	{"NoButton",	"TransStop",	0xff,		0,		TransportPort,	1,	TransStop,	0},
+	{"NoButton",	"TransBack",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{"NoButton",	"TransPos",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{"NoButton",	"Tap",			116,		121,	FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Midi Tog",	116,		122,	FluidPort,		1,	Controller,	0},
+	{"NoButton",	"Tuner",		116,		123,	FluidPort,		1,	Controller,	0},
+	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
+	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
+// 50	Button		Title		Bank	Patch	Outport			
+	{"NoButton",	"LP Undo",		0xff,		70,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP 1",		0xff,		71,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 2",		0xff,		72,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 3",		0xff,		73,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP 4",		0xff,		74,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{"NoButton",	"LP Rec",		0xff,		75,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Pause",	0xff,		76,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Tog",		0xff,		77,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP Tap",		0xff,		78,		LooperPort,	1,	NoCustom,	0},
+	{"NoButton",	"LP All",		0xff,		79,		LooperPort,	1,	NoCustom,	0},
+// 60	Button		Title		Bank	Patch	Outport			
+	{"NoButton",	"AnalogApp",	0xff,		AnalogApp,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"MidiSoundApp",0xff,		MidiSoundApp,	0,		1,	RaiseApp,	0},
+	{"NoButton",	"LooperApp",	0xff,		LooperApp,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"MidiControl",0xff,		MidiControl,	0,		1,	RaiseApp,	0},
+	{"NoButton",	"MP3Player",	0xff,		MP3Player,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"TabPlayer",	0xff,		TabPlayer,		0,		1,	RaiseApp,	0},
+	{"NoButton",	"PreTab",		0xff,		0		,		0,		1,	SwitchTab,	0},
+	{"NoButton",	"ScoreTab",	0xff,		1,				0,		1,	SwitchTab,	0},
+
+	{"NoButton",	"TransportApp",0xff,		TransportApp,	0,		1,	RaiseApp,	0},
+
+
+	{"NoButton",	"Switch0",		0xff,		0,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch1",		0xff,		1,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch2",		0xff,		2,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch3",		0xff,		3,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch4",		0xff,		4,			0,		1,	ToDesktop,	0},
+	{"NoButton",	"Switch5",		0xff,		5,			0,		1,	ToDesktop,	0},
+
+
+	{"NoCustom",	"Elias1",		0xff,		0,		FluidPort,		2,	ToDesktop, 0}
+  },
+	// Path the Charts directory
+	"/home/Dropbox/FusionBlue/ChartsHTML/",
+	// Number and name of the output ports
+	6,
+	{"Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
+	
+	// Apps[MaxApps];
+	// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
+	{{"rakarrack", 0 },
+	{"qsynth", 0 },
+	{"slgui", 0 },
+	{"audacity", 0 },
+	{"LiveMusic", 0 },
+	{"clementine", 0 },
+	{"Tux", 0 } },
+};
+
 
 /*--------------------------------------------------------------------
 * Function:		InitPref
@@ -48,8 +156,68 @@ void parseDoc(char *docname);
 *---------------------------------------------------------------------*/
 void InitPref(void) {
 
+	memcpy(&gMyInfo, &GlobalInfo, sizeof (GTKMidiInfo));
+#if 0
+	strcpy(&gMyInfo.Apps[AnalogApp].Name, "rakarrack" );
+		strcpy(&gMyInfo.Apps[MidiSoundApp].Name, "qsynth" );
+		strcpy(&gMyInfo.Apps[LooperApp].Name, "slgui" );
+		strcpy(&gMyInfo.Apps[TransportApp].Name, "" );
+		strcpy(&gMyInfo.Apps[MidiControl].Name, "LiveMusic" );
+		strcpy(&gMyInfo.Apps[MP3Player].Name, "clementine" );
+		strcpy(&gMyInfo.Apps[TabPlayer].Name, "Tux" );
+#endif
+//	PrintDataStructure(&gMyInfo);
+//	exit(1);
+//	printf("Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //	WritePref();
-	ReadPrefs();
+//	ReadPrefs();
+}
+
+
+/*--------------------------------------------------------------------
+* Function:		PrintDataStructure
+*
+* Description:		<Description/Comments>
+*
+*---------------------------------------------------------------------*/
+void PrintDataStructure(GTKMidiInfo *myInfo) {
+int		Loop;
+int		Loop1;
+PortsInfo	*thePorts;
+
+	printf("Main Information\n");
+
+	for (Loop = 0; Loop < Max_Patches; Loop++) {
+		printf("ID=%d %s %s\n", Loop, 
+			myInfo->MyPatchInfo[Loop].Name,
+			myInfo->MyPatchInfo[Loop].Button);
+	}
+
+	printf("BaseName %s\n", myInfo->BasePath);
+
+	for (Loop = 0; Loop < myInfo->NumOutPorts; Loop++) {
+		printf("Ports %s\n", myInfo->OutPortName[Loop]);
+	}
+
+	for (Loop = 0; Loop < MaxApps; Loop++) {
+		printf("Ports %s %d\n", myInfo->Apps[Loop].Name, myInfo->Apps[Loop].PortID);
+	}
+
+	thePorts = &theInPorts;
+	for ( Loop = 0; Loop < thePorts->NumDevices; Loop++ ) {
+		printf("In Name [%s]\n", thePorts->Devices[Loop].Name);
+		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
+			printf("In SName %d, [%s]\n",Loop1, thePorts->Devices[Loop].Ports[Loop1].Name);
+		}
+	}
+
+	thePorts = &theOutPorts;
+	for ( Loop = 0; Loop < thePorts->NumDevices; Loop++ ) {
+		printf("Out Name [%s]\n", thePorts->Devices[Loop].Name);
+		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
+			printf("Out SName %d, [%s]\n",Loop1, thePorts->Devices[Loop].Ports[Loop1].Name);
+		}
+	}
 }
 
 /*--------------------------------------------------------------------

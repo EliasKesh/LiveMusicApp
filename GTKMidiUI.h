@@ -24,9 +24,11 @@
 /*
  * Place Global prototypes here.
  */
+#define ResourceDirectory	"./LiveMusicRes/"
+
 #define OutPortAnalog 	0
 #define OutPortMidi		1
-#define MaxOutPorts		5
+#define MaxOutPorts		6
 #define MaxStringPortName	32
 
 // Timer countdown in Miliseconds
@@ -50,7 +52,7 @@ typedef struct {
 } PortsInfo;
 	
 typedef struct {
-	char	*Button;
+	char	Button[32];
 	char	Name[64];
 	// Bank select -1 not to send Bank Info
 	unsigned char	BankSelect;
@@ -95,13 +97,9 @@ typedef struct {
 	char		NumOutPorts;
 	char		OutPortName[MaxOutPorts][MaxStringPortName];
 	PortInformation		Apps[MaxApps];
-	PortInformation		SoundGen;
-	PortInformation		AnalogEffects;
-	PortInformation		Looper;
-	PortInformation		Transport;
-	PortInformation		MidiController;
 
-	// Generated
+
+	// Generated Beyond this point.
 	snd_seq_t  *SeqPort[MaxOutPorts];
 	WebLoadPresets	WebPresets;
 	unsigned int	Timer1Count;
@@ -140,6 +138,15 @@ enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, SwitchTab, 
 
 #define ModeSwitchKey		29
 
+enum {ToDesktop0 = 60, ToDesktop1,ToDesktop2,ToDesktop3,ToDesktop4,ToDesktop5,
+	ToAnalogApp, ToMidiSoundApp, ToLooperApp, ToTransportApp, ToMidiControl };
+
+#define MAINPREFS_FILE ".GTKMidi"
+
+#define DefaultMidiChannel		1
+#define MidiProgramChange		32
+
+
 /*
  * Place Static variables here.
  */
@@ -163,7 +170,6 @@ char *CustomCommands[] = {
 		"TransPosition",
 		"TransTempo"
 	};
-
 
 char	*theModes[] = {
 	"Default",

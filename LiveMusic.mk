@@ -7,13 +7,13 @@ ProjectName            :=LiveMusic
 ConfigurationName      :=Debug
 WorkspacePath          := "/mnt/Personal/home/elias/workspace/LiveMusic"
 ProjectPath            := "/mnt/Personal/home/elias/workspace/GTKMidiUI"
-IntermediateDirectory  :=./Debug
+IntermediateDirectory  :=../GTKMidiUI/Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Elias Kesh
-Date                   :=05/05/14
+Date                   :=05/09/14
 CodeLitePath           :="/mnt/Personal/home/elias/.codelite"
 LinkerName             :=gcc
 SharedObjectLinkerName :=gcc -shared -fPIC
@@ -79,7 +79,7 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 $(IntermediateDirectory)/.d:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@test -d ../GTKMidiUI/Debug || $(MakeDirCommand) ../GTKMidiUI/Debug
 
 PreBuild:
 
