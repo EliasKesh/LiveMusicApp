@@ -40,5 +40,6 @@
     <Port002 Name="Looper"/>
     <Port003 Name="Transport"/>
     <Port004 Name="GI20"/>
+    <Port005 Name="Tempo"/>
   </OutPorts>
 </MidiControlBase>

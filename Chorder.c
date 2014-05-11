@@ -669,14 +669,14 @@ int ChorderMain(GtkWidget *window ) {
     BottomBox = gtk_hbox_new(FALSE, 10);
 
 
-//	Fingerboard = gdk_pixbuf_new_from_file("./wood.png", &err);
-    Fingerboard = gdk_pixbuf_new_from_file("./RedWood.png", &err);
-    FingerboardDot = gdk_pixbuf_new_from_file("./FretboardDot.png", &err);
-    BouncieBall = gdk_pixbuf_new_from_file("./ball.png", &err);
-    BouncieBallBl = gdk_pixbuf_new_from_file("./blueball.png", &err);
-    BouncieBallGr = gdk_pixbuf_new_from_file("./greenball.png", &err);
-    BouncieBallRed = gdk_pixbuf_new_from_file("./redball.png", &err);
-    BouncieBallYel = gdk_pixbuf_new_from_file("./yelball.png", &err);
+//	Fingerboard = gdk_pixbuf_new_from_file(ResourceDirectory"./wood.png", &err);
+    Fingerboard = gdk_pixbuf_new_from_file(ResourceDirectory"RedWood.png", &err);
+    FingerboardDot = gdk_pixbuf_new_from_file(ResourceDirectory"FretboardDot.png", &err);
+    BouncieBall = gdk_pixbuf_new_from_file(ResourceDirectory"ball.png", &err);
+    BouncieBallBl = gdk_pixbuf_new_from_file(ResourceDirectory"blueball.png", &err);
+    BouncieBallGr = gdk_pixbuf_new_from_file(ResourceDirectory"greenball.png", &err);
+    BouncieBallRed = gdk_pixbuf_new_from_file(ResourceDirectory"redball.png", &err);
+    BouncieBallYel = gdk_pixbuf_new_from_file(ResourceDirectory"yelball.png", &err);
 
     MyFretArea = gtk_image_new ();
 
