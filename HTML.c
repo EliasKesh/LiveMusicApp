@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
+#include <webkit/webkitwebview.h>
 #include <glade/glade.h>
 #include "GTKMidiUI.h"
 
@@ -10,12 +11,12 @@ static WebKitWebView* web_view;
 
 GtkWidget	*Preset1Button;
 GtkWidget	*Preset2Button;
-
+GtkWidget	*scrolled_window;
 
 
 void on_Back_clicked(GtkButton * 	button, gpointer 	user_data )
    {
-//		webkit_web_view_set_editable( web_view, false);
+		webkit_web_view_set_editable( web_view, false);
 	   webkit_web_view_go_back(web_view);
 	   g_print("Back:\n");
 
@@ -32,7 +33,7 @@ void on_toolbutton3_clicked( GtkWidget *widget, gpointer data ) {
  gchar *CurrentURI; 
  
  //	 webkit_web_view_reload(web_view);
-		CurrentURI =webkit_web_view_get_uri(web_view);
+		CurrentURI = webkit_web_view_get_uri(web_view);
 	   g_print("Current %s\n",CurrentURI);
 
    }
@@ -59,10 +60,34 @@ printf("In Button Preset2 %d %s\n",Preset, gMyInfo.MyPatchInfo[Preset].Name );
 
 void on_SaveWeb_clicked( GtkWidget *widget, gpointer data ) {
  gchar *CurrentURI; 
- 
-		CurrentURI = webkit_web_view_get_uri(web_view);
-	   g_print("Save %s\n",CurrentURI);
+ char	*Buffer;
+ GString* theBuffer;
+WebKitWebFrame *theFrame;
+WebKitWebDataSource *theData;
 
+		CurrentURI = webkit_web_view_get_uri(web_view);
+//		Buffer = webkit_web_data_source_get_data(web_view);
+	   g_print("Save %s\n",CurrentURI);
+	   g_print("WebKit %x %d\n",web_view->parent_instance.widget.window,
+			gtk_text_get_length(web_view->parent_instance.widget.window ));
+//	   g_print("Save %d\n",gtk_text_get_length(web_view->parent_instance.window ));
+//		webkit_web_frame_get_global_context(theFrame);
+		webkit_web_view_execute_script(web_view, "document.title=document.documentElement.innerHTML;");
+		theFrame = webkit_web_view_get_main_frame (web_view);
+//		theBuffer = webkit_web_view_get_title (web_view);
+
+		theBuffer = webkit_web_frame_get_title(theFrame);
+//		theBuffer = webkit_web_frame_get_uri(theFrame);
+//		theData = webkit_web_frame_get_data_source(theFrame);
+//		theBuffer = webkit_web_data_source_get_data(theData);
+
+
+		printf("Web %x %x %x\n", theFrame, theData, Buffer);
+//		printf("%d %s\n",theBuffer->len, theBuffer->str);
+		printf("%s\n",theBuffer);
+// web_view->priv.backingstore.m_ptr
+// web_view->parent_instance.widget
+// web_view->parent_instance.window
 #if 0
 		webkit_web_view_save_to_file( web_view,
 					CurrentURI,
@@ -166,14 +191,16 @@ GtkWidget *Widget;
 			G_CALLBACK (on_patch2_clicked), NULL);
 			
 	printf("HTML %x %x\n", Preset1Button, Preset2Button);
-	GtkWidget* scrolled_window = GTK_WIDGET (gtk_builder_get_object  (gxml, "scrolledwindow1") );
+	scrolled_window = GTK_WIDGET (gtk_builder_get_object  (gxml, "scrolledwindow1") );
 
 	//	gtk_widget_set_name (scrolled_window, "GtkLauncher");
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 	web_view = WEBKIT_WEB_VIEW (webkit_web_view_new ());
 	gtk_container_add (GTK_CONTAINER (scrolled_window), GTK_WIDGET (web_view));
-
+	
+	webkit_web_view_set_editable(web_view, TRUE);
+	
 	Widget = GTK_WIDGET (gtk_builder_get_object (gxml, "BackButton") );
 			g_signal_connect (G_OBJECT (Widget), "clicked", 
 			G_CALLBACK (on_Back_clicked), NULL);
