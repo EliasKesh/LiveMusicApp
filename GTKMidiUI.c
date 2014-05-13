@@ -114,9 +114,10 @@ void SwitchToTab(char Tab) {
 }
 
 /*--------------------------------------------------------------------
-* Function:		<Function name>
+* Function:		on_button_clicked
 *
-* Description:		<Description/Comments>
+* Description:		When the uses presses one of the main screen patch
+* 	buttons we get dispatched here.
 *
 *---------------------------------------------------------------------*/
 void on_button_clicked (GtkButton *button, gpointer	user_data ){
@@ -124,6 +125,13 @@ void on_button_clicked (GtkButton *button, gpointer	user_data ){
 	printf("User data %d\n", (int) user_data);
 }
 
+/*--------------------------------------------------------------------
+* Function:		on_modebutton_clicked
+*
+* Description:		When the mode button is pressed from the screen we call
+* 	this.
+*
+*---------------------------------------------------------------------*/
 void on_modebutton_clicked (GtkButton *button, gpointer	user_data ){
 
 	IncrementMode();
@@ -131,21 +139,23 @@ void on_modebutton_clicked (GtkButton *button, gpointer	user_data ){
 
 }
 
+/*--------------------------------------------------------------------
+* Function:		on_About_clicked
+*
+* Description:		It's all about ME !
+*
+*---------------------------------------------------------------------*/
 void on_About_clicked (GtkButton *button, gpointer	user_data ){
     GtkWidget *window;
 
 		window = GTK_WIDGET (gtk_builder_get_object  (gxml, "AboutDialog") );
 		gtk_widget_show (window);
-
- //   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-//	gtk_window_set_title(GTK_WINDOW(window), "About LiveMusic");
-
 }
 
 /*--------------------------------------------------------------------
-* Function:		<Function name>
+* Function:		on_hscale1_value_changed
 *
-* Description:		<Description/Comments>
+* Description:		When the sliders are changed on the main screen.
 *
 *---------------------------------------------------------------------*/
 void on_hscale1_value_changed (GtkWidget *widget, gpointer user_data)
@@ -156,7 +166,7 @@ void on_hscale1_value_changed (GtkWidget *widget, gpointer user_data)
 
 		/* print to screen */
 		g_print("Range value: %d\n", (guint)val);
-// ejk		SendMidi(0,DefaultMidiChannel, 07, (int)val);
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, 0,DefaultMidiChannel, 07, (int)val);
  }
 
 /*--------------------------------------------------------------------
@@ -172,7 +182,7 @@ void on_window1_destroy (GtkWidget *widget, gpointer user_data)
 }
 
 /*--------------------------------------------------------------------
-* Function:		<Function name>
+* Function:		tab_focus_callback
 *
 * Description:		<Description/Comments>
 *
@@ -186,9 +196,9 @@ gboolean tab_focus_callback( GtkNotebook *notebook,
 }
 
 /*--------------------------------------------------------------------
-* Function:		<Function name>
+* Function:		main
 *
-* Description:		<Description/Comments>
+* Description:		This is where it all starts.
 *
 *---------------------------------------------------------------------*/
 int main (int argc, char *argv[]) {
@@ -350,14 +360,14 @@ char	DisString[160];
 		gtk_label_set_text (MainStatus, DisString);
 }
 
+
 /*--------------------------------------------------------------------
 * Function:		Set the tempo
 * Description:		<Description/Comments>
 *
 *---------------------------------------------------------------------*/
 void SetTempo(unsigned char NewTempo) {
-
-//	SendMidi(SND_SEQ_EVENT_TEMPO, char Port, char Channel, char Controller, NewTempo);
+	SendMidi(SND_SEQ_EVENT_TEMPO, 0, DefaultMidiChannel, 0, (int)NewTempo);
 
 	/* Tell the timer to stop.
 	 */
@@ -376,6 +386,8 @@ void SetTempo(unsigned char NewTempo) {
 		(GSourceFunc) tempo_handler, (gpointer) gxml);
 
 	gMyInfo.Timer1Count = 0;
+	
+
 }
 
 /*--------------------------------------------------------------------
@@ -406,6 +418,8 @@ static gboolean	time_handler(GtkWidget *widget) {
 
 return TRUE;
 }
+    /* Create a context for drawing the fonts.
+     */
 
 /*--------------------------------------------------------------------
 * Function:		<Function name>
@@ -416,23 +430,30 @@ return TRUE;
 void ToggleTempo(void) {
 GdkColor fgcolor;
 GdkColor bgcolor;
+char	StrBuf[10];
 
-	if (TempoState) {
+	if (TempoState > 7)
+			TempoState = 0;
+
+	if (TempoState & 0x01) {
 		gdk_color_parse ("white", &bgcolor);
 		gdk_color_parse ("Black", &fgcolor);
-		TempoState = 0;
+		SendMidi(SND_SEQ_EVENT_NOTEON, 0, DefaultMidiChannel, 07, (int)35);
 	}
 	else {
 		gdk_color_parse ("black", &bgcolor);
 		gdk_color_parse ("white", &fgcolor);
-		TempoState = 1;
+//		SendMidi(SND_SEQ_EVENT_NOTEOFF, 0, DefaultMidiChannel, 07, (int)35);
 	}
-	
-//	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, SND_SEQ_EVENT_TEMPO, 10);
+
 
 	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
 	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
-//	SND_SEQ_EVENT_TEMPO
+	sprintf(StrBuf, "%d", (TempoState/2) + 1);
+	gtk_widget_modify_font(TempoDraw, pango_font_description_from_string("Sans Bold 16"));
+	gtk_label_set_text (TempoDraw, StrBuf);
+
+	TempoState++;
 }
 
 /*--------------------------------------------------------------------
@@ -494,7 +515,7 @@ void	SetUpMainButtons(PatchInfo  *myPatchInfo) {
 		myButton = MainButtons[Loop];
 		printf("SetUpMainButtons: %s %x\n", gMyInfo.MyPatchInfo[Loop].Button, myButton);
 		printf("Loop %d gMyInfo %x Patch %d\n",Loop, &gMyInfo, GetModePreset(Loop));
-	gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
 	}
 }
 
