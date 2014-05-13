@@ -101,6 +101,7 @@ typedef struct {
 
 	// Generated Beyond this point.
 	snd_seq_t  *SeqPort[MaxOutPorts];
+//	int			SeqQueue[MaxOutPorts];
 	WebLoadPresets	WebPresets;
 	unsigned int	Timer1Count;
 	unsigned char	Tempo;

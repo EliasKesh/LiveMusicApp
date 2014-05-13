@@ -57,7 +57,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="gnu gcc" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-Wall;-O0;-ggdb" C_Options="-pg;-g;`pkg-config --cflags gtk+-2.0`;-ggdb" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-g;-O0;-ggdb; -Wno-cast-qual" C_Options="-pg;-g;`pkg-config --cflags gtk+-2.0`;-ggdb;-Wno-cast-qual" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="."/>
         <IncludePath Value="/usr/include/libsoup-2.4/"/>
         <IncludePath Value="/usr/include/libglade-2.0/"/>

@@ -41,9 +41,11 @@ snd_seq_t *Seq;
 		return false;
 	}
 
-	for (Loop = 0; Loop < gMyInfo.NumOutPorts; Loop++) {
-		gMyInfo.SeqPort[Loop] =	CreatePort(Seq, gMyInfo.OutPortName[Loop] );
-	}
+        for (Loop = 0; Loop < gMyInfo.NumOutPorts; Loop++) {
+                gMyInfo.SeqPort[Loop] = CreatePort(Seq, gMyInfo.OutPortName[Loop] );
+ //               gMyInfo.SeqQueue[Loop] = snd_seq_alloc_queue(gMyInfo.SeqPort[Loop]);
+
+        }
 
 #if 0
 // Using the Same Seq causes it to add increment the port number.
@@ -55,10 +57,11 @@ snd_seq_t *Seq;
 #endif
 		
 	alsa_input_init("LiveMusic");
-	
-	device_list();
-//	pcm_list();
-	
+        
+        device_list();
+//      pcm_list();
+//      queue_id = snd_seq_alloc_queue(seq_handle);
+        
   return true;
 }
 
@@ -87,29 +90,59 @@ int		SeqStatus;
 return Seq;
 }
 
+#define TICKS_PER_QUARTER 128
+#define MAX_SEQ_LEN        64
 /*--------------------------------------------------------------------
-* Function:		SendMidi
+* Function:             SendMidi
 *
 * Description:		<Description/Comments>
 *
 *---------------------------------------------------------------------*/
 int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 	snd_seq_event_t ev;
+	int err;
+	unsigned long adjbpm;
+	snd_seq_queue_tempo_t *queue_tempo;
+
 
 	snd_seq_ev_clear(&ev);
 	snd_seq_ev_set_source(&ev, Port);
 	snd_seq_ev_set_subs(&ev);
-	// Channel, Controller, Value
+	
+	/* Channel, Controller, Value
+	*/
 	snd_seq_ev_set_controller(&ev, Channel - 1, Controller, (int)Value);
+
+	/* Send with out queueing.
+	*/
 	snd_seq_ev_set_direct(&ev);
-//	snd_seq_ev_set_dest(&ev, snd_seq_client_id(gMyInfo.SeqPort[Port]), Port);
+
+	//      snd_seq_ev_set_dest(&ev, snd_seq_client_id(gMyInfo.SeqPort[Port]), Port);
 
 	if (Type == SND_SEQ_EVENT_PGMCHANGE) {
 		ev.type = SND_SEQ_EVENT_PGMCHANGE;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 	}
 
 	if (Type == SND_SEQ_EVENT_CONTROLLER) {
 		ev.type = SND_SEQ_EVENT_CONTROLLER;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+	}
+
+	if (Type == SND_SEQ_EVENT_NOTEON) {
+		ev.type = SND_SEQ_EVENT_NOTEON;
+		ev.data.note.note = Value;
+		ev.data.note.velocity = 100;
+		ev.data.note.duration = 300;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
+	}
+
+	if (Type == SND_SEQ_EVENT_NOTEOFF) {
+		ev.type = SND_SEQ_EVENT_NOTEOFF;
+		ev.data.note.note = Value;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
 	}
 
 	if (Type == SND_SEQ_EVENT_START) {
@@ -134,9 +167,13 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
 	if (Type == SND_SEQ_EVENT_TEMPO) {
 		ev.type = SND_SEQ_EVENT_TEMPO;
+		adjbpm = (unsigned long)((unsigned long)(60.0 * 1000000.0) / (unsigned long)Value);
+		ev.data.queue.param.value = adjbpm;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
 	}
 
-	int err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+printf("SendMidi err = %d\n", err);
 return(err);
 }
 
