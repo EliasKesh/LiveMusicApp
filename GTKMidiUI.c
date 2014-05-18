@@ -182,6 +182,22 @@ void on_window1_destroy (GtkWidget *widget, gpointer user_data)
 }
 
 /*--------------------------------------------------------------------
+* Function:		<Function name>
+*
+* Description:		<Description/Comments>
+*
+*---------------------------------------------------------------------*/
+void on_Tempo_Button (GtkWidget *widget, gpointer user_data)
+{
+	if (gMyInfo.MetronomeOn)
+		gMyInfo.MetronomeOn = 0;
+	else
+		gMyInfo.MetronomeOn = 1;
+	/* break gtk_main() loop */
+}
+
+
+/*--------------------------------------------------------------------
 * Function:		tab_focus_callback
 *
 * Description:		<Description/Comments>
@@ -208,30 +224,34 @@ int main (int argc, char *argv[]) {
 	GError	 *error = NULL;
 	GtkWidget		*ChordWidget;
 	
-	
+		/* Let's setup some variables.
+		 */
 		CurrentMode = 0;
 		/* initialize the GTK+ library */
 		gtk_init (&argc, &argv);
 		gtk_rc_parse( MAINPREFS_FILE);
+
+		/* Get Preferences is there are there otherise set defaults.
+		 */
+		InitPref();
 		/*
 		create an instance of the GladeXML object and build widgets within
 		the window1 root node.
 		*/
-//		gxml = glade_xml_new (GLADE_FILE, NULL, NULL);
-		/* Get Preferences is there are there otherise set defaults.
-		 */
-		InitPref();
-
 		gxml = gtk_builder_new ();
 		if (!gtk_builder_add_from_file (gxml, GLADE_FILE, &error)) {
 			g_warning ("Couldn't load builder file: %s", error->message);
 			g_error_free (error);
 		}
-		/* get the window widget from the glade XML file */
+		
+		/* get the window widget from the glade XML file 
+		 */
 		main_window = GTK_WIDGET (gtk_builder_get_object  (gxml, "window1") );
 			g_signal_connect (G_OBJECT (main_window), "destroy", 
 			G_CALLBACK (on_window1_destroy), NULL);
 
+		/* Open the persistant main tab.
+		 */
 		main_tab = GTK_WIDGET (gtk_builder_get_object  (gxml, "MainTab") );
 		g_signal_connect( GTK_NOTEBOOK( main_tab ), "switch-page", 
                      (GCallback) tab_focus_callback, gxml);
@@ -240,7 +260,8 @@ int main (int argc, char *argv[]) {
 //	glade_xml_signal_connect (gxml, "on_hscale1_value_changed",
 //			G_CALLBACK(on_hscale1_value_changed));
 
-		/* setup and initialize our statusbar */
+		/* Setup and initialize our statusbar and Mode indicator 
+		 */
 		MainStatus = GTK_WIDGET (gtk_builder_get_object (gxml, "MainStatusBar") );
 		CurrentModeWid = GTK_WIDGET (gtk_builder_get_object (gxml, "CurrentMode") );
 
@@ -249,20 +270,26 @@ int main (int argc, char *argv[]) {
 		HoldStatusIndex = 0;
 		memset(HoldStatus, 0, sizeof (HoldStatus));
 		TempoDraw = GTK_WIDGET (gtk_builder_get_object (gxml, "Tempo"));
+		g_signal_connect_data (G_OBJECT (TempoDraw), "clicked", 
+			G_CALLBACK (on_Tempo_Button), NULL, NULL, 0);
 
+		/* The about window.
+		 */
 		widget = GTK_WIDGET (gtk_builder_get_object (gxml, "AboutButton"));
 		g_signal_connect_data (G_OBJECT (widget), "clicked", 
 			G_CALLBACK (on_About_clicked), NULL, NULL, 0);
 
-//		memset(&thePorts, 0, sizeof (PortsInfo));
-		PrintDataStructure(&gMyInfo);
+		/* Debug, this prints out the main internal data structure.
+		 */
+//		PrintDataStructure(&gMyInfo);
 
 
 		/* Set up the GUI for making changes to the preferences.
 		 */
 		InitGuiPrefs();
 
-// exit(0);
+		/* Creat the HTML page from our preferences.
+		 */
 		CreateHTMLGuide(&gMyInfo);
 
 		/*
@@ -275,12 +302,15 @@ printf("After InitHTML\n");
 		 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
 		 */
 //		system( );
+//		
 		/*
 		 * Set up the buttons test and patches.
 		 */		
 		CreateMainButtons();
 		SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
+		/* Get the Mode switch button,
+		 */
 		ModeSwitchButton = GTK_WIDGET (gtk_builder_get_object  (gxml, "ModeSwitchButton"));
 		//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
 		g_signal_connect_data (G_OBJECT (ModeSwitchButton), "clicked", 
@@ -296,23 +326,29 @@ printf("After MyAlsaInit\n");
 		 */
 		InitConnections();
 
+		/* Set the up Chord page in case we need it later.
+		 */
 		ChordWidget = GTK_WIDGET (gtk_builder_get_object  (gxml, "ChordFrame") );
 		ChorderMain(ChordWidget);
 
 		/* Set up a timer for Tempo.
 		 */
-		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
+//		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
 		gMyInfo.TempoTimerID = 0;
 		SetTempo(90);
-		/* show the main window */
+		
+		/* Show the main window and let the show begin.
+		 */
 		gtk_widget_show_all (main_window);
 		gtk_widget_modify_font(CurrentModeWid, pango_font_description_from_string("Sans Bold 16"));
 		gtk_label_set_text (CurrentModeWid, theModes[0]);
 
-	  /* begin main GTK loop */
+	  /* And their off.
+	   */
 		gtk_main ();
 
-
+		/* After we quit we should write back the changes.
+		 */
 		WritePref();
 
 		return 0;
@@ -320,19 +356,24 @@ printf("After MyAlsaInit\n");
 
 /*--------------------------------------------------------------------
 * Function:		Update the display status
-* Description:		<Description/Comments>
+* Description:		raw the previous patches on the screen to make
+* 	sure that they completed. It's hard to tell with a foot pedal .
 *
 *---------------------------------------------------------------------*/
 void UpdateStatus(char *String) {
 GtkStyle *hold;
 char	DisString[160];
 
+#if 0
 	printf("Status Update %d\n", HoldStatusIndex);
 	printf("%s\n", &HoldStatus[0]);
 	printf("%s\n", &HoldStatus[1]);
 	printf("%s\n", &HoldStatus[2]);
 	printf("%s\n", &HoldStatus[3]);
+#endif
 
+	/* Based on where we are in the circlular buffer.
+	 */
 	switch (HoldStatusIndex) {
 		case 0:
 			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[1], &HoldStatus[2], &HoldStatus[3], String);
@@ -349,25 +390,35 @@ char	DisString[160];
 		case 3:
 			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[0], &HoldStatus[1], &HoldStatus[2], String);
 		break;
-
 	}
 	
+	/* Copy the patch names the the buffer.
+	 */
 	strncpy(&HoldStatus[HoldStatusIndex++], String,50);
+
+	/* Reset the circular list of we have to.
+	 */
 	if (HoldStatusIndex >= MaxStatusHold)
 			HoldStatusIndex = 0;
 
+	/* Actually draw the text to the window.
+	 */
 	gtk_widget_modify_font(MainStatus, pango_font_description_from_string("Sans Bold 16"));
-		gtk_label_set_text (MainStatus, DisString);
+	gtk_label_set_text (MainStatus, DisString);
 }
 
 
 /*--------------------------------------------------------------------
 * Function:		Set the tempo
-* Description:		<Description/Comments>
+* Description:		Set te tempo to a new value. Re-setup the timer
+* 	interrupts to handle double te tempo.
 *
 *---------------------------------------------------------------------*/
 void SetTempo(unsigned char NewTempo) {
-	SendMidi(SND_SEQ_EVENT_TEMPO, 0, DefaultMidiChannel, 0, (int)NewTempo);
+
+	/* Send out a message our tempo is changing.
+	 */
+	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, 0, (int)NewTempo);
 
 	/* Tell the timer to stop.
 	 */
@@ -377,16 +428,17 @@ void SetTempo(unsigned char NewTempo) {
 	/* Store the tempo information.
 	 */
 	gMyInfo.Tempo = NewTempo;
-	gMyInfo.TempoReload = (500 * 60) / NewTempo;
-	printf("New Tempo Val  %d\n", gMyInfo.TempoReload);
+//	gMyInfo.TempoReload = (500 * 60) / NewTempo;
+	gMyInfo.TempoReload = ((500 * 5) / NewTempo);
+
+	printf("New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
 	/* Start the new timer.
 	 */
 	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload, 
 		(GSourceFunc) tempo_handler, (gpointer) gxml);
 
-	gMyInfo.Timer1Count = 0;
-	
+//	gMyInfo.Timer1Count = 0;
 
 }
 
@@ -413,18 +465,14 @@ return TRUE;
 *---------------------------------------------------------------------*/
 static gboolean	time_handler(GtkWidget *widget) {
 
-
-//  gtk_widget_queue_draw(widget);
-
+//	printf(" IN Timer call back\n");
 return TRUE;
 }
-    /* Create a context for drawing the fonts.
-     */
-
 /*--------------------------------------------------------------------
-* Function:		<Function name>
+* Function:		ToggleTempo
 *
-* Description:		<Description/Comments>
+* Description:		Toggle based on the common tempo.
+* 	Tempostate is the current index * 24 
 *
 *---------------------------------------------------------------------*/
 void ToggleTempo(void) {
@@ -432,26 +480,52 @@ GdkColor fgcolor;
 GdkColor bgcolor;
 char	StrBuf[10];
 
-	if (TempoState > 7)
+	if (TempoState >= (gMyInfo.TempoMax * 12))
 			TempoState = 0;
 
-	if (TempoState & 0x01) {
-		gdk_color_parse ("white", &bgcolor);
-		gdk_color_parse ("Black", &fgcolor);
-		SendMidi(SND_SEQ_EVENT_NOTEON, 0, DefaultMidiChannel, 07, (int)35);
+	if (!(TempoState % 12)) {
+//		gdk_color_parse ("white", &bgcolor);
+//		gdk_color_parse ("Black", &fgcolor);
+		
+		/* On the first beat plat a different sound.
+		 */
+		if (gMyInfo.MetronomeOn)
+			if (TempoState)
+				SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort, 
+					DrumMidiChannel, 00, (int)35);
+			else
+				SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort, 
+					DrumMidiChannel, 00, (int)34);
+
+		if (gMyInfo.MetronomeOn)
+			sprintf(StrBuf, "On   %d", (TempoState/24) + 1);
+		else
+			sprintf(StrBuf, "Off  %d", (TempoState/24) + 1);
+
+		PangoFontDescription *font_desc;
+		font_desc = pango_font_description_from_string ("Sans Bold 18");
+	//	pango_font_description_set_size(font_desc,40*PANGO_SCALE);
+
+		gtk_widget_modify_font(GTK_LABEL(GTK_BIN(TempoDraw)->child), font_desc);
+
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(TempoDraw)->child), StrBuf);
 	}
 	else {
-		gdk_color_parse ("black", &bgcolor);
-		gdk_color_parse ("white", &fgcolor);
+//		gdk_color_parse ("black", &bgcolor);
+//		gdk_color_parse ("white", &fgcolor);
 //		SendMidi(SND_SEQ_EVENT_NOTEOFF, 0, DefaultMidiChannel, 07, (int)35);
 	}
+	SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
 
-
-	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
-	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
-	sprintf(StrBuf, "%d", (TempoState/2) + 1);
-	gtk_widget_modify_font(TempoDraw, pango_font_description_from_string("Sans Bold 16"));
-	gtk_label_set_text (TempoDraw, StrBuf);
+	/* Display the flasing count.
+	 */
+//	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
+//	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
+	
+		
+//	gtk_widget_modify_font(TempoDraw, pango_font_description_from_string("Sans Bold 20"));
+//    g_object_set(G_OBJECT(TempoDraw), "gtk-font-name", "Sans Bold 20",
+//                 NULL);
 
 	TempoState++;
 }

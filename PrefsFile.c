@@ -145,6 +145,7 @@ GTKMidiInfo  GlobalInfo = {
 	{"LiveMusic", 0 },
 	{"clementine", 0 },
 	{"Tux", 0 } },
+	8,			/* TempoMax	*/
 };
 
 

@@ -679,6 +679,9 @@ int ChorderMain(GtkWidget *window ) {
     BouncieBallYel = gdk_pixbuf_new_from_file(ResourceDirectory"yelball.png", &err);
 
     MyFretArea = gtk_image_new ();
+    gtk_widget_set_size_request(MyFretArea, 
+		FretOffset * (MaxDisplayFrets + 1) + 30, 
+		StringOffset * NumStrings + 30);
 
 //    gtk_box_set_homogeneous(vbox, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), MyFretArea, TRUE, TRUE, 5);

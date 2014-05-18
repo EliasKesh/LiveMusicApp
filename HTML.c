@@ -21,7 +21,7 @@ GtkWidget	*scrolled_window;
 *---------------------------------------------------------------------*/
 void on_Back_clicked(GtkButton * 	button, gpointer 	user_data )
    {
-		webkit_web_view_set_editable( web_view, false);
+//		webkit_web_view_set_editable( web_view, false);
 	   webkit_web_view_go_back(web_view);
 	   g_print("Back:\n");
 
@@ -282,6 +282,19 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			thePresets->theTempo = Value;
 			SetTempo(Value);
 			printf("Tempo %d\n",Value);
+		}
+
+		/* Set the Tempo for this tune.
+		 */
+		Found = strstr(temp, "LMA_Time");
+		if(Found != NULL) {
+			Found += 9;
+			Value = atoi(Found);
+			/* Since we flash we need twice as many counts.
+			 */
+			gMyInfo.TempoMax = (2 * Value);
+//			SetTempo(Value);
+			printf("Time %d\n",Value);
 		}
 
 		/* Set the current patch to this one.
