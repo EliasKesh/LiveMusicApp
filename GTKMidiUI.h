@@ -97,16 +97,18 @@ typedef struct {
 	char		NumOutPorts;
 	char		OutPortName[MaxOutPorts][MaxStringPortName];
 	PortInformation		Apps[MaxApps];
-
+	char			TempoMax;
+	char			MetronomeOn;
 
 	// Generated Beyond this point.
 	snd_seq_t  *SeqPort[MaxOutPorts];
 //	int			SeqQueue[MaxOutPorts];
 	WebLoadPresets	WebPresets;
-	unsigned int	Timer1Count;
+//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned char	Tempo;
 	unsigned int	TempoReload;
 	unsigned int	TempoTimerID;
+	
 	
 } GTKMidiInfo;
 
@@ -145,6 +147,7 @@ enum {ToDesktop0 = 60, ToDesktop1,ToDesktop2,ToDesktop3,ToDesktop4,ToDesktop5,
 #define MAINPREFS_FILE ".GTKMidi"
 
 #define DefaultMidiChannel		1
+#define DrumMidiChannel		10
 #define MidiProgramChange		32
 
 

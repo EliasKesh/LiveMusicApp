@@ -164,19 +164,72 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 	if (Type == SND_SEQ_EVENT_SETPOS_TIME) {
 		ev.type = SND_SEQ_EVENT_SETPOS_TIME;
 	}
+#if 0
+Since there are 24 MIDI Clocks in every quarter note, the length of a MIDI Clock (ie, time inbetween each MIDI Clock message) is the microsecond tempo divided by 24. In the above example, that would be 500,000/24, or 20,833.3 microseconds in every MIDI Clock. Alternately, you can relate this to your timebase (ie, PPQN clock). If you have 96 PPQN, then that means that a MIDI Clock byte must occur every 96 / 24 (ie, 4) PPQN clocks.
+#endif
+	if (Type == SND_SEQ_EVENT_CLOCK) {
+		ev.type = SND_SEQ_EVENT_CLOCK;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
+
+	}
+
+	if (Type == SND_SEQ_EVENT_QFRAME) {
+		ev.type = SND_SEQ_EVENT_CLOCK;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
+	}
+	
+	/* Every 10ms
+	 */
+	if (Type == SND_SEQ_EVENT_TICK) {
+		ev.type = SND_SEQ_EVENT_TICK;
+#if 0
+snd_seq_queue_sync_t sync_info;
+snd_seq_addr_t dest;
+
+memset(&sync_info, 0, sizeof(sync_info));
+sync_info.format = SND_SEQ_SYNC_PRIVATE_CLOCK;
+sync_info.ppq = 0;
+sync_info.ticks = 4;
+dest.client = my_client;
+dest.port = my_port;
+snd_seq_add_sync_master(handle, queue, &dest, &sync_info);
+
+snd_seq_add_sync_master_mtc(handle, queue, &dest, time_format);
+
+#endif
+	}
 
 	if (Type == SND_SEQ_EVENT_TEMPO) {
 		ev.type = SND_SEQ_EVENT_TEMPO;
+		ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+		ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
+
 		adjbpm = (unsigned long)((unsigned long)(60.0 * 1000000.0) / (unsigned long)Value);
 		ev.data.queue.param.value = adjbpm;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
 	}
 
-printf("SendMidi err = %d\n", err);
+//printf("SendMidi err = %d\n", err);
 return(err);
 }
-
+#if 0
+int change_tempo(snd_seq_t *handle, int q, unsigned int tempo)
+{
+        snd_seq_event_t ev;
+        snd_seq_ev_clear(&ev);
+        ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+        ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
+        ev.source.client = my_client_id;
+        ev.source.port = my_port_id;
+        ev.queue = SND_SEQ_QUEUE_DIRECT; // no scheduling
+        ev.data.queue.queue = q;        // affected queue id
+        ev.data.queue.value = tempo;    // new tempo in microsec.
+        return snd_seq_event_output(handle, &ev);
+}
+#endif
 /*--------------------------------------------------------------------
 * Function:		SendMidiPatch
 *
