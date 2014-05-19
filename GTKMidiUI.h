@@ -130,15 +130,6 @@ enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, SwitchTab, 
 #define SFA340Low 11
 #define SFA340High 15
 
-
-#define ModeSwitch		0
-#define ModeRehearsal		1
-#define ModePractice		2
-#define ModePerformance	3
-#define ModeLooper		4
-#define ModeLastItem		ModeLooper
-
-
 #define ModeSwitchKey		29
 
 enum {ToDesktop0 = 60, ToDesktop1,ToDesktop2,ToDesktop3,ToDesktop4,ToDesktop5,
@@ -174,6 +165,14 @@ char *CustomCommands[] = {
 		"TransPosition",
 		"TransTempo"
 	};
+	
+
+#define ModeDefault		0
+#define ModeRehearsal		1
+#define ModePractice		2
+#define ModePerformance	3
+#define ModeLooper		4
+#define ModeLastItem		ModeLooper
 
 char	*theModes[] = {
 	"Default",
@@ -194,6 +193,12 @@ int		preModePractice[] = {
 
 int		preModeRehearsal[Max_Patches];
 int		preModePerformance[Max_Patches];
+int		preModeLooper[Max_Patches] = {
+	/* Front Row */
+	50,	51, 52, 53, 54, 55, 56, 57, 58, 59,
+	60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+	0,	1, 2, 3, 4, 5, 6, 7, 8, 9 
+	};
 
 #else
 //extern PatchInfo  *MyPatchInfo;
