@@ -249,6 +249,7 @@ int main (int argc, char *argv[]) {
 		main_window = GTK_WIDGET (gtk_builder_get_object  (gxml, "window1") );
 			g_signal_connect (G_OBJECT (main_window), "destroy", 
 			G_CALLBACK (on_window1_destroy), NULL);
+		gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
 
 		/* Open the persistant main tab.
 		 */
@@ -704,7 +705,7 @@ int	 GetModePreset(int Value) {
 int		NewValue;
 
 	switch(CurrentMode) {
-		case ModeSwitch:
+		case ModeDefault:
 			NewValue = Value;
 		break;
 				
@@ -721,7 +722,7 @@ int		NewValue;
 		break;
 
 		case ModeLooper:
-			NewValue = Value;
+			NewValue = preModeLooper[Value];
 		break;
 
 		default:
@@ -760,8 +761,10 @@ int	 ModeSwitchPatch(int MidiIn) {
 	if (MidiIn == ModeSwitchKey)
 		IncrementMode();
 	else
-		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
+		DoPatch(&gMyInfo.MyPatchInfo[(char )GetModePreset(MidiIn)]);
+//		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
 
+	printf("ModeSwitchPatch %d\n",MidiIn);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
 return(0);
 }
