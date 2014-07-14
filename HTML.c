@@ -78,9 +78,8 @@ WebKitViewportAttributes* attributes;
 
 	g_print("Button3  %d %d %f\n",UpperH, Horiz, ScaleH);
 	g_print("Button3  %d %d %f\n",UpperV, Vert, ScaleV);
-		webkit_web_view_set_zoom_level (web_view, MIN(ScaleV, ScaleH) );
+		webkit_web_view_set_zoom_level (web_view, MIN(ScaleV, ScaleH) + 0.001);
 
-	
 }
 
 #if 0
@@ -130,8 +129,8 @@ gint		Upper;
 	printf("Page Loaded %d\n", WebPageHeight);
     g_object_set (G_OBJECT (attributes), "available-width", WebPageWidth, NULL);
 	printf("Page Loaded %d\n", WebPageWidth);
-
 #endif
+
 	if (AvailWidth  > 200 && Upper != 0)
 		ScaleSizeW =  ((gfloat)(ScreenWidth - 150)/(gfloat)Upper);
 	else
@@ -259,6 +258,10 @@ char *Pointer;
 		printf("Not HTML File\n");
 	
 }
+void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame, gpointer data) {
+      printf("Finished downloading %s\n", webkit_web_view_get_uri(web_view));
+		ScalePage();
+  }
 
 /* testing		*/
 
@@ -349,8 +352,9 @@ GtkWidget *Widget;
 			g_signal_connect (G_OBJECT (Widget), "clicked", 
 			G_CALLBACK (on_SaveWeb_clicked), NULL);
 
+//    g_signal_connect(web_view, "load-finished", G_CALLBACK(load_finished_cb), NULL);
 
-#if 1
+#if 0
 /* Connect to the viewport-attributes-changes signal */
 WebKitViewportAttributes* attributes = webkit_web_view_get_viewport_attributes (web_view);
 g_signal_connect (web_view, "viewport-attributes-recompute-requested", G_CALLBACK (viewport_recompute_cb), scrolled_window);

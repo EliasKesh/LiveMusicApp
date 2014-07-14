@@ -695,7 +695,13 @@ g_print("Midi Event:\n");
 		  (unsigned int)event_ptr->data.control.value);
 	  }
 	  break;
-	/* Here is where Program change data comes in.
+	  
+	  
+	/* 
+	 * ------------------------------------------------------------
+	 * 	FLASHING NEON, this is where the main input from the pedal
+	 * gets recevied and the processing starts.
+	 * ------------------------------------------------------------
 	 */
 	case SND_SEQ_EVENT_PGMCHANGE:
 		sprintf(

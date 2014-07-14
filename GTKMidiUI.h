@@ -52,7 +52,8 @@ typedef struct {
 } PortsInfo;
 	
 typedef struct {
-	char	Button[32];
+//	char	Button[32];
+	int		Index;
 	char	Name[64];
 	// Bank select -1 not to send Bank Info
 	unsigned char	BankSelect;
@@ -63,9 +64,9 @@ typedef struct {
 	// The Midi channel.
 	char	Channel;
 	// Anything special we have to do 
-	char	CustomCommand;
+	int		CustomCommand;
 	// Chaing to Another Command 
-	char	Chain;
+	int		Chain;
 } PatchInfo;
 
 typedef struct {
@@ -131,6 +132,10 @@ enum {NoCustom, ToNextDesktop, ToPrevDesktop, ToDesktop, Controller, SwitchTab, 
 #define SFA340High 15
 
 #define ModeSwitchKey		29
+#define Preset1FButton	1
+#define Preset2FButton	2
+
+
 
 enum {ToDesktop0 = 60, ToDesktop1,ToDesktop2,ToDesktop3,ToDesktop4,ToDesktop5,
 	ToAnalogApp, ToMidiSoundApp, ToLooperApp, ToTransportApp, ToMidiControl };
