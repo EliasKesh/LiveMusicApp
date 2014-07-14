@@ -41,95 +41,95 @@ void parseDoc(char *docname);
  */
 GTKMidiInfo  GlobalInfo = { 
 	{
-// 00	Button		Title			Bank		Patch	Outport		Chan	Custom->Chain
-	{"button1",	"Elias1",		0xff,		1,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button2",	"Dist",		0xff,		5,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button3",	"Funk Chorus",0xff,		3,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button4",	"ThumpBass",	0xff,		8,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button5",	"Chorus",		0xff,		17,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button6",	"Jazz",		0xff,		27,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button7",	"EliasChorus",0xff,		18,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button8",	"Synth",		0xff,		15,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button9",	"Oct Bass",	0xff,		9,		RakarrakPort,	2,	NoCustom,	0 },
-	{"button10",	"OldPat",		0xff,		13,		RakarrakPort,	2,	NoCustom,	0 },
-//	{"button10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
+// ind		Title			Bank		Patch	Outport		Chan	Custom->Chain
+	{1,		"Elias1",		0xff,		1,		RakarrakPort,	2,	NoCustom,	0 },
+	{2,		"Dist",		0xff,		5,		RakarrakPort,	2,	NoCustom,	0 },
+	{3,		"Funk Chorus",0xff,		3,		RakarrakPort,	2,	NoCustom,	0 },
+	{4,		"ThumpBass",	0xff,		8,		RakarrakPort,	2,	NoCustom,	0 },
+	{5,		"Chorus",		0xff,		17,		RakarrakPort,	2,	NoCustom,	0 },
+	{6,		"Jazz",		0xff,		27,		RakarrakPort,	2,	NoCustom,	0 },
+	{7,		"EliasChorus",0xff,		18,		RakarrakPort,	2,	NoCustom,	0 },
+	{8,		"Synth",		0xff,		15,		RakarrakPort,	2,	NoCustom,	0 },
+	{9,		"Oct Bass",	0xff,		9,		RakarrakPort,	2,	NoCustom,	0 },
+	{10,	"Chr Riff",	0xff,		7,		RakarrakPort,	2,	NoCustom,	0 },
+//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
 // 10	Button		Title		Bank	Patch	Outport			
-	{"button11",	"Piano",		SFDSF,		63,		FluidPort,		1,	NoCustom,	0 },
-	{"button12",	"Honky",		SF32GM,	3,		FluidPort,		1,	NoCustom,	0},
-	{"button13",	"Breath",		SFFluidGM,	53,	FluidPort,			1,	NoCustom,	0},
-	{"button14",	"De-Tuned Organ",SFA340Low,	16,	FluidPort,		1,	NoCustom,	0},
-	{"button15",	"Flute",		SFFlute,	73,	FluidPort,			1,	NoCustom,	0},
-	{"button16",	"Synth Lead",	SFDSF,		43,	FluidPort,		1,	NoCustom,	0},
-	{"button17",	"Walky",		SFDSF,		3,		FluidPort,		1,	NoCustom,	0},
-	{"button18",	"Trumpet",		SFDSF,		66,		FluidPort,		1,	NoCustom,	0},
-	{"button19",	"Steel Drums",SFFluidGM,	114,FluidPort,		1,	NoCustom,	0},
-	{"button20",	"Strings",		SFDSF,		85,		FluidPort,		1,	NoCustom,	0},
+	{11,	"Piano",		SFDSF,		63,		FluidPort,		1,	NoCustom,	0 },
+	{12,	"Honky",		SF32GM,	3,		FluidPort,		1,	NoCustom,	0},
+	{13,	"Breath",		SFFluidGM,	53,	FluidPort,			1,	NoCustom,	0},
+	{14,	"De-Tuned Organ",SFA340Low,	16,	FluidPort,		1,	NoCustom,	0},
+	{15,	"Flute",		SFFlute,	73,	FluidPort,			1,	NoCustom,	0},
+	{16,	"Synth Lead",	SFDSF,		43,	FluidPort,		1,	NoCustom,	0},
+	{17,	"Walky",		SFDSF,		3,		FluidPort,		1,	NoCustom,	0},
+	{18,	"Trumpet",		SFDSF,		66,		FluidPort,		1,	NoCustom,	0},
+	{19,	"Steel Drums",SFFluidGM,	114,FluidPort,		1,	NoCustom,	0},
+	{20,	"Strings",		SFDSF,		85,		FluidPort,		1,	NoCustom,	0},
 // 20	Button		Title		Bank	Patch	Outport			
-	{"button21",	"Drums",		128,		26,		FluidPort,		1,	NoCustom,	0},
-	{"button22",	"Slap Bass",	SFDSF,		24,		FluidPort,		1,	NoCustom,	0},
-	{"button23",	"Synth Hard",	SFDSF,		60,		FluidPort,		1,	NoCustom,	0},
-	{"button24",	"Marimba",		SFDSF,		12,		FluidPort,		1,	NoCustom,	0},
-	{"button25",	"Holdsworth", SFMusica,	48,		FluidPort,		1,	NoCustom,	0},
-	{"button26",	"Steel Drums",SFDSF,		114,	FluidPort,		1,	NoCustom,	0},
-	{"button27",	"Low Synth",	SFDSF,		45,		FluidPort,		1,	NoCustom,	0},
-	{"button28",	"Mid0",		0xff,		0,		GI20Port,		1,	NoCustom,	0},
-	{"button29",	"Mid-24",		0xff,		2,		GI20Port,		1,	NoCustom,	0},
-	{"button30",	"Mid Screen",	SFDSF,		0,		FluidPort,		1,	NoCustom,	0},
+	{21,	"Drums",		128,		26,		FluidPort,		1,	NoCustom,	0},
+	{22,	"Slap Bass",	SFDSF,		24,		FluidPort,		1,	NoCustom,	0},
+	{23,	"Synth Hard",	SFDSF,		60,		FluidPort,		1,	NoCustom,	0},
+	{24,	"Marimba",		SFDSF,		12,		FluidPort,		1,	NoCustom,	0},
+	{25,	"Holdsworth", SFMusica,	48,		FluidPort,		1,	NoCustom,	0},
+	{26,	"Steel Drums",SFDSF,		114,	FluidPort,		1,	NoCustom,	0},
+	{27,	"Low Synth",	SFDSF,		45,		FluidPort,		1,	NoCustom,	0},
+	{28,	"Mid0",		0xff,		0,		GI20Port,		1,	NoCustom,	0},
+	{29,	"Mid-24",		0xff,		2,		GI20Port,		1,	NoCustom,	0},
+	{30,	"Mid Screen",	SFDSF,		0,		FluidPort,		1,	NoCustom,	0},
 // 30	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"Rak Eff6",	116,		11,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff7",	116,		13,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff8",	116,		15,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff9",	116,		17,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff10",	116,		18,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff1",	116,		0,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff2",	116,		2,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff3",	116,		4,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff4",	116,		6,		FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Rak Eff5",	116,		8,		FluidPort,		1,	Controller,	0},
+	{ 31,	"Rak Eff6",	116,		11,		FluidPort,		1,	Controller,	0},
+	{ 32,	"Rak Eff7",	116,		13,		FluidPort,		1,	Controller,	0},
+	{ 33,	"Rak Eff8",	116,		15,		FluidPort,		1,	Controller,	0},
+	{ 34,	"Rak Eff9",	116,		17,		FluidPort,		1,	Controller,	0},
+	{ 35,	"Rak Eff10",	116,		18,		FluidPort,		1,	Controller,	0},
+	{ 36,	"Rak Eff1",	116,		0,		FluidPort,		1,	Controller,	0},
+	{ 37,	"Rak Eff2",	116,		2,		FluidPort,		1,	Controller,	0},
+	{ 38,	"Rak Eff3",	116,		4,		FluidPort,		1,	Controller,	0},
+	{ 39,	"Rak Eff4",	116,		6,		FluidPort,		1,	Controller,	0},
+	{ 40,	"Rak Eff5",	116,		8,		FluidPort,		1,	Controller,	0},
 // 40	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"TransStart",	0xff,		0,		TransportPort,	1,	TransStart,	0},
-	{"NoButton",	"TransCont",	0xff,		0,		TransportPort,	1,	TransCont,	0},
-	{"NoButton",	"TransStop",	0xff,		0,		TransportPort,	1,	TransStop,	0},
-	{"NoButton",	"TransBack",	0xff,		0,		TransportPort,	1,	TransStart,	0},
-	{"NoButton",	"TransPos",	0xff,		0,		TransportPort,	1,	TransStart,	0},
-	{"NoButton",	"Tap",			116,		121,	FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Midi Tog",	116,		122,	FluidPort,		1,	Controller,	0},
-	{"NoButton",	"Tuner",		116,		123,	FluidPort,		1,	Controller,	0},
-	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
-	{"NoButton",	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
+	{ 41,	"TransStart",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{ 42,	"TransCont",	0xff,		0,		TransportPort,	1,	TransCont,	0},
+	{ 43,	"TransStop",	0xff,		0,		TransportPort,	1,	TransStop,	0},
+	{ 44,	"TransBack",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{ 45,	"TransPos",	0xff,		0,		TransportPort,	1,	TransStart,	0},
+	{ 46,	"Tap",			116,		121,	FluidPort,		1,	Controller,	0},
+	{ 47,	"Midi Tog",	116,		122,	FluidPort,		1,	Controller,	0},
+	{ 48,	"Tuner",		116,		123,	FluidPort,		1,	Controller,	0},
+	{ 49,	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
+	{ 50,	"AnaOnOff",	116,		124,	FluidPort,		1,	Controller,	0},
 // 50	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"LP Undo",		0xff,		69,		LooperPort,	1,	NoCustom,	0},
-	{"NoButton",	"LP 1",		0xff,		70,		LooperPort,	1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 2",		0xff,		71,		LooperPort,	1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 3",		0xff,		72,		LooperPort,	1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP 4",		0xff,		73,		LooperPort,	1,	NoCustom,	ToLooperApp},
-	{"NoButton",	"LP Rec",		0xff,		74,		LooperPort,	1,	NoCustom,	0},
-	{"NoButton",	"LP Pause",	0xff,		75,		LooperPort,	1,	NoCustom,	0},
-	{"NoButton",	"LP Trig",		0xff,		76,		LooperPort,	1,	NoCustom,	0},
-	{"NoButton",	"LP Tap",		0xff,		77,		LooperPort,	1,	NoCustom,	0},
-	{"NoButton",	"LP SelAll",	0xff,		78,		LooperPort,	1,	NoCustom,	0},
+	{ 51,	"LP Undo",		0xff,		69,		LooperPort,	1,	NoCustom,	0},
+	{ 52,	"LP 1",		0xff,		70,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{ 53,	"LP 2",		0xff,		71,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{ 54,	"LP 3",		0xff,		72,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{ 55,	"LP 4",		0xff,		73,		LooperPort,	1,	NoCustom,	ToLooperApp},
+	{ 56,	"LP Rec",		0xff,		74,		LooperPort,	1,	NoCustom,	0},
+	{ 57,	"LP Pause",	0xff,		75,		LooperPort,	1,	NoCustom,	0},
+	{ 58,	"LP Trig",		0xff,		76,		LooperPort,	1,	NoCustom,	0},
+	{ 59,	"LP Tap",		0xff,		77,		LooperPort,	1,	NoCustom,	0},
+	{ 60,	"LP SelAll",	0xff,		78,		LooperPort,	1,	NoCustom,	0},
 // 60	Button		Title		Bank	Patch	Outport			
-	{"NoButton",	"AnalogApp",	0xff,		AnalogApp,		0,		1,	RaiseApp,	0},
-	{"NoButton",	"MidiSoundApp",0xff,		MidiSoundApp,	0,		1,	RaiseApp,	0},
-	{"NoButton",	"LooperApp",	0xff,		LooperApp,		0,		1,	RaiseApp,	0},
-	{"NoButton",	"MidiControl",0xff,		MidiControl,	0,		1,	RaiseApp,	0},
-	{"NoButton",	"MP3Player",	0xff,		MP3Player,		0,		1,	RaiseApp,	0},
-	{"NoButton",	"TabPlayer",	0xff,		TabPlayer,		0,		1,	RaiseApp,	0},
-	{"NoButton",	"PreTab",		0xff,		0		,		0,		1,	SwitchTab,	0},
-	{"NoButton",	"ScoreTab",	0xff,		1,				0,		1,	SwitchTab,	0},
+	{ 61,	"AnalogApp",	0xff,		AnalogApp,		0,		1,	RaiseApp,	0},
+	{ 62,	"MidiSoundApp",0xff,		MidiSoundApp,	0,		1,	RaiseApp,	0},
+	{ 63,	"LooperApp",	0xff,		LooperApp,		0,		1,	RaiseApp,	0},
+	{ 64,	"MidiControl",0xff,		MidiControl,	0,		1,	RaiseApp,	0},
+	{ 65,	"MP3Player",	0xff,		MP3Player,		0,		1,	RaiseApp,	0},
+	{ 66,	"TabPlayer",	0xff,		TabPlayer,		0,		1,	RaiseApp,	0},
+	{ 67,	"PreTab",		0xff,		0		,		0,		1,	SwitchTab,	0},
+	{ 68,	"ScoreTab",	0xff,		1,				0,		1,	SwitchTab,	0},
 
-	{"NoButton",	"TransportApp",0xff,		TransportApp,	0,		1,	RaiseApp,	0},
-
-
-	{"NoButton",	"Switch0",		0xff,		0,			0,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch1",		0xff,		1,			0,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch2",		0xff,		2,			0,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch3",		0xff,		3,			0,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch4",		0xff,		4,			0,		1,	ToDesktop,	0},
-	{"NoButton",	"Switch5",		0xff,		5,			0,		1,	ToDesktop,	0},
+	{ 69,	"TransportApp",0xff,		TransportApp,	0,		1,	RaiseApp,	0},
 
 
-	{"NoCustom",	"Elias1",		0xff,		0,		FluidPort,		2,	ToDesktop, 0}
+	{ 70,	"Switch0",		0xff,		0,			0,		1,	ToDesktop,	0},
+	{ 71,	"Switch1",		0xff,		1,			0,		1,	ToDesktop,	0},
+	{ 72,	"Switch2",		0xff,		2,			0,		1,	ToDesktop,	0},
+	{ 73,	"Switch3",		0xff,		3,			0,		1,	ToDesktop,	0},
+	{ 74,	"Switch4",		0xff,		4,			0,		1,	ToDesktop,	0},
+	{ 75,	"Switch5",		0xff,		5,			0,		1,	ToDesktop,	0},
+
+
+	{76,	"Elias1",		0xff,		0,		FluidPort,		2,	ToDesktop, 0}
   },
 	// Path the Charts directory
 	"/home/Dropbox/FusionBlue/ChartsHTML/",
@@ -158,7 +158,6 @@ GTKMidiInfo  GlobalInfo = {
 *---------------------------------------------------------------------*/
 void InitPref(void) {
 
-	memcpy(&gMyInfo, &GlobalInfo, sizeof (GTKMidiInfo));
 #if 0
 	strcpy(&gMyInfo.Apps[AnalogApp].Name, "rakarrack" );
 		strcpy(&gMyInfo.Apps[MidiSoundApp].Name, "qsynth" );
@@ -168,11 +167,15 @@ void InitPref(void) {
 		strcpy(&gMyInfo.Apps[MP3Player].Name, "clementine" );
 		strcpy(&gMyInfo.Apps[TabPlayer].Name, "Tux" );
 #endif
-//	PrintDataStructure(&gMyInfo);
-//	exit(1);
+
+//	memcpy(&gMyInfo, &GlobalInfo, sizeof (GTKMidiInfo));
+//	WritePref();
+
+	ReadPrefs();
+	PrintDataStructure(&gMyInfo);
+	exit(1);
 //	printf("Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //	WritePref();
-//	ReadPrefs();
 }
 
 
@@ -190,13 +193,21 @@ PortsInfo	*thePorts;
 	printf("Main Information\n");
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printf("ID=%d %s %s\n", Loop, 
+		printf("ID=%d %s %d %d %d %d %d %d %d\n", Loop, 
 			myInfo->MyPatchInfo[Loop].Name,
-			myInfo->MyPatchInfo[Loop].Button);
+			myInfo->MyPatchInfo[Loop].Index,
+			myInfo->MyPatchInfo[Loop].BankSelect,
+			myInfo->MyPatchInfo[Loop].Patch,
+			myInfo->MyPatchInfo[Loop].OutPort,
+			myInfo->MyPatchInfo[Loop].Channel,
+			myInfo->MyPatchInfo[Loop].CustomCommand,
+			myInfo->MyPatchInfo[Loop].Chain
+			);
 	}
 
 	printf("BaseName %s\n", myInfo->BasePath);
 
+	printf("Num Ports %d\n", myInfo->NumOutPorts);
 	for (Loop = 0; Loop < myInfo->NumOutPorts; Loop++) {
 		printf("Ports %s\n", myInfo->OutPortName[Loop]);
 	}
@@ -220,6 +231,12 @@ PortsInfo	*thePorts;
 			printf("Out SName %d, [%s]\n",Loop1, thePorts->Devices[Loop].Ports[Loop1].Name);
 		}
 	}
+
+	for ( Loop = 0; Loop < MaxApps; Loop++ ) {
+		printf("Apps Name [%s] %d\n", 
+			myInfo->Apps[Loop].Name, myInfo->Apps[Loop].PortID);
+	}
+	
 }
 
 /*--------------------------------------------------------------------
@@ -247,9 +264,10 @@ void WritePref(void) {
      * Write out the Buttons
      */
     node1 = xmlNewChild(root_node, NULL, BAD_CAST "MainButtons", NULL);
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+	for (Loop = 0; Loop < Max_Patches; Loop++) {
 //		doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
-		node = xmlNewChild(node1, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
+		sprintf(buff, "Preset%03d", gMyInfo.MyPatchInfo[Loop].Index);
+		node = xmlNewChild(node1, NULL, buff, NULL);
 		xmlSetProp(node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
 		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
 		xmlSetProp(node, "Channel", buff);
@@ -259,6 +277,10 @@ void WritePref(void) {
 		xmlSetProp(node, "OutPort", buff);
 		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Patch);
 		xmlSetProp(node, "Patch", buff);
+		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].CustomCommand);
+		xmlSetProp(node, "Custom", buff);
+		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Chain);
+		xmlSetProp(node, "Chain", buff);
 	}
 
 	sprintf(buff, "%03d", gMyInfo.NumOutPorts);
@@ -271,6 +293,14 @@ void WritePref(void) {
 		xmlSetProp(node, "Name", gMyInfo.OutPortName[Loop]);
 	}
 
+    node1 = xmlNewChild(root_node, NULL, BAD_CAST "AppNames", NULL);
+	for ( Loop = 0; Loop < MaxApps; Loop++ ) {
+		sprintf(buff, "App%03d", Loop);
+		node = xmlNewChild(node1, NULL, buff, NULL);
+		xmlSetProp(node, "Name", gMyInfo.Apps[Loop].Name);
+		sprintf(buff, "%03d", gMyInfo.Apps[Loop].PortID);
+		xmlSetProp(node, "PortID", buff);
+	}
 
    /*
     * Dumping document to stdio or file
@@ -375,7 +405,7 @@ void getReference (xmlDocPtr doc, xmlNodePtr cur) {
 	    	node = cur->xmlChildrenNode;
 	    		while(node) {
 	    			if (xmlStrcmp(node->name, (const xmlChar *)"text" )) {
-	    	        printf("Button: %s ", node->name);
+	    	        printf("Preset: %s ", node->name);
 
 	    			key = xmlGetProp(node, "Name" );
 	    	        printf("Name: %s ", key);
@@ -424,7 +454,7 @@ void getReference (xmlDocPtr doc, xmlNodePtr cur) {
     	node = cur->xmlChildrenNode;
     		while(node) {
     			if (xmlStrcmp(node->name, (const xmlChar *)"text" )) {
-    				printf("Button: %s ", node->name);
+    				printf("Preset: %s ", node->name);
 
     			gMyInfo.NumOutPorts++;
     			key = xmlGetProp(node, "Name" );
@@ -567,39 +597,221 @@ print_element_names(xmlNode * a_node)
 // 16 EndEntity
 // XML_ELEMENT_NODE
 // 
-static void processNode(xmlTextReaderPtr reader, char *Location) {
+// 
+#define dTopLevelNone 0
+#define dTopLevelMainButtons 1
+#define dTopLevelNumOutPorts 2
+#define dTopLevelOutPorts 3
+#define dTopLevelSongPath 4
+#define dTopLevelAppName 5
+#define dTopLevelNone 0
+
+char	TopLevelParse;
+int		ParseCountL4;
+int		ParseCountL2;
+int		ParseCountL3;
+static void processNode1(xmlTextReaderPtr reader, 
+	xmlChar *name, xmlChar *value,
+	int		NodeType, int		Depth) {
+
+}
+
+
+static void processNode(xmlTextReaderPtr reader, char Location) {
     xmlChar *name, *value;
 	int		NodeType;
 	int		Depth;
+	char	Buffer[100];
+	int		HoldIndex;
 	
     name = xmlTextReaderName(reader);
     if (name == NULL)
-        name = xmlStrdup(BAD_CAST "--");
-    value = xmlTextReaderValue(reader);
+		name = xmlStrdup(BAD_CAST "--");
 
-	NodeType = xmlTextReaderNodeType(reader);
-	Depth = xmlTextReaderDepth(reader);
-//	if (NodeType != 14 && NodeType != 3) {
-	if (NodeType == 1) {
-    printf("%s D=%d T=%d N=[%s] E=%d ",Location,
-            Depth,
-            NodeType,
-            name,
-            xmlTextReaderIsEmptyElement(reader));
-    xmlFree(name);
-	}
+		value = xmlTextReaderValue(reader);
+
+		NodeType = xmlTextReaderNodeType(reader);
+		Depth = xmlTextReaderDepth(reader);
+	//	if (NodeType != 14 && NodeType != 3) {
+		printf("%d D=%d T=%d N=[%s] E=%d ",Location,
+				Depth,
+				NodeType,
+				name,
+				xmlTextReaderIsEmptyElement(reader));
+
+			if (Depth == 2)
+				ParseCountL2++;
+				
+			if (Depth == 3)
+				ParseCountL3++;
+				
+			if (Depth == 4)
+				ParseCountL4++;
+				
+		if (Depth == 1 && NodeType == 14 ) {
+			printf("*** Setting Top level to None\n");
+			TopLevelParse = dTopLevelNone;
+		}
+		
+		if (Depth == 1 && NodeType == 1 ) {
+			printf("Top Level Clear \n");
+			TopLevelParse = dTopLevelNone;
+			ParseCountL4 = 0;
+			ParseCountL2 = 0;
+			ParseCountL3 = 0;
+			
+			/* Let's start by looking for the highest level qualifier.
+			 */
+			if ( !strcmp("MainButtons", name) && NodeType == 1) {
+				TopLevelParse = dTopLevelMainButtons;
+				printf("\n\nTop %s\n", name);
+			}
+			
+			if ( !strcmp("NumOutPorts", name) && NodeType == 1 ) {
+				TopLevelParse = dTopLevelNumOutPorts;
+				printf("\n\nTop %s\n", name);
+			}
+			
+			if ( !strcmp("OutPorts", name) && NodeType == 1 ) {
+				TopLevelParse = dTopLevelOutPorts;
+				printf("\n\nTop %s\n", name);
+			}
+
+			if ( !strcmp("SongPath", name) && NodeType == 1 ) {
+				TopLevelParse = dTopLevelSongPath;
+				printf("\n\nTop %s\n", name);
+			}
+			
+			if ( !strcmp("AppNames", name) && NodeType == 1 ) {
+				TopLevelParse = dTopLevelAppName;
+				printf("\n\nTop %s\n", name);
+			}
+
+
+		} /* Depth == 1 NodeType == 1	*/
+		
+		
+		if ( TopLevelParse == dTopLevelOutPorts ) {
+			printf("Main Buttons Parse %d\n", Depth);
+			/* Get the second element.
+			 */
+			if (Depth == 2 && NodeType == 1) {
+				sscanf(name,"Port%03d", &HoldIndex);
+//					printf("\nButton Number %d\n",HoldIndex );
+				ParseCountL2 = HoldIndex;
+			} 
+
+			if (Depth == 3 && NodeType == 2) {
+//					printf("But %d %s %s", ParseCountL2, name, value);
+				if ( !strcmp("Name", name) )
+				strcpy(gMyInfo.OutPortName[ParseCountL2], value);
+
+			}
+		}
+		
+		if ( TopLevelParse == dTopLevelAppName ) {
+			/* Get the second element.
+			 */
+			if (Depth == 2 && NodeType == 1) {
+				sscanf(name,"App%03d", &HoldIndex);
+//					printf("\nButton Number %d\n",HoldIndex );
+				ParseCountL2 = HoldIndex;
+			} 
+
+			if (Depth == 3 && NodeType == 2) {
+//					printf("But %d %s %s", ParseCountL2, name, value);
+				if ( !strcmp("Name", name) )
+				strcpy(gMyInfo.Apps[ParseCountL2].Name, value);
+
+				if ( !strcmp("PortID", name) )
+				gMyInfo.Apps[ParseCountL2].PortID = atoi(value);
+			}
+		}
+		
+		
+		
+		if ( TopLevelParse == dTopLevelMainButtons ) {
+			printf("Main Buttons Parse %d\n", Depth);
+			/* Get the second element.
+			 */
+			if (Depth == 2 && NodeType == 1) {
+				sscanf(name,"Preset%03d", &HoldIndex);
+//					printf("\nButton Number %d\n",HoldIndex );
+				ParseCountL2 = HoldIndex;
+			} 
+
+			if (Depth == 3 && NodeType == 2) {
+//					printf("But %d %s %s", ParseCountL2, name, value);
+				if ( !strcmp("Name", name) )
+				strcpy(gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
+
+				if ( !strcmp("Channel", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].Channel = atoi(value);
+
+				if ( !strcmp("Controller", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].BankSelect = atoi(value);
+
+				if ( !strcmp("OutPort", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].OutPort = atoi(value);
+
+				if ( !strcmp("Patch", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].Patch = atoi(value);
+
+				if ( !strcmp("Custom", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].CustomCommand = atoi(value);
+
+				if ( !strcmp("Chain", name) )
+				gMyInfo.MyPatchInfo[ParseCountL2].Chain = atoi(value);
+
+			} 
+
+		} /* TopLevelParse == dTopLevelMainButtons	*/
+		if (Depth == 2 && NodeType == 3) {
+			if ( TopLevelParse == dTopLevelNumOutPorts ) {
+				gMyInfo.NumOutPorts = atoi(value);
+				printf("\n***Numout Ports %d\n",gMyInfo.NumOutPorts);
+
+			}
+
+			if ( TopLevelParse == dTopLevelSongPath ) {
+				printf("Song Path %s\n", value);
+				strncpy(gMyInfo.BasePath, value, 255);
+			}
+		}	/* Depth == 2 && NodeType == 3	*/
+		
+		if (Location == 2 ) {
+
+			if ( TopLevelParse == dTopLevelSongPath ) {
+				printf("Song Path %s\n", value);
+				strncpy(gMyInfo.BasePath, value, 255);
+			}
+		
+		}
+		
 
 #if 1
-    if (value != NULL) {
-        printf("V=[%s]", value);
-        xmlFree(value);
+//    if (value != NULL) {
+    if (NodeType == 2 || NodeType == 3) {
+        printf("T%d V=[%s]", NodeType, value);
     }
+
+    if (value != NULL)
+        xmlFree(value);
+
+	if (NodeType == 1)
+		xmlFree(name);
+
 #endif
 }
 
 void ReadPrefs() {
     xmlTextReaderPtr reader;
     int ret;
+
+	xmlChar *name, *value;
+	int		NodeType;
+	int		Depth;
+
 	printf("----------------------\n");
 	printf("Reading prefs file\n");
 	printf("----------------------\n");
@@ -607,12 +819,11 @@ void ReadPrefs() {
     if (reader != NULL) {
         ret = xmlTextReaderRead(reader);
         while (ret == 1) {
-            processNode(reader,"First");
-				printf("\n");
+			processNode(reader,1);
+			printf("\n");
 			while(xmlTextReaderMoveToNextAttribute(reader))
-				processNode(reader,"Sec");
+				processNode(reader,2);
 				printf("\n");
-
 
             ret = xmlTextReaderRead(reader);
         }

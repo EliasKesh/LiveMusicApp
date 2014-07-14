@@ -142,7 +142,7 @@ unsigned int	Loop;
 		gtk_list_store_append(treestore, &toplevel);
 		gtk_list_store_set (treestore, &toplevel,
 //		gtk_tree_store_set (treestore, &toplevel,
-		Button_COLUMN,gMyInfo.MyPatchInfo[Loop].Button,
+		Button_COLUMN,gMyInfo.MyPatchInfo[Loop].Index,
 		Name_COLUMN,gMyInfo.MyPatchInfo[Loop].Name,
 		Bank_COLUMN,gMyInfo.MyPatchInfo[Loop].BankSelect,
 		Patch_COLUMN,gMyInfo.MyPatchInfo[Loop].Patch,

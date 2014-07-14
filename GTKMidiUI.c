@@ -544,7 +544,7 @@ void	CreateMainButtons(void) {
 #ifndef UsingNewButtons
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		
-		MainButtons[Loop] = GTK_WIDGET (gtk_builder_get_object  (gxml, gMyInfo.MyPatchInfo[Loop].Button));
+		MainButtons[Loop] = GTK_WIDGET (gtk_builder_get_object  (gxml, gMyInfo.MyPatchInfo[Loop].Name));
 		g_signal_connect_data (G_OBJECT (MainButtons[Loop]), "clicked", 
 			G_CALLBACK (on_button_clicked), Loop, NULL, 0);
 	}
@@ -588,7 +588,7 @@ void	SetUpMainButtons(PatchInfo  *myPatchInfo) {
 
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		myButton = MainButtons[Loop];
-		printf("SetUpMainButtons: %s %x\n", gMyInfo.MyPatchInfo[Loop].Button, myButton);
+		printf("SetUpMainButtons: %d %x\n", gMyInfo.MyPatchInfo[Loop].Index, myButton);
 		printf("Loop %d gMyInfo %x Patch %d\n",Loop, &gMyInfo, GetModePreset(Loop));
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
 	}
@@ -755,13 +755,30 @@ void	 IncrementMode(void) {
 *
 *---------------------------------------------------------------------*/
 int	 ModeSwitchPatch(int MidiIn) {
+char	Preset;
 
 	/* If the Midi command was a mode changes.
 	 */
-	if (MidiIn == ModeSwitchKey)
+	switch(MidiIn) {
+	case ModeSwitchKey:
 		IncrementMode();
-	else
+	break;
+
+	case Preset1FButton:
+		Preset = gMyInfo.WebPresets.thePreset1;
+		if (Preset != -1)
+			DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+	break;
+
+	case Preset2FButton:
+		Preset = gMyInfo.WebPresets.thePreset2;
+		if (Preset != -1)
+			DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+	break;
+
+	default:
 		DoPatch(&gMyInfo.MyPatchInfo[(char )GetModePreset(MidiIn)]);
+	}
 //		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
 
 	printf("ModeSwitchPatch %d\n",MidiIn);
