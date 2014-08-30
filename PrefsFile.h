@@ -1,16 +1,16 @@
 /*---------------------------------------------------------------------
-|
-|	File: 	PrefsFile
-|
-|	Contains: 	
-|
-|
-|	Written By: 	Elias Keshishoglou on Tue Dec 25 17:29:01 PST 2012
-|
-|	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
-|
-|
-|---------------------------------------------------------------------*/
+ |
+ |	File: 	PrefsFile
+ |
+ |	Contains:
+ |
+ |
+ |	Written By: 	Elias Keshishoglou on Tue Dec 25 17:29:01 PST 2012
+ |
+ |	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
+ |
+ |
+ |---------------------------------------------------------------------*/
 
 #ifndef PrefsFile_h
 #define PrefsFile_h
@@ -18,7 +18,6 @@
 /*
  * Place Includes here.
  */
-
 
 /*
  * Place Global prototypes here.

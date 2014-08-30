@@ -11,6 +11,6 @@
 bool MyAlsaInit(void);
 
 int SendMidi(char Type, char Port, char Channel, char Controller, int Value);
-int SendMidiPatch( PatchInfo *thePatch);
+int SendMidiPatch(PatchInfo *thePatch);
 
 #endif /* ALSAUTILS_H_ */
