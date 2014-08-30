@@ -1,6 +1,6 @@
 /* ejk first checked in.
-one more test of Git.
-*/
+ one more test of Git.
+ */
 /* include/aconfig.h.  Generated from aconfig.h.in by configure.  */
 /* include/aconfig.h.in.  Generated from configure.in by autoheader.  */
 
@@ -8,7 +8,7 @@ one more test of Git.
 #define DATADIR "/usr/share/alsa"
 
 /* Define to 1 if translation of program messages to the user's native
-   language is requested. */
+ language is requested. */
 #define ENABLE_NLS 1
 
 /* Define if curses-based programs can show translated messages. */
@@ -27,11 +27,11 @@ one more test of Git.
 #define HAVE_ALSA_SEQ_H 1
 
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
+ CoreFoundation framework. */
 /* #undef HAVE_CFLOCALECOPYCURRENT */
 
 /* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
+ the CoreFoundation framework. */
 /* #undef HAVE_CFPREFERENCESCOPYAPPVALUE */
 
 /* Have clock gettime */
@@ -41,7 +41,7 @@ one more test of Git.
 #define HAVE_CURSES_ESCDELAY 1
 
 /* Define if the GNU dcgettext() function is already present or preinstalled.
-   */
+ */
 #define HAVE_DCGETTEXT 1
 
 /* Define to 1 if you have the <form.h> header file. */
@@ -143,7 +143,7 @@ one more test of Git.
 /* #undef const */
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
+ calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 /* #undef inline */
 #endif

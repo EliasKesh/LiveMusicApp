@@ -1,16 +1,16 @@
 /*---------------------------------------------------------------------
-|
-|	File: 	Connections
-|
-|	Contains: 	
-|
-|
-|	Written By: 	Elias Keshishoglou on Sat May 11 20:18:30 PDT 2013
-|
-|	Copyright ©: 	2013 Elias Keshishoglou all rights reserved.
-|
-|
-|---------------------------------------------------------------------*/
+ |
+ |	File: 	Connections
+ |
+ |	Contains:
+ |
+ |
+ |	Written By: 	Elias Keshishoglou on Sat May 11 20:18:30 PDT 2013
+ |
+ |	Copyright ©: 	2013 Elias Keshishoglou all rights reserved.
+ |
+ |
+ |---------------------------------------------------------------------*/
 
 #define Connections_c
 
@@ -35,21 +35,22 @@
 #include "aconfig.h"
 // #include "gettext.h"
 
-char	gDevices;
-char	gPorts;
-PortsInfo	*thePorts;
+char gDevices;
+char gPorts;
+PortsInfo *thePorts;
 /*
  * Place defines and Typedefs here
  */
 
-typedef void (*action_func_t)(snd_seq_t *seq, snd_seq_client_info_t *cinfo, snd_seq_port_info_t *pinfo, int count);
+typedef void (*action_func_t)(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
+		snd_seq_port_info_t *pinfo, int count);
 
 /*
  * Place Local prototypes here
  */
 
 static void print_port_and_subs(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
-				snd_seq_port_info_t *pinfo, int count);
+		snd_seq_port_info_t *pinfo, int count);
 static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action);
 
 /*
@@ -59,9 +60,8 @@ static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action);
 #define LIST_INPUT	1
 #define LIST_OUTPUT	2
 
-int	InitConnections(void) {
-snd_seq_t *seq;
-
+int InitConnections(void) {
+	snd_seq_t *seq;
 
 	if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
 		fprintf(stderr, ("can't open sequencer\n"));
@@ -81,13 +81,14 @@ snd_seq_t *seq;
 	do_search_port(seq, LIST_OUTPUT, print_port_and_subs);
 	snd_seq_close(seq);
 
-};
+}
+;
 
-static void error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
-{
+static void error_handler(const char *file, int line, const char *function,
+		int err, const char *fmt, ...) {
 	va_list arg;
 
-	if (err == ENOENT)	/* Ignore those misleading "warnings" */
+	if (err == ENOENT) /* Ignore those misleading "warnings" */
 		return;
 	va_start(arg, fmt);
 	fprintf(stderr, "ALSA lib %s:%i:(%s) ", file, line, function);
@@ -98,8 +99,7 @@ static void error_handler(const char *file, int line, const char *function, int 
 	va_end(arg);
 }
 
-static void usage(void)
-{
+static void usage(void) {
 
 }
 
@@ -112,21 +112,22 @@ static void usage(void)
 
 #define perm_ok(pinfo,bits) ((snd_seq_port_info_get_capability(pinfo) & (bits)) == (bits))
 
-static int check_permission(snd_seq_port_info_t *pinfo, int perm)
-{
+static int check_permission(snd_seq_port_info_t *pinfo, int perm) {
 	if (perm) {
 		if (perm & LIST_INPUT) {
-			if (perm_ok(pinfo, SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ))
+			if (perm_ok(pinfo,
+					SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ))
 				goto __ok;
 		}
 		if (perm & LIST_OUTPUT) {
-			if (perm_ok(pinfo, SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE))
+			if (perm_ok(pinfo,
+					SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE))
 				goto __ok;
 		}
 		return 0;
 	}
- __ok:
-	if (snd_seq_port_info_get_capability(pinfo) & SND_SEQ_PORT_CAP_NO_EXPORT)
+	__ok: if (snd_seq_port_info_get_capability(
+			pinfo) & SND_SEQ_PORT_CAP_NO_EXPORT)
 		return 0;
 	return 1;
 }
@@ -134,8 +135,8 @@ static int check_permission(snd_seq_port_info_t *pinfo, int perm)
 /*
  * list subscribers of specified type
  */
-static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs, int type, const char *msg)
-{
+static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs,
+		int type, const char *msg) {
 	int count = 0;
 	snd_seq_query_subscribe_set_type(subs, type);
 	snd_seq_query_subscribe_set_index(subs, 0);
@@ -151,9 +152,11 @@ static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs, int 
 			printf("[ex]");
 		if (snd_seq_query_subscribe_get_time_update(subs))
 			printf("[%s:%d]",
-				   (snd_seq_query_subscribe_get_time_real(subs) ? "real" : "tick"),
-				   snd_seq_query_subscribe_get_queue(subs));
-		snd_seq_query_subscribe_set_index(subs, snd_seq_query_subscribe_get_index(subs) + 1);
+					(snd_seq_query_subscribe_get_time_real(subs) ?
+							"real" : "tick"),
+					snd_seq_query_subscribe_get_queue(subs));
+		snd_seq_query_subscribe_set_index(subs,
+				snd_seq_query_subscribe_get_index(subs) + 1);
 	}
 	if (count > 0)
 		printf("\n");
@@ -162,8 +165,7 @@ static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs, int 
 /*
  * list subscribers
  */
-static void list_subscribers(snd_seq_t *seq, const snd_seq_addr_t *addr)
-{
+static void list_subscribers(snd_seq_t *seq, const snd_seq_addr_t *addr) {
 	snd_seq_query_subscribe_t *subs;
 	snd_seq_query_subscribe_alloca(&subs);
 	snd_seq_query_subscribe_set_root(subs, addr);
@@ -175,8 +177,7 @@ static void list_subscribers(snd_seq_t *seq, const snd_seq_addr_t *addr)
  * search all ports
  */
 
-static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action)
-{
+static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action) {
 	snd_seq_client_info_t *cinfo;
 	snd_seq_port_info_t *pinfo;
 	int count;
@@ -186,7 +187,8 @@ static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action)
 	snd_seq_client_info_set_client(cinfo, -1);
 	while (snd_seq_query_next_client(seq, cinfo) >= 0) {
 		/* reset query info */
-		snd_seq_port_info_set_client(pinfo, snd_seq_client_info_get_client(cinfo));
+		snd_seq_port_info_set_client(pinfo,
+				snd_seq_client_info_get_client(cinfo));
 		snd_seq_port_info_set_port(pinfo, -1);
 		count = 0;
 		while (snd_seq_query_next_port(seq, pinfo) >= 0) {
@@ -199,50 +201,49 @@ static void do_search_port(snd_seq_t *seq, int perm, action_func_t do_action)
 }
 
 static void print_port(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
-			   snd_seq_port_info_t *pinfo, int count)
-{
+		snd_seq_port_info_t *pinfo, int count) {
 
-	if (! count) {
+	if (!count) {
 		gDevices = thePorts->NumDevices;
 		thePorts->NumDevices++;
-		memcpy(thePorts->Devices[gDevices].Name, snd_seq_client_info_get_name(cinfo), 100);
+		memcpy(thePorts->Devices[gDevices].Name,
+				snd_seq_client_info_get_name(cinfo), 100);
 		thePorts->Devices[gDevices].ID = snd_seq_client_info_get_client(cinfo);
 		thePorts->Devices[gDevices].NumPorts = 0;
 #if 0
 		printf(("client %d: '%s' [type=%s]\n"),
-			   snd_seq_client_info_get_client(cinfo),
-			   snd_seq_client_info_get_name(cinfo),
-			   (snd_seq_client_info_get_type(cinfo) == SND_SEQ_USER_CLIENT ?
-			("user") : ("kernel")));
+				snd_seq_client_info_get_client(cinfo),
+				snd_seq_client_info_get_name(cinfo),
+				(snd_seq_client_info_get_type(cinfo) == SND_SEQ_USER_CLIENT ?
+						("user") : ("kernel")));
 #endif
 	}
-		gPorts = thePorts->Devices[gDevices].NumPorts;
-		(thePorts->Devices[gDevices].NumPorts)++;
-		memcpy(thePorts->Devices[gDevices].Ports[gPorts].Name, snd_seq_port_info_get_name(pinfo), 100 );
-		thePorts->Devices[gDevices].Ports[gPorts].ID = snd_seq_port_info_get_port(pinfo);
+	gPorts = thePorts->Devices[gDevices].NumPorts;
+	(thePorts->Devices[gDevices].NumPorts)++;
+	memcpy(thePorts->Devices[gDevices].Ports[gPorts].Name,
+			snd_seq_port_info_get_name(pinfo), 100);
+	thePorts->Devices[gDevices].Ports[gPorts].ID = snd_seq_port_info_get_port(
+			pinfo);
 #if 0
 	printf("  %3d '%-16s'\n",
-		   snd_seq_port_info_get_port(pinfo),
-		   snd_seq_port_info_get_name(pinfo));
-		printf("*** %d %d ***\n", gDevices, gPorts);
+			snd_seq_port_info_get_port(pinfo),
+			snd_seq_port_info_get_name(pinfo));
+	printf("*** %d %d ***\n", gDevices, gPorts);
 #endif
 
 }
 
 static void print_port_and_subs(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
-				snd_seq_port_info_t *pinfo, int count)
-{
+		snd_seq_port_info_t *pinfo, int count) {
 	print_port(seq, cinfo, pinfo, count);
 	list_subscribers(seq, snd_seq_port_info_get_addr(pinfo));
 }
-
 
 /*
  * remove all (exported) connections
  */
 static void remove_connection(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
-				  snd_seq_port_info_t *pinfo, int count)
-{
+		snd_seq_port_info_t *pinfo, int count) {
 	snd_seq_query_subscribe_t *query;
 	snd_seq_port_info_t *port;
 	snd_seq_port_subscribe_t *subs;
@@ -259,26 +260,29 @@ static void remove_connection(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
 		const snd_seq_addr_t *sender = snd_seq_query_subscribe_get_root(query);
 		const snd_seq_addr_t *dest = snd_seq_query_subscribe_get_addr(query);
 
-		if (snd_seq_get_any_port_info(seq, dest->client, dest->port, port) < 0 ||
-			!(snd_seq_port_info_get_capability(port) & SND_SEQ_PORT_CAP_SUBS_WRITE) ||
-			(snd_seq_port_info_get_capability(port) & SND_SEQ_PORT_CAP_NO_EXPORT)) {
-			snd_seq_query_subscribe_set_index(query, snd_seq_query_subscribe_get_index(query) + 1);
+		if (snd_seq_get_any_port_info(seq, dest->client, dest->port, port) < 0
+				|| !(snd_seq_port_info_get_capability(port)
+						& SND_SEQ_PORT_CAP_SUBS_WRITE)
+				|| (snd_seq_port_info_get_capability(port)
+						& SND_SEQ_PORT_CAP_NO_EXPORT)) {
+			snd_seq_query_subscribe_set_index(query,
+					snd_seq_query_subscribe_get_index(query) + 1);
 			continue;
 		}
-		snd_seq_port_subscribe_set_queue(subs, snd_seq_query_subscribe_get_queue(query));
+		snd_seq_port_subscribe_set_queue(subs,
+				snd_seq_query_subscribe_get_queue(query));
 		snd_seq_port_subscribe_set_sender(subs, sender);
 		snd_seq_port_subscribe_set_dest(subs, dest);
 		if (snd_seq_unsubscribe_port(seq, subs) < 0) {
-			snd_seq_query_subscribe_set_index(query, snd_seq_query_subscribe_get_index(query) + 1);
+			snd_seq_query_subscribe_set_index(query,
+					snd_seq_query_subscribe_get_index(query) + 1);
 		}
 	}
 }
 
-static void remove_all_connections(snd_seq_t *seq)
-{
+static void remove_all_connections(snd_seq_t *seq) {
 	do_search_port(seq, 0, remove_connection);
 }
-
 
 /*
  * main..
@@ -288,21 +292,14 @@ enum {
 	SUBSCRIBE, UNSUBSCRIBE, LIST, REMOVE_ALL
 };
 
-static const struct option long_option[] = {
-	{"disconnect", 0, NULL, 'd'},
-	{"input", 0, NULL, 'i'},
-	{"output", 0, NULL, 'o'},
-	{"real", 1, NULL, 'r'},
-	{"tick", 1, NULL, 't'},
-	{"exclusive", 0, NULL, 'e'},
-	{"list", 0, NULL, 'l'},
-	{"removeall", 0, NULL, 'x'},
-	{NULL, 0, NULL, 0},
-};
+static const struct option long_option[] = { { "disconnect", 0, NULL, 'd' }, {
+		"input", 0, NULL, 'i' }, { "output", 0, NULL, 'o' }, { "real", 1, NULL,
+		'r' }, { "tick", 1, NULL, 't' }, { "exclusive", 0, NULL, 'e' }, {
+		"list", 0, NULL, 'l' }, { "removeall", 0, NULL, 'x' }, { NULL, 0, NULL,
+		0 }, };
 
 #if 0
-int Temp(int argc, char **argv)
-{
+int Temp(int argc, char **argv) {
 	int c;
 	snd_seq_t *seq;
 	int queue = 0, convert_time = 0, convert_real = 0, exclusive = 0;
@@ -320,44 +317,44 @@ int Temp(int argc, char **argv)
 
 	while ((c = getopt_long(argc, argv, "dior:t:elx", long_option, NULL)) != -1) {
 		switch (c) {
-		case 'd':
+			case 'd':
 			command = UNSUBSCRIBE;
 			break;
-		case 	if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
-		fprintf(stderr, ("can't open sequencer\n"));
-		return 1;
-	}
-	'i':
+			case if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
+				fprintf(stderr, ("can't open sequencer\n"));
+				return 1;
+			}
+			'i':
 			command = LIST;
 			list_perm |= LIST_INPUT;
-		do_search_port(seq, list_perm,
-				   list_subs ? print_port_and_subs : print_port);
-		snd_seq_close(seq);
+			do_search_port(seq, list_perm,
+					list_subs ? print_port_and_subs : print_port);
+			snd_seq_close(seq);
 			break;
-		case 'o':
+			case 'o':
 			command = LIST;
 			list_perm |= LIST_OUTPUT;
 			break;
-		case 'e':
+			case 'e':
 			exclusive = 1;
 			break;
-		case 'r':
+			case 'r':
 			queue = atoi(optarg);
 			convert_time = 1;
 			convert_real = 1;
 			break;
-		case 't':
+			case 't':
 			queue = atoi(optarg);
 			convert_time = 1;
 			convert_real = 0;
 			break;
-		case 'l':
+			case 'l':
 			list_subs = 1;
 			break;
-		case 'x':
+			case 'x':
 			command = REMOVE_ALL;
 			break;
-		default:
+			default:
 			usage();
 			exit(1);
 		}
@@ -367,16 +364,16 @@ int Temp(int argc, char **argv)
 		fprintf(stderr, ("can't open sequencer\n"));
 		return 1;
 	}
-	
+
 	snd_lib_error_set_handler(error_handler);
 
 	switch (command) {
-	case LIST:
+		case LIST:
 		do_search_port(seq, list_perm,
-				   list_subs ? print_port_and_subs : print_port);
+				list_subs ? print_port_and_subs : print_port);
 		snd_seq_close(seq);
 		return 0;
-	case REMOVE_ALL:
+		case REMOVE_ALL:
 		remove_all_connections(seq);
 		snd_seq_close(seq);
 		return 0;

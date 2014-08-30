@@ -8,7 +8,6 @@
 #ifndef HTML_H_
 #define HTML_H_
 
-
 void InitHTML(GladeXML *gxml);
 
 #endif /* HTML_H_ */
