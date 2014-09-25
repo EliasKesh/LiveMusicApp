@@ -278,9 +278,9 @@ void PrintBoard() {
 
 	for (StringLoop = 0; StringLoop < MaxNumStrings; StringLoop++) {
 		for (FretLoop = 0; FretLoop < MaxNumFrets; FretLoop++) {
-			printf("| %s ", NoteNames[StringLayout[StringLoop][FretLoop]]);
+			printd(LogInfo, "| %s ", NoteNames[StringLayout[StringLoop][FretLoop]]);
 		}
-		printf("\n");
+		printd(LogInfo, "\n");
 	}
 
 }
@@ -353,7 +353,7 @@ void SetChord(char Root, thePreChord *myPreChord) {
 			RootIndex = Loop;
 	}
 
-	printf("String %d Fret %d, RootString %d\n", MaxString, MaxFret, RootIndex);
+	printd(LogInfo, "String %d Fret %d, RootString %d\n", MaxString, MaxFret, RootIndex);
 
 	/* Let's find the starting point of the chord.
 	 */
@@ -365,11 +365,11 @@ void SetChord(char Root, thePreChord *myPreChord) {
 			}
 		}
 	}
-	printf("Starting String %d Fret %d Root %d\n", String, Fret, Root);
+	printd(LogInfo, "Starting String %d Fret %d Root %d\n", String, Fret, Root);
 
 //               myChord.ChordNotes[String][Fret] = Value;
 	for (Loop = 0; myPreChord[Loop].Finger != -1; Loop++) {
-		printf("C_String %d, C_Fret %d\n", myPreChord[Loop].String,
+		printd(LogInfo, "C_String %d, C_Fret %d\n", myPreChord[Loop].String,
 				myPreChord[Loop].Fret);
 		myChord.ChordNotes[MaxNumStrings - (String + myPreChord[Loop].String)][Fret
 				+ myPreChord[Loop].Fret] = myPreChord[Loop].Interval;
@@ -503,7 +503,7 @@ int ChorderMain(GtkWidget *window) {
 	WindowWidth = 800;
 	SetScale(CurRootNote, CurScale);
 
-	printf("Chorder %x\n", window);
+	printd(LogInfo, "Chorder %x\n", window);
 
 	/* Here is the Root Note pulldown.
 	 * ----------------------------------
