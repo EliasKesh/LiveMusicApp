@@ -198,6 +198,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 	default:
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, atoi(new_text),
 				-1);
+		break;
 	}
 
 	switch (column) {

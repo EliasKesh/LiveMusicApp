@@ -146,6 +146,8 @@ GTKMidiInfo GlobalInfo =
 			{ "clementine", 0 },
 			{ "Tux", 0 } },
 			8, /* TempoMax	*/
+			1, /* Metronome On	*/
+			40	/* Base Midi Note for switching.	*/
 	};
 
 /*--------------------------------------------------------------------
@@ -156,15 +158,20 @@ GTKMidiInfo GlobalInfo =
  *---------------------------------------------------------------------*/
 void InitPref(void) {
 
+	gMyInfo.AnalogVolume = 100;
+	gMyInfo.MidiVolume = 100;
+#if 1
 	gMyInfo.TempoMax = 8;
 
 	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
-//	WritePref();
+	WritePref();
+	memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
+#endif
 
-//    ReadPrefs();
-//    PrintDataStructure(&gMyInfo);
+    ReadPrefs();
+    PrintDataStructure(&gMyInfo);
 //exit(1);
-//	printf("Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
+//	printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //	WritePref();
 }
 
@@ -221,6 +228,9 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
 		}
 	}
 
+	printf("Metronome Base %d On %d\n", myInfo->TempoMax, myInfo->MetronomeOn);
+	printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
+
 }
 
 /*--------------------------------------------------------------------
@@ -252,7 +262,7 @@ void WritePref(void) {
 	node1 = xmlNewChild(root_node, NULL, BAD_CAST "MainButtons", NULL);
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
 //		doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
-// ejk INdex		sprintf(buff, "Preset%03d", gMyInfo.MyPatchInfo[Loop].Index);
+		sprintf(buff, "Preset%03d", Loop);
 		node = xmlNewChild(node1, NULL, buff, NULL);
 		xmlSetProp(node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
 		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
@@ -272,6 +282,9 @@ void WritePref(void) {
 	sprintf(buff, "%03d", gMyInfo.NumOutPorts);
 	xmlNewChild(root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
 
+	/*
+	 * Write out the Output Ports.
+	 */
 	node1 = xmlNewChild(root_node, NULL, BAD_CAST "OutPorts", NULL);
 	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
 		sprintf(buff, "Port%03d", Loop);
@@ -287,6 +300,15 @@ void WritePref(void) {
 		sprintf(buff, "%03d", gMyInfo.Apps[Loop].PortID);
 		xmlSetProp(node, "PortID", buff);
 	}
+
+	sprintf(buff, "%03d", gMyInfo.TempoMax);
+	xmlNewChild(root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
+
+	sprintf(buff, "%03d", gMyInfo.MetronomeOn);
+	xmlNewChild(root_node, NULL, BAD_CAST "MetroOn", BAD_CAST buff);
+
+	sprintf(buff, "%03d", gMyInfo.MidiBaseNote);
+	xmlNewChild(root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
 
 	/*
 	 * Dumping document to stdio or file
@@ -307,22 +329,22 @@ void WritePref(void) {
 void getReference(xmlDocPtr doc, xmlNodePtr cur) {
 	xmlChar *key;
 	xmlNodePtr node = NULL;
-	printf("In Get Reference\n");
+	printd(LogInfo, "In Get Reference\n");
 	int Loop = 0;
 
 	cur = cur->xmlChildrenNode;
 	while (cur != NULL) {
-		printf("In Read Loop %s\n", cur->name);
+		printd(LogInfo, "In Read Loop %s\n", cur->name);
 
 		if ((!xmlStrcmp(cur->name, (const xmlChar *) XML_BASIC_SETTINGS))) {
 			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printf("keyword: %s\n", key);
+			printd(LogInfo, "keyword: %s\n", key);
 			xmlFree(key);
 		}
 
 		if ((!xmlStrcmp(cur->name, (const xmlChar *) "SongPath"))) {
 			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printf("Read Path: %s\n", key);
+			printd(LogInfo, "Read Path: %s\n", key);
 			strncpy(gMyInfo.BasePath, key, 255);
 			xmlFree(key);
 		}
@@ -334,30 +356,30 @@ void getReference(xmlDocPtr doc, xmlNodePtr cur) {
 			node = cur->xmlChildrenNode;
 			while (node) {
 				if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
-					printf("Preset: %s ", node->name);
+					printd(LogInfo, "Preset: %s ", node->name);
 
 					key = xmlGetProp(node, "Name");
-					printf("Name: %s ", key);
+					printd(LogInfo, "Name: %s ", key);
 					strcpy(gMyInfo.MyPatchInfo[Loop].Name, key);
 					xmlFree(key);
 
 					key = xmlGetProp(node, "Channel");
-					printf("Chan: %d ", atoi(key));
+					printd(LogInfo, "Chan: %d ", atoi(key));
 					gMyInfo.MyPatchInfo[Loop].Channel = atoi(key);
 					xmlFree(key);
 
 					key = xmlGetProp(node, "Controller");
-					printf("Chan: %d ", atoi(key));
+					printd(LogInfo, "Chan: %d ", atoi(key));
 					gMyInfo.MyPatchInfo[Loop].BankSelect = atoi(key);
 					xmlFree(key);
 
 					key = xmlGetProp(node, "OutPort");
-					printf("Chan: %d ", atoi(key));
+					printd(LogInfo, "Chan: %d ", atoi(key));
 					gMyInfo.MyPatchInfo[Loop].OutPort = atoi(key);
 					xmlFree(key);
 
 					key = xmlGetProp(node, "Patch");
-					printf("Chan: %d \n", atoi(key));
+					printd(LogInfo, "Chan: %d \n", atoi(key));
 					gMyInfo.MyPatchInfo[Loop].Patch = atoi(key);
 					xmlFree(key);
 
@@ -373,7 +395,7 @@ void getReference(xmlDocPtr doc, xmlNodePtr cur) {
 		 */
 		if ((!xmlStrcmp(cur->name, (const xmlChar *) "NumOutPorts"))) {
 			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printf("Read Path: %s\n", key);
+			printd(LogInfo, "Read Path: %s\n", key);
 			gMyInfo.NumOutPorts = atoi(key);
 			xmlFree(key);
 		}
@@ -383,11 +405,11 @@ void getReference(xmlDocPtr doc, xmlNodePtr cur) {
 			node = cur->xmlChildrenNode;
 			while (node) {
 				if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
-					printf("Preset: %s ", node->name);
+					printd(LogInfo, "Preset: %s ", node->name);
 
 					gMyInfo.NumOutPorts++;
 					key = xmlGetProp(node, "Name");
-					printf("Name: %s ", key);
+					printd(LogInfo, "Name: %s ", key);
 					strcpy(gMyInfo.OutPortName[Loop], key);
 					xmlFree(key);
 
@@ -467,7 +489,9 @@ void parseDoc(char *docname) {
 #define dTopLevelOutPorts 3
 #define dTopLevelSongPath 4
 #define dTopLevelAppName 5
-#define dTopLevelNone 0
+#define dTopLevelMetronome 6
+#define dTopLevelMetronomeOn 7
+#define dTopLevelMidiBase 8
 
 char TopLevelParse;
 int ParseCountL4;
@@ -495,7 +519,7 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 	Depth = xmlTextReaderDepth(reader);
 	//	if (NodeType != 14 && NodeType != 3) {
 #if 0
-	printf("%d D=%d T=%d N=[%s] E=%d ",Location,
+	printd(LogInfo, "%d D=%d T=%d N=[%s] E=%d ",Location,
 		Depth,
 		NodeType,
 		name,
@@ -512,12 +536,12 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 		ParseCountL4++;
 
 	if (Depth == 1 && NodeType == 14) {
-		printf("*** Setting Top level to None\n");
+		printd(LogInfo, "\n*** Setting Top level to None\n");
 		TopLevelParse = dTopLevelNone;
 	}
 
 	if (Depth == 1 && NodeType == 1) {
-		printf("Top Level Clear \n");
+		printd(LogInfo, "\nTop Level Clear \n");
 		TopLevelParse = dTopLevelNone;
 		ParseCountL4 = 0;
 		ParseCountL2 = 0;
@@ -544,6 +568,20 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 		if (!strcmp("AppNames", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelAppName;
 		}
+
+		if (!strcmp("TempoMax", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelMetronome;
+		}
+
+		if (!strcmp("MetroOn", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelMetronomeOn;
+		}
+
+		if (!strcmp("MidiBaseNote", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelMidiBase;
+		}
+
+		printd(LogInfo, "\nTop Level Set %d\n",TopLevelParse );
 	} /* Depth == 1 NodeType == 1	*/
 
 	if (TopLevelParse == dTopLevelOutPorts) {
@@ -551,12 +589,12 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 		 */
 		if (Depth == 2 && NodeType == 1) {
 			sscanf(name, "Port%03d", &HoldIndex);
-//					printf("\nButton Number %d\n",HoldIndex );
+//					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
 			ParseCountL2 = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-//					printf("But %d %s %s", ParseCountL2, name, value);
+//					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp("Name", name))
 				strcpy(gMyInfo.OutPortName[ParseCountL2], value);
 
@@ -568,12 +606,12 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 		 */
 		if (Depth == 2 && NodeType == 1) {
 			sscanf(name, "App%03d", &HoldIndex);
-//					printf("\nButton Number %d\n",HoldIndex );
+//					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
 			ParseCountL2 = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-//					printf("But %d %s %s", ParseCountL2, name, value);
+//					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp("Name", name))
 				strcpy(gMyInfo.Apps[ParseCountL2].Name, value);
 
@@ -587,13 +625,13 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 		 */
 		if (Depth == 2 && NodeType == 1) {
 			sscanf(name, "Preset%03d", &HoldIndex);
-//					printf("\nButton Number %d\n",HoldIndex );
-			ParseCountL2 = HoldIndex - 1;
+//					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
+			ParseCountL2 = HoldIndex;
 // Index			gMyInfo.MyPatchInfo[ParseCountL2].Index = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-//					printf("But %d %s %s", ParseCountL2, name, value);
+//					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp("Name", name))
 				strcpy(gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
 
@@ -621,24 +659,43 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 	if (Depth == 2 && NodeType == 3) {
 		if (TopLevelParse == dTopLevelNumOutPorts) {
 			gMyInfo.NumOutPorts = atoi(value);
-			printf("\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
+			printd(LogInfo, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
 
 		}
 
 		if (TopLevelParse == dTopLevelSongPath) {
-			printf("Song Path %s\n", value);
+			printd(LogInfo, "Song Path %s\n", value);
 			strncpy(gMyInfo.BasePath, value, 255);
 		}
+		if (TopLevelParse == dTopLevelMetronome) {
+			printd(LogInfo, "dTopLevelMetronome %s\n", value);
+			gMyInfo.TempoMax = atoi(value);
+		}
+
+		if (TopLevelParse == dTopLevelMetronomeOn) {
+			printd(LogInfo, "dTopLevelMetronomeOn %s\n", value);
+			gMyInfo.MetronomeOn = atoi(value);
+		}
+
+		if (TopLevelParse == dTopLevelMidiBase) {
+			printd(LogInfo, "dTopLevelMidiBase %s\n", value);
+			gMyInfo.MidiBaseNote = atoi(value);
+		}
+
 	} /* Depth == 2 && NodeType == 3	*/
 
+#if 0
 	if (Location == 2) {
 
 		if (TopLevelParse == dTopLevelSongPath) {
-			printf("Song Path %s\n", value);
+			printd(LogInfo, "Song Path %s\n", value);
 			strncpy(gMyInfo.BasePath, value, 255);
 		}
 
 	}
+#endif
+
+
 
 	if (value != NULL)
 		xmlFree(value);
@@ -655,9 +712,9 @@ void ReadPrefs() {
 	int NodeType;
 	int Depth;
 
-	printf("----------------------\n");
-	printf("Reading prefs file\n");
-	printf("----------------------\n");
+	printd(LogInfo, "----------------------\n");
+	printd(LogInfo, "Reading prefs file\n");
+	printd(LogInfo, "----------------------\n");
 	reader = xmlNewTextReaderFilename(PREFSFILENAME);
 	if (reader != NULL) {
 		ret = xmlTextReaderRead(reader);
@@ -670,14 +727,14 @@ void ReadPrefs() {
 		}
 		xmlFreeTextReader(reader);
 		if (ret != 0) {
-			printf("%s : failed to parse\n", PREFSFILENAME);
+			printd(LogInfo, "%s : failed to parse\n", PREFSFILENAME);
 		}
 	} else {
-		printf("Unable to open %s\n", PREFSFILENAME);
+		printd(LogInfo, "Unable to open %s\n", PREFSFILENAME);
 	}
-	printf("----------------------\n");
-	printf("Reading prefs file\n");
-	printf("----------------------\n");
+	printd(LogInfo, "----------------------\n");
+	printd(LogInfo, "Reading prefs file\n");
+	printd(LogInfo, "----------------------\n");
 }
 
 #endif

@@ -84,7 +84,6 @@ typedef struct {
 typedef struct {
 	char *Name;
 	char *location;
-
 } SongInfo;
 
 #define Max_Main_Buttons 30
@@ -121,6 +120,7 @@ typedef struct {
 	PortInformation Apps[MaxApps];
 	char TempoMax;
 	char MetronomeOn;
+	tPatchIndex	MidiBaseNote;
 
 	// Generated Beyond this point.
 	snd_seq_t *SeqPort[MaxOutPorts];
@@ -130,6 +130,10 @@ typedef struct {
 	unsigned char Tempo;
 	unsigned int TempoReload;
 	unsigned int TempoTimerID;
+
+
+	unsigned int AnalogVolume;
+	unsigned int MidiVolume;
 
 } GTKMidiInfo;
 
@@ -166,8 +170,9 @@ enum {
 #define SFA340High 15
 
 #define ModeSwitchKey		29
-#define Preset1FButton	1
-#define Preset2FButton	2
+#define PresetMidiKey	1
+#define Preset1FButton	2
+#define Preset2FButton	3
 
 enum {
 	ToDesktop0 = 60,
@@ -246,7 +251,7 @@ int preModeLooper[Max_Patches] = {
 	60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 };
-
+int		WaitingforMidi;
 #else
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
@@ -258,6 +263,7 @@ extern int preModePractice[];
 extern int preModeLooper[];
 extern int preModePerformance[];
 extern int preModeRehearsal[];
+extern int WaitingforMidi;
 
 #endif
 
@@ -270,5 +276,9 @@ void RaiseWindowsNum(char AppNumber);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn);
 void PrintDataStructure(GTKMidiInfo *myInfo);
+int	GuitarMidiPresetComplete(tPatchIndex	MidiNote);
+int	GuitarMidiPreset(void);
+int	SetVolume1(int Value);
+int	SetVolume2(int Value);
 
 #endif

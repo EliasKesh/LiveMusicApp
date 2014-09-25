@@ -80,9 +80,8 @@ int InitConnections(void) {
 	printf("Search Outputs\n");
 	do_search_port(seq, LIST_OUTPUT, print_port_and_subs);
 	snd_seq_close(seq);
-
+return(0);
 }
-;
 
 static void error_handler(const char *file, int line, const char *function,
 		int err, const char *fmt, ...) {

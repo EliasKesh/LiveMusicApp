@@ -126,6 +126,15 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 		ev.type = SND_SEQ_EVENT_CONTROLLER;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 	}
+//	SND_SEQ_EVENT_SAMPLE_VOLUME
+	if (Type == MIDI_CTL_MSB_MAIN_VOLUME) {
+		ev.type = SND_SEQ_EVENT_CONTROLLER;
+		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
+//		ev.data.sample.param.volume = Value;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+		printd(LogInfo, "SendMidi Volume %d %d\n", Port, err);
+
+	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
 		ev.type = SND_SEQ_EVENT_NOTEON;
@@ -211,7 +220,7 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
 	}
 
-//printf("SendMidi err = %d\n", err);
+//printd(LogInfo, "SendMidi err = %d\n", err);
 	return (err);
 }
 #if 0
@@ -248,7 +257,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 					thePatch->Channel,
 					MIDI_CTL_LSB_BANK, thePatch->BankSelect & 0x7f);
-			printf("MidiPatch Con %x %x \n", (thePatch->BankSelect >> 7) & 0x7f,
+			printd(LogInfo, "MidiPatch Con %x %x \n", (thePatch->BankSelect >> 7) & 0x7f,
 					thePatch->BankSelect & 0x7f);
 		}
 		/* Now send the standard program change.
@@ -256,7 +265,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 		TestProgram++;
 		SendMidi(SND_SEQ_EVENT_PGMCHANGE, thePatch->OutPort, thePatch->Channel,
 				TestProgram, thePatch->Patch);
-		printf("MidiPatch %x %x %x %x %x\n", thePatch->Channel,
+		printd(LogInfo, "MidiPatch %x %x %x %x %x\n", thePatch->Channel,
 				thePatch->BankSelect, thePatch->Patch, thePatch->OutPort);
 		break;
 
@@ -285,7 +294,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 		break;
 
 	case TransStart:
-		printf("Trans Start\n");
+		printd(LogInfo, "Trans Start\n");
 		SendMidi(SND_SEQ_EVENT_START, thePatch->OutPort, thePatch->Channel,
 				TestProgram, thePatch->Patch);
 		break;
@@ -345,7 +354,7 @@ void *alsa_midi_thread(void * context_ptr) {
 //  list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 
 	while (snd_seq_event_input(SeqPort1In, &event_ptr) >= 0) {
-		g_print("Midi Event:\n");
+//		g_print("Midi Event:\n");
 
 //	if (g_midi_ignore)
 //	  continue;
@@ -368,7 +377,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				|| event_ptr->type == SND_SEQ_EVENT_KEYPRESS) {
 			sprintf(channel_str_ptr, "%u",
 					(unsigned int) event_ptr->data.note.channel + 1);
-			printf("%s %s\n", time_str_ptr, channel_str_ptr);
+			printd(LogInfo, "%s %s\n", time_str_ptr, channel_str_ptr);
 
 #if 0
 			if (event_ptr->data.note.channel + 1 == 10) {
@@ -400,24 +409,37 @@ void *alsa_midi_thread(void * context_ptr) {
 			break;
 		case SND_SEQ_EVENT_NOTE:
 			sprintf(msg_str_ptr, "Note");
+			if (WaitingforMidi) {
+				GuitarMidiPresetComplete(event_ptr->data.control.value);
+			}
 			break;
 		case SND_SEQ_EVENT_NOTEON:
-			if (event_ptr->data.note.velocity != 0) {
-				if (drum_name != NULL) {
-					sprintf(msg_str_ptr,
-							"Drum: %s (%s, octave %d, velocity %u)", drum_name,
-							note_name, octave, event_ptr->data.note.velocity);
-				} else {
-					sprintf(msg_str_ptr, "Note on, %s, octave %d, velocity %u",
-							note_name, octave, event_ptr->data.note.velocity);
+			if (WaitingforMidi) {
+				GuitarMidiPresetComplete(event_ptr->data.note.note);
+			}
+#if 0
+			else {
+				if (event_ptr->data.note.velocity != 0) {
+					if (drum_name != NULL) {
+						sprintf(msg_str_ptr,
+								"Drum: %s (%s, octave %d, velocity %u)", drum_name,
+								note_name, octave, event_ptr->data.note.velocity);
+					} else {
+						sprintf(msg_str_ptr, "Note on, %s, octave %d, velocity %u",
+								note_name, octave, event_ptr->data.note.velocity);
+					}
 				}
 			}
+#endif
 			break;
 		case SND_SEQ_EVENT_NOTEOFF:
 			if (drum_name != NULL) /* ignore note off for drums */
 				continue;
-
-			sprintf(msg_str_ptr, "Note off, %s, octave %d", note_name, octave);
+			if (!WaitingforMidi) {
+				sprintf(msg_str_ptr, "Note off, %s, octave %d", note_name, octave);
+			}
+			else
+				continue;
 
 			break;
 		case SND_SEQ_EVENT_KEYPRESS:
@@ -450,8 +472,10 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_MAIN_VOLUME:
 				// ejk SEND
 				cc_name = "Main volume";
-				SendMidi(MIDI_CTL_MSB_MAIN_VOLUME, 0, 1, TestProgram,
-						event_ptr->data.control.value);
+				printd(LogInfo, "Send Midi Volume %d\n", event_ptr->data.control.value);
+				SetVolume1(event_ptr->data.control.value);
+				//				SendMidi(MIDI_CTL_MSB_MAIN_VOLUME, 0, 1, TestProgram,
+				//		event_ptr->data.control.value);
 				break;
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
@@ -502,6 +526,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_MAIN_VOLUME:
 				cc_name = "LSB Main volume";
+				SetVolume2(event_ptr->data.control.value);
 				break;
 			case MIDI_CTL_LSB_BALANCE:
 				cc_name = "Balance";
@@ -652,6 +677,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			}
 
+#if 0
 			if (cc_name != NULL) {
 				sprintf(msg_str_ptr, "CC %s (%u), value %u", cc_name,
 						(unsigned int) event_ptr->data.control.param,
@@ -661,6 +687,7 @@ void *alsa_midi_thread(void * context_ptr) {
 						(unsigned int) event_ptr->data.control.param,
 						(unsigned int) event_ptr->data.control.value);
 			}
+#endif
 			break;
 
 			/*
@@ -670,7 +697,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			 * ------------------------------------------------------------
 			 */
 		case SND_SEQ_EVENT_PGMCHANGE:
-			sprintf(msg_str_ptr, "Program change, %d",
+			sprintf(msg_str_ptr, "Program change, %d\n",
 					(unsigned int) event_ptr->data.control.value);
 
 			/* Here is where Program changes happen from Program change inputs.
@@ -924,8 +951,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			break;
 		}
 
-		printf("%s", msg_str_ptr);
-		g_print("%s", msg_str_ptr);
+//		printd(LogInfo, "%s", msg_str_ptr);
+//		g_print("%s", msg_str_ptr);
 		/* get GTK thread lock */
 		gdk_threads_enter();
 #if 0 //ejk
@@ -1138,7 +1165,7 @@ void sendMessageNow (const MidiMessage& message) {
 		ev.data.note.note = message.getNoteNumber ();
 		ev.data.note.velocity = message.getVelocity ();
 
-		printf("Sending note on/off to port %d, ch=%d, note=%d, vel=%d, pid=%d\n",
+		printd(LogInfo, "Sending note on/off to port %d, ch=%d, note=%d, vel=%d, pid=%d\n",
 				outputPort, ev.data.note.channel, ev.data.note.note, ev.data.note.velocity, getpid());
 	} else if (message.isAllNotesOff()) {
 		// @XXX how to handle this ?
@@ -1149,7 +1176,7 @@ void sendMessageNow (const MidiMessage& message) {
 		ev.data.control.channel = message.getChannel ();
 		ev.data.control.value = message.getPitchWheelValue ();
 
-		printf("Sending pitchbend to port %d, ch=%d, value=%d\n",
+		printd(LogInfo, "Sending pitchbend to port %d, ch=%d, value=%d\n",
 				outputPort, ev.data.control.channel, ev.data.control.value);
 	} else if (message.isChannelPressure()) {
 		ev.type = SND_SEQ_EVENT_CHANPRESS;
@@ -1157,7 +1184,7 @@ void sendMessageNow (const MidiMessage& message) {
 		ev.data.control.param = 0;
 		ev.data.control.value = message.getChannelPressureValue ();
 
-		printf("Sending channel pressure to port %d, ch=%d, value=%d\n",
+		printd(LogInfo, "Sending channel pressure to port %d, ch=%d, value=%d\n",
 				outputPort, ev.data.control.channel, ev.data.control.value);
 	} else if (message.isAftertouch()) {
 		ev.type = SND_SEQ_EVENT_KEYPRESS
@@ -1167,7 +1194,7 @@ void sendMessageNow (const MidiMessage& message) {
 		ev.data.note.off_velocity = 0;
 		ev.data.note.duration = 0;
 
-		printf("Sending aftertouch to port %d, ch=%d, value=%d\n",
+		printd(LogInfo, "Sending aftertouch to port %d, ch=%d, value=%d\n",
 				outputPort, ev.data.note.channel, ev.data.note.value);
 	} else if (message.isController ()) {
 		ev.type = SND_SEQ_EVENT_CONTROLLER;
@@ -1175,14 +1202,14 @@ void sendMessageNow (const MidiMessage& message) {
 		ev.data.control.param = message.getControllerNumber ();
 		ev.data.control.value = message.getControllerValue ();
 
-		printf("Sending cc to port %d, ch=%d, cc=%d, value=%d\n",
+		printd(LogInfo, "Sending cc to port %d, ch=%d, cc=%d, value=%d\n",
 				outputPort, ev.data.control.channel, ev.data.control.param, ev.data.control.value);
 	} else if (message.isProgramChange()) {
 		ev.type = SND_SEQ_EVENT_PGMCHANGE;
 		ev.data.control.channel = message.getChannel ();
 		ev.data.control.value = message.getProgramChangeNumber ();
 
-		printf("Sending program change to port %d, ch=%d, value=%d\n",
+		printd(LogInfo, "Sending program change to port %d, ch=%d, value=%d\n",
 				outputPort, ev.data.note.channel, ev.data.note.value);
 	}
 
@@ -1324,7 +1351,7 @@ static void device_list(void) {
 		error(("no soundcards found..."));
 		return;
 	}
-	printf(("**** List of %s Hardware Devices ****\n"),
+	printd(LogInfo, ("**** List of %s Hardware Devices ****\n"),
 			snd_pcm_stream_name(stream));
 	while (card >= 0) {
 		char name[32];
@@ -1354,13 +1381,13 @@ static void device_list(void) {
 							snd_strerror(err));
 				continue;
 			}
-			printf(("card %i: %s [%s], device %i: %s [%s]\n"), card,
+			printd(LogInfo, ("card %i: %s [%s], device %i: %s [%s]\n"), card,
 					snd_ctl_card_info_get_id(info),
 					snd_ctl_card_info_get_name(info), dev,
 					snd_pcm_info_get_id(pcminfo),
 					snd_pcm_info_get_name(pcminfo));
 			count = snd_pcm_info_get_subdevices_count(pcminfo);
-			printf(("  Subdevices: %i/%i\n"),
+			printd(LogInfo, ("  Subdevices: %i/%i\n"),
 					snd_pcm_info_get_subdevices_avail(pcminfo), count);
 			for (idx = 0; idx < (int) count; idx++) {
 				snd_pcm_info_set_subdevice(pcminfo, idx);
@@ -1368,7 +1395,7 @@ static void device_list(void) {
 					error("control digital audio playback info (%i): %s", card,
 							snd_strerror(err));
 				} else {
-					printf(("  Subdevice #%i: %s\n"), idx,
+					printd(LogInfo, ("  Subdevice #%i: %s\n"), idx,
 							snd_pcm_info_get_subdevice_name(pcminfo));
 				}
 			}
@@ -1380,6 +1407,7 @@ static void device_list(void) {
 		}
 	}
 }
+
 static void pcm_list(void) {
 	void **hints, **n;
 	char *name, *descr, *descr1, *io;
@@ -1396,12 +1424,12 @@ static void pcm_list(void) {
 		io = snd_device_name_get_hint(*n, "IOID");
 		if (io != NULL && strcmp(io, filter) != 0)
 			goto __end;
-		printf("%s\n", name);
+		printd(LogInfo, "%s\n", name);
 		if ((descr1 = descr) != NULL) {
-			printf("	");
+			printd(LogInfo, "	");
 			while (*descr1) {
 				if (*descr1 == '\n')
-					printf("\n	");
+					printd(LogInfo, "\n	");
 				else
 					putchar(*descr1);
 				descr1++;

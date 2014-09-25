@@ -96,15 +96,15 @@ GtkAdjustment *Adjust;
 GtkAllocation allocation;
 gint Upper;
 gtk_widget_get_allocation(GTK_WIDGET(scrolled_window), &allocation);
-printf("Allocation %d %d %d %d\n",
+printd(LogInfo, "Allocation %d %d %d %d\n",
 		allocation.x, allocation.y, allocation.width, allocation.height);
 
 //	gtk_widget_get_size_request(scrolled_window, &WindowX, &WindowY);
-//	printf("****************Widget %d %d\n", WindowX, WindowY);
+//	printd(LogInfo, "****************Widget %d %d\n", WindowX, WindowY);
 Adjust = gtk_scrolled_window_get_hadjustment(scrolled_window);
 
 Upper = gtk_adjustment_get_upper(Adjust);
-printf("****************Widget %x %x %f %f %f  %f  %f\n", scrolled_window,
+printd(LogInfo, "****************Widget %x %x %f %f %f  %f  %f\n", scrolled_window,
 		Adjust, Adjust->page_size, Adjust->upper, Adjust->page_increment,
 		Adjust, Adjust->lower, Adjust->step_increment);
 
@@ -112,22 +112,22 @@ WebKitViewportAttributes* attributes =
 webkit_web_view_get_viewport_attributes (web_view);
 g_object_get (G_OBJECT (attributes), "available-height", &AvailHeight, NULL);
 g_object_get (G_OBJECT (attributes), "available-width", &AvailWidth, NULL);
-printf("****************InitHTMLA %d %d\n", AvailHeight, AvailWidth);
+printd(LogInfo, "****************InitHTMLA %d %d\n", AvailHeight, AvailWidth);
 
 #if 1
 g_object_get (G_OBJECT (attributes), "device-height", &ScreenHeight, NULL);
 g_object_get (G_OBJECT (attributes), "device-width", &ScreenWidth, NULL);
-printf("****************InitHTMLD %d %d\n", ScreenHeight, ScreenWidth);
+printd(LogInfo, "****************InitHTMLD %d %d\n", ScreenHeight, ScreenWidth);
 g_object_get (G_OBJECT (attributes), "height", &WebPageHeight, NULL);
 g_object_get (G_OBJECT (attributes), "width", &WebPageWidth, NULL);
-printf("****************InitHTMLW %d %d\n", WebPageHeight, WebPageWidth);
+printd(LogInfo, "****************InitHTMLW %d %d\n", WebPageHeight, WebPageWidth);
 #endif
 
 #if 0
 g_object_set (G_OBJECT (attributes), "available-height", WebPageHeight, NULL);
-printf("Page Loaded %d\n", WebPageHeight);
+printd(LogInfo, "Page Loaded %d\n", WebPageHeight);
 g_object_set (G_OBJECT (attributes), "available-width", WebPageWidth, NULL);
-printf("Page Loaded %d\n", WebPageWidth);
+printd(LogInfo, "Page Loaded %d\n", WebPageWidth);
 #endif
 
 if (AvailWidth > 200 && Upper != 0)
@@ -140,16 +140,16 @@ ScaleSizeH = (gfloat)ScreenHeight/(gfloat)AvailHeight;
 else
 ScaleSizeH = 1;
 
-printf("Setting Scale %f W%d S%d D%d\n", ScaleSizeW, WebPageWidth, ScreenWidth, AvailWidth);
-printf("Setting Scale %f W%d S%d D%d\n", ScaleSizeH, WebPageHeight, ScreenHeight, AvailHeight);
+printd(LogInfo, "Setting Scale %f W%d S%d D%d\n", ScaleSizeW, WebPageWidth, ScreenWidth, AvailWidth);
+printd(LogInfo, "Setting Scale %f W%d S%d D%d\n", ScaleSizeH, WebPageHeight, ScreenHeight, AvailHeight);
 //	ScaleSize =  (gfloat)WebPageHeight/(gfloat)ScreenHeight;
-printf("Current Zoom %f\n", webkit_web_view_get_zoom_level(web_view));
+printd(LogInfo, "Current Zoom %f\n", webkit_web_view_get_zoom_level(web_view));
 webkit_web_view_set_zoom_level (web_view, ScaleSizeW );
 //	webkit_web_view_set_zoom_level (web_view,MIN(ScaleSizeW,ScaleSizeH) );
 //	webkit_web_view_set_zoom_level (web_view,MIN(ScaleSizeW,.85) );
 
 g_object_get (G_OBJECT (attributes), "user-scalable", &UserScale, NULL);
-printf("User-scable %d\n", UserScale);
+printd(LogInfo, "User-scable %d\n", UserScale);
 //	webkit_web_view_set_viewport_attributes (web_view, attributes);
 //	webkit_viewport_attributes_recompute (attributes);
 #endif
@@ -178,7 +178,7 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
 void on_patch1_clicked(GtkWidget *widget, gpointer data) {
 	char Preset;
 
-	printf("In Button Preset1 %d %s\n", Preset,
+	printd(LogInfo, "In Button Preset1 %d %s\n", Preset,
 			gMyInfo.MyPatchInfo[Preset].Name);
 
 	Preset = gMyInfo.WebPresets.thePreset1;
@@ -195,7 +195,7 @@ void on_patch1_clicked(GtkWidget *widget, gpointer data) {
 void on_patch2_clicked(GtkWidget *widget, gpointer data) {
 	char Preset;
 
-	printf("In Button Preset2 %d %s\n", Preset,
+	printd(LogInfo, "In Button Preset2 %d %s\n", Preset,
 			gMyInfo.MyPatchInfo[Preset].Name);
 
 	Preset = gMyInfo.WebPresets.thePreset2;
@@ -222,7 +222,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 			"document.title=document.documentElement.innerHTML;");
 	theFrame = webkit_web_view_get_main_frame(web_view);
 	Buffer = webkit_web_frame_get_title(theFrame);
-	printf("Len = %d\n %s\n", (int) strlen(Buffer), Buffer);
+	printd(LogInfo, "Len = %d\n %s\n", (int) strlen(Buffer), Buffer);
 	/* Get passed the file://
 	 */
 	CurrentURI += 7;
@@ -247,21 +247,21 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 	char *Pointer;
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
-	printf("load_status_cb %s\n", CurrentURI);
+	printd(LogInfo, "load_status_cb %s\n", CurrentURI);
 
 	Pointer = strstr(CurrentURI, ".html");
-//	printf("Pointer %x\n",(unsigned int)Pointer);
+//	printd(LogInfo, "Pointer %x\n",(unsigned int)Pointer);
 	webkit_web_view_set_zoom_level(web_view, 1);
 
 	if (strstr(CurrentURI, ".html"))
 		Search_in_File(CurrentURI, &gMyInfo.WebPresets);
 	else
-		printf("Not HTML File\n");
+		printd(LogInfo, "Not HTML File\n");
 
 }
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
 		gpointer data) {
-	printf("Finished downloading %s\n", webkit_web_view_get_uri(web_view));
+	printd(LogInfo, "Finished downloading %s\n", webkit_web_view_get_uri(web_view));
 	ScalePage();
 }
 
@@ -379,6 +379,7 @@ void InitHTML(GladeXML *gxml) {
 	/* Apply the result */
 	webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
 #endif
+	create_Popup_view(web_view);
 
 //	gtk_widget_grab_focus (GTK_WIDGET (web_view));
 	gtk_widget_show_all(scrolled_window);
@@ -414,7 +415,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	thePresets->thePreset2 = -1;
 	thePresets->theTempo = -1;
 
-//printf("Have file %x %s\n", fp, fname);
+//printd(LogInfo, "Have file %x %s\n", fp, fname);
 	while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
 		temp[MAXLINE] = 0;
 
@@ -444,7 +445,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			Value = atoi(Found);
 			thePresets->theTempo = Value;
 			SetTempo(Value);
-			printf("Tempo %d\n", Value);
+			printd(LogInfo, "Tempo %d\n", Value);
 		}
 
 		/* Set the Tempo for this tune.
@@ -457,7 +458,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			 */
 			gMyInfo.TempoMax = (2 * Value);
 //			SetTempo(Value);
-			printf("Time %d\n", Value);
+			printd(LogInfo, "Time %d\n", Value);
 		}
 
 		/* Set the current patch to this one.
@@ -491,7 +492,7 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
 	if (*String = '"') {
 		String++;
 		tokenizer = strtok(String,"\'");//break up by spaces
-		printf("Token1 %s\n", tokenizer);
+		printd(LogInfo, "Token1 %s\n", tokenizer);
 		for (Value = 0; Value < Max_Patches; Value++) {
 			if ( !strcmp(gMyInfo.MyPatchInfo[Value].Name, tokenizer) )
 				break;

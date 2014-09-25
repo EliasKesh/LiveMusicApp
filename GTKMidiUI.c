@@ -26,6 +26,7 @@
 #include "HTML.h"
 #include "PrefsFile.h"
 #include "Connections.h"
+#include <gdk/gdkkeysyms.h>
 
 //#define UsingNewButtons	1
 
@@ -47,6 +48,8 @@ guint MainStatusid;
 GtkWidget *ModeSwitchButton;
 GtkWidget *MainButtons[Max_Main_Buttons];
 tPatchIndex GetModePreset(tPatchIndex Value);
+GtkWidget *VScale1, *VScale2, *VScale3;
+GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
 
 void CreateMainButtons(void);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);
@@ -59,6 +62,10 @@ void ToggleTempo(void);
 static gboolean tempo_handler(GtkWidget *widget);
 void UpdateStatus(char *String);
 void IncrementMode(void);
+gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
+	GtkWidget *widget);
+void VScale1_Changed(GtkAdjustment *adj);
+void VScale2_Changed(GtkAdjustment *adj);
 
 /* Used to Toggle the Tempo GUI display.
  */
@@ -69,15 +76,14 @@ char TempoState;
 char HoldStatus[MaxStatusHold][50];
 char HoldStatusIndex;
 
-
 char *printd(char LogLevel, const char *fmt, ...) {
-va_list ap;
-char p[512]; /* check for null in real code */
-    va_start(ap, fmt);
-    vsnprintf(p, 512, fmt, ap);
-    va_end(ap);
-    printf("L%d-%s",LogLevel, p);
-    return p;
+	va_list ap;
+	char p[512]; /* check for null in real code */
+	va_start(ap, fmt);
+	vsnprintf(p, 512, fmt, ap);
+	va_end(ap);
+	printf("L%d-%s", LogLevel, p);
+	return p;
 }
 /*--------------------------------------------------------------------
  * Function:		apply_font_to_widget
@@ -101,7 +107,7 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 		gtk_widget_modify_font(widget, pfd);
 	else
 		gtk_widget_modify_font(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
-				pfd);
+			pfd);
 
 	pango_font_description_free(pfd);
 #endif
@@ -117,7 +123,7 @@ void SwitchToTab(char Tab) {
 	GtkWidget *NoteBookPane;
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
-	printd(LogInfo,"Switch to Tab %d\n", Tab);
+	printd(LogInfo, "Switch to Tab %d\n", Tab);
 }
 
 /*--------------------------------------------------------------------
@@ -129,7 +135,7 @@ void SwitchToTab(char Tab) {
  *---------------------------------------------------------------------*/
 void on_button_clicked(GtkButton *button, gpointer user_data) {
 	DoPatch(&gMyInfo.MyPatchInfo[(char) GetModePreset(user_data)]);
-	printd(LogInfo,"User data %d\n", (int) user_data);
+	printd(LogInfo, "User data %d\n", (int) user_data);
 }
 
 /*--------------------------------------------------------------------
@@ -142,7 +148,7 @@ void on_button_clicked(GtkButton *button, gpointer user_data) {
 void on_modebutton_clicked(GtkButton *button, gpointer user_data) {
 
 	IncrementMode();
-	printd(LogInfo,"Increment Mode called from Buttons \n");
+	printd(LogInfo, "Increment Mode called from Buttons \n");
 
 }
 
@@ -228,11 +234,13 @@ int main(int argc, char *argv[]) {
 	/* Let's setup some variables.
 	 */
 	CurrentMode = 0;
+	WaitingforMidi = 0;
+
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
 	gtk_rc_parse( MAINPREFS_FILE);
 
-	/* Get Preferences is there are there otherise set defaults.
+	/* Get Preferences is there are there otherwise set defaults.
 	 */
 	InitPref();
 	/*
@@ -249,14 +257,14 @@ int main(int argc, char *argv[]) {
 	 */
 	main_window = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
 	g_signal_connect(G_OBJECT (main_window), "destroy",
-			G_CALLBACK (on_window1_destroy), NULL);
+		G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
 
 	/* Open the persistant main tab.
 	 */
 	main_tab = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 	g_signal_connect(GTK_NOTEBOOK( main_tab ), "switch-page",
-			(GCallback ) tab_focus_callback, gxml);
+		(GCallback ) tab_focus_callback, gxml);
 
 	/* connect signals */
 //	glade_xml_signal_connect (gxml, "on_hscale1_value_changed",
@@ -272,18 +280,21 @@ int main(int argc, char *argv[]) {
 	memset(HoldStatus, 0, sizeof(HoldStatus));
 	TempoDraw = GTK_WIDGET(gtk_builder_get_object(gxml, "Tempo"));
 	g_signal_connect_data(G_OBJECT(TempoDraw), "clicked",
-			G_CALLBACK(on_Tempo_Button), NULL, NULL, 0);
+		G_CALLBACK(on_Tempo_Button), NULL, NULL, 0);
 
 	/* The about window.
 	 */
 	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
 	g_signal_connect_data(G_OBJECT(widget), "clicked",
-			G_CALLBACK(on_About_clicked), NULL, NULL, 0);
+		G_CALLBACK(on_About_clicked), NULL, NULL, 0);
+
+	g_signal_connect(G_OBJECT(main_window), "key_press_event",
+		G_CALLBACK(button_press_notify_cb), NULL);
+
 
 	/* Debug, this prints out the main internal data structure.
 	 */
 //		PrintDataStructure(&gMyInfo);
-
 	/* Set up the GUI for making changes to the preferences.
 	 */
 	InitGuiPrefs();
@@ -297,7 +308,7 @@ int main(int argc, char *argv[]) {
 	 */
 	InitHTML(gxml);
 
-	printd(LogInfo,"After InitHTML\n");
+	printd(LogInfo, "After InitHTML\n");
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -310,19 +321,20 @@ int main(int argc, char *argv[]) {
 	CreateMainButtons();
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
+
 	/* Get the Mode switch button,
 	 */
 	ModeSwitchButton = GTK_WIDGET(
-			gtk_builder_get_object(gxml, "ModeSwitchButton"));
+		gtk_builder_get_object(gxml, "ModeSwitchButton"));
 	//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
 	g_signal_connect_data(G_OBJECT(ModeSwitchButton), "clicked",
-			G_CALLBACK(on_modebutton_clicked), NULL, NULL, 0);
+		G_CALLBACK(on_modebutton_clicked), NULL, NULL, 0);
 
 	/*
 	 * Set up the Midi Sequencer port
 	 */
 	MyAlsaInit();
-	printd(LogInfo,"After MyAlsaInit\n");
+	printd(LogInfo, "After MyAlsaInit\n");
 
 	/* Set up the connections between applications.
 	 */
@@ -343,8 +355,15 @@ int main(int argc, char *argv[]) {
 	 */
 	gtk_widget_show_all(main_window);
 	gtk_widget_modify_font(CurrentModeWid,
-			pango_font_description_from_string("Sans Bold 16"));
+		pango_font_description_from_string("Sans Bold 16"));
 	gtk_label_set_text(CurrentModeWid, theModes[0]);
+
+	/*
+	 * Set the Volumes.
+	 */
+	SetVolume1(gMyInfo.AnalogVolume);
+	SetVolume2(gMyInfo.MidiVolume);
+//	create_Popup_view(main_window);
 
 	/* And their off.
 	 */
@@ -378,25 +397,25 @@ void UpdateStatus(char *String) {
 	/* Based on where we are in the circlular buffer.
 	 */
 	switch (HoldStatusIndex) {
-	case 0:
-		sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[1],
+		case 0:
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[1],
 				&HoldStatus[2], &HoldStatus[3], String);
-		break;
+			break;
 
-	case 1:
-		sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[2],
+		case 1:
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[2],
 				&HoldStatus[3], &HoldStatus[0], String);
-		break;
+			break;
 
-	case 2:
-		sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[3],
+		case 2:
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[3],
 				&HoldStatus[0], &HoldStatus[1], String);
-		break;
+			break;
 
-	case 3:
-		sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[0],
+		case 3:
+			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", &HoldStatus[0],
 				&HoldStatus[1], &HoldStatus[2], String);
-		break;
+			break;
 	}
 
 	/* Copy the patch names the the buffer.
@@ -411,7 +430,7 @@ void UpdateStatus(char *String) {
 	/* Actually draw the text to the window.
 	 */
 	gtk_widget_modify_font(MainStatus,
-			pango_font_description_from_string("Sans Bold 16"));
+		pango_font_description_from_string("Sans Bold 16"));
 	gtk_label_set_text(MainStatus, DisString);
 }
 
@@ -426,7 +445,7 @@ void SetTempo(unsigned char NewTempo) {
 	/* Send out a message our tempo is changing.
 	 */
 	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, 0,
-			(int) NewTempo);
+		(int) NewTempo);
 
 	/* Tell the timer to stop.
 	 */
@@ -439,12 +458,12 @@ void SetTempo(unsigned char NewTempo) {
 //	gMyInfo.TempoReload = (500 * 60) / NewTempo;
 	gMyInfo.TempoReload = ((500 * 5) / NewTempo);
 
-	printd(LogInfo,"New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
+	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
 	/* Start the new timer.
 	 */
 	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,
-			(GSourceFunc) tempo_handler, (gpointer) gxml);
+		(GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //	gMyInfo.Timer1Count = 0;
 
@@ -530,7 +549,6 @@ void ToggleTempo(void) {
 	 */
 //	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
 //	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
-
 //	gtk_widget_modify_font(TempoDraw, pango_font_description_from_string("Sans Bold 20"));
 //    g_object_set(G_OBJECT(TempoDraw), "gtk-font-name", "Sans Bold 20",
 //                 NULL);
@@ -553,7 +571,7 @@ void CreateMainButtons(void) {
 		sprintf(Buffer, "button%d", Loop + 1);
 		MainButtons[Loop] = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
 		g_signal_connect_data(G_OBJECT(MainButtons[Loop]), "clicked",
-				G_CALLBACK(on_button_clicked), Loop, NULL, 0);
+			G_CALLBACK(on_button_clicked), Loop, NULL, 0);
 	}
 #else
 	ButtonFrame = GTK_WIDGET (gtk_builder_get_object (gxml, "ButtonFrame") );
@@ -565,13 +583,13 @@ void CreateMainButtons(void) {
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		MainButtons[Loop] = gtk_button_new_with_label (gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
 		g_signal_connect (MainButtons[Loop], "clicked",
-				G_CALLBACK (on_button_clicked), (void *)Loop);
+			G_CALLBACK (on_button_clicked), (void *)Loop);
 //		gtk_widget_show(MainButtons[Loop]);
 		gtk_widget_set_usize(MainButtons[Loop],120,120);
 //		gtk_table_attach_defaults(GTK_TABLE(Table), MainButtons[Loop],
 //			Col, Col + 1, Row, Row + 1);
 		gtk_table_attach(GTK_TABLE(Table), MainButtons[Loop],
-				Col, Col + 1, Row, Row + 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND,0,0);
+			Col, Col + 1, Row, Row + 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND,0,0);
 		if (Col++ > 4) {
 			Col = 0;
 			Row++;
@@ -581,6 +599,51 @@ void CreateMainButtons(void) {
 
 	gtk_container_add (GTK_CONTAINER (ButtonFrame), Table);
 #endif
+
+	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
+	Adjustment1 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment1"));
+	gtk_signal_connect(GTK_OBJECT (VScale1), "value_changed",
+		GTK_SIGNAL_FUNC (VScale1_Changed), NULL);
+//    scale_set_default_values (GTK_SCALE (VScale1));
+
+	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
+	Adjustment2 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment2"));
+	gtk_signal_connect(GTK_OBJECT (VScale2), "value_changed",
+		GTK_SIGNAL_FUNC (VScale2_Changed), NULL);
+
+	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
+	Adjustment3 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		VScale1_Changed
+ *
+ * Description:		Volume Sliders changed.
+ *
+ *---------------------------------------------------------------------*/
+void VScale1_Changed(GtkAdjustment *adj) {
+	/* Set the number of decimal places to which adj->value is rounded */
+	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+	//   printf("\nVscale 1 %f\n", Adjustment1->value);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, AnalogApp, 1, MIDI_CTL_MSB_MAIN_VOLUME,
+		(char) Adjustment1->value);
+	gMyInfo.AnalogVolume = (char) Adjustment1->value;
+}
+
+/*--------------------------------------------------------------------
+ * Function:		VScale2_Changed
+ *
+ * Description:		Volume Sliders changed.
+ *
+ *---------------------------------------------------------------------*/
+void VScale2_Changed(GtkAdjustment *adj) {
+	/* Set the number of decimal places to which adj->value is rounded */
+	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+//    printf("\nVscale 1 %f\n", Adjustment2->value);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, MidiSoundApp, 1,
+		MIDI_CTL_MSB_MAIN_VOLUME, (char) Adjustment2->value);
+	gMyInfo.MidiVolume = (char) Adjustment2->value;
 }
 
 /*--------------------------------------------------------------------
@@ -598,7 +661,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 //		printd(LogInfo,"SetUpMainButtons: %d %x\n", gMyInfo.MyPatchInfo[Loop].Index, myButton);
 //		printd(LogInfo,"Loop %d gMyInfo %s Patch %d\n",Loop, gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child),
-				gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
+			gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
 	}
 }
 
@@ -622,7 +685,7 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 		NextCommand = NextPatch->Chain;
 		NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
 	} while (NextCommand);
-return(0);
+	return (0);
 }
 
 /*--------------------------------------------------------------------
@@ -667,33 +730,33 @@ void CreateHTMLGuide(GTKMidiInfo *myInfo) {
 		return;
 
 	fprintf(MyFile,
-			"<html><head>\n<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">\n<title>FootSwitchController\n</title>\n</head><body><h3>Foot Switch Controller&nbsp; - Elias<br> </h3>");
+		"<html><head>\n<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">\n<title>FootSwitchController\n</title>\n</head><body><h3>Foot Switch Controller&nbsp; - Elias<br> </h3>");
 	fprintf(MyFile,
-			"<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
+		"<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
 	Loop1 = 0;
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printd(LogInfo,"Create HTML %d %d\n", Loop, Loop1);
+		printd(LogInfo, "Create HTML %d %d\n", Loop, Loop1);
 		if (Loop1 == 0) {
 			fprintf(MyFile,
-					"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\"><big><big><big>%d</big></big></big><br>\n</td>\n",
-					Loop);
+				"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\"><big><big><big>%d</big></big></big><br>\n</td>\n",
+				Loop);
 			fprintf(MyFile,
-					"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">\n");
+				"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">\n");
 			fprintf(MyFile,
-					"<table style=\"text-align: left; width: 716px; height: 32px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
+				"<table style=\"text-align: left; width: 716px; height: 32px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
 		}
 
 		fprintf(MyFile,
-				"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">%d - %s<br>\n</td>\n",
-				Loop, myInfo->MyPatchInfo[Loop].Name);
+			"<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">%d - %s<br>\n</td>\n",
+			Loop, myInfo->MyPatchInfo[Loop].Name);
 
 		if (++Loop1 == 5) {
-			printd(LogInfo,"Loop %d %d\n", Loop, Loop1);
+			printd(LogInfo, "Loop %d %d\n", Loop, Loop1);
 			fprintf(MyFile, "</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n");
 			Loop1 = 0;
 			if (((Loop + 1) % 10) == 0)
 				fprintf(MyFile,
-						"</tbody>\n</table>\n<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>");
+					"</tbody>\n</table>\n<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>");
 		}
 
 //		myInfo->OutPortName[Loop]
@@ -722,32 +785,32 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 	tPatchIndex NewValue;
 
 	switch (CurrentMode) {
-	case ModeDefault:
-		NewValue = Value;
-		break;
+		case ModeDefault:
+			NewValue = Value;
+			break;
 
-	case ModeRehearsal:
-		NewValue = Value;
-		break;
+		case ModeRehearsal:
+			NewValue = Value;
+			break;
 
-	case ModePractice:
-		NewValue = preModePractice[Value];
-		break;
+		case ModePractice:
+			NewValue = preModePractice[Value];
+			break;
 
-	case ModePerformance:
-		NewValue = Value;
-		break;
+		case ModePerformance:
+			NewValue = Value;
+			break;
 
-	case ModeLooper:
-		NewValue = preModeLooper[Value];
-		break;
+		case ModeLooper:
+			NewValue = preModeLooper[Value];
+			break;
 
-	default:
-		NewValue = Value;
-		break;
+		default:
+			NewValue = Value;
+			break;
 	}
-	printd(LogInfo,"Get Mode Preset Old %d New %d\n", Value, NewValue);
-return(NewValue);
+	printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
+	return (NewValue);
 }
 
 /*--------------------------------------------------------------------
@@ -761,11 +824,11 @@ void IncrementMode(void) {
 		CurrentMode = 0;
 
 	gtk_widget_modify_font(CurrentModeWid,
-			pango_font_description_from_string("Sans Bold 16"));
+		pango_font_description_from_string("Sans Bold 16"));
 	gtk_label_set_text(CurrentModeWid, theModes[CurrentMode]);
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
-	printd(LogInfo,"Increment Mode \n", CurrentMode);
+	printd(LogInfo, "Increment Mode \n", CurrentMode);
 }
 
 /*--------------------------------------------------------------------
@@ -780,33 +843,159 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn) {
 	/* If the Midi command was a mode changes.
 	 */
 	switch (MidiIn) {
-	case ModeSwitchKey:
-		IncrementMode();
-		break;
+		case PresetMidiKey:
+			GuitarMidiPreset();
+			break;
 
-	case Preset1FButton:
-		Preset = gMyInfo.WebPresets.thePreset1;
-		if (Preset != -1)
-			DoPatch(&gMyInfo.MyPatchInfo[Preset]);
-		break;
+		case ModeSwitchKey:
+			IncrementMode();
+			break;
 
-	case Preset2FButton:
-		Preset = gMyInfo.WebPresets.thePreset2;
-		if (Preset != -1)
-			DoPatch(&gMyInfo.MyPatchInfo[Preset]);
-		break;
+		case Preset1FButton:
+			Preset = gMyInfo.WebPresets.thePreset1;
+			if (Preset != -1)
+				DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+			break;
 
-	default:
-		printd(LogInfo,"In ModeSwitchPatch Mid In %d %d %d\n", MidiIn,
+		case Preset2FButton:
+			Preset = gMyInfo.WebPresets.thePreset2;
+			if (Preset != -1)
+				DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+			break;
+
+		default:
+			printd(LogInfo, "In ModeSwitchPatch Mid In %d %d %d\n", MidiIn,
 				GetModePreset(MidiIn),
 				&gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
-		DoPatch(&gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
-		break;
+			DoPatch(&gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
+			break;
 	}
 //		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
 
-	printd(LogInfo,"ModeSwitchPatch %d\n", MidiIn);
+	printd(LogInfo, "ModeSwitchPatch %d\n", MidiIn);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
 	return (0);
 }
 
+/*--------------------------------------------------------------------
+ * Function:		GuitarMidiPreset
+ *
+ * Description:		Wait for a preset from the Midi Guitar.
+ *
+ *---------------------------------------------------------------------*/
+int GuitarMidiPreset(void) {
+
+	printf("GuitarMidiPreset Start\n");
+
+	/* Set Audio Volume to zero
+	 */
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, AnalogApp, 1, MIDI_CTL_MSB_MAIN_VOLUME, 0);
+
+	/* Set Midi Volume to zero
+	 */
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, MidiSoundApp, 1, MIDI_CTL_MSB_MAIN_VOLUME, 0);
+
+	WaitingforMidi = 1;
+
+	return (0);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		GuitarMidiPresetComplete
+ *
+ * Description:		Wait for a preset from the Midi Guitar.
+ *
+ *---------------------------------------------------------------------*/
+int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
+
+	printf("GuitarMidiPresetComplete Start %d\n", MidiNote);
+
+	/* Set Audio Volume back
+	 */
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, AnalogApp, 1, MIDI_CTL_MSB_MAIN_VOLUME, gMyInfo.AnalogVolume);
+
+	/* Set Midi Volume back
+	 */
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, MidiSoundApp, 1, MIDI_CTL_MSB_MAIN_VOLUME, gMyInfo.MidiVolume);
+
+	DoPatch(&gMyInfo.MyPatchInfo[gMyInfo.MidiBaseNote - MidiNote]);
+
+	WaitingforMidi = 0;
+
+	return (0);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		show_motion_notify_cb
+ *
+ * Description:	CallBack function for motion.
+ *---------------------------------------------------------------------*/
+gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
+	GtkWidget *widget) {
+
+	switch (event->keyval)
+	{
+		case GDK_p:
+			printf("key pressed: %s\n", "p");
+			break;
+		case GDK_s:
+			if (event->state & GDK_SHIFT_MASK)
+				{
+				printf("key pressed: %s\n", "shift + s");
+			}
+			else if (event->state & GDK_CONTROL_MASK)
+				{
+				printf("key pressed: %s\n", "ctrl + s");
+			}
+			else
+			{
+				printf("key pressed: %s\n", "s");
+			}
+			break;
+		case GDK_m:
+			if (event->state & GDK_SHIFT_MASK)
+				{
+				printf("key pressed: %s\n", "shift + m");
+			}
+			else if (event->state & GDK_CONTROL_MASK)
+				{
+				printf("key pressed: %s\n", "ctrl + m");
+			}
+			else
+			{
+				printf("key pressed: %s\n", "m");
+			}
+			break;
+
+		default:
+			return FALSE;
+	}
+
+	return (TRUE);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume1
+ *
+ * Description:	Change the Volume Slider based on midi input.
+ *---------------------------------------------------------------------*/
+int SetVolume1(int Value) {
+	Adjustment1->value = (float) Value;
+	gMyInfo.AnalogVolume = Value;
+	gtk_range_set_adjustment(VScale1, Adjustment1);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, AnalogApp, 1, MIDI_CTL_MSB_MAIN_VOLUME,
+		(char) Adjustment1->value);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume2
+ *
+ * Description:	Change the Volume Slider based on midi input.
+ *---------------------------------------------------------------------*/
+int SetVolume2(int Value) {
+	Adjustment2->value = Value;
+	gMyInfo.MidiVolume = Value;
+	gtk_range_set_adjustment(VScale2, Adjustment2);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, MidiSoundApp, 1,
+		MIDI_CTL_MSB_MAIN_VOLUME, (char) Adjustment2->value);
+}
