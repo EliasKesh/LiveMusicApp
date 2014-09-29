@@ -39,116 +39,120 @@ void parseDoc(char *docname);
  * Place Static variables here
  */
 /* @formatter:off */
-GTKMidiInfo GlobalInfo =
-	{
-		{
-			// ind		Title			Bank		Patch	Outport		Chan	Custom->Chain
-			{ "Elias1", 0xff, 1, RakarrakPort, 2, NoCustom, 0 },
-			{ "Dist", 0xff, 5, RakarrakPort, 2, NoCustom, 0 },
-			{ "Funk Chorus", 0xff, 3, RakarrakPort, 2, NoCustom, 0 },
-			{ "ThumpBass", 0xff, 8, RakarrakPort, 2, NoCustom, 0 },
-			{ "Chorus", 0xff, 17, RakarrakPort, 2, NoCustom, 0 },
-			{ "Jazz", 0xff, 27, RakarrakPort, 2, NoCustom, 0 },
-			{ "EliasChorus", 0xff, 18, RakarrakPort, 2, NoCustom, 0 },
-			{ "Synth", 0xff, 15, RakarrakPort, 2, NoCustom, 0 },
-			{ "Oct Bass", 0xff, 9, RakarrakPort, 2, NoCustom, 0 },
-			{ "Chr Riff", 0xff, 7, RakarrakPort, 2, NoCustom, 0 },
-			//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
-			// 10	Button		Title		Bank	Patch	Outport
-			{ "Piano", SFDSF, 63, FluidPort, 1, NoCustom, 0 },
-			{ "Honky", SF32GM, 3, FluidPort, 1, NoCustom, 0 },
-			{ "Breath", SFFluidGM, 53, FluidPort, 1, NoCustom, 0 },
-			{ "De-Tuned Organ", SFA340Low, 16, FluidPort, 1, NoCustom, 0 },
-			{ "Flute", SFFlute, 73, FluidPort, 1, NoCustom, 0 },
-			{ "Synth Lead", SFDSF, 43, FluidPort, 1, NoCustom, 0 },
-			{ "Walky", SFDSF, 3, FluidPort, 1, NoCustom, 0 },
-			{ "Trumpet", SFDSF, 66, FluidPort, 1, NoCustom, 0 },
-			{ "Steel Drums", SFFluidGM, 114, FluidPort, 1, NoCustom, 0 },
-			{ "Strings", SFDSF, 85, FluidPort, 1, NoCustom, 0 },
-			// 20	Button		Title		Bank	Patch	Outport
-			{ "Drums", 128, 26, FluidPort, 1, NoCustom, 0 },
-			{ "Slap Bass", SFDSF, 24, FluidPort, 1, NoCustom, 0 },
-			{ "Synth Hard", SFDSF, 60, FluidPort, 1, NoCustom, 0 },
-			{ "Marimba", SFDSF, 12, FluidPort, 1, NoCustom, 0 },
-			{ "Holdsworth", SFMusica, 48, FluidPort, 1, NoCustom, 0 },
-			{ "Steel Drums", SFDSF, 114, FluidPort, 1, NoCustom, 0 },
-			{ "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, 0 },
-			{ "Mid0", 0xff, 0, GI20Port, 1, NoCustom, 0 },
-			{ "Mid-24", 0xff, 2, GI20Port, 1, NoCustom, 0 },
-			{ "Mid Screen", SFDSF, 0, FluidPort, 1, NoCustom, 0 },
-			// 30	Button		Title		Bank	Patch	Outport
-			{ "Rak Eff6", 116, 11, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff7", 116, 13, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff8", 116, 15, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff9", 116, 17, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff10", 116, 18, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff1", 116, 0, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff2", 116, 2, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff3", 116, 4, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff4", 116, 6, FluidPort, 1, Controller, 0 },
-			{ "Rak Eff5", 116, 8, FluidPort, 1, Controller, 0 },
-			// 40	Button		Title		Bank	Patch	Outport
-			{ "TransStart", 0xff, 0, TransportPort, 1, TransStart, 0 },
-			{ "TransCont", 0xff, 0, TransportPort, 1, TransCont, 0 },
-			{ "TransStop", 0xff, 0, TransportPort, 1, TransStop, 0 },
-			{ "TransBack", 0xff, 0, TransportPort, 1, TransStart, 0 },
-			{ "TransPos", 0xff, 0, TransportPort, 1, TransStart, 0 },
-			{ "Tap", 116, 121, FluidPort, 1, Controller, 0 },
-			{ "Midi Tog", 116, 122, FluidPort, 1, Controller, 0 },
-			{ "Tuner", 116, 123, FluidPort, 1, Controller, 0 },
-			{ "AnaOnOff", 116, 124, FluidPort, 1, Controller, 0 },
-			{ "AnaOnOff", 116, 124, FluidPort, 1, Controller, 0 },
-			// 50	Button		Title		Bank	Patch	Outport
-			{ "LP Undo", 0xff, 69, LooperPort, 1, NoCustom, 0 },
-			{ "LP 1", 0xff, 70, LooperPort, 1, NoCustom, ToLooperApp },
-			{ "LP 2", 0xff, 71, LooperPort, 1, NoCustom, ToLooperApp },
-			{ "LP 3", 0xff, 72, LooperPort, 1, NoCustom, ToLooperApp },
-			{ "LP 4", 0xff, 73, LooperPort, 1, NoCustom, ToLooperApp },
-			{ "LP Rec", 0xff, 74, LooperPort, 1, NoCustom, 0 },
-			{ "LP Pause", 0xff, 75, LooperPort, 1, NoCustom, 0 },
-			{ "LP Trig", 0xff, 76, LooperPort, 1, NoCustom, 0 },
-			{ "LP Tap", 0xff, 77, LooperPort, 1, NoCustom, 0 },
-			{ "LP SelAll", 0xff, 78, LooperPort, 1, NoCustom, 0 },
-			// 60	Button		Title		Bank	Patch	Outport
-			{ "AnalogApp", 0xff, AnalogApp, 0, 1, RaiseApp, 0 },
-			{ "MidiSoundApp", 0xff, MidiSoundApp, 0, 1, RaiseApp, 0 },
-			{ "LooperApp", 0xff, LooperApp, 0, 1, RaiseApp, 0 },
-			{ "MidiControl", 0xff, MidiControl, 0, 1, RaiseApp, 0 },
-			{ "MP3Player", 0xff, MP3Player, 0, 1, RaiseApp, 0 },
-			{ "TabPlayer", 0xff, TabPlayer, 0, 1, RaiseApp, 0 },
-			{ "PreTab", 0xff, 0, 0, 1, SwitchTab, 0 },
-			{ "ScoreTab", 0xff, 1, 0, 1, SwitchTab, 0 },
+GTKMidiInfo GlobalInfo = {
+    {
+        // ind		Title			Bank		Patch	Outport		Chan	Custom->Chain
+        { "Elias1", 0xff, 1, RakarrakPort, 1, NoCustom, 0 },
+        { "Dist", 0xff, 5, RakarrakPort, 1, NoCustom, 0 },
+        { "Funk Chorus", 0xff, 3, RakarrakPort, 1, NoCustom, 0 },
+        { "ThumpBass", 0xff, 8, RakarrakPort, 1, NoCustom, 0 },
+        { "Chorus", 0xff, 17, RakarrakPort, 1, NoCustom, 0 },
+        { "Jazz", 0xff, 27, RakarrakPort, 1, NoCustom, 0 },
+        { "EliasChorus", 0xff, 18, RakarrakPort, 1, NoCustom, 0 },
+        { "Synth", 0xff, 15, RakarrakPort, 1, NoCustom, 0 },
+        { "Oct Bass", 0xff, 9, RakarrakPort, 1, NoCustom, 0 },
+        { "Chr Riff", 0xff, 7, RakarrakPort, 1, NoCustom, 0 },
+        //	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
+        // 10	Button		Title		Bank	Patch	Outport
+        { "Piano", SFDSF, 63, FluidPort, 1, NoCustom, 0 },
+        { "Honky", SF32GM, 3, FluidPort, 1, NoCustom, 0 },
+        { "Breath", SFFluidGM, 53, FluidPort, 1, NoCustom, 0 },
+        { "De-Tuned Organ", SFA340Low, 16, FluidPort, 1, NoCustom, 0 },
+        { "Flute", SFFlute, 73, FluidPort, 1, NoCustom, 0 },
+        { "Synth Lead", SFDSF, 43, FluidPort, 1, NoCustom, 0 },
+        { "Walky", SFDSF, 3, FluidPort, 1, NoCustom, 0 },
+        { "Trumpet", SFDSF, 66, FluidPort, 1, NoCustom, 0 },
+        { "Steel Drums", SFFluidGM, 114, FluidPort, 1, NoCustom, 0 },
+        { "Strings", SFDSF, 85, FluidPort, 1, NoCustom, 0 },
+        // 20	Button		Title		Bank	Patch	Outport
+        { "Drums", 128, 26, FluidPort, 1, NoCustom, 0 },
+        { "Slap Bass", SFDSF, 24, FluidPort, 1, NoCustom, 0 },
+        { "Synth Hard", SFDSF, 60, FluidPort, 1, NoCustom, 0 },
+        { "Marimba", SFDSF, 12, FluidPort, 1, NoCustom, 0 },
+        { "Holdsworth", SFMusica, 48, FluidPort, 1, NoCustom, 0 },
+        { "Steel Drums", SFDSF, 114, FluidPort, 1, NoCustom, 0 },
+        { "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, 0 },
+        { "Mid0", 0xff, 0, GI20Port, 1, NoCustom, 0 },
+        { "Mid-24", 0xff, 2, GI20Port, 1, NoCustom, 0 },
+        { "Mid Screen", SFDSF, 0, FluidPort, 1, NoCustom, 0 },
+        // 30	Button		Title		Bank	Patch	Outport
+        { "Rak Eff6", 116, 11, FluidPort, 1, Controller, 0 },
+        { "Rak Eff7", 116, 13, FluidPort, 1, Controller, 0 },
+        { "Rak Eff8", 116, 15, FluidPort, 1, Controller, 0 },
+        { "Rak Eff9", 116, 17, FluidPort, 1, Controller, 0 },
+        { "Rak Eff10", 116, 18, FluidPort, 1, Controller, 0 },
+        { "Rak Eff1", 116, 0, FluidPort, 1, Controller, 0 },
+        { "Rak Eff2", 116, 2, FluidPort, 1, Controller, 0 },
+        { "Rak Eff3", 116, 4, FluidPort, 1, Controller, 0 },
+        { "Rak Eff4", 116, 6, FluidPort, 1, Controller, 0 },
+        { "Rak Eff5", 116, 8, FluidPort, 1, Controller, 0 },
+        // 40	Button		Title		Bank	Patch	Outport
+        { "TransStart", 0xff, 0, TransportPort, 1, TransStart, 0 },
+        { "TransCont", 0xff, 0, TransportPort, 1, TransCont, 0 },
+        { "TransStop", 0xff, 0, TransportPort, 1, TransStop, 0 },
+        { "TransBack", 0xff, 0, TransportPort, 1, TransStart, 0 },
+        { "TransPos", 0xff, 0, TransportPort, 1, TransStart, 0 },
+        { "Tap", 116, 121, FluidPort, 1, Controller, 0 },
+        { "Midi Tog", 116, 122, FluidPort, 1, Controller, 0 },
+        { "Tuner", 116, 123, FluidPort, 1, Controller, 0 },
+        { "AnaOnOff", 116, 124, FluidPort, 1, Controller, 0 },
+        { "AnaOnOff", 116, 124, FluidPort, 1, Controller, 0 },
+        // 50	Button		Title		Bank	Patch	Outport
+        { "LP Undo", 0xff, 69, LooperPort, 1, NoCustom, 0 },
+        { "LP 1", 0xff, 70, LooperPort, 1, NoCustom, ToLooperApp },
+        { "LP 2", 0xff, 71, LooperPort, 1, NoCustom, ToLooperApp },
+        { "LP 3", 0xff, 72, LooperPort, 1, NoCustom, ToLooperApp },
+        { "LP 4", 0xff, 73, LooperPort, 1, NoCustom, ToLooperApp },
+        { "LP Rec", 0xff, 74, LooperPort, 1, NoCustom, 0 },
+        { "LP Pause", 0xff, 75, LooperPort, 1, NoCustom, 0 },
+        { "LP Trig", 0xff, 76, LooperPort, 1, NoCustom, 0 },
+        { "LP Tap", 0xff, 77, LooperPort, 1, NoCustom, 0 },
+        { "LP SelAll", 0xff, 78, LooperPort, 1, NoCustom, 0 },
+        // 60	Button		Title		Bank	Patch	Outport
+        { "AnalogApp", 0xff, AnalogApp, 0, 1, RaiseApp, 0 },
+        { "MidiSoundApp", 0xff, MidiSoundApp, 0, 1, RaiseApp, 0 },
+        { "LooperApp", 0xff, LooperApp, 0, 1, RaiseApp, 0 },
+        { "MidiControl", 0xff, MidiControl, 0, 1, RaiseApp, 0 },
+        { "MP3Player", 0xff, MP3Player, 0, 1, RaiseApp, 0 },
+        { "TabPlayer", 0xff, TabPlayer, 0, 1, RaiseApp, 0 },
+        { "PreTab", 0xff, 0, 0, 1, SwitchTab, 0 },
+        { "ScoreTab", 0xff, 1, 0, 1, SwitchTab, 0 },
+        { "TransportApp", 0xff, TransportApp, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, 0, 0, 1, RaiseApp, 0 },
+        // 70	Button		Title		Bank	Patch	Outport
+        { "Switch0", 0xff, 0, 0, 1, ToDesktop, 0 },
+        { "Switch1", 0xff, 1, 0, 1, ToDesktop, 0 },
+        { "Switch2", 0xff, 2, 0, 1, ToDesktop, 0 },
+        { "Switch3", 0xff, 3, 0, 1, ToDesktop, 0 },
+        { "Switch4", 0xff, 4, 0, 1, ToDesktop, 0 },
+        { "Switch5", 0xff, 5, 0, 1, ToDesktop, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1, NoCustom, 0 },
+        { "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, 0 },
+        { "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, 0 },
 
-			{ "TransportApp", 0xff, TransportApp, 0, 1, RaiseApp, 0 },
+    },
+    // Path the Charts directory
+    "/home/Dropbox/FusionBlue/ChartsHTML/",
+    // Number and name of the output ports
+    6,
+    { "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
 
-			{ "Switch0", 0xff, 0, 0, 1, ToDesktop, 0 },
-			{ "Switch1", 0xff, 1, 0, 1, ToDesktop, 0 },
-			{ "Switch2", 0xff, 2, 0, 1, ToDesktop, 0 },
-			{ "Switch3", 0xff, 3, 0, 1, ToDesktop, 0 },
-			{ "Switch4", 0xff, 4, 0, 1, ToDesktop, 0 },
-			{ "Switch5", 0xff, 5, 0, 1, ToDesktop, 0 },
-
-			{ "Elias1", 0xff, 0, FluidPort, 2, ToDesktop, 0 } },
-		// Path the Charts directory
-		"/home/Dropbox/FusionBlue/ChartsHTML/",
-		// Number and name of the output ports
-		6,
-		{ "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
-
-		// Apps[MaxApps];
-		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
-		{
-			{ "rakarrack", 0 },
-			{ "qsynth", 0 },
-			{ "slgui", 0 },
-			{ "audacity", 0 },
-			{ "LiveMusic", 0 },
-			{ "clementine", 0 },
-			{ "Tux", 0 } },
-			8, /* TempoMax	*/
-			1, /* Metronome On	*/
-			40	/* Base Midi Note for switching.	*/
-	};
+    // Apps[MaxApps];
+    // enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
+    {
+        { "rakarrack", 0 },
+        { "qsynth", 0 },
+        { "slgui", 0 },
+        { "audacity", 0 },
+        { "LiveMusic", 0 },
+        { "clementine", 0 },
+        { "Tux", 0 }
+    },
+    8, /* TempoMax	*/
+    1, /* Metronome On	*/
+    40	/* Base Midi Note for switching.	*/
+};
 
 /*--------------------------------------------------------------------
  * Function:		InitPref
@@ -158,14 +162,14 @@ GTKMidiInfo GlobalInfo =
  *---------------------------------------------------------------------*/
 void InitPref(void) {
 
-	gMyInfo.AnalogVolume = 100;
-	gMyInfo.MidiVolume = 100;
+    gMyInfo.AnalogVolume = 100;
+    gMyInfo.MidiVolume = 100;
 #if 1
-	gMyInfo.TempoMax = 8;
+    gMyInfo.TempoMax = 8;
 
-	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
-	WritePref();
-	memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
+    memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
+    WritePref();
+    memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
 #endif
 
     ReadPrefs();
@@ -182,54 +186,54 @@ void InitPref(void) {
  *
  *---------------------------------------------------------------------*/
 void PrintDataStructure(GTKMidiInfo *myInfo) {
-	int Loop;
-	int Loop1;
-	PortsInfo *thePorts;
+    int Loop;
+    int Loop1;
+    PortsInfo *thePorts;
 
-	printf("Main Information\n");
+    printf("Main Information\n");
 
-	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printf("ID=%d %s %d %d %d %d %d %d\n", Loop,
-			myInfo->MyPatchInfo[Loop].Name,
-			myInfo->MyPatchInfo[Loop].Patch,
-			myInfo->MyPatchInfo[Loop].OutPort,
-			myInfo->MyPatchInfo[Loop].Channel,
-			myInfo->MyPatchInfo[Loop].CustomCommand,
-			myInfo->MyPatchInfo[Loop].Chain);
-	}
+    for (Loop = 0; Loop < Max_Patches; Loop++) {
+        printf("ID=%d %s %d %d %d %d %d\n", Loop,
+               myInfo->MyPatchInfo[Loop].Name,
+               myInfo->MyPatchInfo[Loop].Patch,
+               myInfo->MyPatchInfo[Loop].OutPort,
+               myInfo->MyPatchInfo[Loop].Channel,
+               myInfo->MyPatchInfo[Loop].CustomCommand,
+               myInfo->MyPatchInfo[Loop].Chain);
+    }
 
-	printf("BaseName %s\n", myInfo->BasePath);
+    printf("BaseName %s\n", myInfo->BasePath);
 
-	printf("Num Ports %d\n", myInfo->NumOutPorts);
-	for (Loop = 0; Loop < myInfo->NumOutPorts; Loop++) {
-		printf("Ports %s\n", myInfo->OutPortName[Loop]);
-	}
+    printf("Num Ports %d\n", myInfo->NumOutPorts);
+    for (Loop = 0; Loop < myInfo->NumOutPorts; Loop++) {
+        printf("Ports %s\n", myInfo->OutPortName[Loop]);
+    }
 
-	for (Loop = 0; Loop < MaxApps; Loop++) {
-		printf("Apps %s %d\n", myInfo->Apps[Loop].Name,
-			myInfo->Apps[Loop].PortID);
-	}
+    for (Loop = 0; Loop < MaxApps; Loop++) {
+        printf("Apps %s %d\n", myInfo->Apps[Loop].Name,
+               myInfo->Apps[Loop].PortID);
+    }
 
-	thePorts = &theInPorts;
-	for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
-		printf("In Name [%s]\n", thePorts->Devices[Loop].Name);
-		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
-			printf("In SName %d, [%s]\n", Loop1,
-				thePorts->Devices[Loop].Ports[Loop1].Name);
-		}
-	}
+    thePorts = &theInPorts;
+    for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
+        printf("In Name [%s]\n", thePorts->Devices[Loop].Name);
+        for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
+            printf("In SName %d, [%s]\n", Loop1,
+                   thePorts->Devices[Loop].Ports[Loop1].Name);
+        }
+    }
 
-	thePorts = &theOutPorts;
-	for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
-		printf("Out Name [%s]\n", thePorts->Devices[Loop].Name);
-		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
-			printf("Out SName %d, [%s]\n", Loop1,
-				thePorts->Devices[Loop].Ports[Loop1].Name);
-		}
-	}
+    thePorts = &theOutPorts;
+    for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
+        printf("Out Name [%s]\n", thePorts->Devices[Loop].Name);
+        for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
+            printf("Out SName %d, [%s]\n", Loop1,
+                   thePorts->Devices[Loop].Ports[Loop1].Name);
+        }
+    }
 
-	printf("Metronome Base %d On %d\n", myInfo->TempoMax, myInfo->MetronomeOn);
-	printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
+    printf("Metronome Base %d On %d\n", myInfo->TempoMax, myInfo->MetronomeOn);
+    printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
 
 }
 
@@ -240,84 +244,84 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
  *
  *---------------------------------------------------------------------*/
 void WritePref(void) {
-	xmlDocPtr doc = NULL; /* document pointer */
-	xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
-	xmlDtdPtr dtd = NULL; /* DTD pointer */
-	char buff[256];
-	int Loop;
+    xmlDocPtr doc = NULL; /* document pointer */
+    xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+    xmlDtdPtr dtd = NULL; /* DTD pointer */
+    char buff[256];
+    int Loop;
 
-	LIBXML_TEST_VERSION
-	;
+    LIBXML_TEST_VERSION
+    ;
 
-	doc = xmlNewDoc(BAD_CAST "1.0");
-	root_node = xmlNewNode(NULL, BAD_CAST XML_BASIC_SETTINGS);
-	xmlDocSetRootElement(doc, root_node);
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST XML_BASIC_SETTINGS);
+    xmlDocSetRootElement(doc, root_node);
 
-	xmlNewChild(root_node, NULL, BAD_CAST "SongPath",
-	BAD_CAST "/home/Dropbox/FusionBlue/ChartsHTML/");
+    xmlNewChild(root_node, NULL, BAD_CAST "SongPath",
+                BAD_CAST "/home/Dropbox/FusionBlue/ChartsHTML/");
 
-	/*
-	 * Write out the Buttons
-	 */
-	node1 = xmlNewChild(root_node, NULL, BAD_CAST "MainButtons", NULL);
-	for (Loop = 0; Loop < Max_Patches; Loop++) {
+    /*
+     * Write out the Buttons
+     */
+    node1 = xmlNewChild(root_node, NULL, BAD_CAST "MainButtons", NULL);
+    for (Loop = 0; Loop < Max_Patches; Loop++) {
 //		doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
-		sprintf(buff, "Preset%03d", Loop);
-		node = xmlNewChild(node1, NULL, buff, NULL);
-		xmlSetProp(node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
-		xmlSetProp(node, "Channel", buff);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].BankSelect);
-		xmlSetProp(node, "Controller", buff);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].OutPort);
-		xmlSetProp(node, "OutPort", buff);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Patch);
-		xmlSetProp(node, "Patch", buff);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].CustomCommand);
-		xmlSetProp(node, "Custom", buff);
-		sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Chain);
-		xmlSetProp(node, "Chain", buff);
-	}
+        sprintf(buff, "Preset%03d", Loop);
+        node = xmlNewChild(node1, NULL, buff, NULL);
+        xmlSetProp(node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
+        xmlSetProp(node, "Channel", buff);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].BankSelect);
+        xmlSetProp(node, "Controller", buff);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].OutPort);
+        xmlSetProp(node, "OutPort", buff);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Patch);
+        xmlSetProp(node, "Patch", buff);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].CustomCommand);
+        xmlSetProp(node, "Custom", buff);
+        sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Chain);
+        xmlSetProp(node, "Chain", buff);
+    }
 
-	sprintf(buff, "%03d", gMyInfo.NumOutPorts);
-	xmlNewChild(root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
+    sprintf(buff, "%03d", gMyInfo.NumOutPorts);
+    xmlNewChild(root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
 
-	/*
-	 * Write out the Output Ports.
-	 */
-	node1 = xmlNewChild(root_node, NULL, BAD_CAST "OutPorts", NULL);
-	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
-		sprintf(buff, "Port%03d", Loop);
-		node = xmlNewChild(node1, NULL, buff, NULL);
-		xmlSetProp(node, "Name", gMyInfo.OutPortName[Loop]);
-	}
+    /*
+     * Write out the Output Ports.
+     */
+    node1 = xmlNewChild(root_node, NULL, BAD_CAST "OutPorts", NULL);
+    for (Loop = 0; Loop < MaxOutPorts; Loop++) {
+        sprintf(buff, "Port%03d", Loop);
+        node = xmlNewChild(node1, NULL, buff, NULL);
+        xmlSetProp(node, "Name", gMyInfo.OutPortName[Loop]);
+    }
 
-	node1 = xmlNewChild(root_node, NULL, BAD_CAST "AppNames", NULL);
-	for (Loop = 0; Loop < MaxApps; Loop++) {
-		sprintf(buff, "App%03d", Loop);
-		node = xmlNewChild(node1, NULL, buff, NULL);
-		xmlSetProp(node, "Name", gMyInfo.Apps[Loop].Name);
-		sprintf(buff, "%03d", gMyInfo.Apps[Loop].PortID);
-		xmlSetProp(node, "PortID", buff);
-	}
+    node1 = xmlNewChild(root_node, NULL, BAD_CAST "AppNames", NULL);
+    for (Loop = 0; Loop < MaxApps; Loop++) {
+        sprintf(buff, "App%03d", Loop);
+        node = xmlNewChild(node1, NULL, buff, NULL);
+        xmlSetProp(node, "Name", gMyInfo.Apps[Loop].Name);
+        sprintf(buff, "%03d", gMyInfo.Apps[Loop].PortID);
+        xmlSetProp(node, "PortID", buff);
+    }
 
-	sprintf(buff, "%03d", gMyInfo.TempoMax);
-	xmlNewChild(root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
+    sprintf(buff, "%03d", gMyInfo.TempoMax);
+    xmlNewChild(root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
 
-	sprintf(buff, "%03d", gMyInfo.MetronomeOn);
-	xmlNewChild(root_node, NULL, BAD_CAST "MetroOn", BAD_CAST buff);
+    sprintf(buff, "%03d", gMyInfo.MetronomeOn);
+    xmlNewChild(root_node, NULL, BAD_CAST "MetroOn", BAD_CAST buff);
 
-	sprintf(buff, "%03d", gMyInfo.MidiBaseNote);
-	xmlNewChild(root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
+    sprintf(buff, "%03d", gMyInfo.MidiBaseNote);
+    xmlNewChild(root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
 
-	/*
-	 * Dumping document to stdio or file
-	 */
-	xmlSaveFormatFileEnc(PREFSFILENAME, doc, "UTF-8", 1);
+    /*
+     * Dumping document to stdio or file
+     */
+    xmlSaveFormatFileEnc(PREFSFILENAME, doc, "UTF-8", 1);
 
-	xmlFreeDoc(doc);
+    xmlFreeDoc(doc);
 
-	xmlCleanupParser();
+    xmlCleanupParser();
 }
 
 /*--------------------------------------------------------------------
@@ -327,102 +331,102 @@ void WritePref(void) {
  *
  *---------------------------------------------------------------------*/
 void getReference(xmlDocPtr doc, xmlNodePtr cur) {
-	xmlChar *key;
-	xmlNodePtr node = NULL;
-	printd(LogInfo, "In Get Reference\n");
-	int Loop = 0;
+    xmlChar *key;
+    xmlNodePtr node = NULL;
+    printd(LogInfo, "In Get Reference\n");
+    int Loop = 0;
 
-	cur = cur->xmlChildrenNode;
-	while (cur != NULL) {
-		printd(LogInfo, "In Read Loop %s\n", cur->name);
+    cur = cur->xmlChildrenNode;
+    while (cur != NULL) {
+        printd(LogInfo, "In Read Loop %s\n", cur->name);
 
-		if ((!xmlStrcmp(cur->name, (const xmlChar *) XML_BASIC_SETTINGS))) {
-			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printd(LogInfo, "keyword: %s\n", key);
-			xmlFree(key);
-		}
+        if ((!xmlStrcmp(cur->name, (const xmlChar *) XML_BASIC_SETTINGS))) {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            printd(LogInfo, "keyword: %s\n", key);
+            xmlFree(key);
+        }
 
-		if ((!xmlStrcmp(cur->name, (const xmlChar *) "SongPath"))) {
-			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printd(LogInfo, "Read Path: %s\n", key);
-			strncpy(gMyInfo.BasePath, key, 255);
-			xmlFree(key);
-		}
+        if ((!xmlStrcmp(cur->name, (const xmlChar *) "SongPath"))) {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            printd(LogInfo, "Read Path: %s\n", key);
+            strncpy(gMyInfo.BasePath, key, 255);
+            xmlFree(key);
+        }
 
-		/*
-		 * Read the Button information
-		 */
-		if ((!xmlStrcmp(cur->name, (const xmlChar *) "MainButtons"))) {
-			node = cur->xmlChildrenNode;
-			while (node) {
-				if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
-					printd(LogInfo, "Preset: %s ", node->name);
+        /*
+         * Read the Button information
+         */
+        if ((!xmlStrcmp(cur->name, (const xmlChar *) "MainButtons"))) {
+            node = cur->xmlChildrenNode;
+            while (node) {
+                if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
+                    printd(LogInfo, "Preset: %s ", node->name);
 
-					key = xmlGetProp(node, "Name");
-					printd(LogInfo, "Name: %s ", key);
-					strcpy(gMyInfo.MyPatchInfo[Loop].Name, key);
-					xmlFree(key);
+                    key = xmlGetProp(node, "Name");
+                    printd(LogInfo, "Name: %s ", key);
+                    strcpy(gMyInfo.MyPatchInfo[Loop].Name, key);
+                    xmlFree(key);
 
-					key = xmlGetProp(node, "Channel");
-					printd(LogInfo, "Chan: %d ", atoi(key));
-					gMyInfo.MyPatchInfo[Loop].Channel = atoi(key);
-					xmlFree(key);
+                    key = xmlGetProp(node, "Channel");
+                    printd(LogInfo, "Chan: %d ", atoi(key));
+                    gMyInfo.MyPatchInfo[Loop].Channel = atoi(key);
+                    xmlFree(key);
 
-					key = xmlGetProp(node, "Controller");
-					printd(LogInfo, "Chan: %d ", atoi(key));
-					gMyInfo.MyPatchInfo[Loop].BankSelect = atoi(key);
-					xmlFree(key);
+                    key = xmlGetProp(node, "Controller");
+                    printd(LogInfo, "Controller: %d ", atoi(key));
+                    gMyInfo.MyPatchInfo[Loop].BankSelect = atoi(key);
+                    xmlFree(key);
 
-					key = xmlGetProp(node, "OutPort");
-					printd(LogInfo, "Chan: %d ", atoi(key));
-					gMyInfo.MyPatchInfo[Loop].OutPort = atoi(key);
-					xmlFree(key);
+                    key = xmlGetProp(node, "OutPort");
+                    printd(LogInfo, "OutPort: %d ", atoi(key));
+                    gMyInfo.MyPatchInfo[Loop].OutPort = atoi(key);
+                    xmlFree(key);
 
-					key = xmlGetProp(node, "Patch");
-					printd(LogInfo, "Chan: %d \n", atoi(key));
-					gMyInfo.MyPatchInfo[Loop].Patch = atoi(key);
-					xmlFree(key);
+                    key = xmlGetProp(node, "Patch");
+                    printd(LogInfo, "Patch: %d \n", atoi(key));
+                    gMyInfo.MyPatchInfo[Loop].Patch = atoi(key);
+                    xmlFree(key);
 
-					/* This is Bad, Compare with Button index. */
-					Loop++;
-				}
-				node = node->next;
-			}
-		}
+                    /* This is Bad, Compare with Button index. */
+                    Loop++;
+                }
+                node = node->next;
+            }
+        }
 
-		/*
-		 * Read the port information
-		 */
-		if ((!xmlStrcmp(cur->name, (const xmlChar *) "NumOutPorts"))) {
-			key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			printd(LogInfo, "Read Path: %s\n", key);
-			gMyInfo.NumOutPorts = atoi(key);
-			xmlFree(key);
-		}
+        /*
+         * Read the port information
+         */
+        if ((!xmlStrcmp(cur->name, (const xmlChar *) "NumOutPorts"))) {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            printd(LogInfo, "Read Path: %s\n", key);
+            gMyInfo.NumOutPorts = atoi(key);
+            xmlFree(key);
+        }
 
-		if ((!xmlStrcmp(cur->name, (const xmlChar *) "OutPorts"))) {
-			gMyInfo.NumOutPorts = 0;
-			node = cur->xmlChildrenNode;
-			while (node) {
-				if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
-					printd(LogInfo, "Preset: %s ", node->name);
+        if ((!xmlStrcmp(cur->name, (const xmlChar *) "OutPorts"))) {
+            gMyInfo.NumOutPorts = 0;
+            node = cur->xmlChildrenNode;
+            while (node) {
+                if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
+                    printd(LogInfo, "Preset: %s ", node->name);
 
-					gMyInfo.NumOutPorts++;
-					key = xmlGetProp(node, "Name");
-					printd(LogInfo, "Name: %s ", key);
-					strcpy(gMyInfo.OutPortName[Loop], key);
-					xmlFree(key);
+                    gMyInfo.NumOutPorts++;
+                    key = xmlGetProp(node, "Name");
+                    printd(LogInfo, "Name: %s ", key);
+                    strcpy(gMyInfo.OutPortName[Loop], key);
+                    xmlFree(key);
 
-					/* This is Bad, Compare with Button index. */
-					Loop++;
-				}
-				node = node->next;
-			}
-		}
-		cur = cur->next;
-	}
+                    /* This is Bad, Compare with Button index. */
+                    Loop++;
+                }
+                node = node->next;
+            }
+        }
+        cur = cur->next;
+    }
 
-	return;
+    return;
 }
 
 /*--------------------------------------------------------------------
@@ -432,33 +436,33 @@ void getReference(xmlDocPtr doc, xmlNodePtr cur) {
  *
  *---------------------------------------------------------------------*/
 void parseDoc(char *docname) {
-	xmlDocPtr doc;
-	xmlNodePtr cur;
+    xmlDocPtr doc;
+    xmlNodePtr cur;
 
-	doc = xmlParseFile(docname);
+    doc = xmlParseFile(docname);
 
-	if (doc == NULL) {
-		fprintf(stderr, "Document not parsed successfully. \n");
-		return;
-	}
+    if (doc == NULL) {
+        fprintf(stderr, "Document not parsed successfully. \n");
+        return;
+    }
 
-	cur = xmlDocGetRootElement(doc);
+    cur = xmlDocGetRootElement(doc);
 
-	if (cur == NULL) {
-		fprintf(stderr, "empty document\n");
-		xmlFreeDoc(doc);
-		return;
-	}
+    if (cur == NULL) {
+        fprintf(stderr, "empty document\n");
+        xmlFreeDoc(doc);
+        return;
+    }
 
-	if (xmlStrcmp(cur->name, (const xmlChar *) XML_BASIC_SETTINGS)) {
-		fprintf(stderr, "document of the wrong type, root node != story");
-		xmlFreeDoc(doc);
-		return;
-	}
+    if (xmlStrcmp(cur->name, (const xmlChar *) XML_BASIC_SETTINGS)) {
+        fprintf(stderr, "document of the wrong type, root node != story");
+        xmlFreeDoc(doc);
+        return;
+    }
 
-	getReference(doc, cur);
-	xmlFreeDoc(doc);
-	return;
+    getReference(doc, cur);
+    xmlFreeDoc(doc);
+    return;
 }
 
 #ifdef Test2
@@ -498,243 +502,245 @@ int ParseCountL4;
 int ParseCountL2;
 int ParseCountL3;
 static void processNode1(xmlTextReaderPtr reader, xmlChar *name, xmlChar *value,
-	int NodeType, int Depth) {
+                         int NodeType, int Depth) {
 
 }
 
 static void processNode(xmlTextReaderPtr reader, char Location) {
-	xmlChar *name, *value;
-	int NodeType;
-	int Depth;
-	char Buffer[100];
-	int HoldIndex;
+    xmlChar *name, *value;
+    int NodeType;
+    int Depth;
+    char Buffer[100];
+    int HoldIndex;
 
-	name = xmlTextReaderName(reader);
-	if (name == NULL)
-		name = xmlStrdup(BAD_CAST "--");
+    name = xmlTextReaderName(reader);
+    if (name == NULL)
+        name = xmlStrdup(BAD_CAST "--");
 
-	value = xmlTextReaderValue(reader);
+    value = xmlTextReaderValue(reader);
 
-	NodeType = xmlTextReaderNodeType(reader);
-	Depth = xmlTextReaderDepth(reader);
-	//	if (NodeType != 14 && NodeType != 3) {
+    NodeType = xmlTextReaderNodeType(reader);
+    Depth = xmlTextReaderDepth(reader);
+    //	if (NodeType != 14 && NodeType != 3) {
 #if 0
-	printd(LogInfo, "%d D=%d T=%d N=[%s] E=%d ",Location,
-		Depth,
-		NodeType,
-		name,
-		xmlTextReaderIsEmptyElement(reader));
+    printd(LogInfo, "%d D=%d T=%d N=[%s] E=%d ",Location,
+           Depth,
+           NodeType,
+           name,
+           xmlTextReaderIsEmptyElement(reader));
 #endif
 
-	if (Depth == 2)
-		ParseCountL2++;
+    if (Depth == 2)
+        ParseCountL2++;
 
-	if (Depth == 3)
-		ParseCountL3++;
+    if (Depth == 3)
+        ParseCountL3++;
 
-	if (Depth == 4)
-		ParseCountL4++;
+    if (Depth == 4)
+        ParseCountL4++;
 
-	if (Depth == 1 && NodeType == 14) {
-		printd(LogInfo, "\n*** Setting Top level to None\n");
-		TopLevelParse = dTopLevelNone;
-	}
+    if (Depth == 1 && NodeType == 14) {
+        printd(LogInfo, "\n*** Setting Top level to None\n");
+        TopLevelParse = dTopLevelNone;
+    }
 
-	if (Depth == 1 && NodeType == 1) {
-		printd(LogInfo, "\nTop Level Clear \n");
-		TopLevelParse = dTopLevelNone;
-		ParseCountL4 = 0;
-		ParseCountL2 = 0;
-		ParseCountL3 = 0;
+    if (Depth == 1 && NodeType == 1) {
+        printd(LogInfo, "\nTop Level Clear \n");
+        TopLevelParse = dTopLevelNone;
+        ParseCountL4 = 0;
+        ParseCountL2 = 0;
+        ParseCountL3 = 0;
 
-		/* Let's start by looking for the highest level qualifier.
-		 */
-		if (!strcmp("MainButtons", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMainButtons;
-		}
+        /* Let's start by looking for the highest level qualifier.
+         */
+        if (!strcmp("MainButtons", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelMainButtons;
+        }
 
-		if (!strcmp("NumOutPorts", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelNumOutPorts;
-		}
+        if (!strcmp("NumOutPorts", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelNumOutPorts;
+        }
 
-		if (!strcmp("OutPorts", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOutPorts;
-		}
+        if (!strcmp("OutPorts", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelOutPorts;
+        }
 
-		if (!strcmp("SongPath", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelSongPath;
-		}
+        if (!strcmp("SongPath", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelSongPath;
+        }
 
-		if (!strcmp("AppNames", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelAppName;
-		}
+        if (!strcmp("AppNames", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelAppName;
+        }
 
-		if (!strcmp("TempoMax", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMetronome;
-		}
+        if (!strcmp("TempoMax", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelMetronome;
+        }
 
-		if (!strcmp("MetroOn", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMetronomeOn;
-		}
+        if (!strcmp("MetroOn", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelMetronomeOn;
+        }
 
-		if (!strcmp("MidiBaseNote", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMidiBase;
-		}
+        if (!strcmp("MidiBaseNote", name) && NodeType == 1) {
+            TopLevelParse = dTopLevelMidiBase;
+        }
 
-		printd(LogInfo, "\nTop Level Set %d\n",TopLevelParse );
-	} /* Depth == 1 NodeType == 1	*/
+        printd(LogInfo, "\nTop Level Set %d\n",TopLevelParse );
+    } /* Depth == 1 NodeType == 1	*/
 
-	if (TopLevelParse == dTopLevelOutPorts) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf(name, "Port%03d", &HoldIndex);
+    if (TopLevelParse == dTopLevelOutPorts) {
+        /* Get the second element.
+         */
+        if (Depth == 2 && NodeType == 1) {
+            sscanf(name, "Port%03d", &HoldIndex);
 //					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
-			ParseCountL2 = HoldIndex;
-		}
+            ParseCountL2 = HoldIndex;
+        }
 
-		if (Depth == 3 && NodeType == 2) {
+        if (Depth == 3 && NodeType == 2) {
 //					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
-			if (!strcmp("Name", name))
-				strcpy(gMyInfo.OutPortName[ParseCountL2], value);
+            if (!strcmp("Name", name))
+                strcpy(gMyInfo.OutPortName[ParseCountL2], value);
 
-		}
-	}
+        }
+    }
 
-	if (TopLevelParse == dTopLevelAppName) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf(name, "App%03d", &HoldIndex);
+    if (TopLevelParse == dTopLevelAppName) {
+        /* Get the second element.
+         */
+        if (Depth == 2 && NodeType == 1) {
+            sscanf(name, "App%03d", &HoldIndex);
 //					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
-			ParseCountL2 = HoldIndex;
-		}
+            ParseCountL2 = HoldIndex;
+        }
 
-		if (Depth == 3 && NodeType == 2) {
+        if (Depth == 3 && NodeType == 2) {
 //					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
-			if (!strcmp("Name", name))
-				strcpy(gMyInfo.Apps[ParseCountL2].Name, value);
+            if (!strcmp("Name", name))
+                strcpy(gMyInfo.Apps[ParseCountL2].Name, value);
 
-			if (!strcmp("PortID", name))
-				gMyInfo.Apps[ParseCountL2].PortID = atoi(value);
-		}
-	}
+            if (!strcmp("PortID", name))
+                gMyInfo.Apps[ParseCountL2].PortID = atoi(value);
+        }
+    }
 
-	if (TopLevelParse == dTopLevelMainButtons) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf(name, "Preset%03d", &HoldIndex);
+    if (TopLevelParse == dTopLevelMainButtons) {
+        /* Get the second element.
+         */
+        if (Depth == 2 && NodeType == 1) {
+            sscanf(name, "Preset%03d", &HoldIndex);
 //					printd(LogInfo, "\nButton Number %d\n",HoldIndex );
-			ParseCountL2 = HoldIndex;
+            ParseCountL2 = HoldIndex;
 // Index			gMyInfo.MyPatchInfo[ParseCountL2].Index = HoldIndex;
-		}
+        }
 
-		if (Depth == 3 && NodeType == 2) {
-//					printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
-			if (!strcmp("Name", name))
-				strcpy(gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
+        if (Depth == 3 && NodeType == 2) {
 
-			if (!strcmp("Channel", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].Channel = atoi(value);
+//        	printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 
-			if (!strcmp("Controller", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].BankSelect = atoi(value);
+            if (!strcmp("Name", name))
+                strcpy(gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
 
-			if (!strcmp("OutPort", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].OutPort = atoi(value);
+            if (!strcmp("Channel", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].Channel = atoi(value);
 
-			if (!strcmp("Patch", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].Patch = atoi(value);
+            if (!strcmp("Controller", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].BankSelect = atoi(value);
 
-			if (!strcmp("Custom", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].CustomCommand = atoi(value);
+            if (!strcmp("OutPort", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].OutPort = atoi(value);
 
-			if (!strcmp("Chain", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].Chain = atoi(value);
+            if (!strcmp("Patch", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].Patch = atoi(value);
 
-		}
+            if (!strcmp("Custom", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].CustomCommand = atoi(value);
 
-	} /* TopLevelParse == dTopLevelMainButtons	*/
-	if (Depth == 2 && NodeType == 3) {
-		if (TopLevelParse == dTopLevelNumOutPorts) {
-			gMyInfo.NumOutPorts = atoi(value);
-			printd(LogInfo, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
+            if (!strcmp("Chain", name))
+                gMyInfo.MyPatchInfo[ParseCountL2].Chain = atoi(value);
 
-		}
+        }
 
-		if (TopLevelParse == dTopLevelSongPath) {
-			printd(LogInfo, "Song Path %s\n", value);
-			strncpy(gMyInfo.BasePath, value, 255);
-		}
-		if (TopLevelParse == dTopLevelMetronome) {
-			printd(LogInfo, "dTopLevelMetronome %s\n", value);
-			gMyInfo.TempoMax = atoi(value);
-		}
+    } /* TopLevelParse == dTopLevelMainButtons	*/
+    if (Depth == 2 && NodeType == 3) {
+        if (TopLevelParse == dTopLevelNumOutPorts) {
+            gMyInfo.NumOutPorts = atoi(value);
+            printd(LogInfo, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
 
-		if (TopLevelParse == dTopLevelMetronomeOn) {
-			printd(LogInfo, "dTopLevelMetronomeOn %s\n", value);
-			gMyInfo.MetronomeOn = atoi(value);
-		}
+        }
 
-		if (TopLevelParse == dTopLevelMidiBase) {
-			printd(LogInfo, "dTopLevelMidiBase %s\n", value);
-			gMyInfo.MidiBaseNote = atoi(value);
-		}
+        if (TopLevelParse == dTopLevelSongPath) {
+            printd(LogInfo, "Song Path %s\n", value);
+            strncpy(gMyInfo.BasePath, value, 255);
+        }
+        if (TopLevelParse == dTopLevelMetronome) {
+            printd(LogInfo, "dTopLevelMetronome %s\n", value);
+            gMyInfo.TempoMax = atoi(value);
+        }
 
-	} /* Depth == 2 && NodeType == 3	*/
+        if (TopLevelParse == dTopLevelMetronomeOn) {
+            printd(LogInfo, "dTopLevelMetronomeOn %s\n", value);
+            gMyInfo.MetronomeOn = atoi(value);
+        }
+
+        if (TopLevelParse == dTopLevelMidiBase) {
+            printd(LogInfo, "dTopLevelMidiBase %s\n", value);
+            gMyInfo.MidiBaseNote = atoi(value);
+        }
+
+    } /* Depth == 2 && NodeType == 3	*/
 
 #if 0
-	if (Location == 2) {
+    if (Location == 2) {
 
-		if (TopLevelParse == dTopLevelSongPath) {
-			printd(LogInfo, "Song Path %s\n", value);
-			strncpy(gMyInfo.BasePath, value, 255);
-		}
+        if (TopLevelParse == dTopLevelSongPath) {
+            printd(LogInfo, "Song Path %s\n", value);
+            strncpy(gMyInfo.BasePath, value, 255);
+        }
 
-	}
+    }
 #endif
 
 
 
-	if (value != NULL)
-		xmlFree(value);
+    if (value != NULL)
+        xmlFree(value);
 
-	if (NodeType == 1)
-		xmlFree(name);
+    if (NodeType == 1)
+        xmlFree(name);
 }
 
 void ReadPrefs() {
-	xmlTextReaderPtr reader;
-	int ret;
+    xmlTextReaderPtr reader;
+    int ret;
 
-	xmlChar *name, *value;
-	int NodeType;
-	int Depth;
+    xmlChar *name, *value;
+    int NodeType;
+    int Depth;
 
-	printd(LogInfo, "----------------------\n");
-	printd(LogInfo, "Reading prefs file\n");
-	printd(LogInfo, "----------------------\n");
-	reader = xmlNewTextReaderFilename(PREFSFILENAME);
-	if (reader != NULL) {
-		ret = xmlTextReaderRead(reader);
-		while (ret == 1) {
-			processNode(reader, 1);
-			while (xmlTextReaderMoveToNextAttribute(reader))
-				processNode(reader, 2);
+    printd(LogInfo, "----------------------\n");
+    printd(LogInfo, "Reading prefs file\n");
+    printd(LogInfo, "----------------------\n");
+    reader = xmlNewTextReaderFilename(PREFSFILENAME);
+    if (reader != NULL) {
+        ret = xmlTextReaderRead(reader);
+        while (ret == 1) {
+            processNode(reader, 1);
+            while (xmlTextReaderMoveToNextAttribute(reader))
+                processNode(reader, 2);
 
-			ret = xmlTextReaderRead(reader);
-		}
-		xmlFreeTextReader(reader);
-		if (ret != 0) {
-			printd(LogInfo, "%s : failed to parse\n", PREFSFILENAME);
-		}
-	} else {
-		printd(LogInfo, "Unable to open %s\n", PREFSFILENAME);
-	}
-	printd(LogInfo, "----------------------\n");
-	printd(LogInfo, "Reading prefs file\n");
-	printd(LogInfo, "----------------------\n");
+            ret = xmlTextReaderRead(reader);
+        }
+        xmlFreeTextReader(reader);
+        if (ret != 0) {
+            printd(LogInfo, "%s : failed to parse\n", PREFSFILENAME);
+        }
+    } else {
+        printd(LogInfo, "Unable to open %s\n", PREFSFILENAME);
+    }
+    printd(LogInfo, "----------------------\n");
+    printd(LogInfo, "Reading prefs file\n");
+    printd(LogInfo, "----------------------\n");
 }
 
 #endif

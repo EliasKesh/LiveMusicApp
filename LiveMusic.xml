@@ -2,16 +2,16 @@
 <MidiControlBase>
   <SongPath>/home/Dropbox/FusionBlue/ChartsHTML/</SongPath>
   <MainButtons>
-    <Preset000 Name="Elias1" Channel="002" Controller="255" OutPort="001" Patch="001" Custom="000" Chain="000"/>
-    <Preset001 Name="Dist" Channel="002" Controller="255" OutPort="001" Patch="005" Custom="000" Chain="000"/>
-    <Preset002 Name="Funk Chorus" Channel="002" Controller="255" OutPort="001" Patch="003" Custom="000" Chain="000"/>
-    <Preset003 Name="ThumpBass" Channel="002" Controller="255" OutPort="001" Patch="008" Custom="000" Chain="000"/>
-    <Preset004 Name="Chorus" Channel="002" Controller="255" OutPort="001" Patch="017" Custom="000" Chain="000"/>
-    <Preset005 Name="Jazz" Channel="002" Controller="255" OutPort="001" Patch="027" Custom="000" Chain="000"/>
-    <Preset006 Name="EliasChorus" Channel="002" Controller="255" OutPort="001" Patch="018" Custom="000" Chain="000"/>
-    <Preset007 Name="Synth" Channel="002" Controller="255" OutPort="001" Patch="015" Custom="000" Chain="000"/>
-    <Preset008 Name="Oct Bass" Channel="002" Controller="255" OutPort="001" Patch="009" Custom="000" Chain="000"/>
-    <Preset009 Name="Chr Riff" Channel="002" Controller="255" OutPort="001" Patch="007" Custom="000" Chain="000"/>
+    <Preset000 Name="Elias1" Channel="001" Controller="255" OutPort="001" Patch="001" Custom="000" Chain="000"/>
+    <Preset001 Name="Dist" Channel="001" Controller="255" OutPort="001" Patch="005" Custom="000" Chain="000"/>
+    <Preset002 Name="Funk Chorus" Channel="001" Controller="255" OutPort="001" Patch="003" Custom="000" Chain="000"/>
+    <Preset003 Name="ThumpBass" Channel="001" Controller="255" OutPort="001" Patch="008" Custom="000" Chain="000"/>
+    <Preset004 Name="Chorus" Channel="001" Controller="255" OutPort="001" Patch="017" Custom="000" Chain="000"/>
+    <Preset005 Name="Jazz" Channel="001" Controller="255" OutPort="001" Patch="027" Custom="000" Chain="000"/>
+    <Preset006 Name="EliasChorus" Channel="001" Controller="255" OutPort="001" Patch="018" Custom="000" Chain="000"/>
+    <Preset007 Name="Synth" Channel="001" Controller="255" OutPort="001" Patch="015" Custom="000" Chain="000"/>
+    <Preset008 Name="Oct Bass" Channel="001" Controller="255" OutPort="001" Patch="009" Custom="000" Chain="000"/>
+    <Preset009 Name="Chr Riff" Channel="001" Controller="255" OutPort="001" Patch="007" Custom="000" Chain="000"/>
     <Preset010 Name="Piano" Channel="001" Controller="001" OutPort="000" Patch="063" Custom="000" Chain="000"/>
     <Preset011 Name="Honky" Channel="001" Controller="000" OutPort="000" Patch="003" Custom="000" Chain="000"/>
     <Preset012 Name="Breath" Channel="001" Controller="002" OutPort="000" Patch="053" Custom="000" Chain="000"/>
@@ -71,27 +71,17 @@
     <Preset066 Name="PreTab" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="005" Chain="000"/>
     <Preset067 Name="ScoreTab" Channel="001" Controller="255" OutPort="000" Patch="001" Custom="005" Chain="000"/>
     <Preset068 Name="TransportApp" Channel="001" Controller="255" OutPort="000" Patch="003" Custom="006" Chain="000"/>
-    <Preset069 Name="Switch0" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="003" Chain="000"/>
-    <Preset070 Name="Switch1" Channel="001" Controller="255" OutPort="000" Patch="001" Custom="003" Chain="000"/>
-    <Preset071 Name="Switch2" Channel="001" Controller="255" OutPort="000" Patch="002" Custom="003" Chain="000"/>
-    <Preset072 Name="Switch3" Channel="001" Controller="255" OutPort="000" Patch="003" Custom="003" Chain="000"/>
-    <Preset073 Name="Switch4" Channel="001" Controller="255" OutPort="000" Patch="004" Custom="003" Chain="000"/>
-    <Preset074 Name="Switch5" Channel="001" Controller="255" OutPort="000" Patch="005" Custom="003" Chain="000"/>
-    <Preset075 Name="Elias1" Channel="002" Controller="255" OutPort="000" Patch="000" Custom="003" Chain="000"/>
-    <Preset076 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset077 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset078 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset079 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset080 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset081 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset082 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset083 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset084 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset085 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset086 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset087 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset088 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
-    <Preset089 Name="" Channel="000" Controller="000" OutPort="000" Patch="000" Custom="000" Chain="000"/>
+    <Preset069 Name="NULL" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="006" Chain="000"/>
+    <Preset070 Name="Switch0" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="003" Chain="000"/>
+    <Preset071 Name="Switch1" Channel="001" Controller="255" OutPort="000" Patch="001" Custom="003" Chain="000"/>
+    <Preset072 Name="Switch2" Channel="001" Controller="255" OutPort="000" Patch="002" Custom="003" Chain="000"/>
+    <Preset073 Name="Switch3" Channel="001" Controller="255" OutPort="000" Patch="003" Custom="003" Chain="000"/>
+    <Preset074 Name="Switch4" Channel="001" Controller="255" OutPort="000" Patch="004" Custom="003" Chain="000"/>
+    <Preset075 Name="Switch5" Channel="001" Controller="255" OutPort="000" Patch="005" Custom="003" Chain="000"/>
+    <Preset076 Name="NULL" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="006" Chain="000"/>
+    <Preset077 Name="Slide1" Channel="001" Controller="255" OutPort="001" Patch="007" Custom="000" Chain="000"/>
+    <Preset078 Name="Slide2" Channel="001" Controller="255" OutPort="000" Patch="007" Custom="000" Chain="000"/>
+    <Preset079 Name="Slide3" Channel="002" Controller="255" OutPort="000" Patch="007" Custom="000" Chain="000"/>
   </MainButtons>
   <NumOutPorts>006</NumOutPorts>
   <OutPorts>
