@@ -277,7 +277,8 @@ void SetTempo(unsigned char NewTempo);
 void RaiseWindows(char *AppName);
 void RaiseWindowsNum(char AppNumber);
 
-tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn);
+tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction);
+
 void PrintDataStructure(GTKMidiInfo *myInfo);
 int	GuitarMidiPresetComplete(tPatchIndex	MidiNote);
 int	GuitarMidiPreset(void);

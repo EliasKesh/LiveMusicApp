@@ -151,8 +151,7 @@ void SwitchToTab(char Tab) {
 void on_button_clicked(GtkButton *button, gpointer user_data) {
 	tPatchIndex	PatchIndex;
 
-	PatchIndex = ModeSwitchPatch(user_data);
-	DoPatch(&gMyInfo.MyPatchInfo[(char) PatchIndex]);
+	PatchIndex = ModeSwitchPatch(user_data, true);
     printd(LogInfo, "User data %d\n", (int) user_data);
 }
 
@@ -693,10 +692,12 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
     for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
         myButton = MainButtons[Loop];
-//		printd(LogInfo,"SetUpMainButtons: %d %x\n", gMyInfo.MyPatchInfo[Loop].Index, myButton);
 //		printd(LogInfo,"Loop %d gMyInfo %s Patch %d\n",Loop, gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
-        PatchIndex = ModeSwitchPatch(Loop);
-        gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child),
+        PatchIndex = ModeSwitchPatch(Loop, false);
+		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
+
+        if (PatchIndex >= 0 && PatchIndex < Max_Patches )
+        	gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child),
                            gMyInfo.MyPatchInfo[PatchIndex].Name);
     }
 }
@@ -873,8 +874,9 @@ void IncrementMode(void) {
  * Description:		Based on the current mode do a different.
  *
  *---------------------------------------------------------------------*/
-tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn) {
-    char Preset;
+tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
+	tPatchIndex Preset;
+	tPatchIndex RetVal;
 
     printd(LogInfo, "In ModeSwitchPatch Mid In %d %d %d\n", MidiIn,
            GetModePreset(MidiIn),
@@ -884,39 +886,45 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn) {
      */
     switch (MidiIn) {
     case PresetMidiKey:
-        GuitarMidiPreset();
-        return(-1);
+    	if (DoAction)
+    		GuitarMidiPreset();
+
+    	RetVal = -1;
         break;
 
     case Preset1FButton:
         Preset = gMyInfo.WebPresets.thePreset1;
         if (Preset != -1)
-        	return(Preset);
+        	RetVal = Preset;
         else
-        	return(MidiIn);
+        	RetVal = MidiIn;
         break;
 
     case Preset2FButton:
         Preset = gMyInfo.WebPresets.thePreset2;
         if (Preset != -1)
-        	return(Preset);
+        	RetVal = Preset;
         else
-        	return(MidiIn);
+        	RetVal = MidiIn;
         break;
 
     case ModeSwitchKey:
-        IncrementMode();
+    	if (DoAction)
+    		IncrementMode();
         break;
 
     default:
-        return(GetModePreset(MidiIn));
+    	RetVal = GetModePreset(MidiIn);
         break;
     }
 //		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
-
+    if (DoAction) {
+    	if (RetVal >= 0 && RetVal < Max_Patches)
+    		DoPatch(&gMyInfo.MyPatchInfo[(char) RetVal]);
+    }
     printd(LogInfo, "ModeSwitchPatch %d\n", MidiIn);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
-    return (-1);
+    return (RetVal);
 }
 
 /*--------------------------------------------------------------------
