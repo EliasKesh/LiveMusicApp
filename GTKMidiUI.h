@@ -87,7 +87,7 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 30
-#define Max_Patches	 80
+#define Max_Patches	 90
 #define Slider1		Max_Patches -3
 #define Slider2		Max_Patches -2
 #define Slider3		Max_Patches -1
@@ -168,9 +168,15 @@ enum {
 #define SFGI 6
 #define SFBoogie 7
 #define SFGoodFlue 8
+#define SFHold8	 8
+#define SFDrumKit	 9
 #define SFFluidGMLow 10
 #define SFA340Low 11
+#define SFHold12	 12
+#define SFHold13	 13
+#define SFHold14	 14
 #define SFA340High 15
+#define SFDrums		128
 
 #define ModeSwitchKey		29
 #define PresetMidiKey	28
@@ -251,7 +257,7 @@ int preModePerformance[Max_Patches];
 int preModeLooper[Max_Patches] = {
     /* Front Row */
     50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+    06, 01, 9, 20, 14, 65, 0, 0, 0, 0,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 };
 int		WaitingforMidi;

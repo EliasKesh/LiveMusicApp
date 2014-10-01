@@ -398,7 +398,7 @@ int main(int argc, char *argv[]) {
     /*
      * After we quit we should write back the changes.
      */
-    WritePref();
+    WritePrefs();
 
     return 0;
 }

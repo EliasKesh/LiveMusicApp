@@ -34,6 +34,7 @@
  */
 
 void parseDoc(char *docname);
+void WritePrefs(void);
 
 /*
  * Place Static variables here
@@ -60,16 +61,17 @@ GTKMidiInfo GlobalInfo = {
         { "De-Tuned Organ", SFA340Low, 16, FluidPort, 1, NoCustom, 0 },
         { "Flute", SFFlute, 73, FluidPort, 1, NoCustom, 0 },
         { "Synth Lead", SFDSF, 43, FluidPort, 1, NoCustom, 0 },
-        { "Walky", SFDSF, 3, FluidPort, 1, NoCustom, 0 },
+        { "Strings", SFDSF, 85, FluidPort, 1, NoCustom, 0 },
         { "Trumpet", SFDSF, 66, FluidPort, 1, NoCustom, 0 },
         { "Steel Drums", SFFluidGM, 114, FluidPort, 1, NoCustom, 0 },
-        { "Strings", SFDSF, 85, FluidPort, 1, NoCustom, 0 },
-        // 20	Button		Title		Bank	Patch	Outport
-        { "Drums", 128, 26, FluidPort, 1, NoCustom, 0 },
+        { "Walky", SFDSF, 3, FluidPort, 1, NoCustom, 0 },
+       // 20	Button		Title		Bank	Patch	Outport
+//       { "Drums", 128, 26, FluidPort, 1, NoCustom, 0 },
+        { "Drums", SFDrums, 1, FluidPort, 1, NoCustom, 0 },
         { "Slap Bass", SFDSF, 24, FluidPort, 1, NoCustom, 0 },
         { "Synth Hard", SFDSF, 60, FluidPort, 1, NoCustom, 0 },
         { "Marimba", SFDSF, 12, FluidPort, 1, NoCustom, 0 },
-        { "Holdsworth", SFMusica, 48, FluidPort, 1, NoCustom, 0 },
+        { "Breath", SFMusica, 48, FluidPort, 1, NoCustom, 0 },
         { "Steel Drums", SFDSF, 114, FluidPort, 1, NoCustom, 0 },
         { "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, 0 },
         { "Mid0", 0xff, 0, GI20Port, 1, NoCustom, 0 },
@@ -127,6 +129,17 @@ GTKMidiInfo GlobalInfo = {
         { "Switch4", 0xff, 4, 0, 1, ToDesktop, 0 },
         { "Switch5", 0xff, 5, 0, 1, ToDesktop, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        // 80	Button		Title		Bank	Patch	Outport
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
+        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1, NoCustom, 0 },
         { "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, 0 },
         { "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, 0 },
@@ -168,7 +181,7 @@ void InitPref(void) {
     gMyInfo.TempoMax = 8;
 
     memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
-    WritePref();
+    WritePrefs();
     memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
 #endif
 
@@ -176,7 +189,7 @@ void InitPref(void) {
     PrintDataStructure(&gMyInfo);
 //exit(1);
 //	printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
-//	WritePref();
+//	WritePrefs();
 }
 
 /*--------------------------------------------------------------------
@@ -243,7 +256,7 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-void WritePref(void) {
+void WritePrefs(void) {
     xmlDocPtr doc = NULL; /* document pointer */
     xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
     xmlDtdPtr dtd = NULL; /* DTD pointer */
