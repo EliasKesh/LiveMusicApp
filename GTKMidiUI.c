@@ -363,11 +363,13 @@ int main(int argc, char *argv[]) {
      */
     InitConnections();
 
+#if (GTK_MAJOR_VERSION == 2)
     /*
      * Set the up Chord page in case we need it later.
      */
     ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
     ChorderMain(main_window, ChordWidget);
+#endif
 
     /*
      * Set up a timer for Tempo.
@@ -534,6 +536,7 @@ static gboolean time_handler(GtkWidget *widget) {
 void ToggleTempo(void) {
     GdkColor fgcolor;
     GdkColor bgcolor;
+    GtkWidget *Child;
     char StrBuf[10];
 
     if (TempoState >= (gMyInfo.TempoMax * 12))
@@ -562,9 +565,10 @@ void ToggleTempo(void) {
         font_desc = pango_font_description_from_string("Sans Bold 18");
         //	pango_font_description_set_size(font_desc,40*PANGO_SCALE);
 
-        gtk_widget_modify_font(GTK_LABEL(GTK_BIN(TempoDraw)->child), font_desc);
+        Child = gtk_bin_get_child(GTK_LABEL(GTK_BIN(TempoDraw)));
+        gtk_widget_modify_font((Child), font_desc);
 
-        gtk_label_set_text(GTK_LABEL(GTK_BIN(TempoDraw)->child), StrBuf);
+        gtk_label_set_text((Child), StrBuf);
     } else {
 //		gdk_color_parse ("black", &bgcolor);
 //		gdk_color_parse ("white", &fgcolor);
@@ -629,14 +633,14 @@ void CreateMainButtons(void) {
 
     VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
     Adjustment1 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment1"));
-    gtk_signal_connect(GTK_OBJECT (VScale1), "value_changed",
-                       GTK_SIGNAL_FUNC (VScale1_Changed), NULL);
+    g_signal_connect(G_OBJECT (VScale1), "value_changed",
+                       G_CALLBACK (VScale1_Changed), NULL);
 //    scale_set_default_values (GTK_SCALE (VScale1));
 
     VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
     Adjustment2 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment2"));
-    gtk_signal_connect(GTK_OBJECT (VScale2), "value_changed",
-                       GTK_SIGNAL_FUNC (VScale2_Changed), NULL);
+    g_signal_connect(G_OBJECT (VScale2), "value_changed",
+                       G_CALLBACK (VScale2_Changed), NULL);
 
     VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
     Adjustment3 = GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
@@ -653,12 +657,13 @@ void VScale1_Changed(GtkAdjustment *adj) {
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
     //   printf("\nVscale 1 %f\n", Adjustment1->value);
+    gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
     SendMidi(SND_SEQ_EVENT_CONTROLLER,
     	gMyInfo.MyPatchInfo[Slider1].OutPort,
     	gMyInfo.MyPatchInfo[Slider1].Channel,
     	gMyInfo.MyPatchInfo[Slider1].Patch,
-             (char) Adjustment1->value);
-    gMyInfo.AnalogVolume = (char) Adjustment1->value;
+             (char) gMyInfo.AnalogVolume);
+
 }
 
 /*--------------------------------------------------------------------
@@ -671,12 +676,12 @@ void VScale2_Changed(GtkAdjustment *adj) {
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 //    printf("\nVscale 1 %f\n", Adjustment2->value);
+    gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment2);
     SendMidi(SND_SEQ_EVENT_CONTROLLER,
     	gMyInfo.MyPatchInfo[Slider2].OutPort,
     	gMyInfo.MyPatchInfo[Slider2].Channel,
     	gMyInfo.MyPatchInfo[Slider2].Patch,
-             (char) Adjustment2->value);
-    gMyInfo.MidiVolume = (char) Adjustment2->value;
+             (char) gMyInfo.AnalogVolume);
 }
 
 /*--------------------------------------------------------------------
@@ -687,6 +692,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
  *---------------------------------------------------------------------*/
 void SetUpMainButtons(PatchInfo *myPatchInfo) {
     GtkWidget *myButton;
+    GtkWidget *myChild;
     tPatchIndex Loop;
 	tPatchIndex	PatchIndex;
 
@@ -696,9 +702,12 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
         PatchIndex = ModeSwitchPatch(Loop, false);
 		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
 
-        if (PatchIndex >= 0 && PatchIndex < Max_Patches )
-        	gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child),
+        if (PatchIndex >= 0 && PatchIndex < Max_Patches ) {
+        	myChild = gtk_bin_get_child(GTK_BIN(myButton));
+        	gtk_label_set_text((myChild),
                            gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+        }
     }
 }
 
@@ -736,7 +745,7 @@ void CheckConnectionData(GTKMidiInfo *myInfo) {
 }
 
 #if 0
-gtk_object_set(GTK_OBJECT(button), "label", "goodbye", NULL);
+G_OBJECT_set(G_OBJECT(button), "label", "goodbye", NULL);
 
 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child), "hello");
 GladeXML* xml;
@@ -1002,6 +1011,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
                             GtkWidget *widget) {
 
+#if 0
     switch (event->keyval) {
     case GDK_p:
         printf("key pressed: %s\n", "p");
@@ -1028,7 +1038,7 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
     default:
         return FALSE;
     }
-
+#endif
     return (TRUE);
 }
 
@@ -1038,7 +1048,8 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
  * Description:	Change the Volume Slider based on midi input.
  *---------------------------------------------------------------------*/
 int SetVolume1(int Value) {
-    Adjustment1->value = (float) Value;
+	gtk_adjustment_set_value(Adjustment1,Value);
+
     gMyInfo.AnalogVolume = Value;
     gtk_range_set_adjustment(VScale1, Adjustment1);
 
@@ -1046,7 +1057,7 @@ int SetVolume1(int Value) {
     	gMyInfo.MyPatchInfo[Slider1].OutPort,
     	gMyInfo.MyPatchInfo[Slider1].Channel,
     	gMyInfo.MyPatchInfo[Slider1].Patch,
-    	(char) Adjustment1->value);
+    	(char) Value);
 }
 
 /*--------------------------------------------------------------------
@@ -1055,12 +1066,12 @@ int SetVolume1(int Value) {
  * Description:	Change the Volume Slider based on midi input.
  *---------------------------------------------------------------------*/
 int SetVolume2(int Value) {
-    Adjustment2->value = Value;
+	gtk_adjustment_set_value(Adjustment2,Value);
     gMyInfo.MidiVolume = Value;
     gtk_range_set_adjustment(VScale2, Adjustment2);
     SendMidi(SND_SEQ_EVENT_CONTROLLER,
     	gMyInfo.MyPatchInfo[Slider2].OutPort,
     	gMyInfo.MyPatchInfo[Slider2].Channel,
     	gMyInfo.MyPatchInfo[Slider2].Patch,
-        (char) Adjustment2->value);
+        (char) Value);
 }

@@ -166,7 +166,7 @@ char *FlatNotes[12] = { "A ", "Bb", "B ", "C ", "Db", "D ", "Eb", "E ", "F ",
 char *SharpNotes[12] = { "A ", "A#", "B ", "C ", "C#", "D ", "D#", "E ", "F ",
                          "F# ", "G ", "G#"
                        };
-
+#if (GTK_MAJOR_VERSION == 2)
 /*
  * Globals
  */
@@ -884,3 +884,4 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
     return TRUE;
 }
 
+#endif
