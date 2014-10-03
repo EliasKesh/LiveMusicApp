@@ -166,7 +166,6 @@ char *FlatNotes[12] = { "A ", "Bb", "B ", "C ", "Db", "D ", "Eb", "E ", "F ",
 char *SharpNotes[12] = { "A ", "A#", "B ", "C ", "C#", "D ", "D#", "E ", "F ",
                          "F# ", "G ", "G#"
                        };
-#if (GTK_MAJOR_VERSION == 2)
 /*
  * Globals
  */
@@ -200,8 +199,8 @@ GdkPixbuf *BouncieBallYel;
 char StringLayout[MaxNumStrings][MaxNumFrets];
 void MarkNote(char Note, char Value);
 void SetScale(char Root, char *Scale);
-static void draw_strings(GtkWidget *area, GdkGC *gcontext);
-static gboolean draw_fretboard(GtkWidget *area, GdkEventExpose *event);
+//static void draw_strings(GtkWidget *area, GdkGC *gcontext);
+//static gboolean draw_fretboard(GtkWidget *area, GdkEventExpose *event);
 static gboolean draw_fretboard_background(GtkWidget *area,
         GdkEventExpose *event);
 void SetChord(char Root, thePreChord *myPreChord);
@@ -495,8 +494,8 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
     GdkPixbuf *pix;
     GError *err = NULL;
     GtkWidget *area = NULL;
-    GdkGC *gc;
-    GdkPixmap *background;
+//    GdkGC *gc;
+//    GdkPixmap *background;
     GtkWidget *RootFixed;
     GtkWidget *RootCombo;
     GtkWidget *ScaleFixed;
@@ -539,10 +538,10 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
      * ----------------------------------
      */
     RootFixed = gtk_fixed_new();
-    RootCombo = gtk_combo_box_new_text();
+    RootCombo = gtk_combo_box_text_new();
     for (Loop = 0; Loop < 12; Loop++) {
         sprintf(Buffer, "%2s Root", NoteNames[Loop]);
-        gtk_combo_box_append_text(GTK_COMBO_BOX(RootCombo), Buffer);
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX(RootCombo), Buffer);
     }
     label1 = gtk_label_new("Root Select");
     gtk_combo_box_set_active(GTK_COMBO_BOX(RootCombo), CurRootNote);
@@ -557,9 +556,9 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
      * ----------------------------------
      */
     ScaleFixed = gtk_fixed_new();
-    ScaleCombo = gtk_combo_box_new_text();
+    ScaleCombo = gtk_combo_box_text_new();
     for (Loop = 0; myChordMenu[Loop].ChordList; Loop++) {
-        gtk_combo_box_append_text(GTK_COMBO_BOX(ScaleCombo),
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX(ScaleCombo),
                                   myChordMenu[Loop].Name);
     }
     label2 = gtk_label_new("Chord Select ");
@@ -574,10 +573,10 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
      * ----------------------------------
      */
     FretFixed = gtk_fixed_new();
-    FretCombo = gtk_combo_box_new_text();
+    FretCombo = gtk_combo_box_text_new();
     for (Loop = 0; Loop < 10; Loop++) {
         sprintf(Buffer, "%02d Pos", Loop);
-        gtk_combo_box_append_text(GTK_COMBO_BOX(FretCombo), Buffer);
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX(FretCombo), Buffer);
     }
     label3 = gtk_label_new("Fret Position ");
     gtk_combo_box_set_active(GTK_COMBO_BOX(FretCombo), DisplayPosition);
@@ -591,9 +590,9 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
      * ----------------------------------
      */
     PreChordFixed = gtk_fixed_new();
-    PreChordCombo = gtk_combo_box_new_text();
+    PreChordCombo = gtk_combo_box_text_new();
     for (Loop = 0; myPreChordMenu[Loop].PreChord; Loop++) {
-        gtk_combo_box_append_text(GTK_COMBO_BOX(PreChordCombo),
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX(PreChordCombo),
                                   myPreChordMenu[Loop].Name);
     }
     label4 = gtk_label_new("PreChord Select");
@@ -692,6 +691,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
     return 0;
 }
 
+#if (GTK_MAJOR_VERSION == 2)
 /*--------------------------------------------------------------------
  * Function:		draw_fretboard_background
  *
@@ -883,5 +883,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 
     return TRUE;
 }
-
+#else
+gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
+}
 #endif

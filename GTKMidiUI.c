@@ -308,7 +308,7 @@ int main(int argc, char *argv[]) {
                           G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
     g_signal_connect(G_OBJECT(main_window), "key_press_event",
-                     G_CALLBACK(button_press_notify_cb), NULL);
+                    G_CALLBACK(button_press_notify_cb), NULL);
 
 
     /*
@@ -363,13 +363,13 @@ int main(int argc, char *argv[]) {
      */
     InitConnections();
 
-#if (GTK_MAJOR_VERSION == 2)
+//#if (GTK_MAJOR_VERSION == 2)
     /*
      * Set the up Chord page in case we need it later.
      */
     ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
     ChorderMain(main_window, ChordWidget);
-#endif
+//#endif
 
     /*
      * Set up a timer for Tempo.
@@ -565,7 +565,7 @@ void ToggleTempo(void) {
         font_desc = pango_font_description_from_string("Sans Bold 18");
         //	pango_font_description_set_size(font_desc,40*PANGO_SCALE);
 
-        Child = gtk_bin_get_child(GTK_LABEL(GTK_BIN(TempoDraw)));
+        Child = gtk_bin_get_child((GTK_BIN(TempoDraw)));
         gtk_widget_modify_font((Child), font_desc);
 
         gtk_label_set_text((Child), StrBuf);
@@ -1039,7 +1039,7 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
         return FALSE;
     }
 #endif
-    return (TRUE);
+    return (FALSE);
 }
 
 /*--------------------------------------------------------------------

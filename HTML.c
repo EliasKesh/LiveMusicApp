@@ -248,6 +248,7 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 
     CurrentURI = webkit_web_view_get_uri(web_view);
     printd(LogInfo, "load_status_cb %s\n", CurrentURI);
+    printf("******** WebKit Set Edit %d\n",webkit_web_view_get_editable(web_view));
 
     Pointer = strstr(CurrentURI, ".html");
 //	printd(LogInfo, "Pointer %x\n",(unsigned int)Pointer);
@@ -379,7 +380,7 @@ void InitHTML(GladeXML *gxml) {
     /* Apply the result */
     webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
 #endif
-    create_Popup_view(web_view);
+  create_Popup_view(web_view);
 
 //	gtk_widget_grab_focus (GTK_WIDGET (web_view));
     gtk_widget_show_all(scrolled_window);
