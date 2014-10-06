@@ -58,7 +58,7 @@ GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
 
 /* Used to Toggle the Tempo GUI display.
  */
-char TempoState;
+int TempoState;
 // static gboolean time_handler(GtkWidget *widget);
 
 /*
@@ -466,7 +466,7 @@ void UpdateStatus(char *String) {
 /*--------------------------------------------------------------------
  * Function:		Set the tempo
  * Description:		Set te tempo to a new value. Re-setup the timer
- * 	interrupts to handle double te tempo.
+ * 	interrupts to handle double the tempo.
  *
  *---------------------------------------------------------------------*/
 void SetTempo(unsigned char NewTempo) {
@@ -485,11 +485,15 @@ void SetTempo(unsigned char NewTempo) {
      */
     gMyInfo.Tempo = NewTempo;
 //	gMyInfo.TempoReload = (500 * 60) / NewTempo;
+
+    /*
+     * This gives us 12 ticks per quarter.
+     */
     gMyInfo.TempoReload = ((500 * 5) / NewTempo);
 
     printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
-    /* Start the new timer.
+    /* Start the new timer 1000 is one second.
      */
     gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,
                                          (GSourceFunc) tempo_handler, (gpointer) gxml);
@@ -539,14 +543,24 @@ void ToggleTempo(void) {
     GtkWidget *Child;
     char StrBuf[10];
 
-    if (TempoState >= (gMyInfo.TempoMax * 12))
+    /*
+     * Needs to be sent 24 time per quarter.
+     */
+ //   SendMidi(SND_SEQ_EVENT_TICK, TempoPort,0, 00, (int) 0);
+
+    SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
+    // requires a constant timer.
+    //    SendMidi(SND_SEQ_EVENT_QFRAME, TempoPort, 0, 0, 0);
+
+   if (TempoState >= (gMyInfo.TempoMax * 12))
         TempoState = 0;
 
     if (!(TempoState % 12)) {
 //		gdk_color_parse ("white", &bgcolor);
 //		gdk_color_parse ("Black", &fgcolor);
 
-        /* On the first beat plat a different sound.
+//printf("Tempo %d \n", TempoState );
+        /* On the first beat play a different sound.
          */
         if (gMyInfo.MetronomeOn)
             if (TempoState)
@@ -574,7 +588,6 @@ void ToggleTempo(void) {
 //		gdk_color_parse ("white", &fgcolor);
 //		SendMidi(SND_SEQ_EVENT_NOTEOFF, 0, DefaultMidiChannel, 07, (int)35);
     }
-    SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
 
     /* Display the flasing count.
      */

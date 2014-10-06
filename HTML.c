@@ -400,6 +400,7 @@ void InitHTML(GladeXML *gxml) {
 int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
     FILE *fp;
     char temp[MAXLINE];
+    char Copy[MAXLINE];
     char *Found;
     char Value;
     char	*tokenizer;
@@ -420,6 +421,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
     while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
         temp[MAXLINE] = 0;
 
+        strncpy(Copy, temp, MAXLINE);
         /* Set up Preset 1 button.
          */
         Found = strstr(temp, "Preset1");
@@ -427,6 +429,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
             /* skip 8  "preset1 "	*/
             Found += 8;
             thePresets->thePreset1 = AssignPreset(Preset1FButton, Found);
+            strncpy(temp, Copy, MAXLINE);
 
         }
 
@@ -436,6 +439,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
         if (Found != NULL) {
             Found += 8;
             thePresets->thePreset2 = AssignPreset(Preset2FButton, Found);
+            strncpy(temp, Copy, MAXLINE);
         }
 
         /* Set the Tempo for this tune.
@@ -467,6 +471,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
         Found = strstr(temp, "SetNow");
         if (Found != NULL) {
             Found += 7;
+            printd(LogInfo, "SetNow %d\n", Value);
+
             AssignPreset(0, Found);
         }
 

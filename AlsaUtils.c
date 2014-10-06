@@ -154,22 +154,32 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
     if (Type == SND_SEQ_EVENT_START) {
         ev.type = SND_SEQ_EVENT_START;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
     }
 
     if (Type == SND_SEQ_EVENT_STOP) {
         ev.type = SND_SEQ_EVENT_STOP;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
     }
 
     if (Type == SND_SEQ_EVENT_CONTINUE) {
         ev.type = SND_SEQ_EVENT_CONTINUE;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
     }
 
     if (Type == SND_SEQ_EVENT_SETPOS_TICK) {
         ev.type = SND_SEQ_EVENT_SETPOS_TICK;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
     }
 
     if (Type == SND_SEQ_EVENT_SETPOS_TIME) {
         ev.type = SND_SEQ_EVENT_SETPOS_TIME;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+
     }
 #if 0
     Since there are 24 MIDI Clocks in every quarter note, the length of a MIDI Clock (ie, time inbetween each MIDI Clock message) is the microsecond tempo divided by 24. In the above example, that would be 500,000/24, or 20,833.3 microseconds in every MIDI Clock. Alternately, you can relate this to your timebase (ie, PPQN clock). If you have 96 PPQN, then that means that a MIDI Clock byte must occur every 96 / 24 (ie, 4) PPQN clocks.
@@ -201,6 +211,8 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
         sync_info.ticks = 4;
         dest.client = my_client;
         dest.port = my_port;
+        ev.flags = SND_SEQ_TIME_STAMP_REAL | SND_SEQ_TIME_MODE_ABS;
+
         snd_seq_add_sync_master(handle, queue, &dest, &sync_info);
 
         snd_seq_add_sync_master_mtc(handle, queue, &dest, time_format);
@@ -210,11 +222,12 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
     if (Type == SND_SEQ_EVENT_TEMPO) {
         ev.type = SND_SEQ_EVENT_TEMPO;
-        ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
-        ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
+//        ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+//        ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
 
         adjbpm = (unsigned long) ((unsigned long) (60.0 * 1000000.0)
                                   / (unsigned long) Value);
+        printf("Tempo Change %d %d\n", Value, adjbpm);
         ev.data.queue.param.value = adjbpm;
         err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
         snd_seq_drain_output(gMyInfo.SeqPort[Port]);
@@ -284,6 +297,10 @@ int SendMidiPatch(PatchInfo *thePatch) {
     case Controller:
 
         break;
+
+ //   case ToLooperApp:
+
+//       break;
 
     case SwitchTab:
         SwitchToTab(thePatch->Patch);
