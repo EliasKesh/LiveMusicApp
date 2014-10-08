@@ -363,13 +363,11 @@ int main(int argc, char *argv[]) {
      */
     InitConnections();
 
-//#if (GTK_MAJOR_VERSION == 2)
     /*
      * Set the up Chord page in case we need it later.
      */
     ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
     ChorderMain(main_window, ChordWidget);
-//#endif
 
     /*
      * Set up a timer for Tempo.
@@ -555,14 +553,14 @@ void ToggleTempo(void) {
    if (TempoState >= (gMyInfo.TempoMax * 12))
         TempoState = 0;
 
-    if (!(TempoState % 12)) {
+    if (!(TempoState % 24)) {
 //		gdk_color_parse ("white", &bgcolor);
 //		gdk_color_parse ("Black", &fgcolor);
 
-//printf("Tempo %d \n", TempoState );
+//    	printf("Tempo %d \n", TempoState );
         /* On the first beat play a different sound.
          */
-        if (gMyInfo.MetronomeOn)
+        if (gMyInfo.MetronomeOn && !(TempoState % 24))
             if (TempoState)
                 SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort,
                          DrumMidiChannel, 00, (int) 35);
@@ -708,6 +706,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
     GtkWidget *myChild;
     tPatchIndex Loop;
 	tPatchIndex	PatchIndex;
+	GdkColor color;
 
     for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
         myButton = MainButtons[Loop];
@@ -719,6 +718,10 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
         	myChild = gtk_bin_get_child(GTK_BIN(myButton));
         	gtk_label_set_text((myChild),
                            gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+//       	  gdk_color_parse ("green", &color);
+
+//        	  gtk_widget_modify_fg (myChild, GTK_STATE_NORMAL, &color);
 
         }
     }
