@@ -958,7 +958,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
    NoteNames = FlatNotes;
    NumStrings = 9;
    FretOffset = width/MaxDisplayFrets;
-   StringOffset = height/NumStrings;
+   StringOffset = 300/NumStrings;
 
     printf("FretOffset %d %d %d %d\n", FretOffset,width,NumStrings,StringOffset);
     myChord.Position = 2;
@@ -1155,15 +1155,17 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
     * NEW
     */
    cr = gdk_cairo_create (gtk_widget_get_window (widget));
-   cairo_set_source_surface (cr, CSurface, XOffset, YOffset);
 
+   cairo_set_source_surface (cr, CSurface, XOffset, YOffset);
    cairo_paint (cr);
+
 
     /* Create a context for drawing the fonts.
      */
     PangoContext* context = gtk_widget_get_pango_context(widget);
     PangoLayout* layout = pango_layout_new(context);
-
+    cairo_set_operator (cr, CAIRO_OPERATOR_ATOP);
+//    CAIRO_OPERATOR_ATOP CAIRO_OPERATOR_SOURCE
     /* Draw three layers of frets.
      */
     for (Loop = 0; Loop <= MaxDisplayFrets; ++Loop) {
@@ -1187,18 +1189,10 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 
     	cairo_set_source_rgb (cr, 0xf0, 0xa0, 0xa0);
         sprintf(StrBuf, "%d", Loop + myChord.Position);
-        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + 270);
+        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + 275);
         cairo_set_font_size (cr, 12);
         cairo_show_text (cr, StrBuf);
         cairo_stroke(cr);
-
-#if 1
-
- //       pango_layout_set_text(layout, StrBuf, 2);
-//		gdk_gc_set_line_attributes(gc, 2, GDK_LINE_ON_OFF_DASH, GDK_CAP_ROUND, GDK_JOIN_MITER );
-//        gdk_draw_layout(widget->window, gc, XOffset + 30 + Loop * FretOffset,
-//                       YOffset + 270, layout);
-
 
         /* Draw the fret markers.
          */
@@ -1212,43 +1206,55 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
             case 16:
             case 18:
             case 20:
+            	printf("Dot: %d %d\n", XOffset + 15 + FretOffset / 2 + Loop * FretOffset,
+            		((StringOffset * NumStrings) / 2) - 15 + YOffset);
             	cairo_set_source_surface (cr, FingerboardDot,
             		XOffset + 15 + FretOffset / 2 + Loop * FretOffset,
-                    StringOffset * NumStrings / 2 - 15 + YOffset);
+            		((StringOffset * NumStrings ) / 2) - 15 + YOffset);
+            	cairo_paint (cr);
 
                 break;
 
             case 11:
             	cairo_set_source_surface (cr, FingerboardDot,
             		XOffset + 15 + FretOffset / 2 + Loop * FretOffset,
-            		StringOffset * (3 * NumStrings / 4) - 15 + YOffset);
-            	cairo_set_source_surface (cr, FingerboardDot,
-            		XOffset + 15 + FretOffset / 2 + Loop * FretOffset,
-            		StringOffset * NumStrings / 4 + 15 + YOffset);
+            		((StringOffset * NumStrings ) / 2) -30 + YOffset);
+            	cairo_paint (cr);
+
+                	cairo_set_source_surface (cr, FingerboardDot,
+                		XOffset + 15 + FretOffset / 2 + Loop * FretOffset,
+                		((StringOffset * NumStrings ) / 2) + 15 + YOffset);
+                	cairo_paint (cr);
                 break;
 
             default:
                 break;
             }
 
-#endif
     }
-
 #if 0
+
     // Draw the strings
     for (Loop = 0; Loop < NumStrings; ++Loop) {
 
         if (StringLayout[Loop][0] == 'x' || StringLayout[Loop][0] == 'X') {
+        	cairo_set_source_rgb (cr, 0, 0, 0);
+            sprintf(StrBuf, "%d", Loop + myChord.Position);
+            cairo_show_text (cr, "x");
+
             gdk_gc_set_rgb_fg_color(gc, &labeloffcolor);
             pango_layout_set_text(layout, "x", 1);
             gdk_gc_set_line_attributes(gc, 2, GDK_LINE_ON_OFF_DASH,
                                        GDK_CAP_ROUND, GDK_JOIN_MITER);
         } else {
-            gdk_gc_set_rgb_fg_color(gc, &labeloncolor);
-            pango_layout_set_text(layout, NoteNames[StringLayout[Loop][0]], 2);
-            gdk_gc_set_line_attributes(gc, 2, GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                       GDK_JOIN_MITER);
+        	cairo_set_source_rgb (cr, 0xf0, 0xa0, 0xa0);
+            cairo_show_text (cr, NoteNames[StringLayout[Loop][0]]);
         }
+  //      cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + 275);
+
+        cairo_set_font_size (cr, 12);
+
+        cairo_stroke(cr);
 
         //FIXME take font size into account
         gdk_draw_layout(widget->window, gc, XOffset + 5,
