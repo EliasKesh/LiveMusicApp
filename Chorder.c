@@ -956,7 +956,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 //      gtk_widget_get_size_request((window), &width, &height);
 
       Fwidth -= 200;
-      Fheight = 250;
+      Fheight = 300;
       gtk_widget_set_size_request (MyFretArea, Fwidth, Fheight);
 
    NoteNames = FlatNotes;
@@ -1307,11 +1307,11 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
                 /* OK, now acutally draw the dot.
                  */
             	cairo_set_source_surface (cr, theBall,
-            		FretOffset / 2 + 15 + FretOffset * (FretLoop) + XOffset,
+            		FretOffset * (FretLoop + 1),
             		YOffset + StringOffset * StringLoop);
             	cairo_paint (cr);
             	cairo_set_source_rgb (cr, 0, 0, 0);
-                cairo_move_to(cr, FretOffset / 2 + 30 + FretOffset * (FretLoop) + XOffset,
+                cairo_move_to(cr, FretOffset * (FretLoop + 1) + 18,
                     YOffset + 25 + StringOffset * StringLoop);
                 cairo_set_font_size (cr, 12);
 

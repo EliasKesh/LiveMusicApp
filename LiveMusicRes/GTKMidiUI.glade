@@ -1303,6 +1303,7 @@ Elias@kesh.com</property>
             </child>
             <child type="tab">
               <object class="GtkLabel" id="ChordsTab">
+                <property name="height_request">45</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xpad">3</property>
