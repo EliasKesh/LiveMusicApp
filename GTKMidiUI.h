@@ -32,6 +32,8 @@
 #define LogDebug 5
 #define MyLogLevel	5
 
+#define PatchNameSize 60
+
 char *printd(char LogLevel, const char *fmt, ...);
 
 #define ResourceDirectory	"./LiveMusicRes/"
@@ -47,12 +49,12 @@ char *printd(char LogLevel, const char *fmt, ...);
 typedef unsigned short tPatchIndex;
 
 typedef struct {
-    char Name[100];
+    char Name[PatchNameSize];
     char ID;
 } AlsaPort;
 
 typedef struct {
-    char Name[100];
+    char Name[PatchNameSize];
     char ID;
     char NumPorts;
     AlsaPort Ports[10];
@@ -66,7 +68,7 @@ typedef struct {
 typedef struct {
 //	char	Button[32];
 //	int Index;
-    char Name[64];
+    char Name[PatchNameSize];
     // Bank select -1 not to send Bank Info
     unsigned char BankSelect;
     // The Patch number to send.
@@ -88,6 +90,7 @@ typedef struct {
 
 #define Max_Main_Buttons 55
 #define Max_Patches	 90
+
 #define Slider1		Max_Patches -3
 #define Slider2		Max_Patches -2
 #define Slider3		Max_Patches -1
@@ -156,9 +159,15 @@ enum {
     TransStop,
     TransPosition,
     TransTempo,
+    cmdPreset,
+    cmdBankSelect,
+    cmdMidiSelect,
     MaxCommands
 };
 
+/*
+ * Sounds Banks in Fluid Synth.
+ */
 #define SF32GM  0
 #define SFDSF  1
 #define SFFluidGM  2
@@ -178,10 +187,12 @@ enum {
 #define SFA340High 15
 #define SFDrums		128
 
+#if 0
 #define ModeSwitchKey		29
 #define PresetMidiKey	28
 #define Preset1FButton	27
 #define Preset2FButton	26
+#endif
 
 enum {
     ToDesktop0 = 60,

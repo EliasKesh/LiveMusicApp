@@ -33,7 +33,7 @@ static void pcm_list(void);
  *
  *---------------------------------------------------------------------*/
 bool MyAlsaInit() {
-    char Loop;
+    int Loop;
     snd_seq_t *Seq;
 
     if (snd_seq_open(&Seq, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
@@ -257,7 +257,7 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
  *
  *---------------------------------------------------------------------*/
 int SendMidiPatch(PatchInfo *thePatch) {
-    int err;
+    int err = 0;
 
     switch (thePatch->CustomCommand) {
     case NoCustom:
@@ -292,6 +292,23 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
     case ToDesktop:
         GoToDesktop(thePatch->Patch);
+        break;
+
+    case cmdPreset:
+    	if (thePatch->Patch == 1)
+    		SendMidiPatch(&gMyInfo.MyPatchInfo[gMyInfo.WebPresets.thePreset1]);
+
+    	if (thePatch->Patch == 2)
+    		SendMidiPatch(&gMyInfo.MyPatchInfo[gMyInfo.WebPresets.thePreset2]);
+
+    	break;
+
+    case cmdMidiSelect:
+    	GuitarMidiPreset();
+        break;
+
+    case cmdBankSelect:
+		IncrementMode();
         break;
 
     case Controller:

@@ -43,6 +43,10 @@ void WritePrefs(void);
 GTKMidiInfo GlobalInfo = {
     {
         // ind		Title			Bank		Patch	Outport		Chan	Custom->Chain
+        { "Preset1", 0xff, 1, 0, 1, cmdPreset, 0 },
+        { "Preset2", 0xff, 2, 0, 1, cmdPreset, 0 },
+        { "Bank Select", 0xff, FluidPort, 0, 1, cmdBankSelect, 0 },
+        { "G. Midi Pre", 0xff, FluidPort, 0, 1, cmdMidiSelect, 0 },
         { "Elias1", 0xff, 1, RakarrakPort, 1, NoCustom, 0 },
         { "Dist", 0xff, 5, RakarrakPort, 1, NoCustom, 0 },
         { "Funk Chorus", 0xff, 3, RakarrakPort, 1, NoCustom, 0 },
@@ -136,10 +140,6 @@ GTKMidiInfo GlobalInfo = {
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
-        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
-        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
-        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
-        { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1, NoCustom, 0 },
         { "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, 0 },
         { "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, 0 },
@@ -182,11 +182,11 @@ void InitPref(void) {
 
     memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
     WritePrefs();
-    memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
+ //   memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
 #endif
 
-    ReadPrefs();
-    PrintDataStructure(&gMyInfo);
+//    ReadPrefs();
+//    PrintDataStructure(&gMyInfo);
 //exit(1);
 //	printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //	WritePrefs();

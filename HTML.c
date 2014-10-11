@@ -428,7 +428,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
         if (Found != NULL) {
             /* skip 8  "preset1 "	*/
             Found += 8;
-            thePresets->thePreset1 = AssignPreset(Preset1FButton, Found);
+            thePresets->thePreset1 = AssignPreset(1, Found);
             strncpy(temp, Copy, MAXLINE);
 
         }
@@ -438,7 +438,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
         Found = strstr(temp, "Preset2");
         if (Found != NULL) {
             Found += 8;
-            thePresets->thePreset2 = AssignPreset(Preset2FButton, Found);
+            thePresets->thePreset2 = AssignPreset(2, Found);
             strncpy(temp, Copy, MAXLINE);
         }
 
@@ -494,11 +494,14 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
     int	Value;
     char	*tokenizer;
 
+    printd(LogInfo,"AssignPreset %d %s\n\n",PresetNum, String);
+
+
     /* If we Start with a quote it's a name lookup.
      */
-    if (*String = '"') {
+    if (*String == '"') {
         String++;
-        tokenizer = strtok(String,"\'");//break up by spaces
+        tokenizer = strtok(String,"\"");//break up by spaces
         printd(LogInfo, "Token1 %s\n", tokenizer);
         for (Value = 0; Value < Max_Patches; Value++) {
             if ( !strcmp(gMyInfo.MyPatchInfo[Value].Name, tokenizer) )
@@ -506,15 +509,18 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
         }
 
     } else {
+
         Value = atoi(String);
+        printd(LogInfo,"***** Assign Value %s %d\n",String, Value);
         if (Value >= Max_Patches)
             Value = 0;
     }
 
+    printd(LogInfo,"Preset %d %d %s\n",PresetNum, Value, gMyInfo.MyPatchInfo[Value].Name);
+
     if (Value < 1  || Value >= Max_Patches)
         return(Value);
 
-    printd(LogInfo,"Preset%d %d %s\n",PresetNum, Value, gMyInfo.MyPatchInfo[Value].Name);
 
     /* If it's a preset button or a set now.	*/
     switch(PresetNum) {
@@ -544,6 +550,8 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
  *
  *---------------------------------------------------------------------*/
 void SetPatchTitles(GtkWidget *MyButton, char *Text) {
+
+    printd(LogInfo,"SetPatchTitles %x %s\n",MyButton, Text);
 
     gtk_button_set_label(MyButton, Text);
 }

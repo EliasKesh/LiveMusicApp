@@ -230,6 +230,8 @@ void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
     //  GtkTreeView* view = (GtkTreeView *)data;
 //printd(LogInfo,"tab_focus_callback %x %x %x\n", notebook, arg1, data);
+    SetUpMainButtons(&gMyInfo.MyPatchInfo);
+
     return true;
 }
 
@@ -387,9 +389,12 @@ int main(int argc, char *argv[]) {
     /*
      * Set the initial Volumes.
      */
+    printd(LogInfo, "Setting Default Volumes\n");
     SetVolume1(gMyInfo.AnalogVolume);
     SetVolume2(gMyInfo.MidiVolume);
 //	create_Popup_view(main_window);
+    printd(LogInfo, "Enterint gtk_main\n");
+
     /*
      * And they're off.
      */
@@ -707,6 +712,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
     tPatchIndex Loop;
 	tPatchIndex	PatchIndex;
 	GdkColor color;
+	char	String[PatchNameSize];
 
     for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
         myButton = MainButtons[Loop];
@@ -715,9 +721,9 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
 
         if (PatchIndex >= 0 && PatchIndex < Max_Patches ) {
+        	sprintf(String, "%02d-%s", Loop+1, gMyInfo.MyPatchInfo[PatchIndex].Name);
         	myChild = gtk_bin_get_child(GTK_BIN(myButton));
-        	gtk_label_set_text((myChild),
-                           gMyInfo.MyPatchInfo[PatchIndex].Name);
+        	gtk_label_set_text((myChild),String);
 
 //       	  gdk_color_parse ("green", &color);
 
@@ -871,7 +877,7 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
         NewValue = Value;
         break;
     }
-    printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
+//    printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
     return (NewValue);
 }
 
@@ -903,22 +909,32 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
 	tPatchIndex Preset;
 	tPatchIndex RetVal;
 
-    printd(LogInfo, "In ModeSwitchPatch Mid In %d %d %d\n", MidiIn,
-           GetModePreset(MidiIn),
-           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
+//    printd(LogInfo, "In ModeSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
+//           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
 
+    if (gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)].CustomCommand == cmdPreset ) {
+    	if (gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)].Patch == 1)
+    		RetVal = gMyInfo.WebPresets.thePreset1;
+
+    	if (gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)].Patch == 2)
+    		RetVal = gMyInfo.WebPresets.thePreset2;
+
+    }
+    else
     /* If the Midi command was a mode changes.
      */
     switch (MidiIn) {
-    case PresetMidiKey:
+#if 0
+    	case PresetMidiKey:
     	if (DoAction)
     		GuitarMidiPreset();
-
-    	RetVal = -1;
+    	RetVal = MidiPresetPatch;
         break;
 
     case Preset1FButton:
         Preset = gMyInfo.WebPresets.thePreset1;
+        printd(LogInfo, "In ModeSwitchPatch Preset1FButton %d\n",Preset);
+
         if (Preset != -1)
         	RetVal = Preset;
         else
@@ -927,6 +943,7 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
 
     case Preset2FButton:
         Preset = gMyInfo.WebPresets.thePreset2;
+        printd(LogInfo, "In ModeSwitchPatch Preset2FButton %d\n",Preset);
         if (Preset != -1)
         	RetVal = Preset;
         else
@@ -936,8 +953,9 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
     case ModeSwitchKey:
     	if (DoAction)
     		IncrementMode();
+    	RetVal = BankSelectPatch;
         break;
-
+#endif
     default:
     	RetVal = GetModePreset(MidiIn);
         break;
