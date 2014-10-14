@@ -227,7 +227,7 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
         adjbpm = (unsigned long) ((unsigned long) (60.0 * 1000000.0)
                                   / (unsigned long) Value);
-        printf("Tempo Change %d %d\n", Value, adjbpm);
+        printf("Tempo Change %d %ld\n", Value, adjbpm);
         ev.data.queue.param.value = adjbpm;
         err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
         snd_seq_drain_output(gMyInfo.SeqPort[Port]);

@@ -198,13 +198,13 @@ GdkPixbuf *BouncieBallRed;
 GdkPixbuf *BouncieBallYel;
 #else
 int	Cwidth,Cheight;
-GtkWidget *Fingerboard;
-GtkWidget *FingerboardDot;
-GtkWidget *BouncieBall;
-GtkWidget *BouncieBallBl;
-GtkWidget *BouncieBallGr;
-GtkWidget *BouncieBallRed;
-GtkWidget *BouncieBallYel;
+cairo_surface_t *Fingerboard;
+cairo_surface_t *FingerboardDot;
+cairo_surface_t *BouncieBall;
+cairo_surface_t *BouncieBallBl;
+cairo_surface_t *BouncieBallGr;
+cairo_surface_t *BouncieBallRed;
+cairo_surface_t *BouncieBallYel;
 cairo_t *cr;
 cairo_surface_t *CSurface;
 
@@ -1076,12 +1076,13 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
                              window);
 
     event_box = gtk_event_box_new();
-    rootBox = gtk_hbox_new(TRUE, 5);
+
+    rootBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
 //   rootBox1 = gtk_hbox_new(TRUE, 5);
-    chdBox = gtk_hbox_new(TRUE, 5);
-    SclBox = gtk_hbox_new(TRUE, 5);
-    vbox = gtk_vbox_new(FALSE, 10);
-    BottomBox = gtk_hbox_new(FALSE, 10);
+    chdBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+    SclBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
+    BottomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 10);
 
     Fingerboard = gtk_drawing_area_new ();
     gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);

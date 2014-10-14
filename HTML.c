@@ -78,7 +78,7 @@ int ScalePage(void) {
     g_print("Button3  %d %d %f\n", UpperH, Horiz, ScaleH);
     g_print("Button3  %d %d %f\n", UpperV, Vert, ScaleV);
     webkit_web_view_set_zoom_level(web_view, MIN(ScaleV, ScaleH) + 0.001);
-
+return(0);
 }
 
 #if 0
@@ -248,16 +248,23 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 
     CurrentURI = webkit_web_view_get_uri(web_view);
     printd(LogInfo, "load_status_cb %s\n", CurrentURI);
-    printf("******** WebKit Set Edit %d\n",webkit_web_view_get_editable(web_view));
 
     Pointer = strstr(CurrentURI, ".html");
 //	printd(LogInfo, "Pointer %x\n",(unsigned int)Pointer);
-    webkit_web_view_set_zoom_level(web_view, 1);
 
     if (strstr(CurrentURI, ".html"))
         Search_in_File(CurrentURI, &gMyInfo.WebPresets);
-    else
-        printd(LogInfo, "Not HTML File\n");
+    else if  (strstr(CurrentURI, ".mp3")) {
+    	printd(LogInfo, "*** MP3 file.\n");
+    	return;
+    }
+    else {
+    	printd(LogInfo, "Not HTML File\n");
+        return;
+    }
+
+    printf("******** WebKit Set Edit %d\n",webkit_web_view_get_editable(web_view));
+    webkit_web_view_set_zoom_level(web_view, 1);
 
 }
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
@@ -298,6 +305,88 @@ static void viewport_valid_changed_cb(WebKitViewportAttributes* attributes,
     g_object_get(attributes, "valid", &is_valid, NULL);
     if (!is_valid)
         webkit_web_view_set_zoom_level(web_view, 1.0);
+}
+#if 0
+gboolean
+DownloadRequestcb (WebKitWebView  *web_view,
+               WebKitDownload *download,
+               gpointer        user_data) {
+
+    printd(LogInfo, "DownloadRequestcb %s\n", download);
+
+}
+
+gboolean
+PolicyRequestCD (WebKitWebView* view, WebKitWebFrame* frame,
+    WebKitNetworkRequest* request, const char* mime_type,
+    WebKitWebPolicyDecision* decision, gpointer data)
+{
+//    char* type = (char*)data;
+
+    printd(LogInfo, "PolicyRequestCD %s %s\n", mime_type, data);
+#if 0
+
+    if (g_str_equal(type, "pdf")) {
+        g_assert_cmpstr(mime_type, ==, "application/pdf");
+        g_assert(!webkit_web_view_can_show_mime_type(view, mime_type));
+    } else
+    	if (g_str_equal(type, "html")) {
+        g_assert_cmpstr(mime_type, ==, "text/html");
+        g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+    } else
+        if (g_str_equal(type, "text")) {
+    	WebKitNetworkResponse* response = webkit_web_frame_get_network_response(frame);
+        SoupMessage* message = webkit_network_response_get_message(response);
+        char* disposition;
+
+        g_assert(message);
+      soup_message_headers_get_content_disposition(message->response_headers,
+                                                     &disposition, NULL);
+        g_object_unref(response);
+
+        g_assert_cmpstr(disposition, ==, "attachment");
+        g_free(disposition);
+
+        g_assert_cmpstr(mime_type, ==, "text/plain");
+        g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+    } else
+#endif
+
+    	if (g_str_equal(mime_type, "audio/mpeg")) {
+        g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+        printd(LogInfo, "PolicyRequestCD MP3 Found %s \n", mime_type);
+    }
+ //   g_free(type);
+
+    return FALSE;
+}
+
+#endif
+gboolean
+NavigationPolicy (WebKitWebView             *web_view,
+               WebKitWebFrame            *frame,
+               WebKitNetworkRequest      *request,
+               WebKitWebNavigationAction *navigation_action,
+               WebKitWebPolicyDecision   *policy_decision,
+               gpointer                   user_data) {
+char	*theURI;
+char	string[150];
+
+	theURI = webkit_web_navigation_action_get_original_uri(navigation_action);
+
+//	uri=networkRequest.get_uri()
+
+    printd(LogInfo, "NavigationPolicy %s \n", theURI);
+    if  (strstr(theURI, ".mp3")) {
+    	webkit_web_policy_decision_ignore(policy_decision);
+    	sprintf(string,"/usr/bin/playitslowly --sink=jackaudiosink %s", theURI);
+    	system(string);
+    	printd(LogInfo, "*** systemcall %s\n", string);
+    	return(true);
+    }
+    webkit_web_policy_decision_use(policy_decision);
+ //   webkit_web_policy_decision_ignore(policy_decision);
+return(false);
 }
 
 /*--------------------------------------------------------------------
@@ -367,10 +456,18 @@ void InitHTML(GladeXML *gxml) {
 #endif
 
     /* Register a callback that gets invoked each time that a page is finished downloading */
+
     g_signal_connect(web_view, "load-finished", G_CALLBACK(PageLoaded), NULL);
+#if 0
+    g_signal_connect(web_view, "download-requested", G_CALLBACK(DownloadRequestcb), NULL);
+    g_signal_connect(web_view, "mime-type-policy-decision-requested", G_CALLBACK(PolicyRequestCD), NULL);
+#endif
+    g_signal_connect(web_view, "navigation-policy-decision-requested", G_CALLBACK(NavigationPolicy), NULL);
+
+
 
     strncpy(FileName, gMyInfo.BasePath, 254);
-    strcat(FileName, "/indexCharts.html");
+ //   strcat(FileName, "/indexCharts.html");
     webkit_web_view_open(web_view, FileName);
 #if 0
 

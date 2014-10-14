@@ -20,6 +20,8 @@
  */
 
 #include <asoundlib.h>
+#include <gtk/gtk.h>
+#include <glade/glade.h>
 
 /*
  * Place Global prototypes here.
@@ -44,6 +46,7 @@ char *printd(char LogLevel, const char *fmt, ...);
 #define MaxStringPortName	32
 
 // Timer countdown in Miliseconds
+
 #define Timer1Ticks		250
 
 typedef unsigned short tPatchIndex;
@@ -304,6 +307,8 @@ int preModeLooper[Max_Patches] = {
     80, 81, 82, 83, 84, 85, 86, 87, 88, 89
 };
 int		WaitingforMidi;
+GtkBuilder *gxml;
+
 #else
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
@@ -316,6 +321,7 @@ extern int preModeLooper[];
 extern int preModePerformance[];
 extern int preModeRehearsal[];
 extern int WaitingforMidi;
+extern GtkBuilder *gxml;
 
 #endif
 

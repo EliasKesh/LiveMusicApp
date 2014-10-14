@@ -42,7 +42,6 @@
 snd_seq_t *seq;
 int seqPort;
 //	GladeXML *gxml;
-GtkBuilder *gxml;
 GtkWidget* MainStatus;
 GtkWidget* CurrentModeWid;
 GtkWidget *TempoDraw;
@@ -1092,6 +1091,8 @@ int SetVolume1(int Value) {
     	gMyInfo.MyPatchInfo[Slider1].Channel,
     	gMyInfo.MyPatchInfo[Slider1].Patch,
     	(char) Value);
+
+    return(Value);
 }
 
 /*--------------------------------------------------------------------
@@ -1108,4 +1109,6 @@ int SetVolume2(int Value) {
     	gMyInfo.MyPatchInfo[Slider2].Channel,
     	gMyInfo.MyPatchInfo[Slider2].Patch,
         (char) Value);
+
+    return(Value);
 }

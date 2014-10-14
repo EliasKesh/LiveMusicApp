@@ -43,20 +43,16 @@ void WritePrefs(void);
 GTKMidiInfo GlobalInfo = {
     {
         // ind		Title			Bank		Patch	Outport		Chan	Custom->Chain
-        { "Preset1", 0xff, 1, 0, 1, cmdPreset, 0 },
-        { "Preset2", 0xff, 2, 0, 1, cmdPreset, 0 },
-        { "Bank Select", 0xff, FluidPort, 0, 1, cmdBankSelect, 0 },
-        { "G. Midi Pre", 0xff, FluidPort, 0, 1, cmdMidiSelect, 0 },
-        { "Elias1", 0xff, 1, RakarrakPort, 1, NoCustom, 0 },
-        { "Dist", 0xff, 5, RakarrakPort, 1, NoCustom, 0 },
-        { "Funk Chorus", 0xff, 3, RakarrakPort, 1, NoCustom, 0 },
-        { "ThumpBass", 0xff, 8, RakarrakPort, 1, NoCustom, 0 },
-        { "Chorus", 0xff, 17, RakarrakPort, 1, NoCustom, 0 },
-        { "Jazz", 0xff, 27, RakarrakPort, 1, NoCustom, 0 },
-        { "EliasChorus", 0xff, 18, RakarrakPort, 1, NoCustom, 0 },
-        { "Synth", 0xff, 15, RakarrakPort, 1, NoCustom, 0 },
-        { "Oct Bass", 0xff, 9, RakarrakPort, 1, NoCustom, 0 },
-        { "Chr Riff", 0xff, 7, RakarrakPort, 1, NoCustom, 0 },
+        { "Chorus", 0xff, 1, RakarrakPort, 1, NoCustom, 0 },
+        { "HardDist", 0xff, 2, RakarrakPort, 1, NoCustom, 0 },
+        { "CleanBass", 0xff, 3, RakarrakPort, 1, NoCustom, 0 },
+        { "MedDist", 0xff, 4, RakarrakPort, 1, NoCustom, 0 },
+        { "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, 0 },
+        { "FunkWah", 0xff, 6, RakarrakPort, 1, NoCustom, 0 },
+        { "Synth", 0xff, 8, RakarrakPort, 1, NoCustom, 0 },
+        { "open", 0xff, 15, RakarrakPort, 1, NoCustom, 0 },
+        { "open", 0xff, 9, RakarrakPort, 1, NoCustom, 0 },
+        { "open", 0xff, 7, RakarrakPort, 1, NoCustom, 0 },
         //	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
         // 10	Button		Title		Bank	Patch	Outport
         { "Piano", SFDSF, 63, FluidPort, 1, NoCustom, 0 },
@@ -64,7 +60,7 @@ GTKMidiInfo GlobalInfo = {
         { "Breath", SFFluidGM, 53, FluidPort, 1, NoCustom, 0 },
         { "De-Tuned Organ", SFA340Low, 16, FluidPort, 1, NoCustom, 0 },
         { "Flute", SFFlute, 73, FluidPort, 1, NoCustom, 0 },
-        { "Synth Lead", SFDSF, 43, FluidPort, 1, NoCustom, 0 },
+        { "SynthLead", SFDSF, 43, FluidPort, 1, NoCustom, 0 },
         { "Strings", SFDSF, 85, FluidPort, 1, NoCustom, 0 },
         { "Trumpet", SFDSF, 66, FluidPort, 1, NoCustom, 0 },
         { "Steel Drums", SFFluidGM, 114, FluidPort, 1, NoCustom, 0 },
@@ -137,6 +133,10 @@ GTKMidiInfo GlobalInfo = {
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         // 80	Button		Title		Bank	Patch	Outport
+        { "Preset1", 0xff, 1, 0, 1, cmdPreset, 0 },
+        { "Preset2", 0xff, 2, 0, 1, cmdPreset, 0 },
+        { "Bank Select", 0xff, FluidPort, 0, 1, cmdBankSelect, 0 },
+        { "G. Midi Pre", 0xff, FluidPort, 0, 1, cmdMidiSelect, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
         { "NULL", 0xff, FluidPort, 0, 1, RaiseApp, 0 },
@@ -146,7 +146,7 @@ GTKMidiInfo GlobalInfo = {
 
     },
     // Path the Charts directory
-    "/home/Dropbox/FusionBlue/ChartsHTML/",
+    "/home/Dropbox/FusionBlue/ChartsHTML/indexCharts.html",
     // Number and name of the output ports
     6,
     { "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
