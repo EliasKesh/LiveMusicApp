@@ -395,6 +395,7 @@ int wmctl(int argc, char **argv) { /* {{{ */
 			break;
 		case '?':
 			return EXIT_FAILURE;
+			break;
 		default:
 			action = opt;
 			break;

@@ -93,6 +93,13 @@ typedef struct {
 
 #define Max_Main_Buttons 55
 #define Max_Patches	 90
+#define Max_Layouts	 10
+
+typedef struct {
+	char		Name[PatchNameSize];
+	tPatchIndex		Presets[Max_Patches];
+} LayoutType;
+
 
 #define Slider1		Max_Patches -3
 #define Slider2		Max_Patches -2
@@ -217,12 +224,14 @@ enum {
 #define DrumMidiChannel		10
 #define MidiProgramChange		32
 
+#if 0
 #define ModeDefault		0
 #define ModeRehearsal		1
 #define ModePractice		2
 #define ModePerformance	3
 #define ModeLooper		4
 #define ModeLastItem		ModeLooper
+#endif
 
 /*
  * Place Static variables here.
@@ -231,6 +240,7 @@ enum {
 #ifdef GTKMidiUI_c
 //PatchInfo  *MyPatchInfo;
 GTKMidiInfo gMyInfo;
+LayoutType	LayoutPresets[Max_Layouts];
 
 PortsInfo theInPorts;
 PortsInfo theOutPorts;
@@ -245,67 +255,15 @@ char *CustomCommands[] = {
     "TransStart",
     "TransStop",
     "TransPosition",
-    "TransTempo"
+    "TransTempo",
+    "PresetX",
+    "BankSelect",
+    "MidiSelect"
 };
 
-
-char *theModes[] = {
-    "Default",
-    "Rehearsal",
-    "Practice",
-    "Performance",
-    "Looper"
-};
 //int		ModeArray[ModeLastItem][Max_Patches];
 
 //int		preModeSwitch[Max_Patches];
-int preModePractice[Max_Patches] = {
-    /* Front Row */
-    0, 1, 2, 3, 4, 5, 6, 7, 66, 67,
-    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
-};
-
-int preModeRehearsal[Max_Patches] = {
-	/* Front Row */
-    0, 1, 2, 3, 4, 5, 6, 7, 66, 67,
-    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
-};
-
-int preModePerformance[Max_Patches] = {
-	/* Front Row */
-    0, 1, 2, 3, 4, 5, 6, 7, 66, 67,
-    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
-};
-
-int preModeLooper[Max_Patches] = {
-    /* Front Row */
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    06, 01, 9, 20, 14, 65, 40, 41, 0, 0,
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
-};
 int		WaitingforMidi;
 GtkBuilder *gxml;
 

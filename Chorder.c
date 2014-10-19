@@ -35,8 +35,15 @@
 #define MaxDisplayFrets	10
 #define MaxNumStrings		9
 #define MaxNumFrets		18
+
+#if (GTK_MAJOR_VERSION == 2)
+#define XOffset		70
+#define YOffset		70
+#else
 #define XOffset		5
 #define YOffset		5
+#endif
+
 typedef struct {
     /* Relative position of string number, 1 is the first.
      */
@@ -75,7 +82,10 @@ char scMinor[] = { 0, 2, 3, 5, 7, 8, 10, EOfscl };
 char scHemiPent[] = { 0, SN, 4, 5, 7, SN, 11, EOfscl };
 char scMajPent[] = { 0, 2, 4, SN, 7, 9, SN, EOfscl };
 char scMinPent[] = { 0, SN, 3, 5, 7, SN, 10, EOfscl };
+char scSLoc[] = { 0, 1, 3, 4, 6, 8, 10, EOfscl };
+char scLydian[] = { 0, 2, 4, 6, 7, 9, 11, EOfscl  };
 
+// Super Locrian
 typedef struct {
     thePreChord *PreChord;
     char Name[20];
@@ -97,10 +107,11 @@ ChordMenu myChordMenu[] = { { chMajor, "Major Chord" },
     }, { scMajor, "Major Scale" }, {
         scMinor,
         "Minor Scale"
-    }, { scHemiPent, "Hemi Pent" }, {
-        scMajPent,
-        "Maj Pent"
-    }, { scMinPent, "Min Pent" }, { NULL, "Opps" }
+    }, { scHemiPent, "Hemi Pent" },
+    {   scMajPent,        "Maj Pent"	},
+	{ scSLoc, "S Loc" },
+	{ scLydian, "Lydian" },
+	{ scMinPent, "Min Pent" }, { NULL, "Opps" }
 
 };
 

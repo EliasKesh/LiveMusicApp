@@ -43,16 +43,16 @@ snd_seq_t *seq;
 int seqPort;
 //	GladeXML *gxml;
 GtkWidget* MainStatus;
-GtkWidget* CurrentModeWid;
+GtkWidget* CurrentLayoutWid;
 GtkWidget *TempoDraw;
-unsigned int CurrentMode;
+unsigned int CurrentLayout;
 guint MainStatusid;
-GtkWidget *ModeSwitchButton;
+GtkWidget *LayoutButton;
 GtkWidget *MainButtons[Max_Main_Buttons];
 tPatchIndex GetModePreset(tPatchIndex Value);
 GtkWidget *VScale1, *VScale2, *VScale3;
 GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
-
+tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char	DoAction);
 
 
 /* Used to Toggle the Tempo GUI display.
@@ -150,18 +150,18 @@ void SwitchToTab(char Tab) {
 void on_button_clicked(GtkButton *button, gpointer user_data) {
 	tPatchIndex	PatchIndex;
 
-	PatchIndex = ModeSwitchPatch(user_data, true);
+	PatchIndex = LayoutSwitchPatch(user_data, true);
     printd(LogInfo, "User data %d\n", (int) user_data);
 }
 
 /*--------------------------------------------------------------------
- * Function:		on_modebutton_clicked
+ * Function:		on_layoutbutton_clicked
  *
  * Description:		When the mode button is pressed from the screen we call
  * 	this.
  *
  *---------------------------------------------------------------------*/
-void on_modebutton_clicked(GtkButton *button, gpointer user_data) {
+void on_layoutbutton_clicked(GtkButton *button, gpointer user_data) {
 
     IncrementMode();
     printd(LogInfo, "Increment Mode called from Buttons \n");
@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
     /*
      * Let's setup some variables.
      */
-    CurrentMode = 0;
+    CurrentLayout = 0;
     WaitingforMidi = 0;
 
     /* initialize the GTK+ library */
@@ -290,7 +290,7 @@ int main(int argc, char *argv[]) {
      * Setup and initialize our statusbar and Mode indicator
      */
     MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
-    CurrentModeWid = GTK_WIDGET(gtk_builder_get_object(gxml, "CurrentMode"));
+    CurrentLayoutWid = GTK_WIDGET(gtk_builder_get_object(gxml, "CurrentLayout"));
 
     /*
      * Clear the Status bar buffer.
@@ -347,11 +347,11 @@ int main(int argc, char *argv[]) {
 
     /* Get the Mode switch button,
      */
-    ModeSwitchButton = GTK_WIDGET(
-                           gtk_builder_get_object(gxml, "ModeSwitchButton"));
+    LayoutButton = GTK_WIDGET(
+                           gtk_builder_get_object(gxml, "LayoutButton"));
     //gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
-    g_signal_connect_data(G_OBJECT(ModeSwitchButton), "clicked",
-                          G_CALLBACK(on_modebutton_clicked), NULL, NULL, 0);
+    g_signal_connect_data(G_OBJECT(LayoutButton), "clicked",
+                          G_CALLBACK(on_layoutbutton_clicked), NULL, NULL, 0);
 
     /*
      * Set up the Midi Sequencer port
@@ -381,9 +381,9 @@ int main(int argc, char *argv[]) {
      * Show the main window and let the show begin.
      */
     gtk_widget_show_all(main_window);
-    gtk_widget_modify_font(CurrentModeWid,
+    gtk_widget_modify_font(CurrentLayoutWid,
                            pango_font_description_from_string("Sans Bold 16"));
-    gtk_label_set_text(CurrentModeWid, theModes[0]);
+    gtk_label_set_text(CurrentLayoutWid, LayoutPresets[0].Name);
 
     /*
      * Set the initial Volumes.
@@ -716,7 +716,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
     for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
         myButton = MainButtons[Loop];
 //		printd(LogInfo,"Loop %d gMyInfo %s Patch %d\n",Loop, gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
-        PatchIndex = ModeSwitchPatch(Loop, false);
+        PatchIndex = LayoutSwitchPatch(Loop, false);
 		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
 
         if (PatchIndex >= 0 && PatchIndex < Max_Patches ) {
@@ -851,7 +851,9 @@ void RaiseWindowsNum(char AppNumber) {
 tPatchIndex GetModePreset(tPatchIndex Value) {
     tPatchIndex NewValue;
 
-    switch (CurrentMode) {
+    NewValue = LayoutPresets[CurrentLayout].Presets[Value];
+#if 0
+    switch (CurrentLayout) {
     case ModeDefault:
         NewValue = Value;
         break;
@@ -876,6 +878,7 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
         NewValue = Value;
         break;
     }
+#endif
 //    printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
     return (NewValue);
 }
@@ -887,28 +890,30 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
  *
  *---------------------------------------------------------------------*/
 void IncrementMode(void) {
-    if (++CurrentMode > ModeLastItem)
-        CurrentMode = 0;
 
-    gtk_widget_modify_font(CurrentModeWid,
+	if (LayoutPresets[++CurrentLayout].Name[0] == 0)
+        CurrentLayout = 0;
+
+	printf("IncrementMode %d %s",CurrentLayout,LayoutPresets[CurrentLayout].Name);
+    gtk_widget_modify_font(CurrentLayoutWid,
                            pango_font_description_from_string("Sans Bold 16"));
-    gtk_label_set_text(CurrentModeWid, theModes[CurrentMode]);
+    gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
     SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
-    printd(LogInfo, "Increment Mode %d\n", CurrentMode);
+    printd(LogInfo, "Increment Mode %d\n", CurrentLayout);
 }
 
 /*--------------------------------------------------------------------
- * Function:		ModeSwitchPatch
+ * Function:		LayoutSwitchPatch
  *
  * Description:		Based on the current mode do a different.
  *
  *---------------------------------------------------------------------*/
-tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
+tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
 	tPatchIndex Preset;
 	tPatchIndex RetVal;
 
-//    printd(LogInfo, "In ModeSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
+//    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
 //           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
 
     if (gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)].CustomCommand == cmdPreset ) {
@@ -932,7 +937,7 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
 
     case Preset1FButton:
         Preset = gMyInfo.WebPresets.thePreset1;
-        printd(LogInfo, "In ModeSwitchPatch Preset1FButton %d\n",Preset);
+        printd(LogInfo, "In LayoutSwitchPatch Preset1FButton %d\n",Preset);
 
         if (Preset != -1)
         	RetVal = Preset;
@@ -942,7 +947,7 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
 
     case Preset2FButton:
         Preset = gMyInfo.WebPresets.thePreset2;
-        printd(LogInfo, "In ModeSwitchPatch Preset2FButton %d\n",Preset);
+        printd(LogInfo, "In LayoutSwitchPatch Preset2FButton %d\n",Preset);
         if (Preset != -1)
         	RetVal = Preset;
         else
@@ -964,7 +969,7 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction) {
     	if (RetVal >= 0 && RetVal < Max_Patches)
     		DoPatch(&gMyInfo.MyPatchInfo[(char) RetVal]);
     }
-    printd(LogInfo, "ModeSwitchPatch %d\n", MidiIn);
+    printd(LogInfo, "LayoutSwitchPatch %d\n", MidiIn);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
     return (RetVal);
 }

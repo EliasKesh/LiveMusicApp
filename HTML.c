@@ -377,15 +377,42 @@ char	string[150];
 //	uri=networkRequest.get_uri()
 
     printd(LogInfo, "NavigationPolicy %s \n", theURI);
+
+    /* If we find an MP3 file then handle it ourselves and tell WebKit
+     * not to deal with it.
+     */
     if  (strstr(theURI, ".mp3")) {
+    	/*
+    	 * Tell web kit not to o anything with it.
+    	 */
     	webkit_web_policy_decision_ignore(policy_decision);
-    	sprintf(string,"/usr/bin/playitslowly --sink=jackaudiosink %s", theURI);
+    	sprintf(string,"/usr/bin/playitslowly --sink=jackaudiosink %s &", theURI);
     	system(string);
     	printd(LogInfo, "*** systemcall %s\n", string);
+
+    	/*
+    	 * This tells webkit we are dealing with it.
+    	 */
     	return(true);
     }
-    webkit_web_policy_decision_use(policy_decision);
- //   webkit_web_policy_decision_ignore(policy_decision);
+
+    if  (strstr(theURI, ".tg") || strstr(theURI, ".gp")) {
+    	/*
+    	 * Tell web kit not to o anything with it.
+    	 */
+    	webkit_web_policy_decision_ignore(policy_decision);
+    	sprintf(string,"/usr/bin/tuxguitar %s &", theURI);
+    	system(string);
+    	printd(LogInfo, "*** systemcall %s\n", string);
+
+    	/*
+    	 * This tells webkit we are dealing with it.
+    	 */
+    	return(true);
+    }
+
+//   webkit_web_policy_decision_use(policy_decision);
+
 return(false);
 }
 

@@ -248,12 +248,13 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 GtkTreeModel *create_combo_model(void) {
     GtkTreeModel *model;
     GtkTreeIter iter;
-
     gint i;
+
 
     model = GTK_TREE_MODEL(gtk_list_store_new(1, G_TYPE_STRING));
 
     for (i = 0; i < MaxCommands; i++) {
+
         gtk_list_store_append(GTK_LIST_STORE(model), &iter);
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, CustomCommands[i],
                            -1);

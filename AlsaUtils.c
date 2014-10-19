@@ -736,7 +736,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
             /* Here is where Program changes happen from Program change inputs.
              */
-            PatchIndex = ModeSwitchPatch(event_ptr->data.control.value, true);
+            PatchIndex = LayoutSwitchPatch(event_ptr->data.control.value, true);
 
             break;
         case SND_SEQ_EVENT_CHANPRESS:

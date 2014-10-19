@@ -50,9 +50,9 @@ GTKMidiInfo GlobalInfo = {
         { "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, 0 },
         { "FunkWah", 0xff, 6, RakarrakPort, 1, NoCustom, 0 },
         { "Synth", 0xff, 8, RakarrakPort, 1, NoCustom, 0 },
-        { "open", 0xff, 15, RakarrakPort, 1, NoCustom, 0 },
-        { "open", 0xff, 9, RakarrakPort, 1, NoCustom, 0 },
-        { "open", 0xff, 7, RakarrakPort, 1, NoCustom, 0 },
+        { "Preset1", 0xff, 1, 0, 1, cmdPreset, 0 },
+        { "Preset2", 0xff, 2, 0, 1, cmdPreset, 0 },
+        { "Bank Select", 0xff, FluidPort, 0, 1, cmdBankSelect, 0 },
         //	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
         // 10	Button		Title		Bank	Patch	Outport
         { "Piano", SFDSF, 63, FluidPort, 1, NoCustom, 0 },
@@ -146,7 +146,7 @@ GTKMidiInfo GlobalInfo = {
 
     },
     // Path the Charts directory
-    "/home/Dropbox/FusionBlue/ChartsHTML/indexCharts.html",
+    "/home/Dropbox/FusionBlue/index.html",
     // Number and name of the output ports
     6,
     { "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
@@ -165,6 +165,80 @@ GTKMidiInfo GlobalInfo = {
     8, /* TempoMax	*/
     1, /* Metronome On	*/
     40	/* Base Midi Note for switching.	*/
+};
+
+LayoutType LayoutPresets[] = {
+
+	{ "Default",
+		{
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+		50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+		60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+		70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+		80, 81, 82, 83, 84, 85, 86, 87, 88, 89
+		},
+	},
+
+	{ "Practice",
+		{
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+		50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+		60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+		70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+		80, 81, 82, 83, 84, 85, 86, 87, 88, 89
+		},
+	},
+
+	{ "Rehearsal",
+		{
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+	    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+	    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+	    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
+		},
+	},
+
+	{ "Performance",
+		{
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	    60, 61, 62, 63, 64, 65, 0, 0, 0, 0,
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+	    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+	    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+	    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
+		},
+	},
+
+	{ "Looper",
+		{
+	    50, 51, 52, 53, 54, 55, 56, 7, 8, 9,
+	    06, 01, 9, 20, 14, 65, 40, 41, 0, 0,
+	    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+	    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+	    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+	    80, 81, 82, 83, 84, 85, 86, 87, 88, 89
+		},
+	},
+
+	{ "",
+		{
+		},
+	},
+
 };
 
 /*--------------------------------------------------------------------
@@ -244,6 +318,15 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
                    thePorts->Devices[Loop].Ports[Loop1].Name);
         }
     }
+
+    for (Loop = 0; LayoutPresets[Loop].Name[0] != 0; Loop++) {
+        printf("Lay=%d %s %d %d %d\n", Loop,
+        	LayoutPresets[Loop].Name,
+        	LayoutPresets[Loop].Presets[0],
+        	LayoutPresets[Loop].Presets[1],
+        	LayoutPresets[Loop].Presets[2]);
+    }
+
 
     printf("Metronome Base %d On %d\n", myInfo->TempoMax, myInfo->MetronomeOn);
     printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
