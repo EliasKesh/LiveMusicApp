@@ -151,7 +151,7 @@ void on_button_clicked(GtkButton *button, gpointer user_data) {
 	tPatchIndex	PatchIndex;
 
 	PatchIndex = LayoutSwitchPatch(user_data, true);
-    printd(LogInfo, "User data %d\n", (int) user_data);
+//    printd(LogInfo, "User data %d\n", (int) user_data);
 }
 
 /*--------------------------------------------------------------------
@@ -249,6 +249,8 @@ int main(int argc, char *argv[]) {
 
     /*
      * Let's setup some variables.
+     * CurrentLayout is the default to start with
+     * When we start are
      */
     CurrentLayout = 0;
     WaitingforMidi = 0;
@@ -258,7 +260,7 @@ int main(int argc, char *argv[]) {
     gtk_rc_parse( MAINPREFS_FILE);
 
     /*
-     * Get Preferences is there are there otherwise set defaults.
+     * Initialize the XML reader/writer and set some basic values here.
      */
     InitPref();
     /*
@@ -375,25 +377,25 @@ int main(int argc, char *argv[]) {
      */
 //		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
     gMyInfo.TempoTimerID = 0;
-    SetTempo(90);
+  SetTempo(90);
+
 
     /*
      * Show the main window and let the show begin.
      */
     gtk_widget_show_all(main_window);
     gtk_widget_modify_font(CurrentLayoutWid,
-                           pango_font_description_from_string("Sans Bold 16"));
+                          pango_font_description_from_string("Sans Bold 16"));
     gtk_label_set_text(CurrentLayoutWid, LayoutPresets[0].Name);
 
     /*
      * Set the initial Volumes.
      */
     printd(LogInfo, "Setting Default Volumes\n");
-    SetVolume1(gMyInfo.AnalogVolume);
-    SetVolume2(gMyInfo.MidiVolume);
+   SetVolume1(gMyInfo.AnalogVolume);
+   SetVolume2(gMyInfo.MidiVolume);
 //	create_Popup_view(main_window);
     printd(LogInfo, "Enterint gtk_main\n");
-
     /*
      * And they're off.
      */
@@ -715,9 +717,9 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
     for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
         myButton = MainButtons[Loop];
-//		printd(LogInfo,"Loop %d gMyInfo %s Patch %d\n",Loop, gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
+//		printd(LogInfo,"Loop %d gMyInfo [%s] Patch %d\n",Loop, gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
         PatchIndex = LayoutSwitchPatch(Loop, false);
-		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
+//		printd(LogInfo,"SetUpMainButtons: %d %d\n",Loop, PatchIndex);
 
         if (PatchIndex >= 0 && PatchIndex < Max_Patches ) {
         	sprintf(String, "%02d-%s", Loop+1, gMyInfo.MyPatchInfo[PatchIndex].Name);
@@ -749,9 +751,9 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
         SendMidiPatch(NextPatch);
         UpdateStatus(NextPatch->Name);
 
-        NextCommand = NextPatch->Chain;
+        NextCommand = FindString(fsPatchNames, NextPatch->Chain);
         NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
-    } while (NextCommand);
+    } while (NextCommand != -1);
     return (0);
 }
 
@@ -851,7 +853,7 @@ void RaiseWindowsNum(char AppNumber) {
 tPatchIndex GetModePreset(tPatchIndex Value) {
     tPatchIndex NewValue;
 
-    NewValue = LayoutPresets[CurrentLayout].Presets[Value];
+    NewValue = FindString(fsPatchNames, LayoutPresets[CurrentLayout].Presets[Value]);
 #if 0
     switch (CurrentLayout) {
     case ModeDefault:
@@ -1109,6 +1111,7 @@ int SetVolume2(int Value) {
 	gtk_adjustment_set_value(Adjustment2,Value);
     gMyInfo.MidiVolume = Value;
     gtk_range_set_adjustment(VScale2, Adjustment2);
+
     SendMidi(SND_SEQ_EVENT_CONTROLLER,
     	gMyInfo.MyPatchInfo[Slider2].OutPort,
     	gMyInfo.MyPatchInfo[Slider2].Channel,
@@ -1117,3 +1120,38 @@ int SetVolume2(int Value) {
 
     return(Value);
 }
+
+
+/*--------------------------------------------------------------------
+ * Function:		FindString
+ *
+ * Description:	Find the offset into a list of strings.
+ *---------------------------------------------------------------------*/
+int	FindString(int StringList, char *String) {
+int	Loop;
+
+if (StringList == fsPatchNames) {
+    for (Loop = 0; Loop < Max_Patches; Loop++) {
+        if ( !strcmp(gMyInfo.MyPatchInfo[Loop].Name, String) )
+        	return(Loop);
+    }
+    return(-1);
+}
+
+	if (StringList == fsPortNames) {
+		for (Loop = 0; Loop < MaxOutPorts; Loop++) {
+			gMyInfo.OutPortName[Loop];
+		}
+	}
+
+	if (StringList == fsAppNames) {
+	    for (Loop = 0; Loop < MaxApps; Loop++) {
+	        gMyInfo.Apps[Loop].Name;
+	    }
+
+	}
+
+}
+
+
+

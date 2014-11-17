@@ -83,7 +83,8 @@ typedef struct {
     // Anything special we have to do
     int CustomCommand;
     // Chaing to Another Command
-    int Chain;
+    char Chain[PatchNameSize];
+//    int Chain;
 } PatchInfo;
 
 typedef struct {
@@ -91,13 +92,13 @@ typedef struct {
     char *location;
 } SongInfo;
 
-#define Max_Main_Buttons 55
-#define Max_Patches	 90
+#define Max_Main_Buttons 56
+#define Max_Patches	 110
 #define Max_Layouts	 10
 
 typedef struct {
 	char		Name[PatchNameSize];
-	tPatchIndex		Presets[Max_Patches];
+	char		Presets[Max_Patches][PatchNameSize];
 } LayoutType;
 
 
@@ -113,6 +114,10 @@ typedef struct {
 typedef struct {
     char thePreset1;
     char thePreset2;
+    char thePreset3;
+    char thePreset4;
+    char thePreset5;
+    char thePreset6;
     char theTempo;
 } WebLoadPresets;
 
@@ -175,12 +180,31 @@ enum {
     MaxCommands
 };
 
+
+#define fsPatchNames	1
+#define fsPortNames		2
+#define fsAppNames		3
+
 /*
  * Sounds Banks in Fluid Synth.
  */
+#define SFFluidGM  0
+#define SFElias  1
+#define SFSonidoGM  2
+#define SFSynthGM  3
+#define SFVintage  4
+#define SFDX7  5
+#define SFDSF  6
+#define SFRolandTenor  7
+#define SFAltoSax  8
+#define SFFlute  9
+#define SFDrums		128
+#define SFDrumsElias 129
+
+
+#if 0
 #define SF32GM  0
 #define SFDSF  1
-#define SFFluidGM  2
 #define SFA340Base  3
 #define SFMusica 4
 #define SFFlute 5
@@ -196,6 +220,7 @@ enum {
 #define SFHold14	 14
 #define SFA340High 15
 #define SFDrums		128
+#endif
 
 #if 0
 #define ModeSwitchKey		29
@@ -297,5 +322,6 @@ int	GuitarMidiPresetComplete(tPatchIndex	MidiNote);
 int	GuitarMidiPreset(void);
 int	SetVolume1(int Value);
 int	SetVolume2(int Value);
+int	FindString(int StringList, char *String);
 
 #endif

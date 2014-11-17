@@ -308,6 +308,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
         break;
 
     case cmdBankSelect:
+        printd(LogInfo, "Bank Select COmmand\n");
 		IncrementMode();
         break;
 

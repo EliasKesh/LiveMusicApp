@@ -233,7 +233,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
         }
         break;
     case Chain_COLUMN:
-        gMyInfo.MyPatchInfo[Loop].Chain = atoi(new_text);
+        strcpy(gMyInfo.MyPatchInfo[Loop].Chain, new_text);
         break;
 
     }

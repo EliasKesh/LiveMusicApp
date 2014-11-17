@@ -13,6 +13,10 @@ static WebKitWebView* web_view;
 
 GtkWidget *Preset1Button;
 GtkWidget *Preset2Button;
+GtkWidget *Preset3Button;
+GtkWidget *Preset4Button;
+GtkWidget *Preset5Button;
+GtkWidget *Preset6Button;
 GtkWidget *scrolled_window;
 
 /*--------------------------------------------------------------------
@@ -175,30 +179,42 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
  * Description:	The users patch 1 was selected.
  *
  *---------------------------------------------------------------------*/
-void on_patch1_clicked(GtkWidget *widget, gpointer data) {
+void on_patch_clicked(GtkWidget *widget, gpointer data) {
     char Preset;
 
-    printd(LogInfo, "In Button Preset1 %d %s\n", Preset,
-           gMyInfo.MyPatchInfo[Preset].Name);
 
-    Preset = gMyInfo.WebPresets.thePreset1;
-    if (Preset != -1)
-        DoPatch(&gMyInfo.MyPatchInfo[Preset]);
-}
+    switch((int)data) {
+    	case 1:
+    	Preset = gMyInfo.WebPresets.thePreset1;
+    	break;
 
-/*--------------------------------------------------------------------
- * Function:		Patch 2 Selected
- *
- * Description:	The users patch 2 was selected.
- *
- *---------------------------------------------------------------------*/
-void on_patch2_clicked(GtkWidget *widget, gpointer data) {
-    char Preset;
+    	case 2:
+    	Preset = gMyInfo.WebPresets.thePreset2;
+    	break;
 
-    printd(LogInfo, "In Button Preset2 %d %s\n", Preset,
-           gMyInfo.MyPatchInfo[Preset].Name);
+    	case 3:
+    	Preset = gMyInfo.WebPresets.thePreset3;
+    	break;
 
-    Preset = gMyInfo.WebPresets.thePreset2;
+    	case 4:
+    	Preset = gMyInfo.WebPresets.thePreset5;
+    	break;
+
+    	case 5:
+    	Preset = gMyInfo.WebPresets.thePreset5;
+    	break;
+
+    	case 6:
+    	Preset = gMyInfo.WebPresets.thePreset6;
+    	break;
+
+    	default:
+    		break;
+    }
+    	   printd(LogInfo, "In Button Preset%d %d %s\n", data, Preset,
+    	           gMyInfo.MyPatchInfo[Preset].Name);
+
+
     if (Preset != -1)
         DoPatch(&gMyInfo.MyPatchInfo[Preset]);
 }
@@ -430,11 +446,27 @@ void InitHTML(GladeXML *gxml) {
      */
     Preset1Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch1"));
     g_signal_connect(G_OBJECT (Preset1Button), "clicked",
-                     G_CALLBACK (on_patch1_clicked), NULL);
+                     G_CALLBACK (on_patch_clicked), 1);
 
     Preset2Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch2"));
     g_signal_connect(G_OBJECT (Preset2Button), "clicked",
-                     G_CALLBACK (on_patch2_clicked), NULL);
+                     G_CALLBACK (on_patch_clicked), 2);
+
+    Preset3Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch3"));
+    g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+                     G_CALLBACK (on_patch_clicked), 3);
+
+    Preset4Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch4"));
+    g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+                     G_CALLBACK (on_patch_clicked), 4);
+
+    Preset5Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch5"));
+    g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+                     G_CALLBACK (on_patch_clicked), 5);
+
+    Preset6Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch6"));
+    g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+                     G_CALLBACK (on_patch_clicked), 6);
 
     scrolled_window = GTK_WIDGET(
                           gtk_builder_get_object(gxml, "scrolledwindow1"));
@@ -539,6 +571,10 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 
     thePresets->thePreset1 = -1;
     thePresets->thePreset2 = -1;
+    thePresets->thePreset3 = -1;
+    thePresets->thePreset4 = -1;
+    thePresets->thePreset5 = -1;
+    thePresets->thePreset6 = -1;
     thePresets->theTempo = -1;
 
 //printd(LogInfo, "Have file %x %s\n", fp, fname);
@@ -566,6 +602,30 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
             strncpy(temp, Copy, MAXLINE);
         }
 
+        Found = strstr(temp, "Preset3");
+        if (Found != NULL) {
+            Found += 8;
+            thePresets->thePreset3 = AssignPreset(3, Found);
+            strncpy(temp, Copy, MAXLINE);
+        }
+        Found = strstr(temp, "Preset4");
+        if (Found != NULL) {
+            Found += 8;
+            thePresets->thePreset4 = AssignPreset(4, Found);
+            strncpy(temp, Copy, MAXLINE);
+        }
+        Found = strstr(temp, "Preset5");
+        if (Found != NULL) {
+            Found += 8;
+            thePresets->thePreset5 = AssignPreset(5, Found);
+            strncpy(temp, Copy, MAXLINE);
+        }
+        Found = strstr(temp, "Preset6");
+        if (Found != NULL) {
+            Found += 8;
+            thePresets->thePreset6 = AssignPreset(6, Found);
+            strncpy(temp, Copy, MAXLINE);
+        }
         /* Set the Tempo for this tune.
          */
         Found = strstr(temp, "Tempo");
@@ -627,10 +687,7 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
         String++;
         tokenizer = strtok(String,"\"");//break up by spaces
         printd(LogInfo, "Token1 %s\n", tokenizer);
-        for (Value = 0; Value < Max_Patches; Value++) {
-            if ( !strcmp(gMyInfo.MyPatchInfo[Value].Name, tokenizer) )
-                break;
-        }
+        Value = FindString(fsPatchNames, tokenizer);
 
     } else {
 
@@ -658,6 +715,22 @@ tPatchIndex	AssignPreset(int PresetNum, char *String) {
 
     case 2:
         SetPatchTitles(Preset2Button, gMyInfo.MyPatchInfo[Value].Name);
+        break;
+
+    case 3:
+        SetPatchTitles(Preset3Button, gMyInfo.MyPatchInfo[Value].Name);
+        break;
+
+    case 4:
+        SetPatchTitles(Preset4Button, gMyInfo.MyPatchInfo[Value].Name);
+        break;
+
+    case 5:
+        SetPatchTitles(Preset5Button, gMyInfo.MyPatchInfo[Value].Name);
+        break;
+
+    case 6:
+        SetPatchTitles(Preset6Button, gMyInfo.MyPatchInfo[Value].Name);
         break;
 
     default:
