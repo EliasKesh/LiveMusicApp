@@ -58,7 +58,7 @@ GTKMidiInfo GlobalInfo = {
         { "Piano", SFDSF, 63, FluidPort, 1, NoCustom, ""  },
         { "Honky", SFFluidGM, 3, FluidPort, 1, NoCustom, ""  },
         { "Breath", SFFluidGM, 53, FluidPort, 1, NoCustom, ""  },
-        { "De-Tuned Organ", SFFluidGM, 16, FluidPort, 1, NoCustom, ""  },
+        { "Organ", SFFluidGM, 16, FluidPort, 1, NoCustom, ""  },
         { "Flute", SFFlute, 73, FluidPort, 1, NoCustom, ""  },
         { "SynthLead", SFDSF, 43, FluidPort, 1, NoCustom, ""  },
         { "Strings", SFDSF, 85, FluidPort, 1, NoCustom, ""  },
@@ -198,7 +198,7 @@ LayoutType LayoutPresets[] = {
 		{
 		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
 		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -213,9 +213,9 @@ LayoutType LayoutPresets[] = {
 
 	{ "Practice",
 		{
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"Preset1", "Preset2", "TransStart", "TransStop", "CleanBass",
+		"FunkBass", "Satriani", "MedDist", "OctBass", "Bank Select",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -232,7 +232,7 @@ LayoutType LayoutPresets[] = {
 		{
 		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
 		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -249,7 +249,7 @@ LayoutType LayoutPresets[] = {
 		{
 		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
 		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -264,9 +264,9 @@ LayoutType LayoutPresets[] = {
 
 	{ "Looper",
 		{
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"LP Undo", "LP 1", "LP 2", "LP 3","LP 4",
+		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -281,11 +281,9 @@ LayoutType LayoutPresets[] = {
 
 	{ "Bass",
 		{
-		"LP Undo", "LP 1", "LP 2", "LP 3","LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "De-Tuned Organ", "Flute",
+		"Preset1", "Preset2", "CleanBass", "FunkBass", "Satriani",
+		"MS20Bass", "KStatB", "Slap Bass", "Chorus", "SynthLead",
+		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
@@ -293,8 +291,11 @@ LayoutType LayoutPresets[] = {
 		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
 		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
 		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
+		"Breath", "HardDist", "CleanBass", "MedDist", "OctBass",
+		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
 		},
 	},
+
 
 	{ "",
 		{

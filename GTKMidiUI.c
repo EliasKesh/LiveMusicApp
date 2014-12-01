@@ -377,7 +377,7 @@ int main(int argc, char *argv[]) {
      */
 //		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
     gMyInfo.TempoTimerID = 0;
-  SetTempo(90);
+  SetTempo(120);
 
 
     /*
@@ -469,7 +469,7 @@ void UpdateStatus(char *String) {
 
 /*--------------------------------------------------------------------
  * Function:		Set the tempo
- * Description:		Set te tempo to a new value. Re-setup the timer
+ * Description:		Set the tempo to a new value. Re-setup the timer
  * 	interrupts to handle double the tempo.
  *
  *---------------------------------------------------------------------*/
@@ -491,9 +491,9 @@ void SetTempo(unsigned char NewTempo) {
 //	gMyInfo.TempoReload = (500 * 60) / NewTempo;
 
     /*
-     * This gives us 12 ticks per quarter.
+     * This gives us 24 ticks per quarter.
      */
-    gMyInfo.TempoReload = ((500 * 5) / NewTempo);
+    gMyInfo.TempoReload = (60000/(NewTempo*24));
 
     printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
@@ -550,14 +550,17 @@ void ToggleTempo(void) {
     /*
      * Needs to be sent 24 time per quarter.
      */
- //   SendMidi(SND_SEQ_EVENT_TICK, TempoPort,0, 00, (int) 0);
+//   SendMidi(SND_SEQ_EVENT_QFRAME, TempoPort,0, 00, (int) 0);
 
-    SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
     // requires a constant timer.
     //    SendMidi(SND_SEQ_EVENT_QFRAME, TempoPort, 0, 0, 0);
 
    if (TempoState >= (gMyInfo.TempoMax * 12))
         TempoState = 0;
+
+//   if (!(TempoState % 4)) {
+	   SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
+//   }
 
     if (!(TempoState % 24)) {
 //		gdk_color_parse ("white", &bgcolor);
@@ -566,7 +569,7 @@ void ToggleTempo(void) {
 //    	printf("Tempo %d \n", TempoState );
         /* On the first beat play a different sound.
          */
-        if (gMyInfo.MetronomeOn && !(TempoState % 24))
+        if (gMyInfo.MetronomeOn)
             if (TempoState)
                 SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort,
                          DrumMidiChannel, 00, (int) 35);

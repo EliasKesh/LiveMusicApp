@@ -193,7 +193,8 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
     if (Type == SND_SEQ_EVENT_QFRAME) {
         ev.type = SND_SEQ_EVENT_CLOCK;
-        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+        ev.data.queue.param.d32[1] = Value;
+       err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
         snd_seq_drain_output(gMyInfo.SeqPort[Port]);
     }
 
@@ -201,6 +202,10 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
      */
     if (Type == SND_SEQ_EVENT_TICK) {
         ev.type = SND_SEQ_EVENT_TICK;
+        ev.data.queue.param.d32[1] = Value;
+        err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
+        snd_seq_drain_output(gMyInfo.SeqPort[Port]);
+
 #if 0
         snd_seq_queue_sync_t sync_info;
         snd_seq_addr_t dest;
@@ -763,7 +768,13 @@ void *alsa_midi_thread(void * context_ptr) {
             sprintf(msg_str_ptr, "Song select");
             break;
         case SND_SEQ_EVENT_QFRAME:
-            sprintf(msg_str_ptr, "midi time code quarter frame");
+//            sprintf(msg_str_ptr, "midi time code quarter frame");
+            sprintf(msg_str_ptr, "midi time code quarter frame Q%d V%d P%d D%ld D%ld",
+            	event_ptr->data.queue.queue,
+            	event_ptr->data.queue.param.value,
+            	event_ptr->data.queue.param.position,
+            	event_ptr->data.queue.param.d32[0],
+            	event_ptr->data.queue.param.d32[1]);
             break;
         case SND_SEQ_EVENT_TIMESIGN:
             sprintf(msg_str_ptr, "SMF Time Signature event");
@@ -787,13 +798,36 @@ void *alsa_midi_thread(void * context_ptr) {
             sprintf(msg_str_ptr, "Set real-time queue position");
             break;
         case SND_SEQ_EVENT_TEMPO:
-            sprintf(msg_str_ptr, "(SMF) Tempo event");
+//        	BPM = 60,000,000/[value]
+ //           sprintf(msg_str_ptr, "(SMF) Tempo event");
+            sprintf(msg_str_ptr, "(SMF) Tempo event Q%d V%d P%d D%ld D%ld",
+            	event_ptr->data.queue.queue,
+            	event_ptr->data.queue.param.value,
+            	event_ptr->data.queue.param.position,
+            	event_ptr->data.queue.param.d32[0],
+            	event_ptr->data.queue.param.d32[1]);
             break;
         case SND_SEQ_EVENT_CLOCK:
-            sprintf(msg_str_ptr, "MIDI Real Time Clock message");
-            break;
+//        	60000 / (BPM * PPQ) (milliseconds).
+ //       	Pulse Length = 60/(BPM * PPQN)
+//            sprintf(msg_str_ptr, "MIDI Real Time Clock message");
+ //       	OK, 24 beats per quarter.
+//        	60/(Value * 24)
+        	sprintf(msg_str_ptr, "MIDI Real Time Clock message Q%d V%d P%d D%ld D%ld",
+            	event_ptr->data.queue.queue,
+            	event_ptr->data.queue.param.value,
+            	event_ptr->data.queue.param.position,
+            	event_ptr->data.queue.param.d32[0],
+            	event_ptr->data.queue.param.d32[1]);
+          break;
         case SND_SEQ_EVENT_TICK:
-            sprintf(msg_str_ptr, "MIDI Real Time Tick message");
+//        	snd_seq_event_t * event_ptr
+            sprintf(msg_str_ptr, "MIDI Real Time Tick message Q%d V%d P%d D%ld D%ld",
+            	event_ptr->data.queue.queue,
+            	event_ptr->data.queue.param.value,
+            	event_ptr->data.queue.param.position,
+            	event_ptr->data.queue.param.d32[0],
+            	event_ptr->data.queue.param.d32[1]);
             break;
         case SND_SEQ_EVENT_QUEUE_SKEW:
             sprintf(msg_str_ptr, "Queue timer skew");
@@ -986,7 +1020,7 @@ void *alsa_midi_thread(void * context_ptr) {
             break;
         }
 
-//		printd(LogInfo, "%s", msg_str_ptr);
+		printd(LogInfo, "%s\n", msg_str_ptr);
 //		g_print("%s", msg_str_ptr);
         /* get GTK thread lock */
         gdk_threads_enter();
