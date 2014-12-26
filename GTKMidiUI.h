@@ -52,44 +52,44 @@ char *printd(char LogLevel, const char *fmt, ...);
 typedef unsigned short tPatchIndex;
 
 typedef struct {
-    char Name[PatchNameSize];
-    char ID;
+	char Name[PatchNameSize];
+	char ID;
 } AlsaPort;
 
 typedef struct {
-    char Name[PatchNameSize];
-    char ID;
-    char NumPorts;
-    AlsaPort Ports[10];
+	char Name[PatchNameSize];
+	char ID;
+	char NumPorts;
+	AlsaPort Ports[10];
 } AlsaDevice;
 
 typedef struct {
-    char NumDevices;
-    AlsaDevice Devices[20];
+	char NumDevices;
+	AlsaDevice Devices[20];
 } PortsInfo;
 
 typedef struct {
 //	char	Button[32];
 //	int Index;
-    char Name[PatchNameSize];
-    // Bank select -1 not to send Bank Info
-    unsigned char BankSelect;
-    // The Patch number to send.
-    unsigned int Patch;
-    // Which virtual midi port to send the data
-    char OutPort;
-    // The Midi channel.
-    char Channel;
-    // Anything special we have to do
-    int CustomCommand;
-    // Chaing to Another Command
-    char Chain[PatchNameSize];
+	char Name[PatchNameSize];
+	// Bank select -1 not to send Bank Info
+	unsigned char BankSelect;
+	// The Patch number to send.
+	unsigned int Patch;
+	// Which virtual midi port to send the data
+	char OutPort;
+	// The Midi channel.
+	char Channel;
+	// Anything special we have to do
+	int CustomCommand;
+	// Chaing to Another Command
+	char Chain[PatchNameSize];
 //    int Chain;
 } PatchInfo;
 
 typedef struct {
-    char *Name;
-    char *location;
+	char *Name;
+	char *location;
 } SongInfo;
 
 #define Max_Main_Buttons 56
@@ -97,89 +97,86 @@ typedef struct {
 #define Max_Layouts	 10
 
 typedef struct {
-	char		Name[PatchNameSize];
-	char		Presets[Max_Patches][PatchNameSize];
+	char Name[PatchNameSize];
+	char Presets[Max_Patches][PatchNameSize];
 } LayoutType;
-
 
 #define Slider1		Max_Patches -3
 #define Slider2		Max_Patches -2
 #define Slider3		Max_Patches -1
 
 typedef struct {
-    char Name[255];
-    char PortID;
+	char Name[255];
+	char PortID;
 } PortInformation;
 
 typedef struct {
-    char thePreset1;
-    char thePreset2;
-    char thePreset3;
-    char thePreset4;
-    char thePreset5;
-    char thePreset6;
-    char theTempo;
+	char thePreset1;
+	char thePreset2;
+	char thePreset3;
+	char thePreset4;
+	char thePreset5;
+	char thePreset6;
+	char theTempo;
 } WebLoadPresets;
 
 enum {
-    AnalogApp = 0,
-    MidiSoundApp,
-    LooperApp,
-    TransportApp,
-    MidiControl,
-    MP3Player,
-    TabPlayer,
-    MaxApps
+	AnalogApp = 0,
+	MidiSoundApp,
+	LooperApp,
+	TransportApp,
+	MidiControl,
+	MP3Player,
+	TabPlayer,
+	MaxApps
 };
 
 typedef struct {
-    // Preferences
-    PatchInfo MyPatchInfo[Max_Patches];
-    char BasePath[255];
-    char NumOutPorts;
-    char OutPortName[MaxOutPorts][MaxStringPortName];
-    PortInformation Apps[MaxApps];
-    char TempoMax;
-    char MetronomeOn;
-    tPatchIndex	MidiBaseNote;
+	// Preferences
+	PatchInfo MyPatchInfo[Max_Patches];
+	char BasePath[255];
+	char NumOutPorts;
+	char OutPortName[MaxOutPorts][MaxStringPortName];
+	PortInformation Apps[MaxApps];
+	char TempoMax;
+	char MetronomeOn;
+	tPatchIndex MidiBaseNote;
 
-    // Generated Beyond this point.
-    snd_seq_t *SeqPort[MaxOutPorts];
-//	int			SeqQueue[MaxOutPorts];
-    WebLoadPresets WebPresets;
-//	unsigned int	Timer1Count;	/* Not used	*/
-    unsigned char Tempo;
-    unsigned int TempoReload;
-    unsigned int TempoTimerID;
+	// Generated Beyond this point.
+	snd_seq_t *SeqPort[MaxOutPorts];
+	//	int			SeqQueue[MaxOutPorts];
+	WebLoadPresets WebPresets;
+	//	unsigned int	Timer1Count;	/* Not used	*/
+	unsigned char Tempo;
+	unsigned int TempoReload;
+	unsigned int TempoTimerID;
 
-
-    unsigned int AnalogVolume;
-    unsigned int MidiVolume;
+	unsigned int AnalogVolume;
+	unsigned int MidiVolume;
 
 } GTKMidiInfo;
 
 enum {
-    FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port, TempoPort
+	FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port, TempoPort
 };
 enum {
-    NoCustom,
-    ToNextDesktop,
-    ToPrevDesktop,
-    ToDesktop,
-    Controller,
-    SwitchTab,
-    RaiseApp,
-    TransStart,
-    TransCont,
-    TransStop,
-    TransPosition,
-    TransTempo,
-    cmdPreset,
-    cmdBankSelect,
-    cmdMidiSelect,
-    MaxCommands
+	NoCustom,
+	ToNextDesktop,
+	ToPrevDesktop,
+	ToDesktop,
+	Controller,
+	SwitchTab,
+	RaiseApp,
+	TransStart,
+	TransCont,
+	TransStop,
+	TransPosition,
+	TransTempo,
+	cmdPreset,
+	cmdBankSelect,
+	cmdMidiSelect,
+	MaxCommands
 };
-
 
 #define fsPatchNames	1
 #define fsPortNames		2
@@ -200,7 +197,6 @@ enum {
 #define SFFlute  9
 #define SFDrums		128
 #define SFDrumsElias 129
-
 
 #if 0
 #define SF32GM  0
@@ -230,17 +226,17 @@ enum {
 #endif
 
 enum {
-    ToDesktop0 = 60,
-    ToDesktop1,
-    ToDesktop2,
-    ToDesktop3,
-    ToDesktop4,
-    ToDesktop5,
-    ToAnalogApp,
-    ToMidiSoundApp,
-    ToLooperApp,
-    ToTransportApp,
-    ToMidiControl
+	ToDesktop0 = 60,
+	ToDesktop1,
+	ToDesktop2,
+	ToDesktop3,
+	ToDesktop4,
+	ToDesktop5,
+	ToAnalogApp,
+	ToMidiSoundApp,
+	ToLooperApp,
+	ToTransportApp,
+	ToMidiControl
 };
 
 #define MAINPREFS_FILE ".GTKMidi"
@@ -265,34 +261,36 @@ enum {
 #ifdef GTKMidiUI_c
 //PatchInfo  *MyPatchInfo;
 GTKMidiInfo gMyInfo;
-LayoutType	LayoutPresets[Max_Layouts];
+LayoutType LayoutPresets[Max_Layouts];
+int LastPortUsed;
 
 PortsInfo theInPorts;
 PortsInfo theOutPorts;
 char *CustomCommands[] = {
-    "NoCustom",
-    "ToNextDesktop",
-    "ToPrevDesktop",
-    "ToDesktop",
-    "Controller",
-    "SwitchTab",
-    "RaiseApp",
-    "TransStart",
-    "TransStop",
-    "TransPosition",
-    "TransTempo",
-    "PresetX",
-    "BankSelect",
-    "MidiSelect"
+	"NoCustom",
+	"ToNextDesktop",
+	"ToPrevDesktop",
+	"ToDesktop",
+	"Controller",
+	"SwitchTab",
+	"RaiseApp",
+	"TransStart",
+	"TransStop",
+	"TransPosition",
+	"TransTempo",
+	"PresetX",
+	"BankSelect",
+	"MidiSelect"
 };
 
 //int		ModeArray[ModeLastItem][Max_Patches];
 
 //int		preModeSwitch[Max_Patches];
-int		WaitingforMidi;
+int WaitingforMidi;
 GtkBuilder *gxml;
 
 #else
+extern int LastPortUsed;
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
 extern char *CustomCommands[];
@@ -315,13 +313,13 @@ void SetTempo(unsigned char NewTempo);
 void RaiseWindows(char *AppName);
 void RaiseWindowsNum(char AppNumber);
 
-tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char	DoAction);
+tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 
 void PrintDataStructure(GTKMidiInfo *myInfo);
-int	GuitarMidiPresetComplete(tPatchIndex	MidiNote);
-int	GuitarMidiPreset(void);
-int	SetVolume1(int Value);
-int	SetVolume2(int Value);
-int	FindString(int StringList, char *String);
+int GuitarMidiPresetComplete(tPatchIndex MidiNote);
+int GuitarMidiPreset(void);
+int SetVolume1(int Value);
+int SetVolume2(int Value);
+int FindString(int StringList, char *String);
 
 #endif
