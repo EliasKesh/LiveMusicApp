@@ -40,11 +40,12 @@ bool MyAlsaInit() {
 		//   cerr<<"Could not open ALSA SeqPort1uencer: "<<snd_strerror(errno)<<endl;
 		return false;
 	}
+	printf("Init Ports  %d\n",gMyInfo.NumOutPorts);
 
-	for (Loop = 0; Loop < gMyInfo.NumOutPorts; Loop++) {
+	for (Loop = 0; Loop <= gMyInfo.NumOutPorts; Loop++) {
 		gMyInfo.SeqPort[Loop] = CreatePort(Seq, gMyInfo.OutPortName[Loop]);
+		printf("Port %d %s\n",Loop, gMyInfo.OutPortName[Loop]);
 //               gMyInfo.SeqQueue[Loop] = snd_seq_alloc_queue(gMyInfo.SeqPort[Loop]);
-
 	}
 
 #if 0
@@ -232,7 +233,7 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
 		adjbpm = (unsigned long) ((unsigned long) (60.0 * 1000000.0)
 			/ (unsigned long) Value);
-		printf("Tempo Change %d %ld\n", Value, adjbpm);
+		printf("Tempo Change %d %ld port %d\n", Value, adjbpm, Port);
 		ev.data.queue.param.value = adjbpm;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);

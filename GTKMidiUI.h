@@ -42,7 +42,7 @@ char *printd(char LogLevel, const char *fmt, ...);
 
 #define OutPortAnalog 	0
 #define OutPortMidi		1
-#define MaxOutPorts		6
+#define MaxOutPorts		10
 #define MaxStringPortName	32
 
 // Timer countdown in Miliseconds
@@ -157,8 +157,9 @@ typedef struct {
 } GTKMidiInfo;
 
 enum {
-	FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port, TempoPort
-};
+	FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port,
+	TempoPort, ClickPort};
+
 enum {
 	NoCustom,
 	ToNextDesktop,

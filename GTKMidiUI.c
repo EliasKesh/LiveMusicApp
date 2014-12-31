@@ -331,6 +331,11 @@ int main(int argc, char *argv[]) {
 	 * Initialize the WebKit (HTML) engine
 	 */
 	InitHTML(gxml);
+	/*
+	 * Set up the Midi Sequencer port
+	 */
+	MyAlsaInit();
+	printd(LogInfo, "After MyAlsaInit\n");
 
 	printd(LogInfo, "After InitHTML\n");
 
@@ -352,12 +357,6 @@ int main(int argc, char *argv[]) {
 	//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
 	g_signal_connect_data(G_OBJECT(LayoutButton), "clicked",
 		G_CALLBACK(on_layoutbutton_clicked), NULL, NULL, 0);
-
-	/*
-	 * Set up the Midi Sequencer port
-	 */
-	MyAlsaInit();
-	printd(LogInfo, "After MyAlsaInit\n");
 
 	/*
 	 * Set up the connections between applications.
@@ -561,16 +560,16 @@ void ToggleTempo(void) {
 //		gdk_color_parse ("white", &bgcolor);
 //		gdk_color_parse ("Black", &fgcolor);
 
-//    	printf("Tempo %d \n", TempoState );
+//printf("Tempo %d \n", TempoState );
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn)
 			if (TempoState)
-				SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort,
-				DrumMidiChannel, 00, (int) 35);
+				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+				DrumMidiChannel, 00, (int) 36);
 			else
-				SendMidi(SND_SEQ_EVENT_NOTEON, TempoPort,
-				DrumMidiChannel, 00, (int) 34);
+				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+				DrumMidiChannel, 00, (int) 40);
 
 		if (gMyInfo.MetronomeOn)
 			sprintf(StrBuf, "On   %d", (TempoState / 24) + 1);
@@ -731,21 +730,18 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		myButton = MainButtons[Loop];
-		printd(LogInfo, "Loop %d gMyInfo [%s] Patch %d\n", Loop,
-			gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
+//		printd(LogInfo, "Loop %d gMyInfo [%s] Patch %d\n", Loop,
+//			gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
 		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
-		printd(LogInfo, "SetUpMainButtons: %d %d\n", Loop, PatchIndex);
+//		printd(LogInfo, "SetUpMainButtons: %d %d\n", Loop, PatchIndex);
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			sprintf(String, "%02d-%s", Loop + 1,
 				gMyInfo.MyPatchInfo[PatchIndex].Name);
 			myChild = gtk_bin_get_child(GTK_BIN(myButton));
 			gtk_label_set_text((myChild), String);
-
 //       	  gdk_color_parse ("green", &color);
-
 //        	  gtk_widget_modify_fg (myChild, GTK_STATE_NORMAL, &color);
-
 		}
 	}
 }
@@ -898,7 +894,7 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 		break;
 	}
 #endif
-	printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
+//	printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
 	return (NewValue);
 }
 
@@ -938,8 +934,8 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	RetVal = GetModePreset(MidiIn);
 
 	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
-		printd(LogInfo, "LayoutSwitchPatch Preset M%d R%d D%d\n", MidiIn,
-			RetVal, DoAction);
+//		printd(LogInfo, "LayoutSwitchPatch Preset M%d R%d D%d\n", MidiIn,
+//			RetVal, DoAction);
 		if (gMyInfo.MyPatchInfo[RetVal].Patch == 1)
 			if (gMyInfo.WebPresets.thePreset1 != -1)
 				RetVal = gMyInfo.WebPresets.thePreset1;
@@ -971,8 +967,8 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 		if (RetVal >= 0 && RetVal < Max_Patches)
 			DoPatch(&gMyInfo.MyPatchInfo[(char) RetVal]);
 	}
-	printd(LogInfo, "LayoutSwitchPatch M%d R%d D%d\n", MidiIn, RetVal,
-		DoAction);
+//	printd(LogInfo, "LayoutSwitchPatch M%d R%d D%d\n", MidiIn, RetVal,
+//		DoAction);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
 	return (RetVal);
 }
@@ -1039,7 +1035,8 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
 		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
 
-	printf("GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote, PatchChange);
+	printf("GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
+		PatchChange);
 	WaitingforMidi = 0;
 
 	return (0);

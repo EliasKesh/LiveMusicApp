@@ -176,7 +176,7 @@ GTKMidiInfo GlobalInfo =
 		"/home/Dropbox/FusionBlue/index.html",
 		// Number and name of the output ports
 		6,
-		{ "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" },
+		{ "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" , "Click"},
 
 		// Apps[MaxApps];
 		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
