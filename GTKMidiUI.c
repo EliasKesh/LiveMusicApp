@@ -566,10 +566,10 @@ void ToggleTempo(void) {
 		if (gMyInfo.MetronomeOn)
 			if (TempoState)
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) 36);
+				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			else
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) 40);
+				DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
 		if (gMyInfo.MetronomeOn)
 			sprintf(StrBuf, "On   %d", (TempoState / 24) + 1);
@@ -928,6 +928,7 @@ void IncrementMode(void) {
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex Preset;
 	tPatchIndex RetVal;
+	int Loop;
 
 //    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
 //           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
@@ -936,30 +937,12 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
 //		printd(LogInfo, "LayoutSwitchPatch Preset M%d R%d D%d\n", MidiIn,
 //			RetVal, DoAction);
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 1)
-			if (gMyInfo.WebPresets.thePreset1 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset1;
 
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 2)
-			if (gMyInfo.WebPresets.thePreset2 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset2;
-
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 3)
-			if (gMyInfo.WebPresets.thePreset3 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset3;
-
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 4)
-			if (gMyInfo.WebPresets.thePreset4 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset4;
-
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 5)
-			if (gMyInfo.WebPresets.thePreset5 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset5;
-
-		if (gMyInfo.MyPatchInfo[RetVal].Patch == 6)
-			if (gMyInfo.WebPresets.thePreset6 != -1)
-				RetVal = gMyInfo.WebPresets.thePreset6;
-
+		for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
+			if (gMyInfo.MyPatchInfo[RetVal].Patch == (Loop + 1) )
+				if (gMyInfo.WebPresets.thePreset[Loop] != -1)
+					RetVal = gMyInfo.WebPresets.thePreset[Loop];
+		}
 	}
 
 //		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);

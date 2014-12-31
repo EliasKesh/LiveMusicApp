@@ -191,6 +191,8 @@ GTKMidiInfo GlobalInfo =
 		},
 		8, /* TempoMax	*/
 		1, /* Metronome On	*/
+		37, /* Drum down beat, midi code.*/
+		44, /* Drum Other beats */
 		40 /* Base Midi Note for switching.	*/
 	};
 
@@ -313,6 +315,7 @@ LayoutType LayoutPresets[] =
  *
  *---------------------------------------------------------------------*/
 void InitPref(void) {
+int	Count;
 
 	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 100;
@@ -321,12 +324,9 @@ void InitPref(void) {
 
 	memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
 	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
-	gMyInfo.WebPresets.thePreset1 = -1;
-	gMyInfo.WebPresets.thePreset2 = -1;
-	gMyInfo.WebPresets.thePreset3 = -1;
-	gMyInfo.WebPresets.thePreset4 = -1;
-	gMyInfo.WebPresets.thePreset5 = -1;
-	gMyInfo.WebPresets.thePreset6 = -1;
+	for (Count = 0; Count < MaxPresetButtons; Count++)
+		gMyInfo.WebPresets.thePreset[Count] = -1;
+
 	gMyInfo.MidiBaseNote = 40;
 	WritePrefs();
 #endif

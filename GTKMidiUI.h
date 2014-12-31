@@ -109,14 +109,17 @@ typedef struct {
 	char Name[255];
 	char PortID;
 } PortInformation;
-
+#define MaxPresetButtons 6
 typedef struct {
+	char	thePreset[MaxPresetButtons];
+#if 0
 	char thePreset1;
 	char thePreset2;
 	char thePreset3;
 	char thePreset4;
 	char thePreset5;
 	char thePreset6;
+#endif
 	char theTempo;
 } WebLoadPresets;
 
@@ -140,6 +143,8 @@ typedef struct {
 	PortInformation Apps[MaxApps];
 	char TempoMax;
 	char MetronomeOn;
+	char	Drum1;
+	char	DrumRest;
 	tPatchIndex MidiBaseNote;
 
 	// Generated Beyond this point.

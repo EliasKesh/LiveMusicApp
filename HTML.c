@@ -181,36 +181,15 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
  *---------------------------------------------------------------------*/
 void on_patch_clicked(GtkWidget *widget, gpointer data) {
 	char Preset;
+	int	CPatch;
 
-	switch ((int) data) {
-		case 1:
-			Preset = gMyInfo.WebPresets.thePreset1;
-			break;
+	CPatch = (int) data - (int)1;
 
-		case 2:
-			Preset = gMyInfo.WebPresets.thePreset2;
-			break;
-
-		case 3:
-			Preset = gMyInfo.WebPresets.thePreset3;
-			break;
-
-		case 4:
-			Preset = gMyInfo.WebPresets.thePreset5;
-			break;
-
-		case 5:
-			Preset = gMyInfo.WebPresets.thePreset5;
-			break;
-
-		case 6:
-			Preset = gMyInfo.WebPresets.thePreset6;
-			break;
-
-		default:
-			break;
+	if (CPatch >= 0 && CPatch < MaxPresetButtons) {
+		Preset = gMyInfo.WebPresets.thePreset[CPatch];
 	}
-	printd(LogInfo, "In Button Preset%d %d %s\n", data, Preset,
+
+	printd(LogInfo, "In Button Preset%d %d %s\n", CPatch, Preset,
 		gMyInfo.MyPatchInfo[Preset].Name);
 
 	if (Preset != -1)
@@ -454,19 +433,19 @@ void InitHTML(GladeXML *gxml) {
 		G_CALLBACK (on_patch_clicked), 2);
 
 	Preset3Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch3"));
-	g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+	g_signal_connect(G_OBJECT (Preset3Button), "clicked",
 		G_CALLBACK (on_patch_clicked), 3);
 
 	Preset4Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch4"));
-	g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+	g_signal_connect(G_OBJECT (Preset4Button), "clicked",
 		G_CALLBACK (on_patch_clicked), 4);
 
 	Preset5Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch5"));
-	g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+	g_signal_connect(G_OBJECT (Preset5Button), "clicked",
 		G_CALLBACK (on_patch_clicked), 5);
 
 	Preset6Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch6"));
-	g_signal_connect(G_OBJECT (Preset2Button), "clicked",
+	g_signal_connect(G_OBJECT (Preset6Button), "clicked",
 		G_CALLBACK (on_patch_clicked), 6);
 
 	scrolled_window = GTK_WIDGET(
@@ -559,6 +538,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	char *Found;
 	char Value;
 	char *tokenizer;
+	char	*String;
 	int Count = 0;
 
 	/* Get passed the file://
@@ -568,12 +548,10 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		return (-1);
 	}
 
-	thePresets->thePreset1 = -1;
-	thePresets->thePreset2 = -1;
-	thePresets->thePreset3 = -1;
-	thePresets->thePreset4 = -1;
-	thePresets->thePreset5 = -1;
-	thePresets->thePreset6 = -1;
+	for (Count = 0; Count < MaxPresetButtons; Count++)
+		thePresets->thePreset[Count] = -1;
+
+	Count = 0;
 
 //printd(LogInfo, "Have file %x %s\n", fp, fname);
 	while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
@@ -586,7 +564,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		if (Found != NULL) {
 			/* skip 8  "preset1 "	*/
 			Found += 8;
-			thePresets->thePreset1 = AssignPreset(1, Found);
+			thePresets->thePreset[0] = AssignPreset(1, Found);
 			strncpy(temp, Copy, MAXLINE);
 
 		}
@@ -596,32 +574,32 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		Found = strstr(temp, "Preset2");
 		if (Found != NULL) {
 			Found += 8;
-			thePresets->thePreset2 = AssignPreset(2, Found);
+			thePresets->thePreset[1] = AssignPreset(2, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 
 		Found = strstr(temp, "Preset3");
 		if (Found != NULL) {
 			Found += 8;
-			thePresets->thePreset3 = AssignPreset(3, Found);
+			thePresets->thePreset[2] = AssignPreset(3, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset4");
 		if (Found != NULL) {
 			Found += 8;
-			thePresets->thePreset4 = AssignPreset(4, Found);
+			thePresets->thePreset[3] = AssignPreset(4, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset5");
 		if (Found != NULL) {
 			Found += 8;
-			thePresets->thePreset5 = AssignPreset(5, Found);
+			thePresets->thePreset[4] = AssignPreset(5, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset6");
 		if (Found != NULL) {
 			Found += 8;
-			thePresets->thePreset6 = AssignPreset(6, Found);
+			thePresets->thePreset[5] = AssignPreset(6, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		/* Set the Tempo for this tune.
@@ -655,10 +633,45 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		Found = strstr(temp, "SetNow");
 		if (Found != NULL) {
 			Found += 7;
-			printd(LogInfo, "SetNow %d\n", Value);
-
+			printd(LogInfo, "SetNow %s\n", Found);
 			AssignPreset(0, Found);
+			strncpy(temp, Copy, MAXLINE);
+
 		}
+
+		/* Get the Loop file patch..
+		 */
+		Found = strstr(temp, "LoopFile");
+		if (Found != NULL) {
+			Found += 10;
+			String = Found;
+			tokenizer = strtok(String, "\""); //break up by spaces
+			printd(LogInfo, "LoopFile %s\n", tokenizer);
+		}
+
+		/* Get the Drum File patch.
+		 */
+		Found = strstr(temp, "DrumFile");
+		if (Found != NULL) {
+			Found += 10;
+			String = Found;
+			tokenizer = strtok(String, "\""); //break up by spaces
+			printd(LogInfo, "DrumFile %s\n", tokenizer);
+			strncpy(temp, Copy, MAXLINE);
+
+		}
+
+		/* Set the current patch to this one.
+		 */
+		Found = strstr(temp, "IntroCount");
+		if (Found != NULL) {
+			Found += 11;
+			Value = atoi(Found);
+			printd(LogInfo, "IntroCount %d\n", Value);
+			strncpy(temp, Copy, MAXLINE);
+
+		}
+
 
 	}
 	//Close the file if still open.
@@ -689,7 +702,6 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 		Value = FindString(fsPatchNames, tokenizer);
 
 	} else {
-
 		Value = atoi(String);
 		printd(LogInfo, "***** Assign Value %s %d\n", String, Value);
 		if (Value >= Max_Patches)
@@ -699,7 +711,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 	printd(LogInfo, "Preset %d %d %s\n", PresetNum, Value,
 		gMyInfo.MyPatchInfo[Value].Name);
 
-	if (Value < 1 || Value >= Max_Patches)
+	if (Value < 0 || Value >= Max_Patches)
 		return (Value);
 
 	/* If it's a preset button or a set now.	*/
@@ -709,6 +721,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 			break;
 
 		case 1:
+			printd(LogInfo, "*********PresetNum Case 1 ");
 			SetPatchTitles(Preset1Button, gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
@@ -748,6 +761,5 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 void SetPatchTitles(GtkWidget *MyButton, char *Text) {
 
 	printd(LogInfo, "SetPatchTitles %x %s\n", MyButton, Text);
-
 	gtk_button_set_label(MyButton, Text);
 }
