@@ -35,6 +35,7 @@
 #else
 #define GLADE_FILE ResourceDirectory"GTKMidiUI.glade"
 #endif
+#define Icon_FILE ResourceDirectory"LiveIcon.png"
 
 /*
  * Place Global variables here
@@ -53,7 +54,10 @@ tPatchIndex GetModePreset(tPatchIndex Value);
 GtkWidget *VScale1, *VScale2, *VScale3;
 GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
-
+GtkWidget *TempoChild;
+PangoFontDescription *Tempofont_desc;
+char TempStrBuf[10];
+char  gUpdateTempo;
 /* Used to Toggle the Tempo GUI display.
  */
 int TempoState;
@@ -98,6 +102,21 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	printf("L%d-%s", LogLevel, p);
 	return p;
 }
+
+GdkPixbuf *create_pixbuf(const gchar * filename)
+{
+   GdkPixbuf *pixbuf;
+   GError *error = NULL;
+#if 0
+   pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+   if(!pixbuf) {
+      fprintf(stderr, "%s\n", error->message);
+      g_error_free(error);
+   }
+#endif
+   return pixbuf;
+}
+
 /*--------------------------------------------------------------------
  * Function:		apply_font_to_widget
  *
@@ -234,6 +253,20 @@ gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 }
 
 /*--------------------------------------------------------------------
+ * Function:            GTKIdel_cb
+ *
+ * Description: Startup some Gui.
+ *---------------------------------------------------------------------*/
+int GTKIdel_cb(gpointer data) {
+
+	if (gUpdateTempo) {
+		gtk_label_set_text((TempoChild), TempStrBuf);
+		gUpdateTempo = 0;
+	}
+return(true);
+}
+
+/*--------------------------------------------------------------------
  * Function:		main
  *
  * Description:		This is where it all starts.
@@ -279,6 +312,7 @@ int main(int argc, char *argv[]) {
 	g_signal_connect(G_OBJECT (main_window), "destroy",
 		G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
+//	gtk_window_set_icon(GTK_WINDOW(main_window), create_pixbuf(Icon_FILE));
 
 	/*
 	 * Open the persistent main tab.
@@ -369,12 +403,6 @@ int main(int argc, char *argv[]) {
 	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
 	ChorderMain(main_window, ChordWidget);
 
-	/*
-	 * Set up a timer for Tempo.
-	 */
-//		g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
-	gMyInfo.TempoTimerID = 0;
-	SetTempo(120);
 
 	/*
 	 * Show the main window and let the show begin.
@@ -392,6 +420,12 @@ int main(int argc, char *argv[]) {
 	SetVolume2(gMyInfo.MidiVolume);
 //	create_Popup_view(main_window);
 	printd(LogInfo, "Enterint gtk_main\n");
+	/*
+	 * Set up a timer for Tempo.
+	 */
+	SetTempo(120);
+    	gtk_idle_add(GTKIdel_cb, main_window);
+
 	/*
 	 * And they're off.
 	 */
@@ -471,11 +505,24 @@ void UpdateStatus(char *String) {
  *---------------------------------------------------------------------*/
 void SetTempo(unsigned char NewTempo) {
 
+
 	/* Send out a message our tempo is changing.
 	 */
 	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, 0,
 		(int) NewTempo);
+//	NewDivider = 100000;
+//	gMyInfo.TempoReload = 25000/NewTempo;
 
+	gMyInfo.TempoReload = 24900/NewTempo;
+	gMyInfo.TimerCount = 0;
+printf("New Tempo Reload %d \n", gMyInfo.TempoReload);
+	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
+
+	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
+	gtk_widget_modify_font((TempoChild), Tempofont_desc);
+
+	return;
+#if 0
 	/* Tell the timer to stop.
 	 */
 	if (gMyInfo.TempoTimerID)
@@ -499,7 +546,7 @@ void SetTempo(unsigned char NewTempo) {
 		(GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //	gMyInfo.Timer1Count = 0;
-
+#endif
 }
 
 /*--------------------------------------------------------------------
@@ -509,10 +556,31 @@ void SetTempo(unsigned char NewTempo) {
  *
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
+#if 0
+	snd_seq_event_t ev;
+	int err;
+	unsigned long adjbpm;
+	snd_seq_queue_tempo_t *queue_tempo;
 
+	snd_seq_ev_clear(&ev);
+	snd_seq_ev_set_source(&ev, TempoPort);
+	snd_seq_ev_set_subs(&ev);
+
+	/* Channel, Controller, Value
+	 */
+	snd_seq_ev_set_controller(&ev, 0, 0, 0);
+
+	/* Send with out queueing.
+	 */
+	snd_seq_ev_set_direct(&ev);
+
+	ev.type = SND_SEQ_EVENT_CLOCK;
+	err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &ev);
+	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
+#endif
 	/* HANDE Tempo Midi
 	 */
-	ToggleTempo();
+//	ToggleTempo();
 
 	return TRUE;
 }
@@ -538,66 +606,32 @@ static gboolean time_handler(GtkWidget *widget) {
  *
  *---------------------------------------------------------------------*/
 void ToggleTempo(void) {
-	GdkColor fgcolor;
-	GdkColor bgcolor;
-	GtkWidget *Child;
-	char StrBuf[10];
 
 	/*
 	 * Needs to be sent 24 time per quarter.
 	 */
-//   SendMidi(SND_SEQ_EVENT_QFRAME, TempoPort,0, 00, (int) 0);
-// requires a constant timer.
-//    SendMidi(SND_SEQ_EVENT_QFRAME, TempoPort, 0, 0, 0);
-	if (TempoState >= (gMyInfo.TempoMax * 12))
+	if (++TempoState >= (gMyInfo.TempoMax * 12))
 		TempoState = 0;
 
-//   if (!(TempoState % 4)) {
-	SendMidi(SND_SEQ_EVENT_CLOCK, TempoPort, 0, 0, 0);
-//   }
+	if (! (TempoState % 24) )  {
+		gUpdateTempo = 1;
 
-	if (!(TempoState % 24)) {
-//		gdk_color_parse ("white", &bgcolor);
-//		gdk_color_parse ("Black", &fgcolor);
-
-//printf("Tempo %d \n", TempoState );
 		/* On the first beat play a different sound.
 		 */
-		if (gMyInfo.MetronomeOn)
+		if (gMyInfo.MetronomeOn) {
 			if (TempoState)
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+					DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			else
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+					DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
-		if (gMyInfo.MetronomeOn)
-			sprintf(StrBuf, "On   %d", (TempoState / 24) + 1);
+			sprintf(TempStrBuf, "On   %d", (TempoState / 24) + 1);
+		}
 		else
-			sprintf(StrBuf, "Off  %d", (TempoState / 24) + 1);
+			sprintf(TempStrBuf, "Off  %d", (TempoState / 24) + 1);
 
-		PangoFontDescription *font_desc;
-		font_desc = pango_font_description_from_string("Sans Bold 18");
-		//	pango_font_description_set_size(font_desc,40*PANGO_SCALE);
-
-		Child = gtk_bin_get_child((GTK_BIN(TempoDraw)));
-		gtk_widget_modify_font((Child), font_desc);
-
-		gtk_label_set_text((Child), StrBuf);
-	} else {
-//		gdk_color_parse ("black", &bgcolor);
-//		gdk_color_parse ("white", &fgcolor);
-//		SendMidi(SND_SEQ_EVENT_NOTEOFF, 0, DefaultMidiChannel, 07, (int)35);
 	}
-
-	/* Display the flasing count.
-	 */
-//	gtk_widget_modify_bg (TempoDraw, GTK_STATE_NORMAL, &bgcolor);
-//	gtk_widget_modify_fg (TempoDraw, GTK_STATE_NORMAL, &fgcolor);
-//	gtk_widget_modify_font(TempoDraw, pango_font_description_from_string("Sans Bold 20"));
-//    g_object_set(G_OBJECT(TempoDraw), "gtk-font-name", "Sans Bold 20",
-//                 NULL);
-	TempoState++;
 }
 
 /*--------------------------------------------------------------------

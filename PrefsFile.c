@@ -53,7 +53,7 @@ GTKMidiInfo GlobalInfo =
 			{ "Satriani", 0xff, 16, RakarrakPort, 1, NoCustom, "" },
 			{ "OldPat", 0xff, 13, RakarrakPort, 1, NoCustom, "" },
 			{ "JazzRev", 0xff, 28, RakarrakPort, 1, NoCustom, "" },
-			{ "Bank Select", 0xff, 0, FluidPort, 1, cmdBankSelect, "" },
+			{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "" },
 			//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
 			// 10	Button		Title		Bank	Patch	Outport
 			{ "Piano", SFDSF, 63, FluidPort, 1, NoCustom, "" },
@@ -75,8 +75,8 @@ GTKMidiInfo GlobalInfo =
 			{ "Breath", SFDSF, 48, FluidPort, 1, NoCustom, "" },
 			{ "Steel Drums", SFDSF, 114, FluidPort, 1, NoCustom, "" },
 			{ "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, "" },
-			{ "Mid0", 0xff, 0, GI20Port, 1, NoCustom, "" },
-			{ "Mid-24", 0xff, 2, GI20Port, 1, NoCustom, "" },
+			{ "Mid0", 0xff, 0, 0, 1, NoCustom, "" },
+			{ "Mid-24", 0xff, 2, 0, 1, NoCustom, "" },
 			{ "Mid Screen", SFDSF, 0, FluidPort, 1, NoCustom, "" },
 			// 30	Button		Title		Bank	Patch	Outport
 			{ "Rak Eff6", 116, 11, FluidPort, 1, Controller, "" },
@@ -175,8 +175,8 @@ GTKMidiInfo GlobalInfo =
 		// Path the Charts directory
 		"/home/Dropbox/FusionBlue/index.html",
 		// Number and name of the output ports
-		6,
-		{ "Fluid", "Rakarrak", "Looper", "Transport", "GI20", "Tempo" , "Click"},
+		5,
+		{ "Fluid", "Rakarrak", "Looper", "Transport", "Tempo" , "Click"},
 
 		// Apps[MaxApps];
 		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
@@ -202,7 +202,7 @@ LayoutType LayoutPresets[] =
 { "Default",
 	{
 		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
+		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
 		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
@@ -218,16 +218,16 @@ LayoutType LayoutPresets[] =
 
 { "Practice",
 	{
+		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
+		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
 		"Preset1", "Preset2", "TransStart", "TransStop", "CleanBass",
-		"FunkBass", "Satriani", "MedDist", "OctBass", "Bank Select",
+		"FunkBass", "Satriani", "MedDist", "OctBass", "LayoutSwitch",
 		"Piano", "Honky", "Breath", "Midi Pre", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
 		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
 		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
 		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
 		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
 	},
@@ -235,44 +235,27 @@ LayoutType LayoutPresets[] =
 
 { "Rehearsal",
 	{
+		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
+		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
+		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
+		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
 		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
+		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
 		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
 		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
 		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
-	},
-},
-
-{ "Performance",
-	{
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
-		"Piano", "Honky", "Breath", "Organ", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
 	},
 },
 
 { "Looper",
 	{
 		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+		"LP Rec", "LP Pause", "TransStart", "LP SelAll", "LayoutSwitch",
 		"Preset1", "Preset2", "Preset3", "Preset4", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
+		"TransStart", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
 		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
@@ -287,7 +270,7 @@ LayoutType LayoutPresets[] =
 { "Bass",
 	{
 		"Preset1", "Preset2", "CleanBass", "FunkBass", "Satriani",
-		"MS20Bass", "KStatB", "Slap Bass", "Chorus", "SynthLead",
+		"MS20Bass", "KStatB", "Slap Bass", "Chorus", "LayoutSwitch",
 		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
@@ -297,7 +280,7 @@ LayoutType LayoutPresets[] =
 		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
 		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
 		"Breath", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "Bank Select",
+		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
 	},
 },
 
@@ -399,7 +382,8 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
 			LayoutPresets[Loop].Presets[2]);
 	}
 
-	printf("Metronome Base %d On %d\n", myInfo->TempoMax, myInfo->MetronomeOn);
+	printf("Metronome Base %d On %d %d %d\n", myInfo->TempoMax,
+		myInfo->MetronomeOn, myInfo->Drum1, myInfo->DrumRest);
 	printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
 
 }
@@ -480,6 +464,12 @@ void WritePrefs(void) {
 
 	sprintf(buff, "%03d", gMyInfo.MidiBaseNote);
 	xmlNewChild(root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
+
+	sprintf(buff, "%03d", gMyInfo.Drum1);
+	xmlNewChild(root_node, NULL, BAD_CAST "Click1", BAD_CAST buff);
+
+	sprintf(buff, "%03d", gMyInfo.DrumRest);
+	xmlNewChild(root_node, NULL, BAD_CAST "ClickRest", BAD_CAST buff);
 
 	/*
 	 * Dumping document to stdio or file
@@ -663,6 +653,8 @@ void parseDoc(char *docname) {
 #define dTopLevelMetronome 6
 #define dTopLevelMetronomeOn 7
 #define dTopLevelMidiBase 8
+#define dTopLevelClick1	9
+#define dTopLevelClickRest 10
 
 char TopLevelParse;
 int ParseCountL4;
@@ -750,6 +742,14 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp("MidiBaseNote", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelMidiBase;
+		}
+
+		if (!strcmp("Click1", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelClick1;
+		}
+
+		if (!strcmp("ClickRest", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelClickRest;
 		}
 
 		printd(LogInfo, "\nTop Level Set %d\n", TopLevelParse);
@@ -854,6 +854,17 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 			printd(LogInfo, "dTopLevelMidiBase %s\n", value);
 			gMyInfo.MidiBaseNote = atoi(value);
 		}
+
+		if (TopLevelParse == dTopLevelClick1) {
+			printd(LogInfo, "dTopLevelClick1 %s\n", value);
+			gMyInfo.Drum1 = atoi(value);
+		}
+
+		if (TopLevelParse == dTopLevelClickRest) {
+			printd(LogInfo, "dTopLevelClickRest %s\n", value);
+			gMyInfo.DrumRest = atoi(value);
+		}
+
 
 	} /* Depth == 2 && NodeType == 3	*/
 

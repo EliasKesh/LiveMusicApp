@@ -225,8 +225,6 @@ static int window_state(Display *disp, Window win, char *arg);
 static Window Select_Window(Display *dpy);
 static Window get_active_window(Display *dpy);
 
-/*}}}*/
-
 static struct {
 	int verbose;
 	int force_utf8;

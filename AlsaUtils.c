@@ -10,6 +10,7 @@
 #include "GTKMidiUI.h"
 #include "AlsaUtils.h"
 #include <glib.h>
+#include "alsa/timer.h"
 
 //snd_seq_t *SeqPort1;
 //snd_seq_t *SeqPort2;
@@ -25,6 +26,35 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name);
 void ProgramChange(unsigned int InputChange);
 static void device_list(void);
 static void pcm_list(void);
+snd_seq_event_t MTCev;
+
+static void async_callback(snd_async_handler_t *ahandler) {
+int err;
+
+	if (gMyInfo.TempoReload == ++gMyInfo.TimerCount) {
+		gMyInfo.TimerCount = 0;
+		err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &MTCev);
+//		snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
+		ToggleTempo();
+	}
+}
+
+void show_status(void *handle)
+{
+	int err;
+	snd_timer_status_t *status;
+
+	snd_timer_status_alloca(&status);
+	if ((err = snd_timer_status(handle, status)) < 0) {
+		fprintf(stderr, "timer status %i (%s)\n", err, snd_strerror(err));
+		return;
+	}
+	printf("STATUS:\n");
+	printf("  resolution = %li\n", snd_timer_status_get_resolution(status));
+	printf("  lost = %li\n", snd_timer_status_get_lost(status));
+	printf("  overrun = %li\n", snd_timer_status_get_overrun(status));
+	printf("  queue = %li\n", snd_timer_status_get_queue(status));
+}
 
 /*--------------------------------------------------------------------
  * Function:		MyAlsaInit
@@ -40,11 +70,11 @@ bool MyAlsaInit() {
 		//   cerr<<"Could not open ALSA SeqPort1uencer: "<<snd_strerror(errno)<<endl;
 		return false;
 	}
-	printf("Init Ports  %d\n",gMyInfo.NumOutPorts);
+	printf("Init Ports  %d\n", gMyInfo.NumOutPorts);
 
 	for (Loop = 0; Loop <= gMyInfo.NumOutPorts; Loop++) {
 		gMyInfo.SeqPort[Loop] = CreatePort(Seq, gMyInfo.OutPortName[Loop]);
-		printf("Port %d %s\n",Loop, gMyInfo.OutPortName[Loop]);
+		printf("Port %d %s\n", Loop, gMyInfo.OutPortName[Loop]);
 //               gMyInfo.SeqQueue[Loop] = snd_seq_alloc_queue(gMyInfo.SeqPort[Loop]);
 	}
 
@@ -62,10 +92,124 @@ bool MyAlsaInit() {
 	device_list();
 //      pcm_list();
 //      queue_id = snd_seq_alloc_queue(seq_handle);
-
+	SetupTimer(100);
 	return true;
 }
 
+void SetupTimer(int Count) {
+	char timername[64];
+	snd_async_handler_t *ahandler;
+	int idx, err;
+	int acount = 0;
+	long NewDivider;
+# if 0
+	if (gMyInfo.AlsaTimerHandle) {
+		printf("Closing and freeing timers1\n");
+		snd_timer_stop(gMyInfo.AlsaTimerHandle);
+		printf("Closing and freeing timers2\n");
+		snd_timer_close(gMyInfo.AlsaTimerHandle);
+		printf("Closing and freeing timers3\n");
+//				snd_timer_id_free(gMyInfo.AlsaTimerid);
+		printf("Closing and freeing timers4\n");
+//  			snd_timer_info_free(&gMyInfo.AlsaTimerinfo);
+		printf("Closing and freeing timers5\n");
+//  			snd_timer_params_free(&gMyInfo.AlsaTimerParams);
+		printf("Closing and freeing timers6\n");
+		gMyInfo.AlsaTimerHandle = NULL;
+//   			gMyInfo.AlsaTimerid = 0;
+		//  			gMyInfo.AlsaTimerinfo = NULL;;
+		// 			gMyInfo.AlsaTimerParams = NULL;
+	} else {
+#endif
+	snd_timer_id_alloca(&gMyInfo.AlsaTimerid);
+	snd_timer_info_alloca(&gMyInfo.AlsaTimerinfo);
+	snd_timer_params_alloca(&gMyInfo.AlsaTimerParams);
+
+	printf("**************\n Setting up timers.\n *********************\n");
+
+//	    	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", class, sclass, card, device, subdevice);
+	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", 1, -1,
+		0, 3, 0);
+	printf("Timer Name %s\n", timername);
+	if ((err = snd_timer_open(&gMyInfo.AlsaTimerHandle, timername,
+		SND_TIMER_OPEN_NONBLOCK)) < 0) {
+		printf("timer open %i (%s)\n", err, snd_strerror(err));
+		exit(EXIT_FAILURE);
+	}
+
+	if ((err = snd_timer_info(gMyInfo.AlsaTimerHandle, gMyInfo.AlsaTimerinfo))
+		< 0) {
+		printf("timer info %i (%s)\n", err, snd_strerror(err));
+		exit(0);
+	}
+	printf("Timer info:\n");
+	printf("  slave = %s\n",
+		snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo) ? "yes" : "no");
+	printf("  card = %i\n", snd_timer_info_get_card(gMyInfo.AlsaTimerinfo));
+	printf("  id = '%s'\n", snd_timer_info_get_id(gMyInfo.AlsaTimerinfo));
+	printf("  name = '%s'\n", snd_timer_info_get_name(gMyInfo.AlsaTimerinfo));
+	printf("  average resolution = %li\n",
+		snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo));
+	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
+//	    	NewDivider = 2500000000/Count;
+	NewDivider = 100000;
+
+	/*
+	 * Let's not do anything until we get a tempo change call.
+	 */
+	gMyInfo.TempoReload = 0x0fffffff;
+	gMyInfo.TimerCount = 0;
+
+	if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
+//		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams,
+//			(1000000000 / snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo))
+//				/ 50); /* 50Hz */
+		if (snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams) < 1)
+			snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 1);
+		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, NewDivider);
+
+		printf("Using %li tick(s)\n",
+			snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams));
+	} else {
+		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 1);
+	}
+
+	if ((err = snd_timer_params(gMyInfo.AlsaTimerHandle,
+		gMyInfo.AlsaTimerParams)) < 0) {
+		printf("timer params %i (%s)\n", err, snd_strerror(err));
+		exit(0);
+	}
+	show_status(gMyInfo.AlsaTimerHandle);
+
+	err = snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
+		async_callback, &acount);
+	if (err < 0) {
+		printf("unable to add async handler %i (%s)\n", err, snd_strerror(err));
+		exit(EXIT_FAILURE);
+	}
+
+	if ((err = snd_timer_start(gMyInfo.AlsaTimerHandle)) < 0) {
+		printf("timer start %i (%s)\n", err, snd_strerror(err));
+		exit(EXIT_FAILURE);
+	}
+
+	/*
+	 * Set up the structure for the interrupt event .
+	 */
+	snd_seq_ev_clear(&MTCev);
+	snd_seq_ev_set_source(&MTCev, TempoPort);
+	snd_seq_ev_set_subs(&MTCev);
+
+	/* Channel, Controller, Value
+	 */
+	snd_seq_ev_set_controller(&MTCev, 0, 0, 0);
+
+	/* Send with out queueing.
+	 */
+	snd_seq_ev_set_direct(&MTCev);
+	MTCev.type = SND_SEQ_EVENT_CLOCK;
+
+}
 /*--------------------------------------------------------------------
  * Function:		CreatePort
  *
@@ -189,7 +333,6 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 		ev.type = SND_SEQ_EVENT_CLOCK;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_QFRAME) {
@@ -752,7 +895,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				/* Here is where Program changes happen from Program change inputs.
 				 */
 				PatchIndex = LayoutSwitchPatch(event_ptr->data.control.value,
-					true);
+				true);
 
 				break;
 			case SND_SEQ_EVENT_CHANPRESS:

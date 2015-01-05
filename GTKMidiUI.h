@@ -153,16 +153,20 @@ typedef struct {
 	WebLoadPresets WebPresets;
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned char Tempo;
-	unsigned int TempoReload;
+	unsigned long TempoReload;
+	unsigned long TimerCount;
 	unsigned int TempoTimerID;
-
+    snd_timer_t *AlsaTimerHandle;
+    snd_timer_params_t *AlsaTimerParams;
+    snd_timer_id_t *AlsaTimerid;
+    snd_timer_info_t *AlsaTimerinfo;
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
 
 } GTKMidiInfo;
 
 enum {
-	FluidPort = 0, RakarrakPort, LooperPort, TransportPort, GI20Port,
+	FluidPort = 0, RakarrakPort, LooperPort, TransportPort,
 	TempoPort, ClickPort};
 
 enum {
