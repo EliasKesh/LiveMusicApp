@@ -1,6 +1,13 @@
 #include <gtk/gtk.h>
+
+//#define WebKit2 1
+#ifdef WebKit2
+#include <webkit2/webkit2.h>
+#else
 #include <webkit/webkit.h>
 #include <webkit/webkitwebview.h>
+#endif
+
 #include <glade/glade.h>
 #include "GTKMidiUI.h"
 
@@ -55,10 +62,11 @@ int ScalePage(void) {
 	GtkAdjustment *Adjust;
 	gint Horiz, Vert;
 	gfloat ScaleH, ScaleV;
-	WebKitViewportAttributes* attributes;
 
-//	 webkit_web_view_reload(web_view);
+#ifndef WebKit2 // FIX THIS
+	WebKitViewportAttributes* attributes;
 	attributes = webkit_web_view_get_viewport_attributes(web_view);
+#endif
 
 	Adjust = gtk_scrolled_window_get_hadjustment(scrolled_window);
 	UpperH = gtk_adjustment_get_upper(Adjust);
@@ -66,9 +74,10 @@ int ScalePage(void) {
 	Adjust = gtk_scrolled_window_get_vadjustment(scrolled_window);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 
+#ifndef WebKit2 // FIX THIS
 	g_object_get(G_OBJECT(attributes), "available-width", &Horiz, NULL);
 	g_object_get(G_OBJECT(attributes), "available-height", &Vert, NULL);
-
+#endif
 	if (UpperH != 0)
 		ScaleH = ((gfloat) Horiz) / (gfloat) UpperH;
 	else
@@ -206,15 +215,22 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	const gchar *CurrentURI;
 	const char *Buffer;
 	GString* theBuffer;
+#ifndef WebKit2
 	WebKitWebFrame *theFrame;
+#endif
 	FILE *fp;
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	g_print("Save %s\n", CurrentURI);
+#ifdef WebKit2
+	Buffer = webkit_web_view_get_title(web_view);
+#else
 	webkit_web_view_execute_script(web_view,
 		"document.title=document.documentElement.innerHTML;");
 	theFrame = webkit_web_view_get_main_frame(web_view);
 	Buffer = webkit_web_frame_get_title(theFrame);
+#endif
+
 	printd(LogInfo, "Len = %d\n %s\n", (int) strlen(Buffer), Buffer);
 	/* Get passed the file://
 	 */
@@ -256,11 +272,15 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 		return;
 	}
 
+#ifndef WebKit2
 	printf("******** WebKit Set Edit %d\n",
 		webkit_web_view_get_editable(web_view));
+#endif
 	webkit_web_view_set_zoom_level(web_view, 1);
 
 }
+
+#if 0
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
 	gpointer data) {
 	printd(LogInfo, "Finished downloading %s\n",
@@ -301,6 +321,7 @@ static void viewport_valid_changed_cb(WebKitViewportAttributes* attributes,
 	if (!is_valid)
 		webkit_web_view_set_zoom_level(web_view, 1.0);
 }
+#endif
 #if 0
 gboolean
 DownloadRequestcb (WebKitWebView *web_view,
@@ -357,8 +378,9 @@ PolicyRequestCD (WebKitWebView* view, WebKitWebFrame* frame,
 }
 
 #endif
-gboolean
-NavigationPolicy(WebKitWebView *web_view,
+#ifndef WebKit2
+
+gboolean NavigationPolicy(WebKitWebView *web_view,
 	WebKitWebFrame *frame,
 	WebKitNetworkRequest *request,
 	WebKitWebNavigationAction *navigation_action,
@@ -367,9 +389,12 @@ NavigationPolicy(WebKitWebView *web_view,
 	char *theURI;
 	char string[150];
 
+#ifdef WebKit2
+	theURI = webkit_web_view_get_uri(web_view);
+#else
 	theURI = webkit_web_navigation_action_get_original_uri(navigation_action);
-
-//	uri=networkRequest.get_uri()
+#endif
+	//	uri=networkRequest.get_uri()
 
 	printd(LogInfo, "NavigationPolicy %s \n", theURI);
 
@@ -380,11 +405,14 @@ NavigationPolicy(WebKitWebView *web_view,
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
+#ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
-		sprintf(string, "/usr/bin/playitslowly --sink=jackaudiosink %s &",
+#endif
+		sprintf(SysCallString, "/usr/bin/smplayer %s &",
 			theURI);
-		system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
+		printd(LogInfo, "***Before  systemcall %s\n", SysCallString);
+		system(SysCallString);
+		printd(LogInfo, "*** After systemcall %s\n", SysCallString);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -396,7 +424,9 @@ NavigationPolicy(WebKitWebView *web_view,
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
+#ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
+#endif
 		sprintf(string, "/usr/bin/tuxguitar %s &", theURI);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
@@ -406,11 +436,10 @@ NavigationPolicy(WebKitWebView *web_view,
 		 */
 		return (true);
 	}
-
 //   webkit_web_policy_decision_use(policy_decision);
-
 	return (false);
 }
+#endif
 
 /*--------------------------------------------------------------------
  * Function:		InitHTML
@@ -460,13 +489,14 @@ void InitHTML(GladeXML *gxml) {
 	web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
 	gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(web_view));
 
+#ifndef WebKit2
 	/* Make the view editable.
 	 */
 	webkit_web_view_set_editable(web_view, TRUE);
-
 	/* We should scale everything.
 	 */
 	webkit_web_view_set_full_content_zoom(web_view, TRUE);
+#endif
 
 	Widget = GTK_WIDGET(gtk_builder_get_object(gxml, "BackButton"));
 	g_signal_connect(G_OBJECT (Widget), "clicked", G_CALLBACK (on_Back_clicked),
@@ -501,13 +531,19 @@ void InitHTML(GladeXML *gxml) {
 	g_signal_connect(web_view, "download-requested", G_CALLBACK(DownloadRequestcb), NULL);
 	g_signal_connect(web_view, "mime-type-policy-decision-requested", G_CALLBACK(PolicyRequestCD), NULL);
 #endif
+#ifndef WebKit2
 	g_signal_connect(web_view, "navigation-policy-decision-requested",
 		G_CALLBACK(NavigationPolicy), NULL);
-
+#endif
 	strncpy(FileName, gMyInfo.BasePath, 254);
 	//   strcat(FileName, "/indexCharts.html");
+#ifndef WebKit2
 	webkit_web_view_open(web_view, FileName);
-#if 0
+#else
+	strncpy(FileName, "file:///home/Dropbox/FusionBlue/index.html", 254);
+	webkit_web_view_load_uri (web_view, FileName);
+#endif
+	#if 0
 
 	WebKitWebSettings *settings = webkit_web_settings_new ();
 	g_object_set (G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
@@ -515,7 +551,7 @@ void InitHTML(GladeXML *gxml) {
 	/* Apply the result */
 	webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
 #endif
-	create_Popup_view(web_view);
+//	create_Popup_view(web_view);
 
 //	gtk_widget_grab_focus (GTK_WIDGET (web_view));
 	gtk_widget_show_all(scrolled_window);
@@ -540,6 +576,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	char *tokenizer;
 	char	*String;
 	int Count = 0;
+	char	DrumFile[FileNameMaxLength];
+	char	LoopFile[FileNameMaxLength];
 
 	/* Get passed the file://
 	 */
@@ -551,8 +589,19 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		thePresets->thePreset[Count] = -1;
 
+	DrumFile[0] = 0;
+	LoopFile[0] = 0;
 	Count = 0;
 
+	/*
+Preset1..Preset6
+Tempo
+LMA_Time 4/4 or 3/4
+LoopFile
+DrumFile
+SetNow
+IntroCount
+	 */
 //printd(LogInfo, "Have file %x %s\n", fp, fname);
 	while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
 		temp[MAXLINE] = 0;
@@ -647,6 +696,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			String = Found;
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "LoopFile %s\n", tokenizer);
+			strcpy(LoopFile, tokenizer);
 		}
 
 		/* Get the Drum File patch.
@@ -658,6 +708,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "DrumFile %s\n", tokenizer);
 			strncpy(temp, Copy, MAXLINE);
+			strcpy(DrumFile, tokenizer);
 
 		}
 
@@ -671,13 +722,27 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			strncpy(temp, Copy, MAXLINE);
 
 		}
-
-
 	}
 	//Close the file if still open.
 	if (fp) {
 		fclose(fp);
 	}
+
+	/*
+	 * Check to see if we have requested a new file for the drum or the looper.
+	 */
+	if ( DrumFile[0] || LoopFile[0] ) {
+		/*
+		 * Make sure the the looper is the second argument even of the drum file is the same.
+		 */
+		if (DrumFile[0] == 0)
+			DrumFile[0] = "A";
+
+		sprintf(Copy, "/home/Dropbox/LiveEffects/ReloadLivesFiles %s %s & ", DrumFile, LoopFile);
+		printf("Calling System with %s\n", Copy);
+		system(Copy);
+	}
+
 	return (0);
 }
 

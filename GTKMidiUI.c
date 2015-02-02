@@ -1,13 +1,13 @@
 /*---------------------------------------------------------------------
  *	Revision Date:	 2012/01/15 22:52:40
  *
- *	Contains:	<Type in description>
+ *	Contains:	Main code for te Live Music Application
  *
- *	Written by:	Elias Kesh
+ *	Written by:	Elias Keshishoglou
  *
- *	Date:		<Creation Date>
+ *	Date:		Jan 15, 2012
  *
- *	Copyright © 2012 Elias Kesh.  All rights reserved.
+ *	Copyright © 2012 Elias Keshishoglou.  All rights reserved.
  *
  *	Change History (located at end of file)
  *
@@ -263,7 +263,15 @@ int GTKIdel_cb(gpointer data) {
 		gtk_label_set_text((TempoChild), TempStrBuf);
 		gUpdateTempo = 0;
 	}
-return(true);
+#if 0
+	if (SysCallString[0]) {
+		system(SysCallString);
+
+		SysCallString[0] = 0;
+		printf("IN Idle\n");
+	}
+#endif
+	return(true);
 }
 
 /*--------------------------------------------------------------------
@@ -424,7 +432,7 @@ int main(int argc, char *argv[]) {
 	 * Set up a timer for Tempo.
 	 */
 	SetTempo(120);
-    	gtk_idle_add(GTKIdel_cb, main_window);
+    	g_idle_add(GTKIdel_cb, main_window);
 
 	/*
 	 * And they're off.
@@ -606,7 +614,7 @@ static gboolean time_handler(GtkWidget *widget) {
  *
  *---------------------------------------------------------------------*/
 void ToggleTempo(void) {
-
+char		Count;
 	/*
 	 * Needs to be sent 24 time per quarter.
 	 */
@@ -615,6 +623,21 @@ void ToggleTempo(void) {
 
 	if (! (TempoState % 24) )  {
 		gUpdateTempo = 1;
+		Count = (TempoState / 24) + 1;
+
+		if (CountInActive == 1 && Count == 1) {
+			printf("*** Found Second Down beat, Sending Loop Record\n");
+			CountInActive = 0;
+			gMyInfo.MetronomeOn = FALSE;
+			DoPatch( &gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+		}
+
+		if (CountInActive == 2 && Count == 1) {
+printf("*** Found First Down beat, Senting TransStart\n");
+			CountInActive = 1;
+			gMyInfo.MetronomeOn = TRUE;
+			DoPatch( &gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TransStart")]);
+		}
 
 		/* On the first beat play a different sound.
 		 */
@@ -626,10 +649,10 @@ void ToggleTempo(void) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 					DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
-			sprintf(TempStrBuf, "On   %d", (TempoState / 24) + 1);
+			sprintf(TempStrBuf, "On   %d", Count);
 		}
 		else
-			sprintf(TempStrBuf, "Off  %d", (TempoState / 24) + 1);
+			sprintf(TempStrBuf, "Off  %d", Count);
 
 	}
 }
@@ -781,7 +804,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		DoPatch
+ * Function:
  *
  * Description:		<Description/Comments>
  *
@@ -966,8 +989,15 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 
 //    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
 //           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
+	if (MidiIn >= Max_Patches) {
+		printd(LogError, "MidiIn %d >= %d\n",MidiIn, Max_Patches);
+		return(0);
+	}
 	RetVal = GetModePreset(MidiIn);
-
+	if (RetVal >= Max_Patches) {
+		printd(LogError, "GetModePreset %d >= %d\n",MidiIn, Max_Patches);
+		return(0);
+	}
 	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
 //		printd(LogInfo, "LayoutSwitchPatch Preset M%d R%d D%d\n", MidiIn,
 //			RetVal, DoAction);

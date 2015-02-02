@@ -45,7 +45,7 @@ GTKMidiInfo GlobalInfo =
 		{
 			//Title			Bank	Patch	Outport		Chan	Command Chain
 			{ "Chorus", 0xff, 1, RakarrakPort, 1, NoCustom, "" },
-			{ "HardDist", 0xff, 2, RakarrakPort, 1, NoCustom, "" },
+			{ "SatrianiComp", 0xff, 12, RakarrakPort, 1, NoCustom, "" },
 			{ "CleanBass", 0xff, 3, RakarrakPort, 1, NoCustom, "" },
 			{ "MedDist", 0xff, 4, RakarrakPort, 1, NoCustom, "" },
 			{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "" },
@@ -152,7 +152,7 @@ GTKMidiInfo GlobalInfo =
 			{ "MoogLead1", SFElias, 53, FluidPort, 1, NoCustom, "" },
 			{ "CZBrass4", SFElias, 64, FluidPort, 1, NoCustom, "" },
 			{ "SinSymph", SFElias, 90, FluidPort, 1, NoCustom, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
+			{ "Trig4Count", 0xff, 4, TransportPort, 1, cmdCountIn, "" },
 			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
 			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
 
@@ -201,7 +201,7 @@ LayoutType LayoutPresets[] =
 
 { "Default",
 	{
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
+		"Chorus", "SatrianiComp", "CleanBass", "MedDist", "OctBass",
 		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
 		"Piano", "Honky", "Breath", "Organ", "Flute",
 		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
@@ -253,7 +253,7 @@ LayoutType LayoutPresets[] =
 { "Looper",
 	{
 		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "TransStart", "LP SelAll", "LayoutSwitch",
+		"LP Rec", "Trig4Count", "TransStart", "LP SelAll", "LayoutSwitch",
 		"Preset1", "Preset2", "Preset3", "Preset4", "Flute",
 		"TransStart", "Strings", "Trumpet", "Steel Drums", "Walky",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
@@ -271,8 +271,8 @@ LayoutType LayoutPresets[] =
 	{
 		"Preset1", "Preset2", "CleanBass", "FunkBass", "Satriani",
 		"MS20Bass", "KStatB", "Slap Bass", "Chorus", "LayoutSwitch",
-		"Piano", "Honky", "Breath", "Organ", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
+		"SynthB11", "Juno", "Moog1", "Moog2", "Taurus2",
+		"CZOrgan", "MoogLead1", "CZBrass4", "Ultimate2a", "Taurus2",
 		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
 		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
 		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
@@ -284,6 +284,9 @@ LayoutType LayoutPresets[] =
 	},
 },
 
+/*
+ * Terminator for Layouts.
+ */
 { "",
 	{
 	},

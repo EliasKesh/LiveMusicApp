@@ -95,6 +95,7 @@ typedef struct {
 #define Max_Main_Buttons 56
 #define Max_Patches	 110
 #define Max_Layouts	 10
+#define FileNameMaxLength	40
 
 typedef struct {
 	char Name[PatchNameSize];
@@ -185,6 +186,7 @@ enum {
 	cmdPreset,
 	cmdBankSelect,
 	cmdMidiSelect,
+	cmdCountIn,
 	MaxCommands
 };
 
@@ -290,7 +292,8 @@ char *CustomCommands[] = {
 	"TransTempo",
 	"PresetX",
 	"BankSelect",
-	"MidiSelect"
+	"MidiSelect",
+	"CountIn"
 };
 
 //int		ModeArray[ModeLastItem][Max_Patches];
@@ -298,7 +301,9 @@ char *CustomCommands[] = {
 //int		preModeSwitch[Max_Patches];
 int WaitingforMidi;
 GtkBuilder *gxml;
-
+unsigned int CountInCount;
+char CountInActive;
+char	SysCallString[200];
 #else
 extern int LastPortUsed;
 //extern PatchInfo  *MyPatchInfo;
@@ -313,6 +318,9 @@ extern int preModePerformance[];
 extern int preModeRehearsal[];
 extern int WaitingforMidi;
 extern GtkBuilder *gxml;
+extern unsigned int CountInCount;
+extern char CountInActive;
+extern char	SysCallString[200];
 
 #endif
 

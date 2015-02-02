@@ -509,6 +509,12 @@ int SendMidiPatch(PatchInfo *thePatch) {
 				TestProgram, thePatch->Patch);
 			break;
 
+		case cmdCountIn:
+			printf("Setting Count Active\n");
+			CountInCount = thePatch->Patch;
+			CountInActive = 2;
+			break;
+
 // SND_SEQ_EVENT_SETPOS_TIME
 // SND_SEQ_EVENT_TEMPO
 
