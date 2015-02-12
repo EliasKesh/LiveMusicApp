@@ -8,7 +8,6 @@
 #include <webkit/webkitwebview.h>
 #endif
 
-#include <glade/glade.h>
 #include "GTKMidiUI.h"
 
 int Search_in_File(const char *fname, WebLoadPresets *thePresets);

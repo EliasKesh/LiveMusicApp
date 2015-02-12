@@ -18,7 +18,6 @@
  * Place Includes Here
  */
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 #include "GTKMidiUI.h"
 

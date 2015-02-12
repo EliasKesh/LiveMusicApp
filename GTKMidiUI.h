@@ -113,14 +113,6 @@ typedef struct {
 #define MaxPresetButtons 6
 typedef struct {
 	char	thePreset[MaxPresetButtons];
-#if 0
-	char thePreset1;
-	char thePreset2;
-	char thePreset3;
-	char thePreset4;
-	char thePreset5;
-	char thePreset6;
-#endif
 	char theTempo;
 } WebLoadPresets;
 
@@ -187,8 +179,12 @@ enum {
 	cmdBankSelect,
 	cmdMidiSelect,
 	cmdCountIn,
+	cmdVolume,
+	cmdLnTransPort,
 	MaxCommands
 };
+
+enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTStop };
 
 #define fsPatchNames	1
 #define fsPortNames		2
@@ -293,7 +289,9 @@ char *CustomCommands[] = {
 	"PresetX",
 	"BankSelect",
 	"MidiSelect",
-	"CountIn"
+	"CountIn",
+	"VolSwitch",
+	"MediaTransport"
 };
 
 //int		ModeArray[ModeLastItem][Max_Patches];
@@ -339,5 +337,7 @@ int GuitarMidiPreset(void);
 int SetVolume1(int Value);
 int SetVolume2(int Value);
 int FindString(int StringList, char *String);
+int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
+int InitConnections(void);
 
 #endif

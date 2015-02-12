@@ -129,10 +129,10 @@ GTKMidiInfo GlobalInfo =
 			{ "Switch3", 0xff, 3, 0, 1, ToDesktop, "" },
 			{ "Switch4", 0xff, 4, 0, 1, ToDesktop, "" },
 			{ "Switch5", 0xff, 5, 0, 1, ToDesktop, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
+			{ "VolUp", 0xff, 5, 0, 1, cmdVolume, "" },
+			{ "VolDown", 0xff, -5, 0, 1, cmdVolume, "" },
+			{ "RepeatA", 0xff, cmdLnTSetA, 0, 1, cmdLnTransPort, "" },
+			{ "RepeatB", 0xff, cmdLnTSetB, 0, 1, cmdLnTransPort, "" },
 			// 80	Button		Title		Bank	Patch	Outport
 			{ "EBuzz", SFElias, 0, FluidPort, 1, NoCustom, "" },
 			{ "SynthB11", SFElias, 1, FluidPort, 1, NoCustom, "" },
@@ -176,7 +176,7 @@ GTKMidiInfo GlobalInfo =
 		"/home/Dropbox/FusionBlue/index.html",
 		// Number and name of the output ports
 		5,
-		{ "Fluid", "Rakarrak", "Looper", "Transport", "Tempo" , "Click"},
+		{ "Fluid", "Rakarrak", "Looper", "Transport", "Tempo", "Click" },
 
 		// Apps[MaxApps];
 		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
@@ -195,104 +195,109 @@ GTKMidiInfo GlobalInfo =
 		44, /* Drum Other beats */
 		40 /* Base Midi Note for switching.	*/
 	};
-
+// @formatter:off
 LayoutType LayoutPresets[] =
-{
-
-{ "Default",
 	{
-		"Chorus", "SatrianiComp", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
-		"Piano", "Honky", "Breath", "Organ", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
-	},
-},
 
-{ "Practice",
-	{
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"Preset1", "Preset2", "TransStart", "TransStop", "CleanBass",
-		"FunkBass", "Satriani", "MedDist", "OctBass", "LayoutSwitch",
-		"Piano", "Honky", "Breath", "Midi Pre", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
-	},
-},
+	{ "Default",
+		{
+/*			1			2			3			4			5			6 		*/
+			"Preset1", 		"Preset2", 		"Chorus", 		"SatrianiComp", 	"CleanBass",	"MedDist",
+			"Satriani", 		"Piano", 		"Honky", 		"Flute", 		"FunkBass",	"Breath",
+			"Organ", 		"OctBass", 		"SynthLead", 	"Strings", 		"Trumpet",		"Steel Drums",
+			"Walky", 		"Drums", 		"Slap Bass", 	"Synth Hard",	"Marimba", 	"LayoutSwitch",
 
-{ "Rehearsal",
-	{
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
-		"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
-		"Piano", "Honky", "Breath", "Organ", "Flute",
-		"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-	},
-},
+			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+			"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+			"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+			"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+			"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
 
-{ "Looper",
-	{
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "Trig4Count", "TransStart", "LP SelAll", "LayoutSwitch",
-		"Preset1", "Preset2", "Preset3", "Preset4", "Flute",
-		"TransStart", "Strings", "Trumpet", "Steel Drums", "Walky",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-		"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+		},
 	},
-},
 
-{ "Bass",
-	{
-		"Preset1", "Preset2", "CleanBass", "FunkBass", "Satriani",
-		"MS20Bass", "KStatB", "Slap Bass", "Chorus", "LayoutSwitch",
-		"SynthB11", "Juno", "Moog1", "Moog2", "Taurus2",
-		"CZOrgan", "MoogLead1", "CZBrass4", "Ultimate2a", "Taurus2",
-		"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
-		"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
-		"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
-		"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
-		"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
-		"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
-		"Breath", "HardDist", "CleanBass", "MedDist", "OctBass",
-		"FunkBass", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
+	{ "Practice",
+		{
+/*			1			2			3			4			5			6 		*/
+			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+			"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+
+			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+			"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+			"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+			"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+			"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+		},
 	},
-},
 
-/*
- * Terminator for Layouts.
- */
-{ "",
-	{
+	{ "Rehearsal",
+		{
+			"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
+			"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
+			"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
+			"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+			"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
+			"LayoutSwitch", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
+			"Piano", "Honky", "Breath", "Organ", "Flute",
+			"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
+			"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
+			"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
+			"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
+			"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
+		},
 	},
-},
 
-};
+	{ "Looper",
+		{
+/*			1			2			3			4			5			6 		*/
+			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+			"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+			"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+			"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+			"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+//			"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
+//			"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
+		},
+	},
+
+	{ "Bass",
+		{
+/*			1			2			3			4			5			6 		*/
+			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+			"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+			"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+			"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+			"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+		},
+	},
+
+	/*
+	 * Terminator for Layouts.
+	 */
+	{ "",
+		{
+		},
+	},
+
+	};
+// START-ECLIPSE-FORMATTING
 
 /*--------------------------------------------------------------------
  * Function:		InitPref
@@ -301,7 +306,7 @@ LayoutType LayoutPresets[] =
  *
  *---------------------------------------------------------------------*/
 void InitPref(void) {
-int	Count;
+	int Count;
 
 	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 100;
@@ -867,7 +872,6 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 			printd(LogInfo, "dTopLevelClickRest %s\n", value);
 			gMyInfo.DrumRest = atoi(value);
 		}
-
 
 	} /* Depth == 2 && NodeType == 3	*/
 

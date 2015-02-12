@@ -25,6 +25,7 @@
 
 void InitPref(void);
 void ReadPrefs(void);
+void WritePrefs(void);
 
 /*
  * Place Static variables here.

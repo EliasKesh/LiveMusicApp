@@ -92,11 +92,10 @@ bool MyAlsaInit() {
 	device_list();
 //      pcm_list();
 //      queue_id = snd_seq_alloc_queue(seq_handle);
-	SetupTimer(100);
 	return true;
 }
 
-void SetupTimer(int Count) {
+void SetupAlsaTimer(int Count) {
 	char timername[64];
 	snd_async_handler_t *ahandler;
 	int idx, err;
@@ -327,7 +326,12 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 
 	}
 #if 0
-	Since there are 24 MIDI Clocks in every quarter note, the length of a MIDI Clock (ie, time inbetween each MIDI Clock message) is the microsecond tempo divided by 24. In the above example, that would be 500,000/24, or 20,833.3 microseconds in every MIDI Clock. Alternately, you can relate this to your timebase (ie, PPQN clock). If you have 96 PPQN, then that means that a MIDI Clock byte must occur every 96 / 24 (ie, 4) PPQN clocks.
+	Since there are 24 MIDI Clocks in every quarter note, the length of a MIDI Clock
+	(ie, time inbetween each MIDI Clock message) is the microsecond tempo divided
+	by 24. In the above example, that would be 500,000/24, or 20,833.3
+	microseconds in every MIDI Clock. Alternately, you can relate this to your
+	timebase (ie, PPQN clock). If you have 96 PPQN, then that means that a
+	MIDI Clock byte must occur every 96 / 24 (ie, 4) PPQN clocks.
 #endif
 	if (Type == SND_SEQ_EVENT_CLOCK) {
 		ev.type = SND_SEQ_EVENT_CLOCK;
@@ -369,6 +373,10 @@ int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
 #endif
 	}
 
+#if 0
+	The tempo is given in micro seconds per quarter beat. To convert this to BPM we needs to use the following equation:
+	BPM = 60,000,000/[tt tt tt]
+#endif
 	if (Type == SND_SEQ_EVENT_TEMPO) {
 		ev.type = SND_SEQ_EVENT_TEMPO;
 //        ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
@@ -515,6 +523,37 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			CountInActive = 2;
 			break;
 
+		case cmdVolume:
+			SetVolume1(thePatch->Patch + gMyInfo.AnalogVolume);
+			break;
+
+		case cmdLnTransPort:
+
+			switch(thePatch->Patch) {
+				case cmdLnTSetA:
+//			        execve("/usr/bin/smplayer", argv, environ);
+					system("/usr/bin/smplayer -send-action set_a_marker & ");
+
+//					Mysystem("set_a_marker");
+					break;
+
+				case cmdLnTSetB:
+//					Mysystem("set_b_marker");
+					system("/usr/bin/smplayer -send-action set_b_marker & ");
+					break;
+
+				case cmdLnTStart:
+					break;
+
+				default:
+					printd(LogError, "cmdLnTransPort No case %d",thePatch->Patch);
+
+					break;
+
+			}
+			break;
+
+
 // SND_SEQ_EVENT_SETPOS_TIME
 // SND_SEQ_EVENT_TEMPO
 
@@ -525,6 +564,22 @@ int SendMidiPatch(PatchInfo *thePatch) {
 	return (err);
 }
 
+int Mysystem(char *cmd) {
+    pid_t pid = fork();
+    char *argv[4];
+    extern char **environ;
+
+    if (pid == 0) { /* child */
+        argv[0] = "/usr/bin/smplayer";
+        argv[1] = "-send-action";
+        argv[2] = cmd;
+        argv[3] = NULL;
+        execve("/usr/bin/smplayer", argv, environ);
+        _exit(127);
+    }
+    if (pid < 0)
+     return 0; /* as provided by sh -c, or from _exit(127) above */
+}
 /*--------------------------------------------------------------------
  * Function:		alsa_midi_thread
  *
@@ -1683,3 +1738,28 @@ static void pcm_list(void) {
 	}
 	snd_device_name_free_hint(hints);
 }
+
+#if 0
+Rosegarden:
+jumpTo->processEventsOut->processMidiOut->insertMTCQFrames->snd_seq_ev_schedule_real
+processNotesOff->snd_seq_ev_schedule_real
+insertMTCFullFrame->snd_seq_ev_schedule_real
+
+RealTime scheduleTime = t + m_alsaPlayStartTime - m_playStartPosition;
+ snd_seq_real_time_t atime =
+     { (unsigned int)scheduleTime.sec,
+       (unsigned int)scheduleTime.nsec };
+
+ event.type = SND_SEQ_EVENT_QFRAME;
+ event.data.control.value = c;
+
+ snd_seq_ev_schedule_real(&event, m_queue, 0, &atime);
+
+
+#endif
+
+#if 0
+Midi Clock = 24 per quarter.
+
+
+#endif

@@ -22,6 +22,7 @@
 /*
  * Place Global prototypes here.
  */
+void InitGuiPrefs(void);
 
 /*
  * Place Static variables here.
