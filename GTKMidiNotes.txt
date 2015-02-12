@@ -1,0 +1,28 @@
+
+
+GTK3 Port
+https://developer.gnome.org/gtk3/stable/gtk-migrating-2-to-3.html
+pkg-config --cflags --libs gtk+-3.0 alsa webkit2gtk-3.0 libxml-2.0 gladeui-2.0 -I/usr/include/libglade-2.0 -I/usr/include/webkitgtk-1.0
+GTK_OBJECT and GTK_SIGNAL_FUNC are obsolete, use G_OBJECT and G_CALLBACK
+
+
+ -pthread 
+-I/usr/include/libglade-2.0 
+-I/usr/include/at-spi2-atk/2.0 
+-I/usr/include/harfbuzz 
+-I/usr/include/libpng12 
+-I/usr/include/webkitgtk-3.0 
+-I/usr/include/sound/ 
+-I/usr/lib/x86_64-linux-gnu/gtk-2.0/include
+/usr/include/gtk-2.0->/usr/include/gtk-3.0
+
+
+
+
+LIBS := -lXmu -lX11 -lpthread  -lasound -lwebkitgtk-3.0 -lsoup-2.4 -ljavascriptcoregtk-3.0
+-lgladeui-2 -lgtk-3 -lxml2 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -l
+cairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0
+
+# LIBS := -lfreetype -lpthread -lglade-2.0 -lasound -lwebkitgtk-1.0 -lX11 -lXmu -lxmltok -l
+xmlparse -lxml2 -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 
+-lpangocairo-1.0 -lgdk_pixbuf-2.0 -lfontconfig -lgobject-2.0 -lglib-2.0
