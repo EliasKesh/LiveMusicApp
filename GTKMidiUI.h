@@ -302,6 +302,10 @@ GtkBuilder *gxml;
 unsigned int CountInCount;
 char CountInActive;
 char	SysCallString[200];
+GdkPixbuf *MainButtonOnImage;
+GdkPixbuf *MainButtonOffImage;
+GdkPixbuf *PatchButtonOnImage;
+GdkPixbuf *PatchButtonOffImage;
 #else
 extern int LastPortUsed;
 //extern PatchInfo  *MyPatchInfo;
@@ -319,7 +323,10 @@ extern GtkBuilder *gxml;
 extern unsigned int CountInCount;
 extern char CountInActive;
 extern char	SysCallString[200];
-
+extern GdkPixbuf *MainButtonOnImage;
+extern GdkPixbuf *MainButtonOffImage;
+extern GdkPixbuf *PatchButtonOnImage;
+extern GdkPixbuf *PatchButtonOffImage;
 #endif
 
 void NextDesktop(void);

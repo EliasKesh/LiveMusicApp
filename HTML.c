@@ -9,20 +9,21 @@
 #endif
 
 #include "GTKMidiUI.h"
+#include "MyWidgets.h"
 
 int Search_in_File(const char *fname, WebLoadPresets *thePresets);
 int ScalePage(void);
 tPatchIndex AssignPreset(int PresetNum, char *String);
-void SetPatchTitles(GtkWidget *MyButton, char *Text);
+void SetPatchTitles(theImageButtons *MyButton, char *Text);
 
 static WebKitWebView* web_view;
 
-GtkWidget *Preset1Button;
-GtkWidget *Preset2Button;
-GtkWidget *Preset3Button;
-GtkWidget *Preset4Button;
-GtkWidget *Preset5Button;
-GtkWidget *Preset6Button;
+theImageButtons PresetButtons[MaxPresetButtons];
+theImageButtons SaveWebButton;;
+theImageButtons ScaleButton;;
+theImageButtons ForwardButton;;
+theImageButtons BackButton;;
+
 GtkWidget *scrolled_window;
 
 /*--------------------------------------------------------------------
@@ -182,16 +183,17 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		Patch 1 Selected
+ * Function:		Patch Selected
  *
  * Description:	The users patch 1 was selected.
  *
  *---------------------------------------------------------------------*/
-void on_patch_clicked(GtkWidget *widget, gpointer data) {
+gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data) {
+
 	char Preset;
 	int	CPatch;
 
-	CPatch = (int) data - (int)1;
+	CPatch = (int) user_data;
 
 	if (CPatch >= 0 && CPatch < MaxPresetButtons) {
 		Preset = gMyInfo.WebPresets.thePreset[CPatch];
@@ -202,8 +204,24 @@ void on_patch_clicked(GtkWidget *widget, gpointer data) {
 
 	if (Preset != -1)
 		DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+
+	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[CPatch].Image),
+		PresetButtons[CPatch].ButtonDownImage);
+
 }
 
+gboolean on_patch__release_handler(GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	theImageButtons *theButton;
+	theButton = (theImageButtons *) user_data;
+	//	PatchIndex = LayoutSwitchPatch(user_data, true);
+
+	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[(int)user_data].Image),
+		PresetButtons[(int)user_data].ButtonUpImage);
+	return TRUE; /* stop event propagation */
+}
 /*--------------------------------------------------------------------
  * Function:		on_SaveWeb_clicked
  *
@@ -218,6 +236,9 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	WebKitWebFrame *theFrame;
 #endif
 	FILE *fp;
+
+	gtk_image_set_from_pixbuf(GTK_IMAGE(SaveWebButton.Image),
+		SaveWebButton.ButtonDownImage);
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	g_print("Save %s\n", CurrentURI);
@@ -449,32 +470,32 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 void InitHTML(GladeXML *gxml) {
 	char FileName[255];
 	GtkWidget *Widget;
-
+	int Loop;
+	char		Buffer[40];
+	GtkWidget *EventBox;
 	/* Load the buttons and set the callbacks for them.
 	 */
-	Preset1Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch1"));
-	g_signal_connect(G_OBJECT (Preset1Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 1);
 
-	Preset2Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch2"));
-	g_signal_connect(G_OBJECT (Preset2Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 2);
+	for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
+		sprintf(Buffer, "Patch%d", Loop + 1);
+		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
+//		gtk_widget_get_usize(EventBox);
 
-	Preset3Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch3"));
-	g_signal_connect(G_OBJECT (Preset3Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 3);
+		MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
+			PatchButtonOffImage);
+		MyImageButtonSetText( &PresetButtons[Loop], Buffer);
 
-	Preset4Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch4"));
-	g_signal_connect(G_OBJECT (Preset4Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 4);
+		g_signal_connect(G_OBJECT(EventBox),
+			"button-press-event",
+			G_CALLBACK(on_patch_clicked),
+			Loop);
 
-	Preset5Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch5"));
-	g_signal_connect(G_OBJECT (Preset5Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 5);
+		g_signal_connect(G_OBJECT(EventBox),
+			"button-release-event",
+			G_CALLBACK(on_patch__release_handler),
+			Loop);
 
-	Preset6Button = GTK_WIDGET(gtk_builder_get_object(gxml, "Patch6"));
-	g_signal_connect(G_OBJECT (Preset6Button), "clicked",
-		G_CALLBACK (on_patch_clicked), 6);
+	}
 
 	scrolled_window = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "scrolledwindow1"));
@@ -497,21 +518,48 @@ void InitHTML(GladeXML *gxml) {
 	webkit_web_view_set_full_content_zoom(web_view, TRUE);
 #endif
 
-	Widget = GTK_WIDGET(gtk_builder_get_object(gxml, "BackButton"));
-	g_signal_connect(G_OBJECT (Widget), "clicked", G_CALLBACK (on_Back_clicked),
-		NULL);
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "BackButton"));
+	MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonSetText(&BackButton, "Back");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(on_Back_clicked), &BackButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+		G_CALLBACK(normal_release_handler), &BackButton);
 
-	Widget = GTK_WIDGET(gtk_builder_get_object(gxml, "ForwardButton"));
-	g_signal_connect(G_OBJECT (Widget), "clicked",
-		G_CALLBACK (on_Forward_clicked), NULL);
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "ForwardButton"));
+	MyImageButtonInit(&ForwardButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonSetText(&ForwardButton, "Forward");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(on_Forward_clicked), &ForwardButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+		G_CALLBACK(normal_release_handler), &ForwardButton);
 
-	Widget = GTK_WIDGET(gtk_builder_get_object(gxml, "ProcessButton"));
-	g_signal_connect(G_OBJECT (Widget), "clicked",
-		G_CALLBACK (on_toolbutton3_clicked), NULL);
 
-	Widget = GTK_WIDGET(gtk_builder_get_object(gxml, "SaveWeb"));
-	g_signal_connect(G_OBJECT (Widget), "clicked",
-		G_CALLBACK (on_SaveWeb_clicked), NULL);
+
+
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "ScaleButton"));
+	MyImageButtonInit(&ScaleButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonSetText(&ScaleButton, "Scale");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(on_toolbutton3_clicked), &ScaleButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+		G_CALLBACK(normal_release_handler), &ScaleButton);
+
+
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "SaveWeb"));
+	MyImageButtonInit(&SaveWebButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonSetText(&SaveWebButton, "Save");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(on_SaveWeb_clicked), &SaveWebButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+		G_CALLBACK(normal_release_handler), &SaveWebButton);
+
+
+
 
 //    g_signal_connect(web_view, "load-finished", G_CALLBACK(load_finished_cb), NULL);
 
@@ -786,27 +834,27 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 
 		case 1:
 			printd(LogInfo, "*********PresetNum Case 1 ");
-			SetPatchTitles(Preset1Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		case 2:
-			SetPatchTitles(Preset2Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[1], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		case 3:
-			SetPatchTitles(Preset3Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[2], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		case 4:
-			SetPatchTitles(Preset4Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		case 5:
-			SetPatchTitles(Preset5Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		case 6:
-			SetPatchTitles(Preset6Button, gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name);
 			break;
 
 		default:
@@ -822,8 +870,8 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
  * Description:	When we load patched, rename the buttons.
  *
  *---------------------------------------------------------------------*/
-void SetPatchTitles(GtkWidget *MyButton, char *Text) {
+void SetPatchTitles(theImageButtons *MyButton, char *Text) {
 
 	printd(LogInfo, "SetPatchTitles %x %s\n", MyButton, Text);
-	gtk_button_set_label(MyButton, Text);
+	MyImageButtonSetText(MyButton, Text);
 }

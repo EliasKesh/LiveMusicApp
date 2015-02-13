@@ -67,6 +67,12 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf
 	theButton->ButtonDownImage = Off;
 	gtk_image_set_from_pixbuf (GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
 
+#if 0
+	g_signal_connect(G_OBJECT(EventBox),
+		"button-release-event",
+		G_CALLBACK(normal_release_handler),
+		&theButton);
+#endif
 }
 
 /*--------------------------------------------------------------------
@@ -78,7 +84,21 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 char		FormatString[100];
 
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
+//sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
+//sprintf(FormatString, "<span size=\"12800\" color=\"white\"><b>%s</b></span>", String);
 sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
 	gtk_label_set_markup(GTK_LABEL(theButton->Label),FormatString);
 }
 
+gboolean normal_release_handler(GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	theImageButtons *theButton;
+	theButton = (theImageButtons *) user_data;
+	//	PatchIndex = LayoutSwitchPatch(user_data, true);
+
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+		theButton->ButtonUpImage);
+	return TRUE; /* stop event propagation */
+}

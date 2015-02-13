@@ -38,7 +38,7 @@
 #define GLADE_FILE ResourceDirectory"GTKMidiUI.glade"
 #endif
 #define Icon_FILE ResourceDirectory"LiveIcon.png"
-
+#define MaxTabs	4
 /*
  * Place Global variables here
  */
@@ -46,18 +46,24 @@ snd_seq_t *seq;
 int seqPort;
 //	GladeXML *gxml;
 GtkWidget* MainStatus;
-GtkWidget* CurrentLayoutWid;
-GtkWidget *TempoDraw;
+//GtkWidget* CurrentLayoutWid;
+theImageButtons TempoDraw;
 unsigned int CurrentLayout;
 guint MainStatusid;
 theImageButtons LayoutButton;
 // GtkWidget *MainButtons[Max_Main_Buttons];
 theImageButtons MainButtons[Max_Main_Buttons];
+theImageButtons TabButtons[MaxTabs];
 
 tPatchIndex GetModePreset(tPatchIndex Value);
 GtkWidget *VScale1, *VScale2, *VScale3;
-GdkPixbuf *MainButtonOnImage;
-GdkPixbuf *MainButtonOffImage;
+
+
+GdkPixbuf *PatchButtonOnImage;
+GdkPixbuf *PatchButtonOffImage;
+GdkPixbuf *NoteBButtonOnImage;
+GdkPixbuf *NoteBButtonOffImage;
+
 
 GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
@@ -65,6 +71,8 @@ GtkWidget *TempoChild;
 PangoFontDescription *Tempofont_desc;
 char TempStrBuf[10];
 char gUpdateTempo;
+GtkWidget *NoteBookPane;
+
 /* Used to Toggle the Tempo GUI display.
  */
 int TempoState;
@@ -76,6 +84,7 @@ static gboolean time_handler(GtkWidget *widget);
  * Place Local prototypes here
  */
 
+void CreateTabButtons(void);
 void CreateMainButtons(void);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);
 void PrintDataStructure(GTKMidiInfo *myInfo);
@@ -95,6 +104,7 @@ void VScale2_Changed(GtkAdjustment *adj);
 #define MaxStatusHold 4
 char HoldStatus[MaxStatusHold][50];
 int	 HoldStatusIndex;
+int	MainButtonCountOn;
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -264,11 +274,17 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
  *
  *---------------------------------------------------------------------*/
 void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
-	if (gMyInfo.MetronomeOn)
+	if (gMyInfo.MetronomeOn) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+			TempoDraw.ButtonUpImage);
 		gMyInfo.MetronomeOn = 0;
-	else
+	}
+		else {
+			gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+				TempoDraw.ButtonDownImage);
 		gMyInfo.MetronomeOn = 1;
-}
+		}
+		}
 
 /*--------------------------------------------------------------------
  * Function:		tab_focus_callback
@@ -279,6 +295,8 @@ void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 	//  GtkTreeView* view = (GtkTreeView *)data;
 //printd(LogInfo,"tab_focus_callback %x %x %x\n", notebook, arg1, data);
+	  //  GtkTreeView* view = (GtkTreeView *)data;
+
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
 	return true;
@@ -292,9 +310,11 @@ gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 int GTKIdel_cb(gpointer data) {
 
 	if (gUpdateTempo) {
-		gtk_label_set_text((TempoChild), TempStrBuf);
+		MyImageButtonSetText(&TempoDraw, TempStrBuf);
+//		gtk_label_set_text((TempoChild), TempStrBuf);
 		gUpdateTempo = 0;
 	}
+
 #if 0
 	if (SysCallString[0]) {
 		system(SysCallString);
@@ -376,11 +396,23 @@ int main(int argc, char *argv[]) {
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
 
 	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-		"./LiveMusicRes/FootSwitchOn.png", 135, 65, NULL, NULL);
+		"./LiveMusicRes/MainSwitchOn.png", 90, 50, NULL, NULL);
 	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-		"./LiveMusicRes/FootSwitchOff.png", 135, 65, NULL, NULL);
+		"./LiveMusicRes/MainSwitchOff.png", 90, 50, NULL, NULL);
+	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+		"./LiveMusicRes/PatchSwitchOn.png", 125, 80, NULL, NULL);
+	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+		"./LiveMusicRes/PatchSwitchOff.png", 125, 80, NULL, NULL);
+	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+		"./LiveMusicRes/NoteBSwitchOn.png", 90, 50, NULL, NULL);
+	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+		"./LiveMusicRes/NoteBSwitchOff.png", 90, 50, NULL, NULL);
 
-	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
+	GdkPixbuf *PatchButtonOffImage;
+	GdkPixbuf *NoteBButtonOnImage;
+
+//	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
+	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
 	/*
 	 * Open the persistent main tab.
@@ -393,17 +425,37 @@ int main(int argc, char *argv[]) {
 	 * Setup and initialize our statusbar and Mode indicator
 	 */
 	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
-	CurrentLayoutWid = GTK_WIDGET(
-		gtk_builder_get_object(gxml, "CurrentLayout"));
+//	CurrentLayoutWid = GTK_WIDGET(
+//		gtk_builder_get_object(gxml, "CurrentLayout"));
 
 	/*
 	 * Clear the Status bar buffer.
 	 */
 	HoldStatusIndex = 0;
 	memset(HoldStatus, 0, sizeof(HoldStatus));
-	TempoDraw = GTK_WIDGET(gtk_builder_get_object(gxml, "Tempo"));
-	g_signal_connect_data(G_OBJECT(TempoDraw), "clicked",
-		G_CALLBACK(on_Tempo_Button), NULL, NULL, 0);
+
+	/*
+	 * Get the metronome button loaded and displayed.
+	 */
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "Tempo"));
+
+	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage,	MainButtonOffImage);
+
+	if (gMyInfo.MetronomeOn) {
+		MyImageButtonSetText(&TempoDraw, "On");
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+			TempoDraw.ButtonDownImage);
+	}
+	else {
+			MyImageButtonSetText(&TempoDraw, "Off");
+			gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+				TempoDraw.ButtonUpImage);
+		}
+		g_signal_connect(G_OBJECT(EventBox),
+		"button-press-event",
+		G_CALLBACK(on_Tempo_Button),
+		&TempoDraw);
 
 	/*
 	 * The about window.
@@ -436,7 +488,7 @@ int main(int argc, char *argv[]) {
 	printd(LogInfo, "After InitHTML\n");
 
 	/*
-	 * Set up the Midi Sequencer port
+	 * Set up the Midi Sequencer ports
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
@@ -451,6 +503,7 @@ int main(int argc, char *argv[]) {
 	 */
 	CreateMainButtons();
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
+	CreateTabButtons();
 
 	/* Get the Mode switch button,
 	 */
@@ -461,9 +514,6 @@ int main(int argc, char *argv[]) {
 		MainButtonOffImage);
 	MyImageButtonSetText(&LayoutButton, LayoutPresets[0].Name);
 
-	//gtk_label_set_text(GTK_LABEL(GTK_BIN(myButton)->child), gMyInfo.MyPatchInfo[Loop].Name);
-//	g_signal_connect_data(G_OBJECT(LayoutButton), "clicked",
-//		G_CALLBACK(on_layoutbutton_clicked), NULL, NULL, 0);
 	g_signal_connect(G_OBJECT(EventBox),
 		"button-press-event",
 		G_CALLBACK(layout_click_handler),
@@ -488,9 +538,9 @@ int main(int argc, char *argv[]) {
 	 * Show the main window and let the show begin.
 	 */
 	gtk_widget_show_all(main_window);
-	gtk_widget_override_font(CurrentLayoutWid,
-		pango_font_description_from_string("Sans Bold 16"));
-	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[0].Name);
+//	gtk_widget_override_font(CurrentLayoutWid,
+//		pango_font_description_from_string("Sans Bold 16"));
+//	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[0].Name);
 
 	/*
 	 * Set the initial Volumes.
@@ -548,22 +598,22 @@ void UpdateStatus(char *String) {
 	 */
 	switch (HoldStatusIndex) {
 		case 0:
-			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", (char*) &HoldStatus[1],
+			sprintf(DisString, "%12s\n%12s\n%12s\n%12s", (char*) &HoldStatus[1],
 				(char*) &HoldStatus[2], (char*) &HoldStatus[3], String);
 			break;
 
 		case 1:
-			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", (char*) &HoldStatus[2],
+			sprintf(DisString, "%12s\n%12s\n%12s\n%12s", (char*) &HoldStatus[2],
 				(char*) &HoldStatus[3], (char*) &HoldStatus[0], String);
 			break;
 
 		case 2:
-			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", (char*) &HoldStatus[3],
+			sprintf(DisString, "%12s\n%12s\n%12s\n%12s", (char*) &HoldStatus[3],
 				(char*) &HoldStatus[0], (char*) &HoldStatus[1], String);
 			break;
 
 		case 3:
-			sprintf(DisString, "[%12s] [%12s] [%12s] [%12s]", (char*) &HoldStatus[0],
+			sprintf(DisString, "%12s\n%12s\n%12s\n%12s", (char*) &HoldStatus[0],
 				(char*) &HoldStatus[1], (char*) &HoldStatus[2], String);
 			break;
 	}
@@ -580,7 +630,7 @@ void UpdateStatus(char *String) {
 	/* Actually draw the text to the window.
 	 */
 	gtk_widget_override_font(MainStatus,
-		pango_font_description_from_string("Sans Bold 16"));
+		pango_font_description_from_string("Sans Bold 12"));
 	gtk_label_set_text(MainStatus, DisString);
 }
 
@@ -594,8 +644,8 @@ void SetTempo(unsigned char NewTempo) {
 	printf("New Tempo Reload %d \n", (int)gMyInfo.TempoReload);
 	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
 
-	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
-	gtk_widget_override_font((TempoChild), Tempofont_desc);
+//	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
+//	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
 #ifdef AlsaTimer
 	/* Send out a message our tempo is changing.
@@ -693,11 +743,27 @@ static gboolean time_handler(GtkWidget *widget) {
  *---------------------------------------------------------------------*/
 void ToggleTempo(void) {
 	char Count;
+	int	Loop;
+
 	/*
 	 * Needs to be sent 24 time per quarter.
 	 */
 	if (++TempoState >= (gMyInfo.TempoMax * 12))
 		TempoState = 0;
+
+	if (MainButtonCountOn == 1) {
+		for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+			if (MainButtons[Loop].State) {
+			gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
+				MainButtons[Loop].ButtonUpImage);
+			MainButtons[Loop].State = 0;
+			MainButtonCountOn = 0;
+			}
+		}
+	}
+	else
+		if (MainButtonCountOn)
+			MainButtonCountOn--;
 
 	if (!(TempoState % 24)) {
 		gUpdateTempo = 1;
@@ -746,8 +812,8 @@ gboolean click_handler(GtkWidget *widget,
 //	PatchIndex = LayoutSwitchPatch(user_data, true);
 	LayoutSwitchPatch(Loop, true);
 
-	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
-		MainButtons[Loop].ButtonDownImage);
+//	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
+//		MainButtons[Loop].ButtonDownImage);
 	return TRUE; /* stop event propagation */
 }
 
@@ -761,6 +827,57 @@ gboolean release_handler(GtkWidget *widget,
 	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
 		MainButtons[Loop].ButtonUpImage);
 	return TRUE; /* stop event propagation */
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Notebook_click_handler
+ *
+ * Description:		Build the notebook tab
+ *---------------------------------------------------------------------*/
+gboolean Notebook_click_handler(GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	int Loop;
+	for (Loop = 0; Loop < MaxTabs; Loop++) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
+			TabButtons[Loop].ButtonUpImage);
+	}
+	Loop = (int) user_data;
+	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
+		TabButtons[Loop].ButtonDownImage);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
+
+	return TRUE; /* stop event propagation */
+}
+
+/*--------------------------------------------------------------------
+ * Function:		CreateTabButtons
+ *
+ * Description:		Build the notebook tab
+ *---------------------------------------------------------------------*/
+void CreateTabButtons(void) {
+int	Loop;
+char Buffer[40];
+GtkWidget *MainButtonImage;
+GtkWidget *EventBox;
+
+
+	for (Loop = 0; Loop < MaxTabs; Loop++) {
+		sprintf(Buffer, "NTab%d", Loop + 1);
+		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
+		MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage,NoteBButtonOffImage);
+
+		g_signal_connect(G_OBJECT(EventBox),
+			"button-press-event",
+			G_CALLBACK(Notebook_click_handler),
+			Loop);
+	}
+
+	MyImageButtonSetText(&TabButtons[0], "Patch");
+	MyImageButtonSetText(&TabButtons[1], "Chart");
+	MyImageButtonSetText(&TabButtons[2], "Chords");
+	MyImageButtonSetText(&TabButtons[3], "Prefs");
 }
 
 /*--------------------------------------------------------------------
@@ -782,8 +899,8 @@ void CreateMainButtons(void) {
 		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
 //		gtk_widget_get_usize(EventBox);
 
-		MyImageButtonInit(&MainButtons[Loop], EventBox, MainButtonOnImage,
-			MainButtonOffImage);
+		MyImageButtonInit(&MainButtons[Loop], EventBox, PatchButtonOnImage,
+			PatchButtonOffImage);
 
 		g_signal_connect(G_OBJECT(EventBox),
 			"button-press-event",
@@ -934,6 +1051,8 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 	tPatchIndex PatchIndex;
 	GdkColor color;
 	char String[PatchNameSize];
+	int		StringLen;
+
 #ifdef UsingImageButtons
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 //		printd(LogInfo, "Loop %d gMyInfo [%s] Patch %d\n", Loop,
@@ -942,7 +1061,9 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 //		printd(LogInfo, "SetUpMainButtons: %d %d\n", Loop, PatchIndex);
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
-			sprintf(String, "%02d-%s", Loop + 1,
+			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
+//	        printf("---%*s%*s---\n",10+strlen(s)/2,s,10-strlen(s)/2,"");
+			sprintf(String, "        %02d        \n%*s", Loop + 1,8+StringLen/2,
 				gMyInfo.MyPatchInfo[PatchIndex].Name);
 			MyImageButtonSetText(&MainButtons[Loop], String);
 //			gtk_label_set_text((MainButtons[Loop].Label), String);
@@ -1136,9 +1257,9 @@ void IncrementMode(void) {
 
 	printf("IncrementMode %d %s", CurrentLayout,
 		LayoutPresets[CurrentLayout].Name);
-	gtk_widget_override_font(CurrentLayoutWid,
-		pango_font_description_from_string("Sans Bold 16"));
-	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
+//	gtk_widget_override_font(CurrentLayoutWid,
+//		pango_font_description_from_string("Sans Bold 16"));
+//	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
 	printd(LogInfo, "Increment Mode %d\n", CurrentLayout);
@@ -1161,6 +1282,17 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}
+
+	/*
+	 * Toggle the on screen buttons if the midi input is used.
+	 */
+	if (DoAction) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[MidiIn].Image),
+			MainButtons[Loop].ButtonDownImage);
+		MainButtons[MidiIn].State = 1;
+		MainButtonCountOn = 15;
+	}
+
 	RetVal = GetModePreset(MidiIn);
 	if (RetVal >= Max_Patches) {
 		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);

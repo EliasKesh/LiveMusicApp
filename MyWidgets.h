@@ -30,11 +30,12 @@ typedef struct {
 	GtkWidget 	*Image;
 	GdkPixbuf 	*ButtonUpImage;
 	GdkPixbuf 	*ButtonDownImage;
-
+	char			State;
 } theImageButtons;
 
 int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf *On, GdkPixbuf *Off);
 int	MyImageButtonSetText( theImageButtons *theButton, char *String);
+gboolean normal_release_handler(GtkWidget *widget,	GdkEvent *event, gpointer user_data);
 
 /*
  * Place Static variables here.
