@@ -22,6 +22,7 @@
 #include <asoundlib.h>
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include "MyWidgets.h"
 
 /*
  * Place Global prototypes here.
@@ -121,7 +122,7 @@ enum {
 	MidiSoundApp,
 	LooperApp,
 	TransportApp,
-	MidiControl,
+	LiveMusicApp,
 	MP3Player,
 	TabPlayer,
 	MaxApps
@@ -156,6 +157,12 @@ typedef struct {
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
 
+	/*
+	 * Colors
+	 */
+	unsigned long	StatusTextColor;
+	unsigned long	ButtonTextColor;
+
 } GTKMidiInfo;
 
 enum {
@@ -181,6 +188,7 @@ enum {
 	cmdCountIn,
 	cmdVolume,
 	cmdLnTransPort,
+	cmdSetList,
 	MaxCommands
 };
 
@@ -291,6 +299,7 @@ char *CustomCommands[] = {
 	"MidiSelect",
 	"CountIn",
 	"VolSwitch",
+	"SetList",
 	"MediaTransport"
 };
 
@@ -306,8 +315,12 @@ GdkPixbuf *MainButtonOnImage;
 GdkPixbuf *MainButtonOffImage;
 GdkPixbuf *PatchButtonOnImage;
 GdkPixbuf *PatchButtonOffImage;
+char gUpdateTempo;
+int		CurrentSetListSong;
 #else
 extern int LastPortUsed;
+extern LayoutType LayoutPresets[];
+
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
 extern char *CustomCommands[];
@@ -327,14 +340,18 @@ extern GdkPixbuf *MainButtonOnImage;
 extern GdkPixbuf *MainButtonOffImage;
 extern GdkPixbuf *PatchButtonOnImage;
 extern GdkPixbuf *PatchButtonOffImage;
+extern char gUpdateTempo;
+extern int		CurrentSetListSong;
+
 #endif
 
 void NextDesktop(void);
 void PrevDesktop(void);
-void GoToDesktop(char Number);
-void SetTempo(unsigned char NewTempo);
+void GoToDesktop(int Number);
+void SetTempo(unsigned int NewTempo);
 void RaiseWindows(char *AppName);
-void RaiseWindowsNum(char AppNumber);
+void RaiseWindowsNum(int AppNumber);
+void ClearMainButtons(void);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 

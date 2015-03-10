@@ -241,12 +241,14 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-int SendMidi(char Type, char Port, char Channel, char Controller, int Value) {
+int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	snd_seq_event_t ev;
 	int err;
+	int	Port;
 	unsigned long adjbpm;
 	snd_seq_queue_tempo_t *queue_tempo;
 
+	Port = Port1;
 	snd_seq_ev_clear(&ev);
 	snd_seq_ev_set_source(&ev, Port);
 	snd_seq_ev_set_subs(&ev);
@@ -474,6 +476,16 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			IncrementMode();
 			break;
 
+		case cmdSetList:
+			printd(LogInfo, "cmdSetList Command %d \n", thePatch->Patch);
+			if (thePatch->Patch == 1)
+				OpenSetListSong(CurrentSetListSong -1);
+
+			if (thePatch->Patch == 2)
+				OpenSetListSong(CurrentSetListSong +1);
+
+			break;
+
 		case Controller:
 
 			break;
@@ -579,6 +591,8 @@ int Mysystem(char *cmd) {
     }
     if (pid < 0)
      return 0; /* as provided by sh -c, or from _exit(127) above */
+
+    return 1;
 }
 /*--------------------------------------------------------------------
  * Function:		alsa_midi_thread
@@ -984,7 +998,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case SND_SEQ_EVENT_QFRAME:
 				//            sprintf(msg_str_ptr, "midi time code quarter frame");
 				sprintf(msg_str_ptr,
-					"midi time code quarter frame Q%d V%d P%d D%ld D%ld",
+					"midi time code quarter frame Q%d V%d P%d D%d D%d",
 					event_ptr->data.queue.queue,
 					event_ptr->data.queue.param.value,
 					event_ptr->data.queue.param.position,
@@ -1015,7 +1029,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case SND_SEQ_EVENT_TEMPO:
 				//        	BPM = 60,000,000/[value]
 				//           sprintf(msg_str_ptr, "(SMF) Tempo event");
-				sprintf(msg_str_ptr, "(SMF) Tempo event Q%d V%d P%d D%ld D%ld",
+				sprintf(msg_str_ptr, "(SMF) Tempo event Q%d V%d P%d D%d D%d",
 					event_ptr->data.queue.queue,
 					event_ptr->data.queue.param.value,
 					event_ptr->data.queue.param.position,
@@ -1029,7 +1043,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				//       	OK, 24 beats per quarter.
 //        	60/(Value * 24)
 				sprintf(msg_str_ptr,
-					"MIDI Real Time Clock message Q%d V%d P%d D%ld D%ld",
+					"MIDI Real Time Clock message Q%d V%d P%d D%d D%d",
 					event_ptr->data.queue.queue,
 					event_ptr->data.queue.param.value,
 					event_ptr->data.queue.param.position,
@@ -1039,7 +1053,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case SND_SEQ_EVENT_TICK:
 				//        	snd_seq_event_t * event_ptr
 				sprintf(msg_str_ptr,
-					"MIDI Real Time Tick message Q%d V%d P%d D%ld D%ld",
+					"MIDI Real Time Tick message Q%d V%d P%d D%d D%d",
 					event_ptr->data.queue.queue,
 					event_ptr->data.queue.param.value,
 					event_ptr->data.queue.param.position,

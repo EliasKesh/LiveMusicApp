@@ -41,7 +41,7 @@
 void view_popup_menu_onDoSomething(GtkWidget *menuitem, gpointer userdata) {
 	/* we passed the view as userdata when we connected the signal */
 //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-	g_print("Do something! %d\n", userdata);
+	g_print("Do something! %d\n", (int)userdata);
 
 	switch ((int) userdata) {
 		case 1:

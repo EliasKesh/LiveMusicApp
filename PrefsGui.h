@@ -28,4 +28,4 @@ void InitGuiPrefs(void);
  * Place Static variables here.
  */
 
-#endif PrefsGui.h_h
+#endif

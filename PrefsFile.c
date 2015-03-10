@@ -43,7 +43,7 @@ void WritePrefs(void);
 GTKMidiInfo GlobalInfo =
 	{
 		{
-			//Title			Bank	Patch	Outport		Chan	Command Chain
+			//Title			Bank	Patch 	Outport		Chan	Command Chain
 			{ "Chorus", 0xff, 1, RakarrakPort, 1, NoCustom, "" },
 			{ "SatrianiComp", 0xff, 12, RakarrakPort, 1, NoCustom, "" },
 			{ "CleanBass", 0xff, 3, RakarrakPort, 1, NoCustom, "" },
@@ -115,7 +115,7 @@ GTKMidiInfo GlobalInfo =
 			{ "AnalogApp", 0xff, AnalogApp, 0, 1, RaiseApp, "" },
 			{ "MidiSoundApp", 0xff, MidiSoundApp, 0, 1, RaiseApp, "" },
 			{ "LooperApp", 0xff, LooperApp, 0, 1, RaiseApp, "" },
-			{ "MidiControl", 0xff, MidiControl, 0, 1, RaiseApp, "" },
+			{ "MidiApp", 0xff, LiveMusicApp, 0, 1, RaiseApp, "" },
 			{ "MP3Player", 0xff, MP3Player, 0, 1, RaiseApp, "" },
 			{ "TabPlayer", 0xff, TabPlayer, 0, 1, RaiseApp, "" },
 			{ "PreTab", 0xff, 0, 0, 1, SwitchTab, "" },
@@ -153,8 +153,8 @@ GTKMidiInfo GlobalInfo =
 			{ "CZBrass4", SFElias, 64, FluidPort, 1, NoCustom, "" },
 			{ "SinSymph", SFElias, 90, FluidPort, 1, NoCustom, "" },
 			{ "Trig4Count", 0xff, 4, TransportPort, 1, cmdCountIn, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
-			{ "NULL", 0xff, FluidPort, 0, 1, RaiseApp, "" },
+			{ "NextSong", 0xff, 2, FluidPort, 1, cmdSetList, "" },
+			{ "PrevSong", 0xff, 1, FluidPort, 1, cmdSetList, "" },
 
 			// 100	Button		Title		Bank	Patch	Outport
 			{ "Preset1", 0xff, 1, 0, 1, cmdPreset, "" },
@@ -179,13 +179,13 @@ GTKMidiInfo GlobalInfo =
 		{ "Fluid", "Rakarrak", "Looper", "Transport", "Tempo", "Click" },
 
 		// Apps[MaxApps];
-		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiControl, MP3Player, TabPlayer, MaxApps };
+		// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiApp, MP3Player, TabPlayer, MaxApps };
 		{
 			{ "rakarrack", 0 },
 			{ "qsynth", 0 },
 			{ "SooperLooper", 0 },
 			{ "audacity", 0 },
-			{ "LiveMusic", 0 },
+			{ "LiveMusicApp", 0 },
 			{ "clementine", 0 },
 			{ "Tux", 0 }
 		},
@@ -205,7 +205,7 @@ LayoutType LayoutPresets[] =
 			"Preset1", 		"Preset2", 		"Chorus", 		"SatrianiComp", 	"CleanBass",	"MedDist",
 			"Satriani", 		"Piano", 		"Honky", 		"Flute", 		"FunkBass",	"Breath",
 			"Organ", 		"OctBass", 		"SynthLead", 	"Strings", 		"Trumpet",		"Steel Drums",
-			"Walky", 		"Drums", 		"Slap Bass", 	"Synth Hard",	"Marimba", 	"LayoutSwitch",
+			"Walky", 		"Drums", 		"Slap Bass", 	"NextSong",	"PrevSong", 	"LayoutSwitch",
 
 			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
@@ -221,7 +221,7 @@ LayoutType LayoutPresets[] =
 		{
 /*			1			2			3			4			5			6 		*/
 			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
-			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -256,7 +256,7 @@ LayoutType LayoutPresets[] =
 		{
 /*			1			2			3			4			5			6 		*/
 			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
-			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -274,8 +274,8 @@ LayoutType LayoutPresets[] =
 	{ "Bass",
 		{
 /*			1			2			3			4			5			6 		*/
-			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
-			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiControl",  	"MP3Player",
+			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
+			"FunkBass", 	"Slap Bass", "	Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -308,8 +308,8 @@ LayoutType LayoutPresets[] =
 void InitPref(void) {
 	int Count;
 
-	gMyInfo.AnalogVolume = 100;
-	gMyInfo.MidiVolume = 100;
+
+
 #if 1
 	gMyInfo.TempoMax = 8;
 
@@ -321,7 +321,10 @@ void InitPref(void) {
 	gMyInfo.MidiBaseNote = 40;
 	WritePrefs();
 #endif
-
+	gMyInfo.AnalogVolume = 100;
+	gMyInfo.MidiVolume = 100;
+	gMyInfo.StatusTextColor = 0xffffe0;
+	gMyInfo.ButtonTextColor = 0xffe0e0;
 //    ReadPrefs();
 //    PrintDataStructure(&gMyInfo);
 //exit(1);

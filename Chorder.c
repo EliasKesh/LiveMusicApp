@@ -289,7 +289,7 @@ cairo_surface_t *CSurface;
 /*
  * Local Prototypes
  */
-char StringLayout[MaxNumStrings][MaxNumFrets];
+int StringLayout[MaxNumStrings][MaxNumFrets];
 void MarkNote(char Note, char Value);
 void SetScale(char Root, char *Scale);
 //static void draw_strings(GtkWidget *area, GdkGC *gcontext);
@@ -390,8 +390,8 @@ char GetIntervalNote(char Starting, char Interval) {
  * Description:	Print the board to a terminal -- Test
  *---------------------------------------------------------------------*/
 void PrintBoard() {
-	char FretLoop;
-	char StringLoop;
+	int FretLoop;
+	int StringLoop;
 
 	for (StringLoop = 0; StringLoop < MaxNumStrings; StringLoop++) {
 		for (FretLoop = 0; FretLoop < MaxNumFrets; FretLoop++) {
@@ -428,8 +428,8 @@ void SetOpenString(void) {
  * 			for every fret on everystring.
  *---------------------------------------------------------------------*/
 void SetupFretBoard(void) {
-	char FretLoop;
-	char StringLoop;
+	int	 FretLoop;
+	int	 StringLoop;
 
 	for (StringLoop = 0; StringLoop < NumStrings; StringLoop++) {
 		for (FretLoop = 1; FretLoop < MaxNumFrets; FretLoop++) {
@@ -446,14 +446,14 @@ void SetupFretBoard(void) {
  * 		want to display.
  *---------------------------------------------------------------------*/
 void SetChord(char Root, thePreChord *myPreChord) {
-	char Loop;
+	int	 Loop;
 //    char	NewNote;
-	char String;
-	char Fret;
-	char Value;
-	char MaxFret = 0;
-	char MaxString = 0;
-	char RootIndex = -1;
+	int String;
+	int Fret;
+	int Value;
+	int MaxFret = 0;
+	int MaxString = 0;
+	int RootIndex = -1;
 
 	bzero((void *) &myChord, sizeof(theChord));
 	myChord.Position = DisplayPosition;
@@ -512,7 +512,7 @@ void SetChord(char Root, thePreChord *myPreChord) {
  * 		want to display.
  *---------------------------------------------------------------------*/
 void SetScale(char Root, char *Scale) {
-	char Loop;
+	int Loop;
 	char NewNote;
 
 	if (Scale == 1)
@@ -536,8 +536,8 @@ void SetScale(char Root, char *Scale) {
  * Description:	Add the note we want to display into the structure.
  *---------------------------------------------------------------------*/
 void MarkNote(char Note, char Value) {
-	char String;
-	char Fret;
+	int String;
+	int Fret;
 
 	for (String = 0; String < NumStrings; String++) {
 		for (Fret = 0; Fret < MaxDisplayFrets; Fret++) {
@@ -1020,7 +1020,8 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	gboolean touchscreen_mode = TRUE;
 	GtkWidget *PreChordFixed;
 	GtkWidget *PreChordCombo;
-	char Loop, Buffer[120];
+	int	 Loop;
+	char	Buffer[120];
 	gfloat screen_width;
 	gfloat screen_height;
 	gfloat image_width;
@@ -1228,8 +1229,8 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 	int Loop;
 
 	char StrBuf[10];
-	char FretLoop;
-	char StringLoop;
+	int FretLoop;
+	int StringLoop;
 	GdkPixbuf *theBall;
 
 	/*
@@ -1355,7 +1356,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 			if (CurScale == 1) {
 				sprintf(StrBuf, "%s", NoteNames[StringLayout[StringLoop][FretLoop]]);
 				if (StringLayout[StringLoop][FretLoop + DisplayPosition] == CurRootNote) {
-					theBall = BouncieBallRed;
+					theBall = (GdkPixbuf *)BouncieBallRed;
 					cairo_set_source_surface (cr, theBall,
 						FretOffset * (FretLoop) + 32,
 						YOffset + StringOffset * StringLoop);
@@ -1372,24 +1373,24 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 
 					switch (myChord.ChordNotes[StringLoop][FretLoop]) {
 						case 1:
-						theBall = BouncieBallRed;
+						theBall = (GdkPixbuf *) BouncieBallRed;
 						break;
 
 						case 3:
-						theBall = BouncieBallYel;
+						theBall = (GdkPixbuf *) BouncieBallYel;
 						break;
 
 						case 5:
-						theBall = BouncieBallGr;
+						theBall = (GdkPixbuf *) BouncieBallGr;
 						break;
 
 						case 6:
 						case 2:
-						theBall = BouncieBallBl;
+						theBall = (GdkPixbuf *) BouncieBallBl;
 						break;
 
 						default:
-						theBall = BouncieBall;
+						theBall = (GdkPixbuf *) BouncieBall;
 						break;
 					}
 

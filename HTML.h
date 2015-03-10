@@ -8,6 +8,8 @@
 #ifndef HTML_H_
 #define HTML_H_
 
-void InitHTML(GladeXML *gxml);
+void InitHTML(GtkBuilder *gxml);
+void  OpenSetListSong(int SongNumber);
+char	*GetURIFromLine(char *Line);
 
 #endif /* HTML_H_ */

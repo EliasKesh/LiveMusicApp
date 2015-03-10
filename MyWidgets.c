@@ -63,8 +63,8 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf
    	   theButton->EventBox = EventBox;
 	theButton->Image = image;
 	theButton->Overlay = overlay;
-	theButton->ButtonUpImage = On;
-	theButton->ButtonDownImage = Off;
+	theButton->ButtonUpImage = Off;
+	theButton->ButtonDownImage = On;
 	gtk_image_set_from_pixbuf (GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
 
 #if 0
@@ -73,6 +73,7 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf
 		G_CALLBACK(normal_release_handler),
 		&theButton);
 #endif
+	return(0);
 }
 
 /*--------------------------------------------------------------------
@@ -86,8 +87,10 @@ char		FormatString[100];
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
 //sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
 //sprintf(FormatString, "<span size=\"12800\" color=\"white\"><b>%s</b></span>", String);
-sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
+sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", gMyInfo.ButtonTextColor, String);
 	gtk_label_set_markup(GTK_LABEL(theButton->Label),FormatString);
+
+return(0);
 }
 
 gboolean normal_release_handler(GtkWidget *widget,

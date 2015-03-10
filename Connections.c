@@ -35,8 +35,8 @@
 #include "aconfig.h"
 // #include "gettext.h"
 
-char gDevices;
-char gPorts;
+int	 gDevices;
+int gPorts;
 PortsInfo *thePorts;
 /*
  * Place defines and Typedefs here

@@ -10,11 +10,13 @@
 
 #include "GTKMidiUI.h"
 #include "MyWidgets.h"
+#define _GNU_SOURCE
+#include <string.h>
 
 int Search_in_File(const char *fname, WebLoadPresets *thePresets);
 int ScalePage(void);
 tPatchIndex AssignPreset(int PresetNum, char *String);
-void SetPatchTitles(theImageButtons *MyButton, char *Text);
+void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value);
 
 static WebKitWebView* web_view;
 
@@ -23,8 +25,14 @@ theImageButtons SaveWebButton;;
 theImageButtons ScaleButton;;
 theImageButtons ForwardButton;;
 theImageButtons BackButton;;
+theImageButtons SetListButton;;
 
 GtkWidget *scrolled_window;
+// char		SetListFileName[FileNameMaxLength];
+char		SetListFileName[250];
+FILE		*SetListFile;
+#define ParseValue "Preset"
+#define MAXLINE 250
 
 /*--------------------------------------------------------------------
  * Function:		on_Back_clicked
@@ -34,6 +42,8 @@ GtkWidget *scrolled_window;
  *---------------------------------------------------------------------*/
 void on_Back_clicked(GtkButton * button, gpointer user_data) {
 //		webkit_web_view_set_editable( web_view, false);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(BackButton.Image),
+		BackButton.ButtonDownImage);
 	webkit_web_view_go_back(web_view);
 	g_print("Back:\n");
 
@@ -47,6 +57,8 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
  *---------------------------------------------------------------------*/
 void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 
+	gtk_image_set_from_pixbuf(GTK_IMAGE(ForwardButton.Image),
+		ForwardButton.ButtonDownImage);
 	webkit_web_view_go_forward(web_view);
 	g_print("Forward:\n");
 }
@@ -177,6 +189,9 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
 	const gchar *CurrentURI;
 
 //	 webkit_web_view_reload(web_view);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(ScaleButton.Image),
+		ScaleButton.ButtonDownImage);
+
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	g_print("Current %s\n", CurrentURI);
 	ScalePage();
@@ -190,7 +205,7 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
  *---------------------------------------------------------------------*/
 gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data) {
 
-	char Preset;
+	tPatchIndex Preset;
 	int	CPatch;
 
 	CPatch = (int) user_data;
@@ -198,9 +213,11 @@ gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data
 	if (CPatch >= 0 && CPatch < MaxPresetButtons) {
 		Preset = gMyInfo.WebPresets.thePreset[CPatch];
 	}
+	else
+		return(false);
 
-	printd(LogInfo, "In Button Preset%d %d %s\n", CPatch, Preset,
-		gMyInfo.MyPatchInfo[Preset].Name);
+	printd(LogInfo, "In Button Preset %d %d\n", CPatch, Preset);
+	printd(LogInfo, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
 	if (Preset != -1)
 		DoPatch(&gMyInfo.MyPatchInfo[Preset]);
@@ -208,6 +225,7 @@ gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data
 	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[CPatch].Image),
 		PresetButtons[CPatch].ButtonDownImage);
 
+return(1);
 }
 
 gboolean on_patch__release_handler(GtkWidget *widget,
@@ -293,8 +311,8 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 	}
 
 #ifndef WebKit2
-	printf("******** WebKit Set Edit %d\n",
-		webkit_web_view_get_editable(web_view));
+//	printf("WebKit Set Edit %d\n",
+		webkit_web_view_get_editable(web_view);
 #endif
 	webkit_web_view_set_zoom_level(web_view, 1);
 
@@ -408,6 +426,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 	gpointer user_data) {
 	char *theURI;
 	char string[150];
+	int	Loop;
 
 #ifdef WebKit2
 	theURI = webkit_web_view_get_uri(web_view);
@@ -456,10 +475,133 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 		 */
 		return (true);
 	}
-//   webkit_web_policy_decision_use(policy_decision);
+
+	if ( strstr(theURI, ".pdf")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+#ifndef WebKit2
+		webkit_web_policy_decision_ignore(policy_decision);
+#endif
+		sprintf(string, "/usr/bin/okular %s &", theURI);
+		for (Loop = 0; Loop < strlen(string); Loop++) {
+			if (string[Loop] == '%') {
+				string[Loop++] = 0x20;
+				string[Loop++] = 0x20;
+				string[Loop] = 0x20;
+			}
+		}
+
+		system(string);
+		printd(LogInfo, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	//   webkit_web_policy_decision_use(policy_decision);
 	return (false);
 }
 #endif
+
+/*--------------------------------------------------------------------
+ * Function:		GetURIFromLine
+ *
+ * Description:	If we have a set list saved then open a song from it.
+ *
+ *---------------------------------------------------------------------*/
+char	*GetURIFromLine(char *Line) {
+
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		OpenSetListSong
+ *
+ * Description:	If we have a set list saved then open a song from it.
+ *
+ *---------------------------------------------------------------------*/
+void  OpenSetListSong(int SongNumber) {
+int	Loop;
+char temp[MAXLINE];
+char Copy[MAXLINE];
+char *tokenizer;
+char *Found;
+int	Count = 0;
+int	SongCount = 0;
+
+
+printf("Made it to OpenSetListSong\n");
+
+	if (SongNumber < 1) {
+		printd(LogInfo, "Invalid SongNumber %d\n", SongNumber);
+		return;
+	}
+
+	SetListFile = fopen(&SetListFileName[7], "r");
+
+	if (!SetListFile) {
+		printd(LogInfo, "Can't open Setlist file  %s\n", SetListFileName);
+		return;
+	}
+// href=
+	while (fgets(temp, MAXLINE - 1, SetListFile) != NULL && (++Count < 150)) {
+		temp[MAXLINE] = 0;
+
+//		strncpy(Copy, temp, MAXLINE);
+		/* Set up Preset 1 button.
+		 */
+		Found = strstr(temp, "href=\"");
+		if (Found != NULL) {
+			SongCount++;
+			Found += 6;
+			tokenizer = strtok(Found, "\"");
+			printf("Parser found %d %s\n", SongCount, tokenizer);
+			if (SongCount == SongNumber) {
+				CurrentSetListSong = SongNumber;
+				strcpy(Copy, SetListFileName);
+//				dirname(SetListFileName);
+				dirname(Copy);
+				printf("After  %s\n", Copy);
+				strcat	(Copy, "/");
+				strcat	(Copy, tokenizer);
+				printf("Final  %s\n", Copy);
+				webkit_web_view_open(web_view, Copy);
+				break;
+			}
+		}
+	}
+
+	//Close the file if still open.
+	if (SetListFile) {
+		fclose(SetListFile);
+	}
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		on_SaveWeb_clicked
+ *
+ * Description:	Save the changes to the file
+ *
+ *---------------------------------------------------------------------*/
+void on_SetList_clicked(GtkWidget *widget, gpointer data) {
+	const gchar *CurrentURI;
+	char	*BasePtr;
+	int	Length;
+
+
+	CurrentURI = webkit_web_view_get_uri(web_view);
+	strcpy(SetListFileName, CurrentURI);
+	BasePtr = basename(SetListFileName);
+	Length = strlen(BasePtr);
+	BasePtr[Length -5] = 0;
+	MyImageButtonSetText(&SetListButton, BasePtr);
+	strcpy(SetListFileName, CurrentURI);
+
+}
 
 /*--------------------------------------------------------------------
  * Function:		InitHTML
@@ -467,7 +609,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
  * Description:	Set up the WebKit environment.
  *
  *---------------------------------------------------------------------*/
-void InitHTML(GladeXML *gxml) {
+void InitHTML(GtkBuilder *gxml) {
 	char FileName[255];
 	GtkWidget *Widget;
 	int Loop;
@@ -475,10 +617,11 @@ void InitHTML(GladeXML *gxml) {
 	GtkWidget *EventBox;
 	/* Load the buttons and set the callbacks for them.
 	 */
+	CurrentSetListSong = 0;
 
 	for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
 		sprintf(Buffer, "Patch%d", Loop + 1);
-		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
+		EventBox = GTK_WIDGET(gtk_builder_get_object((GtkBuilder *)gxml, Buffer));
 //		gtk_widget_get_usize(EventBox);
 
 		MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
@@ -519,7 +662,7 @@ void InitHTML(GladeXML *gxml) {
 #endif
 
 	EventBox = GTK_WIDGET(
-		gtk_builder_get_object(gxml, "BackButton"));
+		gtk_builder_get_object((GtkBuilder *)gxml, "BackButton"));
 	MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
 	MyImageButtonSetText(&BackButton, "Back");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -535,8 +678,6 @@ void InitHTML(GladeXML *gxml) {
 		G_CALLBACK(on_Forward_clicked), &ForwardButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 		G_CALLBACK(normal_release_handler), &ForwardButton);
-
-
 
 
 	EventBox = GTK_WIDGET(
@@ -558,8 +699,14 @@ void InitHTML(GladeXML *gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 		G_CALLBACK(normal_release_handler), &SaveWebButton);
 
-
-
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "SetList"));
+	MyImageButtonInit(&SetListButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonSetText(&SetListButton, "SetList");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(on_SetList_clicked), &SetListButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+		G_CALLBACK(normal_release_handler), &SetListButton);
 
 //    g_signal_connect(web_view, "load-finished", G_CALLBACK(load_finished_cb), NULL);
 
@@ -605,8 +752,7 @@ void InitHTML(GladeXML *gxml) {
 
 }
 
-#define ParseValue "Preset"
-#define MAXLINE 250
+
 
 /*--------------------------------------------------------------------
  * Function:		Search_in_File
@@ -640,15 +786,6 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	LoopFile[0] = 0;
 	Count = 0;
 
-	/*
-Preset1..Preset6
-Tempo
-LMA_Time 4/4 or 3/4
-LoopFile
-DrumFile
-SetNow
-IntroCount
-	 */
 //printd(LogInfo, "Have file %x %s\n", fp, fname);
 	while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
 		temp[MAXLINE] = 0;
@@ -783,7 +920,7 @@ IntroCount
 		 * Make sure the the looper is the second argument even of the drum file is the same.
 		 */
 		if (DrumFile[0] == 0)
-			DrumFile[0] = "A";
+			DrumFile[0] = 'A';
 
 		sprintf(Copy, "/home/Dropbox/LiveEffects/ReloadLivesFiles %s %s & ", DrumFile, LoopFile);
 		printf("Calling System with %s\n", Copy);
@@ -834,27 +971,27 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 
 		case 1:
 			printd(LogInfo, "*********PresetNum Case 1 ");
-			SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name,1);
 			break;
 
 		case 2:
-			SetPatchTitles(&PresetButtons[1], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[1], gMyInfo.MyPatchInfo[Value].Name,2);
 			break;
 
 		case 3:
-			SetPatchTitles(&PresetButtons[2], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[2], gMyInfo.MyPatchInfo[Value].Name,3);
 			break;
 
 		case 4:
-			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name,4);
 			break;
 
 		case 5:
-			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name,5);
 			break;
 
 		case 6:
-			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name);
+			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name,6);
 			break;
 
 		default:
@@ -870,8 +1007,13 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
  * Description:	When we load patched, rename the buttons.
  *
  *---------------------------------------------------------------------*/
-void SetPatchTitles(theImageButtons *MyButton, char *Text) {
+void SetPatchTitles(theImageButtons *MyButton, char *Text, int	Value) {
+	char String[PatchNameSize];
+	int		StringLen;
 
 	printd(LogInfo, "SetPatchTitles %x %s\n", MyButton, Text);
-	MyImageButtonSetText(MyButton, Text);
+	StringLen = strlen(Text);
+	sprintf(String, "       %02d       \n%*s", Value ,7+StringLen/2,
+		Text);
+	MyImageButtonSetText(MyButton, String);
 }
