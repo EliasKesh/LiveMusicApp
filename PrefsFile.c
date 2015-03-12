@@ -155,8 +155,43 @@ GTKMidiInfo GlobalInfo =
 			{ "Trig4Count", 0xff, 4, TransportPort, 1, cmdCountIn, "" },
 			{ "NextSong", 0xff, 2, FluidPort, 1, cmdSetList, "" },
 			{ "PrevSong", 0xff, 1, FluidPort, 1, cmdSetList, "" },
-
 			// 100	Button		Title		Bank	Patch	Outport
+			{ "Scroll", 0xff, 0, 0, 1, cmdScroll, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+
+			// 110	Button		Title		Bank	Patch	Outport
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+
+			// 120	Button		Title		Bank	Patch	Outport
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+			{ "Null", 0xff, 0, 0, 1, MaxCommands, "" },
+
+			// 130	Button		Title		Bank	Patch	Outport
 			{ "Preset1", 0xff, 1, 0, 1, cmdPreset, "" },
 			{ "Preset2", 0xff, 2, 0, 1, cmdPreset, "" },
 			{ "Preset3", 0xff, 3, 0, 1, cmdPreset, "" },
@@ -202,10 +237,10 @@ LayoutType LayoutPresets[] =
 	{ "Default",
 		{
 /*			1			2			3			4			5			6 		*/
-			"Preset1", 		"Preset2", 		"Chorus", 		"SatrianiComp", 	"CleanBass",	"MedDist",
-			"Satriani", 		"Piano", 		"Honky", 		"Flute", 		"FunkBass",	"Breath",
-			"Organ", 		"OctBass", 		"SynthLead", 	"Strings", 		"Trumpet",		"Steel Drums",
-			"Walky", 		"Drums", 		"Slap Bass", 	"NextSong",	"PrevSong", 	"LayoutSwitch",
+			"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
+			"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"Breath",
+			"PreTab", 		 "ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
+			"Scroll", 		"Drums", 		"Slap Bass", 	"NextSong",	"PrevSong", 	"LayoutSwitch",
 
 			"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 			"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
@@ -231,7 +266,7 @@ LayoutType LayoutPresets[] =
 			"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
 			"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
 			"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
-			"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+			"CZBrass4", 	"SinSymph",	"Rak Eff1", 	"Rak Eff2", 	"Rak Eff3",
 		},
 	},
 
@@ -308,8 +343,6 @@ LayoutType LayoutPresets[] =
 void InitPref(void) {
 	int Count;
 
-
-
 #if 1
 	gMyInfo.TempoMax = 8;
 
@@ -321,8 +354,8 @@ void InitPref(void) {
 	gMyInfo.MidiBaseNote = 40;
 	WritePrefs();
 #endif
-	gMyInfo.AnalogVolume = 100;
-	gMyInfo.MidiVolume = 100;
+	gMyInfo.AnalogVolume = 80;
+	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;
 //    ReadPrefs();

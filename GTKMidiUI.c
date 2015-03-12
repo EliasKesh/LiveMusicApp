@@ -243,7 +243,6 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
 	gdouble val;
 
 	val = gtk_range_get_value(GTK_RANGE(widget));
-
 	/* print to screen */
 	printd(LogInfo, "Range value: %d\n", (guint) val);
 	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
@@ -462,12 +461,7 @@ int main(int argc, char *argv[]) {
 	ButtonSize = 135;
 
 	parse_cmdline(argc, argv);
-#if 0
-	extern char		SetListFileName[];
-	strcpy(SetListFileName,"/mnt/Personal/home/Dropbox/FusionBlue/TOC/TOCList.html");
-	OpenSetListSong(5);
-	return(1);
-#endif
+
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
 //	gtk_rc_parse( MAINPREFS_FILE);
@@ -710,7 +704,6 @@ void UpdateStatus(char *String) {
 		case 0:
 			sprintf(DisString, "<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",gMyInfo.StatusTextColor,
 				(char*) &HoldStatus[1],(char*) &HoldStatus[2], (char*) &HoldStatus[3], String);
-			printf("Status %s  %lx\n", DisString, gMyInfo.StatusTextColor);
 			break;
 
 		case 1:
@@ -916,7 +909,7 @@ void CreateMainButtons(void) {
 #endif
 #endif
 
-#if 0
+#if 1
 	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
 	Adjustment1 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment1"));
 	g_signal_connect(G_OBJECT (VScale1), "value_changed",
@@ -943,11 +936,13 @@ void VScale1_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	//   printf("\nVscale 1 %f\n", Adjustment1->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+#if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		gMyInfo.MyPatchInfo[Slider1].OutPort,
 		gMyInfo.MyPatchInfo[Slider1].Channel,
 		gMyInfo.MyPatchInfo[Slider1].Patch,
 		(char) gMyInfo.AnalogVolume);
+#endif
 }
 
 /*--------------------------------------------------------------------
@@ -961,11 +956,13 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 //    printf("\nVscale 1 %f\n", Adjustment2->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment2);
+#if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		gMyInfo.MyPatchInfo[Slider2].OutPort,
 		gMyInfo.MyPatchInfo[Slider2].Channel,
 		gMyInfo.MyPatchInfo[Slider2].Patch,
 		(char) gMyInfo.AnalogVolume);
+#endif
 }
 
 /*--------------------------------------------------------------------
@@ -1387,12 +1384,13 @@ int SetVolume1(int Value) {
 	gMyInfo.AnalogVolume = Value;
 	gtk_range_set_adjustment(VScale1, Adjustment1);
 
+#if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		gMyInfo.MyPatchInfo[Slider1].OutPort,
 		gMyInfo.MyPatchInfo[Slider1].Channel,
 		gMyInfo.MyPatchInfo[Slider1].Patch,
 		(char) Value);
-
+#endif
 	return (Value);
 }
 
@@ -1406,12 +1404,13 @@ int SetVolume2(int Value) {
 	gMyInfo.MidiVolume = Value;
 	gtk_range_set_adjustment(VScale2, Adjustment2);
 
+#if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		gMyInfo.MyPatchInfo[Slider2].OutPort,
 		gMyInfo.MyPatchInfo[Slider2].Channel,
 		gMyInfo.MyPatchInfo[Slider2].Patch,
 		(char) Value);
-
+#endif
 	return (Value);
 }
 

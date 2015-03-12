@@ -64,6 +64,30 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 }
 
 /*--------------------------------------------------------------------
+ * Function:		ScrollDown
+ *
+ * Description:	Scroll the music
+ *
+ *---------------------------------------------------------------------*/
+int ScrollDown(int	Amount) {
+GtkAdjustment *Adjust;
+gint		Value,UpperV, VIncrement;
+
+
+	Adjust = gtk_scrolled_window_get_vadjustment(scrolled_window);
+	UpperV = gtk_adjustment_get_upper(Adjust);
+	VIncrement = gtk_adjustment_get_page_increment(Adjust);
+	Value = gtk_adjustment_get_value(Adjust);
+	printd(LogInfo,"In ScrollDown %d  %d %d\n",UpperV,  VIncrement, Value);
+	if ( ( (VIncrement + Value) + (UpperV /10) )>= UpperV ) {
+		gtk_adjustment_set_value(Adjust, 0);
+		printd(LogInfo,"ScrollDown Rolling Over\n");
+	}
+	else {
+	gtk_adjustment_set_value(Adjust, VIncrement + Value);
+	}
+	}
+/*--------------------------------------------------------------------
  * Function:		Scale the page to fit with scroll bars
  *
  * Description:	Web browser forward button
@@ -507,17 +531,6 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 #endif
 
 /*--------------------------------------------------------------------
- * Function:		GetURIFromLine
- *
- * Description:	If we have a set list saved then open a song from it.
- *
- *---------------------------------------------------------------------*/
-char	*GetURIFromLine(char *Line) {
-
-
-}
-
-/*--------------------------------------------------------------------
  * Function:		OpenSetListSong
  *
  * Description:	If we have a set list saved then open a song from it.
@@ -546,12 +559,15 @@ printf("Made it to OpenSetListSong\n");
 		printd(LogInfo, "Can't open Setlist file  %s\n", SetListFileName);
 		return;
 	}
-// href=
+
+	/*
+	 * Walk thru the file and find the HREF links.
+	 */
 	while (fgets(temp, MAXLINE - 1, SetListFile) != NULL && (++Count < 150)) {
 		temp[MAXLINE] = 0;
 
-//		strncpy(Copy, temp, MAXLINE);
-		/* Set up Preset 1 button.
+		/*
+		 * Look for the Links and .Count the number.
 		 */
 		Found = strstr(temp, "href=\"");
 		if (Found != NULL) {
@@ -559,6 +575,10 @@ printf("Made it to OpenSetListSong\n");
 			Found += 6;
 			tokenizer = strtok(Found, "\"");
 			printf("Parser found %d %s\n", SongCount, tokenizer);
+
+			/*
+			 * If the is the SongNumber HREF count then grab the file name.
+			 */
 			if (SongCount == SongNumber) {
 				CurrentSetListSong = SongNumber;
 				strcpy(Copy, SetListFileName);
@@ -574,7 +594,7 @@ printf("Made it to OpenSetListSong\n");
 		}
 	}
 
-	//Close the file if still open.
+	// Close the file if still open.
 	if (SetListFile) {
 		fclose(SetListFile);
 	}

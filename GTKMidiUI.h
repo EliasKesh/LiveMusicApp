@@ -94,7 +94,7 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 56
-#define Max_Patches	 110
+#define Max_Patches	 140
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
 
@@ -189,6 +189,7 @@ enum {
 	cmdVolume,
 	cmdLnTransPort,
 	cmdSetList,
+	cmdScroll,
 	MaxCommands
 };
 
@@ -300,6 +301,7 @@ char *CustomCommands[] = {
 	"CountIn",
 	"VolSwitch",
 	"SetList",
+	"Scroll",
 	"MediaTransport"
 };
 

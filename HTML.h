@@ -10,6 +10,6 @@
 
 void InitHTML(GtkBuilder *gxml);
 void  OpenSetListSong(int SongNumber);
-char	*GetURIFromLine(char *Line);
+int ScrollDown(int	Amount);
 
 #endif /* HTML_H_ */
