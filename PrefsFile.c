@@ -228,8 +228,110 @@ GTKMidiInfo GlobalInfo =
 		1, /* Metronome On	*/
 		37, /* Drum down beat, midi code.*/
 		44, /* Drum Other beats */
-		40 /* Base Midi Note for switching.	*/
+		40, /* Base Midi Note for switching.	*/
+
+		/* Begin Layouts Section.	*/
+		{
+		{ "Default",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
+				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"Breath",
+				"PreTab", 		 "ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
+				"Scroll", 		"Drums", 		"Slap Bass", 	"NextSong",	"PrevSong", 	"LayoutSwitch",
+
+				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+
+			},
+		},
+
+		{ "Practice",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+				"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+
+				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 	"Rak Eff2", 	"Rak Eff3",
+			},
+		},
+
+		{ "Rehearsal",
+			{
+				"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
+				"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
+				"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
+				"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+				"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
+				"LayoutSwitch", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
+				"Piano", "Honky", "Breath", "Organ", "Flute",
+				"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
+				"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
+				"Steel Drums", "Low Synth", "Mid0", "Mid-24", "Mid Screen",
+				"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
+				"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
+			},
+		},
+
+		{ "Looper",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+				"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+	//			"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
+	//			"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
+			},
+		},
+
+		{ "Bass",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
+				"FunkBass", 	"Slap Bass", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+			},
+		},
+
+		/*
+		 * Terminator for Layouts.
+		 */
+		{ "",
+			{
+			},
+		},
+
+		},
 	};
+#if 0
 // @formatter:off
 LayoutType LayoutPresets[] =
 	{
@@ -256,7 +358,7 @@ LayoutType LayoutPresets[] =
 		{
 /*			1			2			3			4			5			6 		*/
 			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
-			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
+			"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -291,7 +393,7 @@ LayoutType LayoutPresets[] =
 		{
 /*			1			2			3			4			5			6 		*/
 			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
-			"TransStart", 	"TransCont", "	TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
+			"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -310,7 +412,7 @@ LayoutType LayoutPresets[] =
 		{
 /*			1			2			3			4			5			6 		*/
 			"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
-			"FunkBass", 	"Slap Bass", "	Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
+			"FunkBass", 	"Slap Bass", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
 			"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 			"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -332,6 +434,7 @@ LayoutType LayoutPresets[] =
 	},
 
 	};
+#endif
 // START-ECLIPSE-FORMATTING
 
 /*--------------------------------------------------------------------
@@ -342,17 +445,17 @@ LayoutType LayoutPresets[] =
  *---------------------------------------------------------------------*/
 void InitPref(void) {
 	int Count;
-
 #if 1
 	gMyInfo.TempoMax = 8;
 
 	memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
-	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
+//	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
 	gMyInfo.MidiBaseNote = 40;
-	WritePrefs();
+//	WritePrefs();
+	ReadPrefs();
 #endif
 	gMyInfo.AnalogVolume = 80;
 	gMyInfo.MidiVolume = 80;
@@ -418,12 +521,12 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
 		}
 	}
 
-	for (Loop = 0; LayoutPresets[Loop].Name[0] != 0; Loop++) {
+	for (Loop = 0; gMyInfo.LayoutPresets[Loop].Name[0] != 0; Loop++) {
 		printf("Lay=%d %s %d %d %d\n", Loop,
-			LayoutPresets[Loop].Name,
-			LayoutPresets[Loop].Presets[0],
-			LayoutPresets[Loop].Presets[1],
-			LayoutPresets[Loop].Presets[2]);
+			gMyInfo.LayoutPresets[Loop].Name,
+			gMyInfo.LayoutPresets[Loop].Presets[0],
+			gMyInfo.LayoutPresets[Loop].Presets[1],
+			gMyInfo.LayoutPresets[Loop].Presets[2]);
 	}
 
 	printf("Metronome Base %d On %d %d %d\n", myInfo->TempoMax,
@@ -440,10 +543,12 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
  *---------------------------------------------------------------------*/
 void WritePrefs(void) {
 	xmlDocPtr doc = NULL; /* document pointer */
-	xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+	xmlNodePtr root_node = NULL, node = NULL,
+		node0 = NULL, node1 = NULL, node2 = NULL; /* node pointers */
 	xmlDtdPtr dtd = NULL; /* DTD pointer */
 	char buff[256];
 	int Loop;
+	int PatchLoop;;
 
 	LIBXML_TEST_VERSION
 	;
@@ -453,7 +558,7 @@ void WritePrefs(void) {
 	xmlDocSetRootElement(doc, root_node);
 
 	xmlNewChild(root_node, NULL, BAD_CAST "SongPath",
-	BAD_CAST "/home/Dropbox/FusionBlue/ChartsHTML/");
+	BAD_CAST gMyInfo.BasePath);
 
 	/*
 	 * Write out the Buttons
@@ -515,6 +620,39 @@ void WritePrefs(void) {
 	sprintf(buff, "%03d", gMyInfo.DrumRest);
 	xmlNewChild(root_node, NULL, BAD_CAST "ClickRest", BAD_CAST buff);
 
+	/*
+	 * Dump the layouts to the XML File.
+	 */
+	Loop = 0;
+	node = xmlNewChild(root_node, NULL, BAD_CAST "Layouts", NULL);
+	printf("Starting %x %s\n",node, gMyInfo.LayoutPresets[Loop].Name);
+	while(gMyInfo.LayoutPresets[Loop].Name[0]) {
+		sprintf(buff, "Layout%03d", Loop);
+		node1 = xmlNewChild(node, NULL, buff, NULL);
+//		printf("Loop %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
+
+		xmlSetProp(node1, "LayoutName", gMyInfo.LayoutPresets[Loop].Name);
+//		printf("xmlSetProp %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
+
+//		node1 = xmlNewChild(node, NULL, BAD_CAST LayoutPresets[Loop].Name, NULL);
+		for (PatchLoop = 0; PatchLoop< Max_Patches ;PatchLoop++) {
+			sprintf(buff, "Patch%03d", PatchLoop);
+//			printf("Patchnames %s\n",buff);
+			node2 = xmlNewChild(node1, NULL, buff, NULL);
+			xmlSetProp(node2, "PatchName", gMyInfo.LayoutPresets[Loop].Presets[PatchLoop]);
+//			node2= xmlNewChild(node1, NULL, BAD_CAST LayoutPresets[Loop].Presets[PatchLoop], NULL);
+		}
+		Loop++;
+	}
+
+#if 0
+	typedef struct {
+		char Name[PatchNameSize];
+		char Presets[Max_Patches][PatchNameSize];
+	} LayoutType;
+
+	LayoutType LayoutPresets
+#endif
 	/*
 	 * Dumping document to stdio or file
 	 */
@@ -621,6 +759,58 @@ void getReference(xmlDocPtr doc, xmlNodePtr cur) {
 					/* This is Bad, Compare with Button index. */
 					Loop++;
 				}
+
+				/*
+				 * Read the Button information
+				 */
+				if ((!xmlStrcmp(cur->name, (const xmlChar *) "Layouts"))) {
+					node = cur->xmlChildrenNode;
+					while (node) {
+printf("In XML Read found Layouts\n");
+#if 0
+						if (xmlStrcmp(node->name, (const xmlChar *) "text")) {
+							printd(LogInfo, "Preset: %s ", node->name);
+
+							key = xmlGetProp(node, "Name");
+							printd(LogInfo, "Name: %s ", key);
+							strcpy(gMyInfo.MyPatchInfo[Loop].Name, key);
+							xmlFree(key);
+
+							key = xmlGetProp(node, "Channel");
+							printd(LogInfo, "Chan: %d ", atoi(key));
+							gMyInfo.MyPatchInfo[Loop].Channel = atoi(key);
+							xmlFree(key);
+
+							key = xmlGetProp(node, "Controller");
+							printd(LogInfo, "Controller: %d ", atoi(key));
+							gMyInfo.MyPatchInfo[Loop].BankSelect = atoi(key);
+							xmlFree(key);
+
+							key = xmlGetProp(node, "OutPort");
+							printd(LogInfo, "OutPort: %d ", atoi(key));
+							gMyInfo.MyPatchInfo[Loop].OutPort = atoi(key);
+							xmlFree(key);
+
+							key = xmlGetProp(node, "Patch");
+							printd(LogInfo, "Patch: %d \n", atoi(key));
+							gMyInfo.MyPatchInfo[Loop].Patch = atoi(key);
+							xmlFree(key);
+
+							/* This is Bad, Compare with Button index. */
+							Loop++;
+						}
+#endif
+						node = node->next;
+					}
+				}
+
+
+
+
+
+
+
+
 				node = node->next;
 			}
 		}
@@ -699,8 +889,9 @@ void parseDoc(char *docname) {
 #define dTopLevelMidiBase 8
 #define dTopLevelClick1	9
 #define dTopLevelClickRest 10
+#define dTopLevelLayouts 11
 
-char TopLevelParse;
+int TopLevelParse;
 int ParseCountL4;
 int ParseCountL2;
 int ParseCountL3;
@@ -726,10 +917,11 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 	Depth = xmlTextReaderDepth(reader);
 	//	if (NodeType != 14 && NodeType != 3) {
 #if 0
-	printd(LogInfo, "%d D=%d T=%d N=[%s] E=%d ",Location,
+	printd(LogInfo, "%d D=%d T=%d N=[%s] V=[%s] E=%d\n",Location,
 		Depth,
 		NodeType,
 		name,
+		value,
 		xmlTextReaderIsEmptyElement(reader));
 #endif
 
@@ -794,11 +986,15 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp("ClickRest", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelClickRest;
-		}
 
 		printd(LogInfo, "\nTop Level Set %d\n", TopLevelParse);
-	} /* Depth == 1 NodeType == 1	*/
+		} /* Depth == 1 NodeType == 1	*/
 
+		if (!strcmp("Layouts", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelLayouts;
+			printf("Found Layouts\n");
+		}
+	}
 	if (TopLevelParse == dTopLevelOutPorts) {
 		/* Get the second element.
 		 */
@@ -834,6 +1030,37 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 				gMyInfo.Apps[ParseCountL2].PortID = atoi(value);
 		}
 	}
+
+
+/* ********************************** */
+	if (TopLevelParse == dTopLevelLayouts) {
+//printf("IN the TopLevel Layouts Parse\n");
+		if (Depth == 2 && NodeType == 1 ) {
+			sscanf(name, "Layout%03d\n", &HoldIndex);
+
+			/* This is the index for the Layouts. */
+			ParseCountL2 = HoldIndex;
+		}
+
+		if (Depth == 3 && NodeType == 2 ) {
+			/* Assign Names here.	*/
+//			printd(LogInfo, "Layout Name %d %s\n",ParseCountL2, value );
+			strcpy(gMyInfo.LayoutPresets[ParseCountL2].Name, value);
+
+		}
+
+		if (Depth == 3 && NodeType == 1 ) {
+			sscanf(name, "Patch%03d\n", &HoldIndex);
+			ParseCountL3 = HoldIndex;
+		}
+
+		if (Depth == 4 && NodeType == 2 ) {
+			/* Assign Presets here.	*/
+//		printd(LogInfo, "Preset Name %d %s\n",ParseCountL3, value );
+		strcpy(gMyInfo.LayoutPresets[ParseCountL2].Presets[ParseCountL3], value);
+
+		}
+}
 
 	if (TopLevelParse == dTopLevelMainButtons) {
 		/* Get the second element.

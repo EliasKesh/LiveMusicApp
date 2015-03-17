@@ -201,7 +201,7 @@ gboolean layout_click_handler(GtkWidget *widget,
 	printf("layout_click %x\n", theButton);
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 	IncrementMode();
-	MyImageButtonSetText(theButton, LayoutPresets[CurrentLayout].Name);
+	MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 		theButton->ButtonDownImage);
 	return TRUE; /* stop event propagation */
@@ -450,6 +450,7 @@ int main(int argc, char *argv[]) {
 	GdkScreen *screen;
 	/*-----------------------*/
 	int	BButtonX, BButtonY, MButtonX, MButtonY;
+	int	Loop;
 
 	/*
 	 * Let's setup some variables.
@@ -605,6 +606,8 @@ int main(int argc, char *argv[]) {
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
+	SetAlsaMasterVolume(84);
+	SetAlsaCaptureVolume(84);
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -625,7 +628,7 @@ int main(int argc, char *argv[]) {
 	printf("LayoutEvent %x\n", (unsigned int)EventBox);
 	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
 		MainButtonOffImage);
-	MyImageButtonSetText(&LayoutButton, LayoutPresets[0].Name);
+	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
 
 	g_signal_connect(G_OBJECT(EventBox),
 		"button-press-event",
@@ -676,7 +679,7 @@ int main(int argc, char *argv[]) {
 	 * After we quit we should write back the changes.
 	 */
 	WritePrefs();
-
+	MyAlsaClose();
 	return 0;
 }
 
@@ -1157,7 +1160,7 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 	tPatchIndex NewValue;
 
 	NewValue = FindString(fsPatchNames,
-		LayoutPresets[CurrentLayout].Presets[Value]);
+		gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
 #if 0
 	switch (CurrentLayout) {
 		case ModeDefault:
@@ -1197,11 +1200,11 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
  *---------------------------------------------------------------------*/
 void IncrementMode(void) {
 
-	if (LayoutPresets[++CurrentLayout].Name[0] == 0)
+	if (gMyInfo.LayoutPresets[++CurrentLayout].Name[0] == 0)
 		CurrentLayout = 0;
 
 	printf("IncrementMode %d %s", CurrentLayout,
-		LayoutPresets[CurrentLayout].Name);
+		gMyInfo.LayoutPresets[CurrentLayout].Name);
 //	gtk_widget_override_font(CurrentLayoutWid,
 //		pango_font_description_from_string("Sans Bold 16"));
 //	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);

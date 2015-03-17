@@ -16,11 +16,14 @@
 //snd_seq_t *SeqPort2;
 snd_seq_t *SeqPort1In;
 // extern int SeqPort1Port;
-
+snd_mixer_t *MixerHandle;
+char *card = "default";
+const char *selem_name = "Master";
 char TestProgram = 0;
 // Midi thread for input
 int g_midi_ignore;
 pthread_t g_alsa_midi_tid; /* alsa_midi_thread id */
+unsigned long MixerVolume;
 
 snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name);
 void ProgramChange(unsigned int InputChange);
@@ -54,6 +57,24 @@ void show_status(void *handle)
 	printf("  lost = %li\n", snd_timer_status_get_lost(status));
 	printf("  overrun = %li\n", snd_timer_status_get_overrun(status));
 	printf("  queue = %li\n", snd_timer_status_get_queue(status));
+}
+
+bool MyAlsaClose() {
+	int ret;
+
+	/* Cancel the thread. Don't know better way.
+	 Poll or unblock mechanisms seem to not be
+	 available for alsa sequencer */
+	pthread_cancel(g_alsa_midi_tid);
+
+	/* Wait midi thread to finish */
+	ret = pthread_join(g_alsa_midi_tid, NULL);
+
+	ret = snd_seq_close(SeqPort1In);
+	if (ret < 0) {
+		g_warning("Cannot close sequncer, %s\n", snd_strerror(ret));
+	}
+	snd_mixer_close(MixerHandle);
 }
 
 /*--------------------------------------------------------------------
@@ -90,6 +111,15 @@ bool MyAlsaInit() {
 	alsa_input_init("LiveMusic");
 
 	device_list();
+
+	/*
+	 * Open Mixer for manipulation
+	 */
+    snd_mixer_open(&MixerHandle, 0);
+    snd_mixer_attach(MixerHandle, card);
+    snd_mixer_selem_register(MixerHandle, NULL, NULL);
+    snd_mixer_load(MixerHandle);
+
 //      pcm_list();
 //      queue_id = snd_seq_alloc_queue(seq_handle);
 	return true;
@@ -207,6 +237,7 @@ void SetupAlsaTimer(int Count) {
 	 */
 	snd_seq_ev_set_direct(&MTCev);
 	MTCev.type = SND_SEQ_EVENT_CLOCK;
+
 
 }
 /*--------------------------------------------------------------------
@@ -1371,29 +1402,6 @@ gboolean alsa_input_init(const char * name) {
 	return false;
 }
 
-/*--------------------------------------------------------------------
- * Function:		alsa_input_init
- *
- * Description:		close the Alsa input port.
- *
- *---------------------------------------------------------------------*/
-void alsa_uninit() {
-	int ret;
-
-	/* Cancel the thread. Don't know better way.
-	 Poll or unblock mechanisms seem to not be
-	 available for alsa sequencer */
-	pthread_cancel(g_alsa_midi_tid);
-
-	/* Wait midi thread to finish */
-	ret = pthread_join(g_alsa_midi_tid, NULL);
-
-	ret = snd_seq_close(SeqPort1In);
-	if (ret < 0) {
-		g_warning("Cannot close sequncer, %s\n", snd_strerror(ret));
-	}
-}
-
 // /usr/include/alsa/seq_event.h
 /*--------------------------------------------------------------------
  * Function:		alsa_input_init
@@ -1646,6 +1654,12 @@ void sendMessageNow (const MidiMessage& message) {
 // static snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
 static snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
 
+/*--------------------------------------------------------------------
+ * Function:		device_list
+ *
+ * Description:		Look for all devices.
+ *
+ *---------------------------------------------------------------------*/
 static void device_list(void) {
 	snd_ctl_t *handle;
 	int card, err, dev, idx;
@@ -1717,6 +1731,12 @@ static void device_list(void) {
 	}
 }
 
+/*--------------------------------------------------------------------
+ * Function:		pcm_list
+ *
+ * Description:		Look for Capture Cards.
+ *
+ *---------------------------------------------------------------------*/
 static void pcm_list(void) {
 	void **hints, **n;
 	char *name, *descr, *descr1, *io;
@@ -1755,6 +1775,55 @@ static void pcm_list(void) {
 		n++;
 	}
 	snd_device_name_free_hint(hints);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetAlsaMasterVolume
+ *
+ * Description:		Control the Alsa Mixer
+ *
+ *---------------------------------------------------------------------*/
+void SetAlsaMasterVolume(long volume) {
+    long min, max;
+    snd_mixer_selem_id_t *sid;
+
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_index(sid, 0);
+    snd_mixer_selem_id_set_name(sid,  "Master");
+  snd_mixer_elem_t* elem = snd_mixer_find_selem(MixerHandle, sid);
+printf("SetAlsaMasterVolume MixerHandle %x elem %x\n", MixerHandle, elem);
+
+	/* This is the Mute button.		*/
+	snd_mixer_selem_set_playback_switch_all	(elem, 1 );
+  snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &MixerVolume);
+  snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+    snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100);
+}
+
+
+/*--------------------------------------------------------------------
+ * Function:		SetAlsaCaptureVolume
+ *
+ * Description:		Control the Alsa Mixer
+ *
+ *---------------------------------------------------------------------*/
+void SetAlsaCaptureVolume(long volume) {
+    long min, max;
+    snd_mixer_selem_id_t *sid;
+
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_index(sid, 0);
+    snd_mixer_selem_id_set_name(sid,  "Capture");
+  snd_mixer_elem_t* elem = snd_mixer_find_selem(MixerHandle, sid);
+  printf("SetAlsaCaptureVolume MixerHandle %x elem %x\n", MixerHandle, elem);
+
+  snd_mixer_selem_get_capture_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &MixerVolume);
+//	  snd_mixer_selem_channel_id_t 	channel,long * 	value  )
+
+  snd_mixer_selem_set_capture_switch_all	(elem, 1 );
+
+  snd_mixer_selem_get_capture_volume_range(elem, &min, &max);
+    snd_mixer_selem_set_capture_volume_all(elem, volume * max / 100);
 }
 
 #if 0

@@ -97,7 +97,7 @@ typedef struct {
 #define Max_Patches	 140
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
-
+#define Max_Layouts		10
 typedef struct {
 	char Name[PatchNameSize];
 	char Presets[Max_Patches][PatchNameSize];
@@ -140,6 +140,7 @@ typedef struct {
 	char	Drum1;
 	char	DrumRest;
 	tPatchIndex MidiBaseNote;
+	LayoutType LayoutPresets[Max_Layouts];
 
 	// Generated Beyond this point.
 	snd_seq_t *SeqPort[MaxOutPorts];
@@ -278,7 +279,7 @@ enum {
 #ifdef GTKMidiUI_c
 //PatchInfo  *MyPatchInfo;
 GTKMidiInfo gMyInfo;
-LayoutType LayoutPresets[Max_Layouts];
+//LayoutType LayoutPresets[Max_Layouts];
 int LastPortUsed;
 
 PortsInfo theInPorts;
@@ -321,7 +322,7 @@ char gUpdateTempo;
 int		CurrentSetListSong;
 #else
 extern int LastPortUsed;
-extern LayoutType LayoutPresets[];
+//extern LayoutType LayoutPresets[];
 
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;

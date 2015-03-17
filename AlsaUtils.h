@@ -9,8 +9,11 @@
 #define ALSAUTILS_H_
 #include <asoundlib.h>
 bool MyAlsaInit(void);
+bool MyAlsaClose();
 
 int SendMidi(char Type, char Port, char Channel, char Controller, int Value);
 int SendMidiPatch(PatchInfo *thePatch);
+void SetAlsaCaptureVolume(long volume);
+void SetAlsaMasterVolume(long volume);
 
 #endif /* ALSAUTILS_H_ */
