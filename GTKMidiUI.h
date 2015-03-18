@@ -320,6 +320,9 @@ GdkPixbuf *PatchButtonOnImage;
 GdkPixbuf *PatchButtonOffImage;
 char gUpdateTempo;
 int		CurrentSetListSong;
+unsigned int CurrentLayout;
+unsigned int CurrentPreset;
+
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -345,6 +348,8 @@ extern GdkPixbuf *PatchButtonOnImage;
 extern GdkPixbuf *PatchButtonOffImage;
 extern char gUpdateTempo;
 extern int		CurrentSetListSong;
+extern unsigned int CurrentLayout;
+extern unsigned int CurrentPreset;
 
 #endif
 

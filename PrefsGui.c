@@ -573,3 +573,205 @@ void labour_cell_edited (GtkCellRendererText *cell,
 };
 
 #endif
+#if 0
+/*
+ * ------------------------------------------------------------------------
+ */
+
+void
+view_popup_menu_onDoSomething (GtkWidget *menuitem, gpointer userdata)
+{
+  /* we passed the view as userdata when we connected the signal */
+  GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
+
+  g_print ("Do something!\n");
+}
+
+
+void view_popup_menu (GtkWidget *treeview, GdkEventButton *event, gpointer userdata) {
+  GtkWidget *menu, *menuitem;
+
+  menu = gtk_menu_new();
+
+  menuitem = gtk_menu_item_new_with_label("Do something");
+
+  g_signal_connect(menuitem, "activate",
+                   (GCallback) view_popup_menu_onDoSomething, treeview);
+
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+
+  gtk_widget_show_all(menu);
+
+  /* Note: event can be NULL here when called from view_onPopupMenu;
+   *  gdk_event_get_time() accepts a NULL argument */
+  gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+                 (event != NULL) ? event->button : 0,
+                 gdk_event_get_time((GdkEvent*)event));
+}
+
+
+gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata) {
+  /* single click with the right mouse button? */
+  if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3)
+  {
+    g_print ("Single right click on the tree view.\n");
+
+    /* optional: select row if no row is selected or only
+     *  one other row is selected (will only do something
+     *  if you set a tree selection mode as described later
+     *  in the tutorial) */
+    if (1)
+    {
+      GtkTreeSelection *selection;
+
+      selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+      /* Note: gtk_tree_selection_count_selected_rows() does not
+       *   exist in gtk+-2.0, only in gtk+ >= v2.2 ! */
+      if (gtk_tree_selection_count_selected_rows(selection)  <= 1)
+      {
+         GtkTreePath *path;
+
+         /* Get tree path for row that was clicked */
+         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
+                                           (gint) event->x,
+                                           (gint) event->y,
+                                           &path, NULL, NULL, NULL))
+         {
+           gtk_tree_selection_unselect_all(selection);
+           gtk_tree_selection_select_path(selection, path);
+           gtk_tree_path_free(path);
+         }
+      }
+    } /* end of optional bit */
+
+    view_popup_menu(treeview, event, userdata);
+
+    return TRUE; /* we handled this */
+  }
+
+  return FALSE; /* we did not handle this */
+}
+
+
+gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata) {
+  view_popup_menu(treeview, NULL, userdata);
+
+  return TRUE; /* we handled this */
+}
+
+int	ShowPatchListSelect(int	Starting) {
+  GtkWidget *view;
+
+  view = gtk_tree_view_new();
+
+  g_signal_connect(view, "button-press-event", (GCallback) view_onButtonPressed, NULL);
+  g_signal_connect(view, "popup-menu", (GCallback) view_onPopupMenu, NULL);
+
+}
+#endif
+enum
+{
+  LIST_ITEM = 0,
+  N_COLUMNS
+};
+
+static void
+init_list(GtkWidget *list)
+{
+
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
+  GtkListStore *store;
+
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("List Items",
+          renderer, "text", LIST_ITEM, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
+
+  store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
+
+  gtk_tree_view_set_model(GTK_TREE_VIEW(list),
+      GTK_TREE_MODEL(store));
+
+  g_object_unref(store);
+}
+
+static void
+add_to_list(GtkWidget *list, const gchar *str)
+{
+  GtkListStore *store;
+  GtkTreeIter iter;
+
+  store = GTK_LIST_STORE(gtk_tree_view_get_model
+      (GTK_TREE_VIEW(list)));
+
+  gtk_list_store_append(store, &iter);
+  gtk_list_store_set(store, &iter, LIST_ITEM, str, -1);
+}
+
+
+void  OnPatchSelected(GtkWidget *widget, int	Starting)
+{
+  GtkTreeIter iter;
+  GtkTreeModel *model;
+  char *value;
+
+  printf("On Patch Changed\n");
+  if (gtk_tree_selection_get_selected(
+      GTK_TREE_SELECTION(widget), &model, &iter)) {
+
+    gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+	  printf("On Patch Changed in Selection %s\n", value);
+
+	  strcpy(gMyInfo.LayoutPresets[CurrentLayout].Presets[Starting], value);
+//    gtk_label_set_text(GTK_LABEL(label), value);
+    g_free(value);
+  }
+
+}
+#if 0
+int	ShowPatchListSelect(GtkWidget *view, int	Starting) {
+  GtkWidget *window;
+  GtkWidget *list;
+
+  GtkWidget *vbox;
+  GtkWidget *label;
+  GtkTreeSelection *selection;
+int Loop;
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+  gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+  gtk_widget_set_size_request(window, 270, 250);
+  gtk_window_set_title(GTK_WINDOW(window), "List View");
+
+  list = gtk_tree_view_new();
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
+
+  vbox = gtk_vbox_new(FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(vbox), list, TRUE, TRUE, 5);
+
+  label = gtk_label_new("Select Patch");
+  gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+  gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 5);
+
+  gtk_container_add(GTK_CONTAINER(window), vbox);
+
+  init_list(list);
+	for (Loop = 0; Loop< Max_Patches; Loop++) {
+		  add_to_list(list, gMyInfo.MyPatchInfo[Loop].Name);
+	}
+
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+  gtk_tree_view_set_activate_on_single_click (GTK_TREE_VIEW(list), TRUE);
+  g_signal_connect(selection, "changed",
+      G_CALLBACK(OnPatchSelected), Starting);
+
+  gtk_widget_show_all(window);
+printf("Selected %d\n",selection);
+  return(selection);
+}
+
+
+#endif

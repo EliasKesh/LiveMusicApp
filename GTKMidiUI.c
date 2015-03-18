@@ -48,7 +48,6 @@ int seqPort;
 //	GladeXML *gxml;
 GtkWidget* MainStatus;
 //GtkWidget* CurrentLayoutWid;
-unsigned int CurrentLayout;
 guint MainStatusid;
 theImageButtons LayoutButton;
 // GtkWidget *MainButtons[Max_Main_Buttons];
@@ -256,6 +255,8 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
  *---------------------------------------------------------------------*/
 void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 	/* break gtk_main() loop */
+//	printf("In Destroy\n");
+//	WritePrefs();
 	gtk_main_quit();
 }
 
@@ -451,7 +452,7 @@ int main(int argc, char *argv[]) {
 	/*-----------------------*/
 	int	BButtonX, BButtonY, MButtonX, MButtonY;
 	int	Loop;
-
+	GdkScreen *myScreen;
 	/*
 	 * Let's setup some variables.
 	 * CurrentLayout is the default to start with
@@ -459,13 +460,15 @@ int main(int argc, char *argv[]) {
 	 */
 	CurrentLayout = 0;
 	WaitingforMidi = 0;
-	ButtonSize = 135;
+	ButtonSize = 115;
+
 
 	parse_cmdline(argc, argv);
-
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
 //	gtk_rc_parse( MAINPREFS_FILE);
+	myScreen = gdk_screen_get_default ();
+	printf("Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 
 	/*
 	 * Initialize the XML reader/writer and set some basic values here.
@@ -503,6 +506,7 @@ int main(int argc, char *argv[]) {
 	g_signal_connect(G_OBJECT (main_window), "destroy",
 		G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
+	gtk_window_set_icon(GTK_WINDOW(main_window), create_pixbuf(Icon_FILE));
 
 	BButtonX = ButtonSize;
 	BButtonY  = (int)((float)ButtonSize * 0.6);
@@ -664,7 +668,7 @@ int main(int argc, char *argv[]) {
 	printd(LogInfo, "Setting Default Volumes\n");
 	SetVolume1(gMyInfo.AnalogVolume);
 	SetVolume2(gMyInfo.MidiVolume);
-//      create_Popup_view(main_window);
+//       create_Patch_Popup_view(main_window);
 	printd(LogInfo, "Enterint gtk_main\n");
 
 	MyTimerInit();
@@ -747,8 +751,18 @@ gboolean click_handler(GtkWidget *widget,
 	gpointer user_data)
 {
 	int Loop;
+	GdkEvent	*theEvent;
+
+	theEvent  = gtk_get_current_event();
+printf("Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
 
 	Loop = (int) user_data;
+	CurrentPreset = Loop;
+	if (theEvent->button.state & GDK_CONTROL_MASK) {
+		printf("We have Control Down\n");
+		ShowPatchListSelect(GTK_WINDOW(widget),Loop);
+
+	}
 //	PatchIndex = LayoutSwitchPatch(user_data, true);
 	LayoutSwitchPatch(Loop, true);
 
@@ -1200,11 +1214,12 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
  *---------------------------------------------------------------------*/
 void IncrementMode(void) {
 
-	if (gMyInfo.LayoutPresets[++CurrentLayout].Name[0] == 0)
+	if (gMyInfo.LayoutPresets[++CurrentLayout].Name[0] == 0) {
 		CurrentLayout = 0;
+	}
 
-	printf("IncrementMode %d %s", CurrentLayout,
-		gMyInfo.LayoutPresets[CurrentLayout].Name);
+//	printf("IncrementMode %d %s", CurrentLayout,
+//		gMyInfo.LayoutPresets[CurrentLayout].Name);
 //	gtk_widget_override_font(CurrentLayoutWid,
 //		pango_font_description_from_string("Sans Bold 16"));
 //	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
@@ -1243,7 +1258,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 
 	RetVal = GetModePreset(MidiIn);
 	if (RetVal >= Max_Patches) {
-		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
+//		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}
 	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
@@ -1344,6 +1359,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
  *---------------------------------------------------------------------*/
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 	GtkWidget *widget) {
+
 
 #if 0
 	switch (event->keyval) {
