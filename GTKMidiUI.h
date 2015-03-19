@@ -322,7 +322,7 @@ char gUpdateTempo;
 int		CurrentSetListSong;
 unsigned int CurrentLayout;
 unsigned int CurrentPreset;
-
+GtkWidget *PatchPopupMenu;
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -350,6 +350,7 @@ extern char gUpdateTempo;
 extern int		CurrentSetListSong;
 extern unsigned int CurrentLayout;
 extern unsigned int CurrentPreset;
+extern GtkWidget *PatchPopupMenu;
 
 #endif
 
@@ -360,6 +361,7 @@ void SetTempo(unsigned int NewTempo);
 void RaiseWindows(char *AppName);
 void RaiseWindowsNum(int AppNumber);
 void ClearMainButtons(void);
+void CreatePatchPopupMenu(void);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 

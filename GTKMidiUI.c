@@ -16,8 +16,7 @@
 #define GTKMidiUI_c
 
 #include <gtk/gtk.h>
-#include "/usr/include/gtk-3.0/gtk/gtkcssprovider.h"
-// #include <glade/glade.h>
+// #include "/usr/include/gtk-3.0/gtk/gtkcssprovider.h"
 #include "GTKMidiUI.h"
 
 #include "stdlib.h"
@@ -27,7 +26,7 @@
 #include "HTML.h"
 #include "PrefsFile.h"
 #include "Connections.h"
-#include <gdk/gdkkeysyms.h>
+// #include <gdk/gdkkeysyms.h>
 #include "getopt.h"
 #include "Timers.h"
 
@@ -36,45 +35,51 @@
 #ifdef UsingNewButtons
 #define GLADE_FILE ResourceDirectory"GTKMidiUI.glade.Buttons"
 #else
-#define GLADE_FILE ResourceDirectory"GTKMidiUI.glade"
+#define GLADE_FILE ResourceDirectory"LiveMusicApp.glade"
 #endif
 #define Icon_FILE ResourceDirectory"LiveIcon.png"
 #define MaxTabs	4
 /*
  * Place Global variables here
  */
-snd_seq_t *seq;
-int seqPort;
-//	GladeXML *gxml;
+
+// The Status Display about what patch was selected.
 GtkWidget* MainStatus;
-//GtkWidget* CurrentLayoutWid;
 guint MainStatusid;
+
+// The structure to hold the custom buttons.
 theImageButtons LayoutButton;
-// GtkWidget *MainButtons[Max_Main_Buttons];
 theImageButtons MainButtons[Max_Main_Buttons];
 theImageButtons TabButtons[MaxTabs];
 theImageButtons TempoDraw;
 
-tPatchIndex GetModePreset(tPatchIndex Value);
-GtkWidget *VScale1, *VScale2, *VScale3;
+// The Scale widgets.
+GtkWidget *VScale1, *VScale2, *VScale3,  *VScale4;
+GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3, *Adjustment4;
 
+// Images we use for the custom buttons.
 GdkPixbuf *NoteBButtonOnImage;
 GdkPixbuf *NoteBButtonOffImage;
 
-
-GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3;
-tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
+// The Area we display the tempo
 GtkWidget *TempoChild;
+
+// Standard font description we use across the program
 PangoFontDescription *Tempofont_desc;
+
+// Hold the tempo string so we do not draw at inturrupt time.
 char TempStrBuf[10];
+
+
 GtkWidget *NoteBookPane;
+
+// The button size my change based on the screen size.
 int	ButtonSize;
-
-
 
 /*
  * Place Local prototypes here
  */
+tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 
 void CreateTabButtons(void);
 void CreateMainButtons(void);
@@ -91,6 +96,9 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 	GtkWidget *widget);
 void VScale1_Changed(GtkAdjustment *adj);
 void VScale2_Changed(GtkAdjustment *adj);
+void VScale3_Changed(GtkAdjustment *adj);
+void VScale4_Changed(GtkAdjustment *adj);
+tPatchIndex GetModePreset(tPatchIndex Value);
 
 #define MaxStatusHold 4
 char HoldStatus[MaxStatusHold][50];
@@ -163,8 +171,6 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
  *
  *---------------------------------------------------------------------*/
 void SwitchToTab(char Tab) {
-	GtkWidget *NoteBookPane;
-	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
 	printd(LogInfo, "Switch to Tab %d\n", Tab);
 }
@@ -439,7 +445,6 @@ void parse_cmdline(int argc, char *argv[])
  *---------------------------------------------------------------------*/
 int main(int argc, char *argv[]) {
 	GtkWidget *main_window;
-	GtkWidget *main_tab;
 	GtkWidget *widget;
 	GError *error = NULL;
 	GtkWidget *ChordWidget;
@@ -526,17 +531,13 @@ int main(int argc, char *argv[]) {
 	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
 		"./LiveMusicRes/NoteBSwitchOff.png", MButtonX, MButtonY,  NULL, NULL);
 
-	GdkPixbuf *PatchButtonOffImage;
-	GdkPixbuf *NoteBButtonOnImage;
-
 //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
 	/*
 	 * Open the persistent main tab.
 	 */
-	main_tab = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
-	g_signal_connect(GTK_NOTEBOOK( main_tab ), "switch-page",
+	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
 		(GCallback ) tab_focus_callback, gxml);
 
 	/*
@@ -582,6 +583,9 @@ int main(int argc, char *argv[]) {
 	g_signal_connect_data(G_OBJECT(widget), "clicked",
 		G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
+	/*
+	 * The OK Button on the Abiout Box
+	 */
 	g_signal_connect(G_OBJECT(main_window), "key_press_event",
 		G_CALLBACK(button_press_notify_cb), NULL);
 
@@ -610,8 +614,8 @@ int main(int argc, char *argv[]) {
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
-	SetAlsaMasterVolume(84);
-	SetAlsaCaptureVolume(84);
+	SetAlsaMasterVolume(60);
+	SetAlsaCaptureVolume(50);
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -939,6 +943,14 @@ void CreateMainButtons(void) {
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
 	Adjustment3 = (GtkAdjustment *)GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
+	g_signal_connect(G_OBJECT (VScale3), "value_changed",
+		G_CALLBACK (VScale3_Changed), NULL);
+
+	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
+	Adjustment4 = (GtkAdjustment *)GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment4"));
+	g_signal_connect(G_OBJECT (VScale4), "value_changed",
+		G_CALLBACK (VScale4_Changed), NULL);
+
 #endif
 }
 
@@ -992,14 +1004,44 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 //    printf("\nVscale 1 %f\n", Adjustment2->value);
+
+	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
+#if 1
+
+	SetAlsaMasterVolume(	(long) gtk_adjustment_get_value(Adjustment3));
+#else
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		gMyInfo.MyPatchInfo[Slider3].OutPort,
 		gMyInfo.MyPatchInfo[Slider3].Channel,
 		gMyInfo.MyPatchInfo[Slider3].Patch,
 		(char) gMyInfo.AnalogVolume);
+#endif
 }
+/*--------------------------------------------------------------------
+ * Function:		VScale4_Changed
+ *
+ * Description:		Volume Sliders changed.
+ *
+ *---------------------------------------------------------------------*/
+void VScale4_Changed(GtkAdjustment *adj) {
+	/* Set the number of decimal places to which adj->value is rounded */
+	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+//    printf("\nVscale 1 %f\n", Adjustment2->value);
 
+	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
+#if 1
+
+	SetAlsaCaptureVolume((long) gtk_adjustment_get_value(Adjustment4));
+#else
+	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		gMyInfo.MyPatchInfo[Slider3].OutPort,
+		gMyInfo.MyPatchInfo[Slider3].Channel,
+		gMyInfo.MyPatchInfo[Slider3].Patch,
+		(char) gMyInfo.AnalogVolume);
+#endif
+}
 /*--------------------------------------------------------------------
  * Function:		SetUpMainButtons
  *

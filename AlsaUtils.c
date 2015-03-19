@@ -17,7 +17,7 @@
 snd_seq_t *SeqPort1In;
 // extern int SeqPort1Port;
 snd_mixer_t *MixerHandle;
-char *card = "default";
+char *MixerHardwareName = "default";
 const char *selem_name = "Master";
 char TestProgram = 0;
 // Midi thread for input
@@ -116,7 +116,7 @@ bool MyAlsaInit() {
 	 * Open Mixer for manipulation
 	 */
     snd_mixer_open(&MixerHandle, 0);
-    snd_mixer_attach(MixerHandle, card);
+    snd_mixer_attach(MixerHandle, MixerHardwareName);
     snd_mixer_selem_register(MixerHandle, NULL, NULL);
     snd_mixer_load(MixerHandle);
 
@@ -1815,7 +1815,7 @@ void SetAlsaCaptureVolume(long volume) {
     snd_mixer_selem_id_set_index(sid, 0);
     snd_mixer_selem_id_set_name(sid,  "Capture");
   snd_mixer_elem_t* elem = snd_mixer_find_selem(MixerHandle, sid);
-  printf("SetAlsaCaptureVolume MixerHandle %x elem %x\n", MixerHandle, elem);
+  printf("SetAlsaCaptureVolume MixerHandle %x elem %x %d\n", MixerHandle, elem, volume);
 
   snd_mixer_selem_get_capture_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &MixerVolume);
 //	  snd_mixer_selem_channel_id_t 	channel,long * 	value  )

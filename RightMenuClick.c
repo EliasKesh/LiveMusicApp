@@ -186,28 +186,21 @@ void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		view_Patch_popup_menu
+ * Function:		CreatePatchPopupMenu
  * Description:
  *
  *---------------------------------------------------------------------*/
-void view_Patch_popup_menu(GtkWidget *treeview, GdkEventButton *event,
-	gpointer userdata) {
-	GtkWidget *menu, *menuitem;
+void CreatePatchPopupMenu(void) {
+	GtkWidget *menuitem;
 	int	Loop;
-	menu = gtk_menu_new();
+	PatchPopupMenu = gtk_menu_new();
 
 	for (Loop = 0; Loop< Max_Patches; Loop++) {
 		menuitem = gtk_menu_item_new_with_label(gMyInfo.MyPatchInfo[Loop].Name);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		gtk_menu_shell_append(GTK_MENU_SHELL(PatchPopupMenu), menuitem);
 		g_signal_connect(menuitem, "activate",
 			(GCallback ) Patch_Popup_CB, Loop);
 	}
-	gtk_widget_show_all(menu);
-
-	/* Note: event can be NULL here when called from view_onPopupMenu;
-	 *  gdk_event_get_time() accepts a NULL argument */
-	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-		0, NULL);
 }
 
 /*--------------------------------------------------------------------
@@ -253,7 +246,12 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 			}
 		} /* end of optional bit */
 #endif
-		view_Patch_popup_menu(treeview, NULL, Current);
+		gtk_widget_show_all(PatchPopupMenu);
+
+		/* Note: event can be NULL here when called from view_onPopupMenu;
+		 *  gdk_event_get_time() accepts a NULL argument */
+		gtk_menu_popup(GTK_MENU(PatchPopupMenu), NULL, NULL, NULL, NULL,
+			0, NULL);
 
 		return TRUE; /* we handled this */
 	}

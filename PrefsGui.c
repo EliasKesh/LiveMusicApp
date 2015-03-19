@@ -119,7 +119,7 @@ static GtkTreeModel *CreatePatchModel(void) {
 	G_TYPE_CHAR,
 	G_TYPE_CHAR,
 	G_TYPE_STRING,
-	G_TYPE_CHAR);
+	G_TYPE_STRING);
 #else
 	GtkTreeStore *treestore;
 	treestore = gtk_tree_store_new (NumCOLUMN,
@@ -139,12 +139,12 @@ static GtkTreeModel *CreatePatchModel(void) {
 		gtk_list_store_set(treestore, &toplevel,
 			//		gtk_tree_store_set (treestore, &toplevel,
 //		Button_COLUMN,gMyInfo.MyPatchInfo[Loop].Index,
-			Name_COLUMN, gMyInfo.MyPatchInfo[Loop].Name, Bank_COLUMN,
-			gMyInfo.MyPatchInfo[Loop].BankSelect, Patch_COLUMN,
-			gMyInfo.MyPatchInfo[Loop].Patch, Output_COLUMN,
-			gMyInfo.MyPatchInfo[Loop].OutPort, Channel_COLUMN,
-			gMyInfo.MyPatchInfo[Loop].Channel, Command_COLUMN,
-			CustomCommands[gMyInfo.MyPatchInfo[Loop].CustomCommand],
+			Name_COLUMN, gMyInfo.MyPatchInfo[Loop].Name,
+			Bank_COLUMN, gMyInfo.MyPatchInfo[Loop].BankSelect,
+			Patch_COLUMN, gMyInfo.MyPatchInfo[Loop].Patch,
+			Output_COLUMN, gMyInfo.MyPatchInfo[Loop].OutPort,
+			Channel_COLUMN, gMyInfo.MyPatchInfo[Loop].Channel,
+			Command_COLUMN, CustomCommands[gMyInfo.MyPatchInfo[Loop].CustomCommand],
 			Chain_COLUMN, gMyInfo.MyPatchInfo[Loop].Chain, -1);
 	}
 
@@ -411,12 +411,12 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_object_set(renderer, "editable", TRUE, NULL);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
 		Chain_COLUMN, "Chain", renderer,
-		//		"mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE,
 		"text", Chain_COLUMN,
 		NULL);
 	g_object_set_data(G_OBJECT(renderer), "column",
 		GUINT_TO_POINTER(Chain_COLUMN));
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
+	g_object_set(renderer, "editable-set", TRUE, NULL);
 
 	/* connect a cell data function */
 //  gtk_tree_view_column_set_cell_data_func(col, renderer, age_cell_data_func, NULL, NULL);
@@ -676,11 +676,8 @@ enum
   N_COLUMNS
 };
 
-static void
-init_list(GtkWidget *list)
-{
-
-  GtkCellRenderer *renderer;
+static void init_list(GtkWidget *list) {
+GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
   GtkListStore *store;
 
@@ -697,9 +694,7 @@ init_list(GtkWidget *list)
   g_object_unref(store);
 }
 
-static void
-add_to_list(GtkWidget *list, const gchar *str)
-{
+static void add_to_list(GtkWidget *list, const gchar *str) {
   GtkListStore *store;
   GtkTreeIter iter;
 
