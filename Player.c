@@ -43,6 +43,7 @@ void SetAFineSlider_Changed(GtkAdjustment *adj);
 void SetBFineSlider_Changed(GtkAdjustment *adj);
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 /*
  * Place Static variables here
@@ -68,7 +69,8 @@ theImageButtons SetA;
 theImageButtons SetB;
 theImageButtons PlayPause;
 theImageButtons StopButton;
-
+theImageButtons LoopButton;
+char 	DontUpDateSlider;
 /*--------------------------------------------------------------------
  * Function:		LivePlayerInit
  *
@@ -85,6 +87,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	GtkWidget *EventBox1;
 	GtkWidget *EventBox2;
 	GtkWidget *EventBox3;
+	GtkWidget *EventBox4;
 	GtkWidget *FineABox;
 	GtkWidget *FineBBox;
     int result;
@@ -103,21 +106,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	if (result < 0) {
 		printf("Before fopen in %d %s\n", result,strerror(result));
 	}
-#if 0
-	result = mkfifo(OutPipeName, 0666) ;
-	chmod(OutPipeName, 0666);
-	if (result < 0)
-		strerror(result);
 
-	sleep(1);
-	sprintf(theString, " mplayer -slave -idle -af scaletempo -input file=%s >%s  &",OutPipeName, InPipeName);
-	printf("Starting MPLayer %s\n", theString);
-	system(theString);
-	sleep(1);
-
-#endif
-
-	OutPipe = popen("mplayer -slave -idle  -af scaletempo -idle >/tmp/LiveMusicIn " , "w");
+	OutPipe = popen("mplayer -slave -quiet -idle  -af scaletempo -idle >/tmp/LiveMusicIn " , "w");
 
 	/*
 	 * Start laying out the controls
@@ -129,18 +119,18 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	PositionEndBox= gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
 	FineABox= gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 	FineBBox= gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	PlayControlBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
+	PlayControlBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
 
 	/*
 	 * Main Box
 	 */
 printf(" Init Player %x %x\n", vbox, window);
-	PositionAdjustment =gtk_adjustment_new (0,0,200,1,20,20);
+	PositionAdjustment =gtk_adjustment_new (0,0,400,1,20,0);
 	PositionSlider = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, GTK_ADJUSTMENT(PositionAdjustment));
   //  gtk_scale_set_digits (PositionSlider, 1);
 //    gtk_scale_set_value_pos (PositionSlider, GTK_POS_TOP);
     gtk_scale_set_draw_value (PositionSlider, TRUE);
-	g_signal_connect(G_OBJECT (PositionSlider), "value_changed",
+	g_signal_connect(G_OBJECT (PositionSlider), "change_value",
 		G_CALLBACK (PositionSlider_Changed), NULL);
 
 	/*
@@ -164,7 +154,7 @@ printf(" Init Player %x %x\n", vbox, window);
 	g_signal_connect(G_OBJECT (StartSpin), "value_changed",
 		G_CALLBACK (SetASlider_Changed), NULL);
 
-	FineStartAdjustment = gtk_adjustment_new  (0.0, -0.25, 0.25, 0.001, 0.01, 0.0);
+	FineStartAdjustment = gtk_adjustment_new  (0,0,400,0.1,1,0);
 	FineStartSpin = gtk_spin_button_new (FineStartAdjustment, 0.1,3);
 	g_signal_connect(G_OBJECT (FineStartSpin), "value_changed",
 		G_CALLBACK (SetAFineSlider_Changed), NULL);
@@ -187,13 +177,13 @@ printf(" Init Player %x %x\n", vbox, window);
 	g_signal_connect(G_OBJECT (EndSpin), "value_changed",
 		G_CALLBACK (SetBSlider_Changed), NULL);
 
-	FineEndAdjustment = gtk_adjustment_new (0.0, -0.25, 0.25, 0.001, 0.01, 0.0);
+	FineEndAdjustment = gtk_adjustment_new (0,0,400,0.1,1,0);
 	FineEndSpin = gtk_spin_button_new (FineEndAdjustment, 0.1,3);
 	g_signal_connect(G_OBJECT (FineEndSpin), "value_changed",
 		G_CALLBACK (SetBFineSlider_Changed), NULL);
 
 	EventBox2 = gtk_event_box_new();
-	MyImageButtonInit(&PlayPause, EventBox2, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&PlayPause, EventBox2 ,MainButtonOffImage, MainButtonOnImage);
 	MyImageButtonSetText(&PlayPause, "Play");
 	g_signal_connect(G_OBJECT(EventBox2),
 		"button-press-event",
@@ -213,6 +203,17 @@ printf(" Init Player %x %x\n", vbox, window);
 		G_CALLBACK(normal_release_handler),
 		&StopButton);
 
+	EventBox4 = gtk_event_box_new();
+	MyImageButtonInit(&LoopButton, EventBox4, MainButtonOnImage,MainButtonOffImage);
+	MyImageButtonSetText(&LoopButton, "Loop");
+	g_signal_connect(G_OBJECT(EventBox3),
+		"button-press-event",
+		G_CALLBACK(Loop_click_handler),
+		&LoopButton);
+	g_signal_connect(G_OBJECT(EventBox3),
+		"button-release-event",
+		G_CALLBACK(normal_release_handler),
+		&LoopButton);
 
 	gtk_box_set_homogeneous(GTK_BOX (FineABox), TRUE);
 	gtk_box_pack_start(GTK_BOX(FineABox), EventBox, TRUE, TRUE, 5);
@@ -236,7 +237,7 @@ printf(" Init Player %x %x\n", vbox, window);
 
 	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox2, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox3, TRUE, TRUE, 5);
-
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox4, TRUE, TRUE, 5);
 
 
 	gtk_box_set_homogeneous(GTK_BOX (vbox), TRUE);
@@ -254,23 +255,12 @@ printf(" Init Player %x %x\n", vbox, window);
 	/*
 	 * Init the Pipe for communications with MPlayer
 	 */
-//	InPipeFD=open(InPipeName,O_RDONLY);
 	InPipeFD=open(InPipeName,O_RDONLY | O_NONBLOCK);
 	if (InPipeFD < 1) {
 		int err = errno;
 		printf("Error in open In pipe %d\n", errno);
 		exit(1);
 	}
-
-#if 0
-	OutPipeFD=open(OutPipeName,O_WRONLY );
-//	OutPipeFD=open(OutPipeName,O_WRONLY  | O_NONBLOCK);
-	if (OutPipeFD < 1) {
-		int err = errno;
-		printf("Error in open out pipe %d\n", errno);
-		exit(1);
-	}
-#endif
 }
 
 /*--------------------------------------------------------------------
@@ -292,15 +282,10 @@ int LivePlayerClose(void) {
 void SetPlayerFile(char	*FileName) {
 char		theString[300];
 
-#if 0
-sprintf(theString, " mplayer -slave -idle -af scaletempo -input file=%s  %s &", OutPipeName, FileName);
-printf("Starting MPLayer %s\n", theString);
-system(theString);
-#else
 sprintf(theString, "load %s\n", FileName);
 	PlayerWrite(theString);
 	PlayerWrite("stream_time_pos\n");
-#endif
+	DontUpDateSlider = FALSE;
 }
 /*--------------------------------------------------------------------
  * Function:		Check info from MPlayer
@@ -309,19 +294,13 @@ sprintf(theString, "load %s\n", FileName);
  *---------------------------------------------------------------------*/
 int	PlayerWrite(char *String) {
 int	Val;
-#if 0
-	Val = write(OutPipeFD, String, strlen(String) );
-#else
-//	Val = fwrite(String, strlen(String),1, OutPipe );
+
 	Val =fputs(String, OutPipe);
 	fflush(OutPipe);
-	printf("Player Write %x %d  [%s]\n", OutPipe, Val, String);
-#endif
+//	printf("Player Write %x %d  [%s]\n", OutPipe, Val, String);
 
 	if (Val < 0)
 		printf("Player Write %d  [%s]\n", Val, String);
-
-
 }
 
 /*--------------------------------------------------------------------
@@ -342,7 +321,7 @@ char		CommandsDone = 0;
 	ReturnCount = read(InPipeFD, Buffer, sizeof(Buffer));
 	Current = Buffer;
 	if (ReturnCount >0) {
-		printf("**V**  %d  %s\n",ReturnCount,  Current);
+//		printf("**V**  %d  %s\n",ReturnCount,  Current);
 
 		while(CommandsDone == 0) {
 			CommandsDone = 1;
@@ -355,8 +334,11 @@ char		CommandsDone = 0;
 			Current = Found;
 			FValue = atof(Found);
 			TotalLength =FValue;
-			printf("Found ANS_LENGTH %f\n", FValue);
+//			printf("Found ANS_LENGTH %f\n", FValue);
 			gtk_adjustment_set_upper(PositionAdjustment, FValue);
+			gtk_adjustment_set_upper(FineStartAdjustment, FValue);
+			gtk_adjustment_set_upper(FineEndAdjustment, FValue);
+
 		}
 
 		// Current Length get_time_pos
@@ -367,9 +349,14 @@ char		CommandsDone = 0;
 			Current = Found;
 			FValue = atof(Found);
 			CurrentLength =FValue;
-			printf("Found ANS_TIME_POSITION %f\n", FValue);
-			gtk_adjustment_set_value(PositionAdjustment, FValue);
-		}
+//			printf("Found ANS_TIME_POSITION %f\n", FValue);
+			if (!DontUpDateSlider) {
+				gtk_adjustment_set_value(PositionAdjustment, FValue);
+			}
+			else
+				DontUpDateSlider--;
+
+			}
 		}
 	}
 }
@@ -384,7 +371,19 @@ char		CommandsDone = 0;
  * Description:		Position Sliders changed.
  *---------------------------------------------------------------------*/
 void PositionSlider_Changed(GtkAdjustment *adj) {
-//	   printf("\nPositionSlider_Changed %f\n", gtk_adjustment_get_value(PositionAdjustment));
+char		theString[100];
+float		NewValue;
+
+	NewValue = gtk_adjustment_get_value(PositionAdjustment);
+	if ( NewValue  != CurrentLength) {
+		DontUpDateSlider = 5;
+		sprintf(theString,"set_property time_pos %f\n",  gtk_adjustment_get_value(PositionAdjustment) );
+		PlayerWrite(theString);
+	}
+	else {
+		DontUpDateSlider = 0;
+	}
+	//	printf("\nPositionSlider_Changed %f\n", gtk_adjustment_get_value(PositionAdjustment));
 }
 
 /*--------------------------------------------------------------------
@@ -434,7 +433,8 @@ theImageButtons *theButton;
 		theButton->ButtonDownImage);
 
 	gtk_adjustment_set_value(StartAdjustment, 0.0);
-	gtk_adjustment_set_value(FineStartAdjustment, 0.0);
+//	gtk_adjustment_set_value(FineStartAdjustment, 0.0);
+	gtk_adjustment_set_value(FineStartAdjustment, CurrentLength);
 
 	return TRUE; /* stop event propagation */
 }
@@ -447,9 +447,23 @@ theImageButtons *theButton;
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 		theButton->ButtonDownImage);
 	gtk_adjustment_set_value( EndAdjustment, 0.0);
-	gtk_adjustment_set_value(FineEndAdjustment, 0.0);
+//	gtk_adjustment_set_value(FineEndAdjustment, 0.0);
+	gtk_adjustment_set_value(FineEndAdjustment, CurrentLength);
+
 	return TRUE; /* stop event propagation */
 }
+
+gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+theImageButtons *theButton;
+
+	theButton = (theImageButtons *) user_data;
+	printf("SetB %x\n", theButton);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+		theButton->ButtonDownImage);
+
+	return TRUE; /* stop event propagation */
+}
+
 
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 theImageButtons *theButton;
@@ -468,7 +482,7 @@ char		theString[40];
 				theButton->ButtonDownImage);
 			MyImageButtonSetText(&PlayPause, "Pause");
 
-			PlayerWrite("play\n");
+			PlayerWrite("pause\n");
 			PlayPauseState = 1;
 		}
 

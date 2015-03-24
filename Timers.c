@@ -29,7 +29,7 @@
  */
 //#define AlsaTimer
 //#define TimerTicksPerQuater 	24
-#define TimerTicksPerQuater 	2
+#define TimerTicksPerQuater 	4
 
 
 /*
