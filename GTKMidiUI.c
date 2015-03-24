@@ -29,6 +29,7 @@
 // #include <gdk/gdkkeysyms.h>
 #include "getopt.h"
 #include "Timers.h"
+#include "Player.h"
 
 //#define UsingNewButtons	1
 
@@ -38,7 +39,7 @@
 #define GLADE_FILE ResourceDirectory"LiveMusicApp.glade"
 #endif
 #define Icon_FILE ResourceDirectory"LiveIcon.png"
-#define MaxTabs	4
+#define MaxTabs	5
 /*
  * Place Global variables here
  */
@@ -283,7 +284,7 @@ void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
 				TempoDraw.ButtonDownImage);
 		gMyInfo.MetronomeOn = 1;
 		}
-		}
+}
 
 /*--------------------------------------------------------------------
  * Function:		tab_focus_callback
@@ -448,6 +449,8 @@ int main(int argc, char *argv[]) {
 	GtkWidget *widget;
 	GError *error = NULL;
 	GtkWidget *ChordWidget;
+	GtkWidget *PlayerWidget;
+
 	GtkWidget *EventBox;
 	GError *err = NULL;
 	/*----- CSS ----------- */
@@ -658,13 +661,6 @@ int main(int argc, char *argv[]) {
 	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
 	ChorderMain(main_window, ChordWidget);
 
-	/*
-	 * Show the main window and let the show begin.
-	 */
-	gtk_widget_show_all(main_window);
-//	gtk_widget_override_font(CurrentLayoutWid,
-//		pango_font_description_from_string("Sans Bold 16"));
-//	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[0].Name);
 
 	/*
 	 * Set the initial Volumes.
@@ -679,6 +675,18 @@ int main(int argc, char *argv[]) {
 //	g_idle_add(GTKIdel_cb, main_window);
 
 	/*
+	 * Set up the Live Player
+	 */
+	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
+	LivePlayerInit(main_window, PlayerWidget);
+
+
+	/*
+	 * Show the main window and let the show begin.
+	 */
+	gtk_widget_show_all(main_window);
+
+	/*
 	 * And they're off.
 	 */
 	gtk_main();
@@ -688,6 +696,8 @@ int main(int argc, char *argv[]) {
 	 */
 	WritePrefs();
 	MyAlsaClose();
+	LivePlayerClose();
+
 	return 0;
 }
 
@@ -834,8 +844,9 @@ GtkWidget *EventBox;
 
 	MyImageButtonSetText(&TabButtons[0], "Patch");
 	MyImageButtonSetText(&TabButtons[1], "Chart");
-	MyImageButtonSetText(&TabButtons[2], "Chords");
-	MyImageButtonSetText(&TabButtons[3], "Prefs");
+	MyImageButtonSetText(&TabButtons[2], "Player");
+	MyImageButtonSetText(&TabButtons[3], "Chords");
+	MyImageButtonSetText(&TabButtons[4], "Prefs");
 	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[0].Image),
 		TabButtons[0].ButtonDownImage);
 

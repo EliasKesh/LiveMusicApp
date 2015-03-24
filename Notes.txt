@@ -1,0 +1,60 @@
+
+GTK_THEME=/usr/share/themes/Greybird/gtk-3.0/gtk.css galculator &
+
+GTK_THEME=Adwaita:dark
+/home/elias/Themes/GTK3/
+Burgundy
+GTK_THEME=LiveMusicTheme: 
+
+
+
+https://www.mplayerhq.hu/DOCS/tech/slave.txt
+mplayer -slave -idle -ss 00:00:10 -endpos 00:00:04 -loop 0 -speed 1.1 -af scaletempo /home/elias/Music/Payloadz/DontStop.mp3
+-slave -quiet
+mplayer -input cmdlist
+-quiet
+
+mkfifo /tmp/fifofile
+mplayer -slave -idle -af scaletempo  -input file=/tmp/fifofile /home/elias/Music/Payloadz/DontStop.mp3
+stream_start       pos       0               X            start pos in stream
+stream_end         pos       0               X            end pos in stream
+stream_time_pos    time      0               X            present position in stream (in seconds)
+time_pos           time      0               X   X   X    position in seconds
+speed_set <value>
+"loadfile /media/audio/my..mp3"
+
+loop <value>
+echo "set_property volume 0
+
+mplayer -slave -af scaletempo -quiet  -input file=/tmp/LivusicIn /home/elias/Music/Payloadz/DontStop.mp3 >/tmp/LiveMusicOut
+
+# Fifo
+http://stackoverflow.com/questions/8611035/proper-fifo-client-server-connection
+
+
+http://www.gtkforums.com/viewtopic.php?f=3&t=988&start=15
+gtk_init (&argc, &argv);
+/*-------- CSS ------------------------------------------------------------------------------------------------------------------------------------------*/
+GtkCssProvider *provider = gtk_css_provider_new ();
+
+gtk_css_provider_load_from_data (provider,
+                                 "GtkTextView {\n"
+                                 "color: blue;\n"
+                                 "font: Serif 38;\n"
+                                 "background-color: yellow;\n"
+                                 "-GtkWidget-cursor-color: red;\n"
+                                 "}\n"
+                                 "GtkTextView:selected {\n"
+                                 "background-color: black;\n"
+                                 "color: green;\n"
+                                 "}\n", -1, NULL);
+
+GdkDisplay *display = gdk_display_get_default ();
+GdkScreen *screen = gdk_display_get_default_screen (display);
+
+gtk_style_context_add_provider_for_screen (screen,
+                                           GTK_STYLE_PROVIDER (provider),
+                                           GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+g_object_unref (provider);
+/*--------------------------------------------------------------------------------------------------------------------------------------------------*/

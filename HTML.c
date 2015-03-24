@@ -468,6 +468,8 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
+		SetPlayerFile((theURI + 7));
+#if 0
 #ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
 #endif
@@ -476,7 +478,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 		printd(LogInfo, "***Before  systemcall %s\n", SysCallString);
 		system(SysCallString);
 		printd(LogInfo, "*** After systemcall %s\n", SysCallString);
-
+#endif
 		/*
 		 * This tells webkit we are dealing with it.
 		 */
