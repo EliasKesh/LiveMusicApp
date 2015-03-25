@@ -23,7 +23,7 @@ time_pos           time      0               X   X   X    position in seconds
 speed_set <value>
 "loadfile /media/audio/my..mp3"
 
-loop <value>
+loop <value> -1 No Loop
 echo "set_property volume 0
 
 mplayer -slave -af scaletempo -quiet  -input file=/tmp/LivusicIn /home/elias/Music/Payloadz/DontStop.mp3 >/tmp/LiveMusicOut

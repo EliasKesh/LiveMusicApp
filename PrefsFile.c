@@ -155,12 +155,14 @@ GTKMidiInfo GlobalInfo =
 			{ "PrevSong", 0xff, 1, FluidPort, 1, cmdSetList, "None" },
 			// 100	Button		Title		Bank	Patch	Outport
 			{ "Scroll", 0xff, 0, 0, 1, cmdScroll, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
+			{ "NextSeq", 0xff, cmdLnTNext, 0, 1, cmdLnTransPort, "None" },
+			{ "PrevSeg", 0xff, cmdLnTPrev, 0, 1, cmdLnTransPort, "None" },
+			{ "SpeeedUp", 0xff, cmdLnTUp, 0, 1, cmdLnTransPort, "None" },
+			{ "SlowDown", 0xff, cmdLnTDown, 0, 1, cmdLnTransPort, "None" },
+			{ "PlPlay", 0xff, cmdLnTStart, 0, 1, cmdLnTransPort, "None" },
+			{ "Loop Toggle", 0xff, cmdLnTLoop, 0, 1, cmdLnTransPort, "None" },
+			{ "Seek Fw", 0xff, cmdLnTSeekFw, 0, 1, cmdLnTransPort, "None" },
+			{ "Seek Bk", 0xff, cmdLnTSeekBk, 0, 1, cmdLnTransPort, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -318,6 +320,22 @@ GTKMidiInfo GlobalInfo =
 			},
 		},
 
+		{ "Transcribe",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"NextSeq", 		"PrevSeg",
+				"RepeatA", 		"RepeatB", 		"Loop Toggle",	"PlPlay",		"SpeeedUp",  	"SlowDown",
+				"Seek Fw", 		"Seek Bk", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+			},
+		},
 		/*
 		 * Terminator for Layouts.
 		 */
@@ -341,7 +359,7 @@ void InitPref(void) {
 
 	memset(&gMyInfo, 0, sizeof(GTKMidiInfo));
 
-#if 0
+#if 1
 	memcpy(&gMyInfo, &GlobalInfo, sizeof(GTKMidiInfo));
 	WritePrefs();
 #else

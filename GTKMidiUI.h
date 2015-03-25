@@ -194,7 +194,7 @@ enum {
 	MaxCommands
 };
 
-enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTStop };
+enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, cmdLnTUp, cmdLnTDown, cmdLnTSeekFw, cmdLnTSeekBk };
 
 #define fsPatchNames	1
 #define fsPortNames		2

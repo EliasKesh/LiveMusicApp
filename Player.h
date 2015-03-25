@@ -26,7 +26,16 @@
 void PlayerPoll(void);
 void SetPlayerFile(char	*FileName);
 int LivePlayerClose(void);
-
+void plSetA(void) ;
+void plSetB(void) ;
+void plPausePlay(void);
+void plLoopToggle(void);
+void plNextSeg(void);
+void plNextSeg(void) ;
+void plSpeedUp(void) ;
+void plSpeedDown(void) ;
+void plSeekFw(void) ;
+void plSeekBk(void) ;
 
 /*
  * Place Static variables here.

@@ -1,1 +1,0 @@
-../GTKMidiUI/Debug/PrefsFile.c.o ../GTKMidiUI/Debug/GTKMidiUI.c.o ../GTKMidiUI/Debug/AlsaUtils.c.o ../GTKMidiUI/Debug/HTML.c.o ../GTKMidiUI/Debug/Connections.c.o ../GTKMidiUI/Debug/ThirdParty_wmctrl.c.o ../GTKMidiUI/Debug/PrefsGui.c.o ../GTKMidiUI/Debug/Chorder.c.o

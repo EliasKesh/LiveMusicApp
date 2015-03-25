@@ -72,7 +72,6 @@ SetTempo(120);
 
 }
 
-
 /*--------------------------------------------------------------------
  * Function:		Set the tempo
  * Description:		Set the tempo to a new value. Re-setup the timer

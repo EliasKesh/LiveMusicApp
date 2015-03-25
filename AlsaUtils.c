@@ -578,18 +578,48 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
 			switch(thePatch->Patch) {
 				case cmdLnTSetA:
-//			        execve("/usr/bin/smplayer", argv, environ);
-					system("/usr/bin/smplayer -send-action set_a_marker & ");
-
+					 plSetA() ;
+//					system("/usr/bin/smplayer -send-action set_a_marker & ");
 //					Mysystem("set_a_marker");
 					break;
 
 				case cmdLnTSetB:
+					 plSetB() ;
 //					Mysystem("set_b_marker");
-					system("/usr/bin/smplayer -send-action set_b_marker & ");
+//					system("/usr/bin/smplayer -send-action set_b_marker & ");
 					break;
 
 				case cmdLnTStart:
+					plPausePlay();
+					break;
+
+				case cmdLnTLoop:
+				plLoopToggle();
+				break;
+
+				case cmdLnTNext:
+					plNextSeg();
+					break;
+
+				case	cmdLnTPrev:
+					plPrevSeg();
+
+					break;
+
+				case cmdLnTUp:
+					plSpeedUp();
+					break;
+
+				case cmdLnTDown:
+					plSpeedDown();
+					break;
+
+				case cmdLnTSeekFw:
+					plSeekFw();
+					break;
+
+				case cmdLnTSeekBk:
+					plSeekBk();
 					break;
 
 				default:
