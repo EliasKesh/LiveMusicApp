@@ -23,7 +23,7 @@
 /*
  * Place Global prototypes here.
  */
-void PlayerPoll(void);
+void PlayerPoll(char How);
 void SetPlayerFile(char	*FileName);
 int LivePlayerClose(void);
 void plSetA(void) ;
@@ -31,7 +31,7 @@ void plSetB(void) ;
 void plPausePlay(void);
 void plLoopToggle(void);
 void plNextSeg(void);
-void plNextSeg(void) ;
+void plPrevSeg(void) ;
 void plSpeedUp(void) ;
 void plSpeedDown(void) ;
 void plSeekFw(void) ;
@@ -42,4 +42,4 @@ void plSeekBk(void) ;
  */
 
 
-#endif Player.h_h
+#endif

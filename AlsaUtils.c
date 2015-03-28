@@ -603,7 +603,6 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
 				case	cmdLnTPrev:
 					plPrevSeg();
-
 					break;
 
 				case cmdLnTUp:

@@ -229,7 +229,7 @@ static gboolean tempo_handler(GtkWidget *widget) {
 	err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &ev);
 	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
 #endif
-	PlayerPoll();
+	PlayerPoll(TRUE);
 
 	/* HANDE Tempo Midi
 	 */

@@ -312,12 +312,12 @@ int	Loop;
 
 	if (MainButtonCountOn == 1) {
 		for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-			if (MainButtons[Loop].State) {
+//			if (MainButtons[Loop].State) {
 			gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
 				MainButtons[Loop].ButtonUpImage);
 			MainButtons[Loop].State = 0;
 			MainButtonCountOn = 0;
-			}
+//			}
 		}
 	}
 	else
@@ -450,7 +450,7 @@ int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GtkWidget *ChordWidget;
 	GtkWidget *PlayerWidget;
-
+//	GtkCssProvider *provider;
 	GtkWidget *EventBox;
 	GError *err = NULL;
 	/*----- CSS ----------- */
@@ -478,6 +478,51 @@ int main(int argc, char *argv[]) {
 	myScreen = gdk_screen_get_default ();
 	printf("Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 
+#if 0
+	GtkCssProvider *provider = gtk_css_provider_new();
+//	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
+    gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
+      "* {border-color: #CC0000}",
+      -1, NULL);
+	gtk_css_provider_load_from_data (provider,
+	                                 "GtkTextView {\n"
+	                                 "color: blue;\n"
+	                                 "font: Serif 38;\n"
+	                                 "background-color: yellow;\n"
+	                                 "-GtkWidget-cursor-color: red;\n"
+	                                 "}\n"
+	                                 "GtkTextView:selected {\n"
+	                                 "background-color: black;\n"
+	                                 "color: green;\n"
+	                                 "}\n", -1, NULL);
+	FaderControl.png
+		.scale.slider,
+		.scale.slider.horizontal {
+		    background-image: -gtk-scaled(url("assets/scale-slider-horz-dark.png"), url("assets/sc
+		ale-slider-horz-dark@2.png"));
+		}
+
+	/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
+	  provider = gtk_css_provider_new ();
+	  display = gdk_display_get_default ();
+	  screen = gdk_display_get_default_screen (display);
+	  gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+	  gsize bytes_written, bytes_read;
+
+	  const gchar* home = "YourPathHere";  // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
+
+	  GError *error = 0;
+
+	   gtk_css_provider_load_from_path (provider,
+	                                      g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
+	                                      NULL);
+	  g_object_unref (provider);
+	/*-------------------------------------------------------------------------------------------------------------------------*/
+
+
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+#endif
 	/*
 	 * Initialize the XML reader/writer and set some basic values here.
 	 */
@@ -504,12 +549,21 @@ int main(int argc, char *argv[]) {
 	gtk_style_context_add_provider_for_screen(screen,
 		GTK_STYLE_PROVIDER(provider),
 		GTK_STYLE_PROVIDER_PRIORITY_USER);
-
+#if 0
 	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
 		" GtkWindow {\n"
 			"   background-image: url('./LiveMusicRes/WindowBackground.png');\n"
 			"}\n", -1, NULL);
-	g_object_unref(provider);
+#else
+// #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
+#define CSSFileName "/home/elias/workspace/LiveMusicApp/LiveMusicRes/LiveMusicApp.css"
+
+	printf("About to load\n");
+	   gtk_css_provider_load_from_path (GTK_CSS_PROVIDER(provider), CSSFileName, &err);
+//	   printf("After load error %s\n", err->message);
+#endif
+	   g_object_unref(provider);
+//	  exit(0);
 	/*----------------------------------------------------------------------------------------------------------------------*/
 	g_signal_connect(G_OBJECT (main_window), "destroy",
 		G_CALLBACK (on_window1_destroy), NULL);
@@ -757,6 +811,7 @@ void UpdateStatus(char *String) {
 	gtk_widget_override_font(MainStatus,
 		pango_font_description_from_string("Sans Bold 12"));
 //	gtk_label_set_text(MainStatus, DisString);
+//	printf("In Update Status %s\n", DisString);
 	gtk_label_set_markup( (GtkLabel *) MainStatus, DisString);
 }
 #define UsingImageButtons
@@ -1306,7 +1361,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[MidiIn].Image),
 			MainButtons[MidiIn].ButtonDownImage);
 		MainButtons[MidiIn].State = 1;
-		MainButtonCountOn = 15;
+		MainButtonCountOn = 2;
 	}
 
 	RetVal = GetModePreset(MidiIn);

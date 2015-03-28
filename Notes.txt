@@ -6,7 +6,7 @@ GTK_THEME=Adwaita:dark
 Burgundy
 GTK_THEME=LiveMusicTheme: 
 
-
+valgrind --db-attach=yes --leak-check=yes --tool=memcheck --num-callers=16 --leak-resolution=high ./LiveMusicApp
 
 https://www.mplayerhq.hu/DOCS/tech/slave.txt
 mplayer -slave -idle -ss 00:00:10 -endpos 00:00:04 -loop 0 -speed 1.1 -af scaletempo /home/elias/Music/Payloadz/DontStop.mp3
