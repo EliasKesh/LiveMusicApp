@@ -1,0 +1,239 @@
+GtkWindow {
+   background-color: rgba (0,0,0,1); 
+ background-image: url('./WindowBackground.png');
+   
+}
+
+GtkScale.slider {
+	 background-image: url('./FaderControl.png');
+}
+
+GtkScale.slider:hover {
+		 background-image: url('./FaderControl.png');
+}
+
+/**********
+ * Frames *
+ **********/
+.frame {
+
+    border-radius: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: gray;
+    padding: 0;
+}
+
+GtkImage,
+GtkImage:insensitive,
+GtkLabel,
+GtkLabel:insensitive,
+GtkBox,
+GtkBox:insensitive,
+GtkGrid,
+GtkGrid:insensitive {
+    border-color: green;
+    border-width: 10px;
+    
+}
+/************
+ * GtkScale *
+ ************/
+
+.scale {
+    -GtkScale-slider-length: 18;
+    -GtkRange-slider-width: 30;
+    -GtkRange-trough-border: 0;
+}
+
+.scale.scale-has-marks-above.horizontal,
+.scale.scale-has-marks-below.horizontal {
+	-GtkScale-slider-length: 21;
+    -GtkRange-slider-width: 20;
+}
+
+.scale.scale-has-marks-right.horizontal,
+.scale.scale-has-marks-left.horizontal {
+	-GtkScale-slider-length: 20;
+    -GtkRange-slider-width: 20;
+}
+
+.scale.slider,
+.scale.slider:hover,
+.scale.slider:insensitive,
+.scale.slider:backdrop,
+.scale.slider:insensitive:backdrop {
+    border-radius: 0;
+    border-style: none;
+
+    background-color: transparent;
+
+    /* background-image in -assets variant */
+}
+
+.scale.slider.fine-tune:active,
+.scale.slider.fine-tune:active:hover,
+.scale.slider.fine-tune.horizontal:active,
+.scale.slider.fine-tune.horizontal:active:hover {
+      background-size: 50%;
+      background-repeat: no-repeat;
+      background-position: center;
+}
+
+.scale.trough {
+    margin: 4px 8px;
+}
+
+.scale.trough.vertical {
+    margin: 8px 4px;
+}
+
+.scale.scale-has-marks-above.trough.horizontal,
+.scale.scale-has-marks-below.trough.horizontal {
+	margin: 4px 10px;
+}
+
+.scale.scale-has-marks-right.horizontal,
+.scale.scale-has-marks-left.horizontal {
+	margin: 10px 4px;
+}
+
+.scale.trough,
+.scale.trough.highlight,
+.scale.trough.vertical.highlight,
+.scale.trough row,
+.scale.trough row:hover,
+.scale.trough row:selected,
+.scale.trough row:selected:focused,
+.scale.trough:insensitive {
+	background-color: transparent;
+    background-image: linear-gradient(to bottom,
+                                     alpha(black, 0.5),
+                                     alpha(black, 0.3)
+                                      );
+	border-width: 1px;
+    border-radius: 100px;
+    border-style: solid;
+    border-color: transparent;
+    border-image: none;
+    box-shadow: 0 1px alpha(black, 0.42) inset,
+				0 2px alpha(black, 0.12) inset,
+				0 3px alpha(black, 0.06) inset,
+				0 4px alpha(black, 0.03) inset,
+				0 5px alpha(black, 0.03) inset,
+				0 6px alpha(black, 0.03) inset,
+				0 7px alpha(black, 0.02) inset,
+				0 8px alpha(black, 0.01) inset,
+
+				0 -1px alpha(white, 0.24) inset,
+				0 -2px alpha(black, 0.10) inset,
+				0 -3px alpha(black, 0.02) inset,
+
+				-1px 0 alpha(black, 0.22) inset,
+				1px 0 alpha(white, 0.03) inset;
+	border-image: none;
+
+}
+
+.scale.trough.vertical,
+.scale.trough.highlight.vertical {
+	background-image: linear-gradient(to right,
+                                     alpha(black, 0.5),
+                                     alpha(black, 0.3)
+                                      );
+    border-width: 1px;
+    border-radius: 100px;
+    border-style: solid;
+    border-color: transparent;
+    border-image: none;
+    box-shadow: 1px 0 alpha(black, 0.42) inset,
+				2px 0 alpha(black, 0.12) inset,
+				3px 0 alpha(black, 0.06) inset,
+				4px 0 alpha(black, 0.03) inset,
+				5px 0 alpha(black, 0.03) inset,
+				6px 0 alpha(black, 0.03) inset,
+				7px 0 alpha(black, 0.02) inset,
+				8px 0 alpha(black, 0.01) inset,
+
+				-1px 0 alpha(white, 0.20) inset,
+				-2px 0 alpha(black, 0.10) inset,
+				-3px 0 alpha(black, 0.02) inset,
+
+				0   1px alpha(black, 0.22) inset,
+				0  -1px alpha(white, 0.03) inset;
+}
+
+
+/**************
+ * Scrollbars *
+ **************/
+
+.scrollbar {
+    background-image: none;
+    border-style: solid;
+    -GtkRange-trough-border: 0;
+    -GtkScrollbar-has-backward-stepper: false;
+    -GtkScrollbar-has-forward-stepper: false;
+    -GtkRange-slider-width: 30;
+    -GtkScrollbar-min-slider-length: 42; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
+
+    -GtkRange-stepper-spacing: 0;
+    -GtkRange-trough-under-steppers: 1;
+}
+
+.scrollbars-junction, /* the small square between scrollbars!!! */
+.scrollbar.trough {
+    background-image: none;
+    background-color: @scrollbar_trough;
+    border-width: 0;
+    border-radius: 0;
+    border-image: none;
+    box-shadow: 1px 0 rgba(0,0,0,0.20) inset,
+				2px 0 rgba(0,0,0,0.04) inset;
+}
+
+
+.scrollbar.button,
+.scrollbar.button:active,
+.scrollbar.button:active:hover,
+.scrollbar.button:insensitive,
+.scrollbar.button:hover:backdrop,
+.scrollbar.button:active:hover:backdrop {
+    border-style: none;
+    border-image: none;
+    border-radius: 0;
+    background-image: none;
+    background-color: transparent;
+}
+
+.notebook .scrollbars-junction,
+.notebook .scrollbar.trough,
+.notebook .scrollbar.trough:backdrop,
+.notebook .scrollbar.trough:insensitive,
+.notebook .scrollbar.trough:insensitive:backdrop {
+    background-color: @scrollbar_trough_notebook;
+    box-shadow: 1px 0 rgba(0,0,0,0.20) inset,
+				2px 0 rgba(0,0,0,0.04) inset;
+}
+
+.scrollbar.trough.horizontal,
+.notebook .scrollbar.trough.horizontal {
+    box-shadow: 0 1px rgba(0,0,0,0.20) inset,
+				0 2px rgba(0,0,0,0.04) inset;
+}
+
+.scrollbars-junction,
+.scrollbars-junction:backdrop,
+.scrollbars-junction:insensitive,
+.scrollbars-junction:insensitive:backdrop,
+.notebook .scrollbars-junction,
+.notebook .scrollbars-junction:backdrop,
+.notebook .scrollbars-junction:insensitive,
+.notebook .scrollbars-junction:insensitive:backdrop {
+	box-shadow:none;
+}
+
+.scrollbars-junction:backdrop,
+.scrollbar.trough:backdrop {
+    background-color: shade(@scrollbar_trough, 0.8);
+}

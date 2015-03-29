@@ -238,7 +238,7 @@ GTKMidiInfo GlobalInfo =
 				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
 				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"Breath",
 				"PreTab", 		 "ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
-				"Scroll", 		"Drums", 		"Slap Bass", 	"NextSong",	"PrevSong", 	"LayoutSwitch",
+				"Scroll", 		"Drums", 		"Scroll", 		"NextSong",	"PrevSong", 	"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",

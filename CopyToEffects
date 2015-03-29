@@ -1,0 +1,19 @@
+#! /bin/sh
+#---------------------------------------------------------------------
+#
+#	File: 	CopyToEffects
+#
+#	Contains: 	
+#
+#
+#	Written By: 	Elias Keshishoglou on Fri Feb 27 22:13:12 PST 2015
+#
+#	Copyright ©: 	2015 Elias Keshishoglou all rights reserved.
+#
+#
+#---------------------------------------------------------------------#
+cp LiveMusicApp  /home/Dropbox/LiveEffects/LiveMusicApp 
+cp KeepLiveMusicRunning.sh  /home/Dropbox/LiveEffects/LiveMusicApp 
+cp GuitarEffects  /home/Dropbox/LiveEffects/LiveMusicApp 
+rsync -avrx ../LiveMusicRes/ /home/Dropbox/LiveEffects/LiveMusicRes/
+

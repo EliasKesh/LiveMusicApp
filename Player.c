@@ -2,7 +2,7 @@
  |
  |	File: 	Player
  |
- |	Contains:
+ |	Contains:	The user interface and control code for MPlayer
  |
  |
  |	Written By: 	Elias Keshishoglou on Sun Mar 22 14:18:29 PDT 2015
@@ -229,7 +229,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	EventBox3 = gtk_event_box_new();
 	MyImageButtonInit(&StopButton, EventBox3, MainButtonOnImage,
 		MainButtonOffImage);
-	MyImageButtonSetText(&StopButton, "Stop");
+	MyImageButtonSetText(&StopButton, "Reset");
 	g_signal_connect(G_OBJECT(EventBox3),
 		"button-press-event",
 		G_CALLBACK(Stop_click_handler),
@@ -471,22 +471,21 @@ void PlayerPoll(char How) {
 		InPlayerTimer = 2;
 	}
 
-#if 0
-	if (InPlayerTimer) {
-		InPlayerTimer--;
-		return;
+	/*
+	 * Don't update the slider.
+	 */
+	if (DontUpDateSlider) {
+		printf("Decrement Slider\n");
+		DontUpDateSlider--;
 	}
-#endif
 
 	/*
 	 * Wait a few timer cycles before restarting MPlayer.
 	 */
 	if (RestartPlayer == 3) {
-		//	RestartPlayer = 0;
 		StartPlayer();
 	}
 	if (RestartPlayer) {
-
 		RestartPlayer--;
 		return;
 	}
@@ -502,6 +501,7 @@ void PlayerPoll(char How) {
 	 */
 	if (InPlayerTimer)
 		usleep(100);
+
 	/*
 	 * See what has come back from the player.
 	 */
@@ -548,8 +548,6 @@ void PlayerPoll(char How) {
 				if (!DontUpDateSlider) {
 					gtk_adjustment_set_value(PositionAdjustment, FValue);
 				}
-				else
-					DontUpDateSlider--;
 			}
 		}
 	}
@@ -572,16 +570,11 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 	float NewValue;
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
-	if (NewValue != CurrentLength) {
-		DontUpDateSlider = 5;
-		sprintf(PlayerString, "set_property time_pos %f\n",
-			gtk_adjustment_get_value(PositionAdjustment));
-		PlayerWrite(PlayerString);
-	}
-	else {
-		DontUpDateSlider = 0;
-	}
-	//	printf("\nPositionSlider_Changed %f\n", gtk_adjustment_get_value(PositionAdjustment));
+	printf("PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
+	DontUpDateSlider = 2;
+	sprintf(PlayerString, "set_property time_pos %f\n",
+		gtk_adjustment_get_value(PositionAdjustment));
+	PlayerWrite(PlayerString);
 }
 
 /*--------------------------------------------------------------------
@@ -592,7 +585,6 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 void SetASlider_Changed(GtkAdjustment *adj) {
 	printf("SetASlider_Changed %f\n",
 		gtk_adjustment_get_value(StartAdjustment));
-
 }
 /*--------------------------------------------------------------------
  * Function:		SetBSlider_Changed
@@ -609,12 +601,9 @@ void SetBSlider_Changed(GtkAdjustment *adj) {
  *---------------------------------------------------------------------*/
 void SetAFineSlider_Changed(GtkAdjustment *adj) {
 //	printf("SetAFineSlider_Changed %f\n",
-//	gtk_adjustment_get_value(FineStartAdjustment));
 
 	if (WeAreLooping)
 		RestartPlayer = RestartPlayerValue;
-
-//		StartPlayer();
 }
 
 /*--------------------------------------------------------------------
