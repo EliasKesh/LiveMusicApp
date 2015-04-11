@@ -18,6 +18,12 @@
 /*
  * Place Includes here.
  */
+#define MaxSavedLoops 40
+typedef struct {
+	char		LoopName[40];
+	float		Start;
+	float		Length;
+} SavedLoopType;
 
 
 /*

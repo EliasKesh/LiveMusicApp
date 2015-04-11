@@ -20,10 +20,10 @@ if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
-	./LiveMusicApp & 
+	/home/Dropbox/LiveEffects/LiveMusicApp & 
 	sleep 4
 	cd /home/Dropbox/LiveEffects
-	./GuitarEffects -c
+	/home/Dropbox/LiveEffects/GuitarEffects -c
 fi
 sleep 2
 done

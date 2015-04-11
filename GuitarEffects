@@ -460,8 +460,8 @@ function SetUpConnections {
 	aconnect $MidiEffectsOut"0"  $MidiSoundIn"0" 
 
 #	 Connect Midi in to effects apps for control
-	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
-	aconnect $MidiGuitarInput"1"  $MidiRouterIn"0" 
+#	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
+#	aconnect $MidiGuitarInput"1"  $MidiRouterIn"0" 
 
 	# Midi in to LiveEffect
 #	echo "Connecting GI20 "$MidiOutGI20"1 to PedalBoard "$PedalBoardOut"0"  >> $LogFile
@@ -694,7 +694,7 @@ function SetUpApplications {
 #        slgui -P=9952 &
   fi
  
-	KeepLiveMusicRunning.sh & 
+	/home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh & 
 #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
 
