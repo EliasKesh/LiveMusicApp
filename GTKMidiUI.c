@@ -477,8 +477,18 @@ int main(int argc, char *argv[]) {
 //	gtk_rc_parse( MAINPREFS_FILE);
 	myScreen = gdk_screen_get_default ();
 	printf("Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
+	ScreenSize = 0;
 
-#if 0
+	if (gdk_screen_get_width(myScreen) > 1000) {
+		ScreenSize = 1;
+	}
+
+	if (gdk_screen_get_width(myScreen) > 1800) {
+		ScreenSize = 2;
+	}
+
+
+		#if 0
 	GtkCssProvider *provider = gtk_css_provider_new();
 //	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
     gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),

@@ -323,6 +323,7 @@ int		CurrentSetListSong;
 unsigned int CurrentLayout;
 unsigned int CurrentPreset;
 GtkWidget *PatchPopupMenu;
+char		ScreenSize;
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -351,6 +352,7 @@ extern int		CurrentSetListSong;
 extern unsigned int CurrentLayout;
 extern unsigned int CurrentPreset;
 extern GtkWidget *PatchPopupMenu;
+extern char		ScreenSize;
 
 #endif
 

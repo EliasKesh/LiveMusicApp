@@ -759,10 +759,25 @@ void InitHTML(GtkBuilder *gxml) {
 	strncpy(FileName, "file:///home/Dropbox/FusionBlue/index.html", 254);
 	webkit_web_view_load_uri (web_view, FileName);
 #endif
-	#if 0
+	#if 1
 
 	WebKitWebSettings *settings = webkit_web_settings_new ();
 	g_object_set (G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
+
+	if (ScreenSize == 0) {
+		g_object_set (G_OBJECT(settings), "default-font-size", 12, NULL);
+		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 12, NULL);
+	}
+
+	if (ScreenSize == 1) {
+		g_object_set (G_OBJECT(settings), "default-font-size", 18, NULL);
+		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 18, NULL);
+	}
+
+	if (ScreenSize == 2) {
+		g_object_set (G_OBJECT(settings), "default-font-size", 24, NULL);
+		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
+	}
 
 	/* Apply the result */
 	webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);

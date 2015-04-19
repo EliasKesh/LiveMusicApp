@@ -59,7 +59,7 @@ void show_status(void *handle)
 	printf("  queue = %li\n", snd_timer_status_get_queue(status));
 }
 
-bool MyAlsaClose() {
+bool MyAlsaClose(void) {
 	int ret;
 
 	/* Cancel the thread. Don't know better way.

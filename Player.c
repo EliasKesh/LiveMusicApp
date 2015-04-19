@@ -32,35 +32,25 @@
  * Place Local prototypes here
  */
 void PositionSlider_Changed(GtkAdjustment *adj);
-gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
+gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void SetASlider_Changed(GtkAdjustment *adj);
 void SetBSlider_Changed(GtkAdjustment *adj);
 void SetAFineSlider_Changed(GtkAdjustment *adj);
 void SetBFineSlider_Changed(GtkAdjustment *adj);
-gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
+gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void SpeedSlider_Changed(GtkAdjustment *adj);
-gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
+gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void VolumeSlider_Changed(GtkAdjustment *adj);
 int ResetPlayer(void);
 int StartPlayer(void);
 static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
-gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
-gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
-	gpointer user_data);
+gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void OpenSavedLoopFile(char *FileName);
 
 /*
@@ -98,7 +88,7 @@ theImageButtons EnterSaveLoop;
 theImageButtons NewSaveLoop;
 SavedLoopType mySavedLoops[MaxSavedLoops];
 GtkWidget *SaveCombo;
-int		NumSavedLoops;
+int NumSavedLoops;
 GtkWidget *ImageWidget;
 
 char DontUpDateSlider;
@@ -117,29 +107,10 @@ char PlayerAsk = 0;
  *
  *---------------------------------------------------------------------*/
 int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
-	GtkWidget *vbox;
-	GtkWidget *PositionBox;
-	GtkWidget *PlayControlBox;
-	GtkWidget *PositionStartBox;
-	GtkWidget *PositionEndBox;
-	GtkWidget *SaveLoopBox;
-	GtkWidget *SpeedBox;
-	GtkWidget *EventBox;
-	GtkWidget *EventBox1;
-	GtkWidget *EventBox2;
-	GtkWidget *EventBox3;
-	GtkWidget *EventBox4;
-	GtkWidget *EventBox5;
-	GtkWidget *EventBox6;
-	GtkWidget *EventBox7;
-	GtkWidget *EventBox8;
-	GtkWidget *EventBox9;
-	GtkWidget *FineABox;
-	GtkWidget *FineBBox;
-	GtkWidget *theFrame;
-	GtkWidget *SavedFrame;
-	GtkWidget *SaveFixed;
-	GtkWidget *SavedLabel;
+	GtkWidget *MainBox, *PositionBox,*PlayControlBox,*PositionStartBox,*PositionEndBox,*SaveLoopBox,*SpeedBox;
+	GtkWidget *SetABox, *SetBBox,*SetBPlay,*ResetBox,*LoopBox,*NormalBox,*PrevSegBox,*NextSegBox;
+	GtkWidget *EditLoopBox,*NewLoopBox,*FineABox,*FineBBox;
+	GtkWidget *theFrame,*SavedFrame,*SaveFixed,*SavedLabel;
 	int result;
 
 	InPlayerTimer = 0;
@@ -160,7 +131,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Start laying out the control boxs
 	 */
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+	MainBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 	PositionBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 	PositionStartBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	PositionEndBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
@@ -179,7 +150,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Main Box
 	 */
-	printf(" Init Player %x %x\n", vbox, window);
+	printf(" Init Player %x %x\n", MainBox, window);
 	PositionAdjustment = gtk_adjustment_new(0, 0, 400, 1, 20, 0);
 	PositionSlider = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,
 		GTK_ADJUSTMENT(PositionAdjustment));
@@ -193,14 +164,14 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * A Set Controls, Button
 	 */
-	EventBox = gtk_event_box_new();
-	MyImageButtonInit(&SetA, EventBox, MainButtonOnImage, MainButtonOffImage);
+	SetABox = gtk_event_box_new();
+	MyImageButtonInit(&SetA, SetABox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&SetA, "Set A");
-	g_signal_connect(G_OBJECT(EventBox),
+	g_signal_connect(G_OBJECT(SetABox),
 		"button-press-event",
 		G_CALLBACK(SetA_click_handler),
 		&SetA);
-	g_signal_connect(G_OBJECT(EventBox),
+	g_signal_connect(G_OBJECT(SetABox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&SetA);
@@ -225,14 +196,14 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Length Set Controls, Button
 	 */
-	EventBox1 = gtk_event_box_new();
-	MyImageButtonInit(&SetB, EventBox1, MainButtonOnImage, MainButtonOffImage);
+	SetBBox = gtk_event_box_new();
+	MyImageButtonInit(&SetB, SetBBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&SetB, "Length");
-	g_signal_connect(G_OBJECT(EventBox1),
+	g_signal_connect(G_OBJECT(SetBBox),
 		"button-press-event",
 		G_CALLBACK(SetB_click_handler),
 		&SetB);
-	g_signal_connect(G_OBJECT(EventBox1),
+	g_signal_connect(G_OBJECT(SetBBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&SetB);
@@ -257,11 +228,11 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Play/Pause Button
 	 */
-	EventBox2 = gtk_event_box_new();
-	MyImageButtonInit(&PlayPause, EventBox2, MainButtonOffImage,
+	SetBPlay = gtk_event_box_new();
+	MyImageButtonInit(&PlayPause, SetBPlay, MainButtonOffImage,
 		MainButtonOnImage);
 	MyImageButtonSetText(&PlayPause, "Play");
-	g_signal_connect(G_OBJECT(EventBox2),
+	g_signal_connect(G_OBJECT(SetBPlay),
 		"button-press-event",
 		G_CALLBACK(Play_click_handler),
 		&PlayPause);
@@ -269,15 +240,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Loop Reset
 	 */
-	EventBox3 = gtk_event_box_new();
-	MyImageButtonInit(&StopButton, EventBox3, MainButtonOnImage,
+	ResetBox = gtk_event_box_new();
+	MyImageButtonInit(&StopButton, ResetBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&StopButton, "Reset");
-	g_signal_connect(G_OBJECT(EventBox3),
+	g_signal_connect(G_OBJECT(ResetBox),
 		"button-press-event",
 		G_CALLBACK(Stop_click_handler),
 		&StopButton);
-	g_signal_connect(G_OBJECT(EventBox3),
+	g_signal_connect(G_OBJECT(ResetBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&StopButton);
@@ -285,11 +256,11 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Loop on/off
 	 */
-	EventBox4 = gtk_event_box_new();
-	MyImageButtonInit(&LoopButton, EventBox4, MainButtonOnImage,
+	LoopBox = gtk_event_box_new();
+	MyImageButtonInit(&LoopButton, LoopBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&LoopButton, "Loop");
-	g_signal_connect(G_OBJECT(EventBox4),
+	g_signal_connect(G_OBJECT(LoopBox),
 		"button-press-event",
 		G_CALLBACK(Loop_click_handler),
 		&LoopButton);
@@ -305,15 +276,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Normal speed set
 	 */
-	EventBox5 = gtk_event_box_new();
-	MyImageButtonInit(&SpeedButton, EventBox5, MainButtonOnImage,
+	NormalBox = gtk_event_box_new();
+	MyImageButtonInit(&SpeedButton, NormalBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&SpeedButton, "1X Speed");
-	g_signal_connect(G_OBJECT(EventBox5),
+	g_signal_connect(G_OBJECT(NormalBox),
 		"button-press-event",
 		G_CALLBACK(Speed_click_handler),
 		&SpeedButton);
-	g_signal_connect(G_OBJECT(EventBox5),
+	g_signal_connect(G_OBJECT(NormalBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&SpeedButton);
@@ -333,15 +304,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Loop Segment prev
 	 */
-	EventBox6 = gtk_event_box_new();
-	MyImageButtonInit(&PrevSegButton, EventBox6, MainButtonOnImage,
+	PrevSegBox = gtk_event_box_new();
+	MyImageButtonInit(&PrevSegButton, PrevSegBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&PrevSegButton, "Prev Loop");
-	g_signal_connect(G_OBJECT(EventBox6),
+	g_signal_connect(G_OBJECT(PrevSegBox),
 		"button-press-event",
 		G_CALLBACK(PrevSeg_click_handler),
 		&PrevSegButton);
-	g_signal_connect(G_OBJECT(EventBox6),
+	g_signal_connect(G_OBJECT(PrevSegBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&PrevSegButton);
@@ -349,15 +320,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Loop Segment next
 	 */
-	EventBox7 = gtk_event_box_new();
-	MyImageButtonInit(&NextSegButton, EventBox7, MainButtonOnImage,
+	NextSegBox = gtk_event_box_new();
+	MyImageButtonInit(&NextSegButton, NextSegBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&NextSegButton, "Next Loop");
-	g_signal_connect(G_OBJECT(EventBox7),
+	g_signal_connect(G_OBJECT(NextSegBox),
 		"button-press-event",
 		G_CALLBACK(NextSeg_click_handler),
 		&NextSegButton);
-	g_signal_connect(G_OBJECT(EventBox7),
+	g_signal_connect(G_OBJECT(NextSegBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&NextSegButton);
@@ -365,15 +336,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Edit an existing saved loop
 	 */
-	EventBox8 = gtk_event_box_new();
-	MyImageButtonInit(&EnterSaveLoop, EventBox8, MainButtonOnImage,
+	EditLoopBox = gtk_event_box_new();
+	MyImageButtonInit(&EnterSaveLoop, EditLoopBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&EnterSaveLoop, "Edit Loop");
-	g_signal_connect(G_OBJECT(EventBox8),
+	g_signal_connect(G_OBJECT(EditLoopBox),
 		"button-press-event",
 		G_CALLBACK(EnterLoop_click_handler),
 		&EnterSaveLoop);
-	g_signal_connect(G_OBJECT(EventBox8),
+	g_signal_connect(G_OBJECT(EditLoopBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&EnterSaveLoop);
@@ -381,15 +352,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Create a new saved loop
 	 */
-	EventBox9 = gtk_event_box_new();
-	MyImageButtonInit(&NewSaveLoop, EventBox9, MainButtonOnImage,
+	NewLoopBox = gtk_event_box_new();
+	MyImageButtonInit(&NewSaveLoop, NewLoopBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&NewSaveLoop, "Add Loop");
-	g_signal_connect(G_OBJECT(EventBox9),
+	g_signal_connect(G_OBJECT(NewLoopBox),
 		"button-press-event",
 		G_CALLBACK(NewLoop_click_handler),
 		&NewSaveLoop);
-	g_signal_connect(G_OBJECT(EventBox9),
+	g_signal_connect(G_OBJECT(NewLoopBox),
 		"button-release-event",
 		G_CALLBACK(normal_release_handler),
 		&NewSaveLoop);
@@ -407,16 +378,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 		G_CALLBACK(SaveLoopPopup_cb), (gpointer ) SavedLabel);
 	gtk_widget_set_size_request(SaveCombo, 130, 60);
 
-
 	/*
 	 * Now that everything has been created let's pack them together.
 	 */
 //	gtk_box_set_homogeneous(GTK_BOX(FineABox), TRUE);
-	gtk_box_pack_start(GTK_BOX(FineABox), EventBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(FineABox), SetABox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(FineABox), FineStartSpin, TRUE, TRUE, 5);
 
 //	gtk_box_set_homogeneous(GTK_BOX(FineBBox), TRUE);
-	gtk_box_pack_start(GTK_BOX(FineBBox), EventBox1, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(FineBBox), SetBBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(FineBBox), FineEndSpin, TRUE, TRUE, 5);
 
 //	gtk_box_set_homogeneous(GTK_BOX(PositionStartBox), TRUE);
@@ -427,7 +397,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_box_pack_start(GTK_BOX(PositionEndBox), FineBBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(PositionEndBox), EndSpin, TRUE, TRUE, 5);
 
-	gtk_box_pack_start(GTK_BOX(SpeedBox), EventBox5, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(SpeedBox), NormalBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(SpeedBox), SpeedSpin, FALSE, FALSE, 20);
 
 //	gtk_box_set_homogeneous(GTK_BOX(PositionBox), TRUE);
@@ -452,33 +422,33 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
 
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox2, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox3, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox4, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox6, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), EventBox7, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), SetBPlay, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), ResetBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), LoopBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), PrevSegBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), NextSegBox, TRUE, TRUE, 5);
 
 	SavedFrame = gtk_frame_new("Saved Loops");
 	gtk_frame_set_label_align(SavedFrame, 0.5, 0.5);
 	gtk_frame_set_shadow_type(GTK_FRAME(SavedFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_container_add(GTK_CONTAINER(SavedFrame), SaveLoopBox);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EventBox8, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EventBox9, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EditLoopBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, TRUE, 5);
 
-//	gtk_box_set_homogeneous(GTK_BOX(vbox), TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox), ImageWidget, TRUE, TRUE, 5);
+//	gtk_box_set_homogeneous(GTK_BOX(MainBox), TRUE);
+	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, TRUE, 5);
 	theFrame = gtk_frame_new("Song Position");
 	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 
-	gtk_box_pack_start(GTK_BOX(vbox), theFrame, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(vbox), PositionBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(vbox), PlayControlBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(vbox), SavedFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(MainBox), theFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(MainBox), PositionBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(MainBox), PlayControlBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(MainBox), SavedFrame, TRUE, TRUE, 5);
 
-	gtk_container_add(GTK_CONTAINER(window), vbox);
+	gtk_container_add(GTK_CONTAINER(window), MainBox);
 	gtk_widget_set_size_request(window, 100, 100);
 //	gtk_window_set_default_size(window, 200, 200);
 	gtk_widget_show_all(window);
@@ -601,7 +571,7 @@ void OpenSavedLoopFile(char *FileName) {
 
 			if (NumSavedLoops > 0) {
 //				CurrentSavedLoop = 1;
-				gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo),1);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo), 1);
 			}
 		}
 		fclose(SavedLoop);
@@ -930,7 +900,6 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	GtkWidget *content_area;
 	char *entry_line;
 
-
 	theButton = (theImageButtons *) user_data;
 	printf("NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
@@ -941,7 +910,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	 */
 	if (NumSavedLoops >= MaxSavedLoops) {
 		printf("Error, too many Loops\n");
-		return(FALSE);
+		return (FALSE);
 	}
 	dialog = gtk_dialog_new();
 	gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
@@ -954,7 +923,6 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	gtk_widget_show_all(dialog);
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
-
 	switch (result)
 	{
 		case 0:
@@ -964,7 +932,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 
 		case 1:
 			gtk_widget_destroy(dialog);
-		break;
+			break;
 		default:
 			break;
 	}

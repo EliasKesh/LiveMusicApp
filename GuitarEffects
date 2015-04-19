@@ -735,8 +735,8 @@ if [ "$?" = "0" ] ; then
 	echo "Found GeChic"
 #	xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
 
-#	ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
-#	xinput map-to-output $ExtID HDMI1
+	ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
+	xinput map-to-output $ExtID HDMI1
 	
 AnalogDesktop=0
 LiveMusicAppDesktop=0
@@ -1595,8 +1595,19 @@ the Layout switching to a foot pedal as well.
 # find ./ -name \*.html -exec sed -i 's/height="2100"/height="100%"/g' {} \;
 # find ./ -name \*.html -exec tidy -mibc {} \;
 
+# find ./ -name \*.html -exec sed -i 's/<code>/<code><big><big>/g' {} \;
+# find ./ -name \*.html -exec sed -i 's/<\/code>/<\/big><\/big><\/code>/g' {} \;
+
 
 pdfimages -png SquareBiz.pdf SquareBiz
 rm SquareBiz-*.tif
 rm SquareBiz-*.ppm
 convert -verbose -trim Pools.pdf -density 150  -quality 100 -sharpen 0x1.0 Pools.jpg
+apt-get install kpartsplugin
+apt-get install ssh
+install aptitude
+apt-get insttall libwebkitgtk-3.0-0
+apt-get install wicd
+
+add to limits.conf
+
