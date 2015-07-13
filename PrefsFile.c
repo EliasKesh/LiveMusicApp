@@ -49,7 +49,7 @@ GTKMidiInfo GlobalInfo =
 			{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "None" },
 			{ "FunkBass", 0xff, 9, RakarrakPort, 1, NoCustom, "None" },
 			{ "Satriani", 0xff, 16, RakarrakPort, 1, NoCustom, "None" },
-			{ "OldPat", 0xff, 13, RakarrakPort, 1, NoCustom, "None" },
+			{ "FunkyWah", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
 			{ "JazzRev", 0xff, 28, RakarrakPort, 1, NoCustom, "None" },
 			{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 			//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
@@ -199,12 +199,10 @@ GTKMidiInfo GlobalInfo =
 			{ "Preset5", 0xff, 5, 0, 1, cmdPreset, "None" },
 			{ "Preset6", 0xff, 6, 0, 1, cmdPreset, "None" },
 			{ "Midi Pre", 0xff, FluidPort, 0, 1, cmdMidiSelect, "None" },
-			{ "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1,
-				NoCustom, "None" },
-			{ "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom,
-				"None" },
-			{ "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom,
-				"None" },
+			// FIX THIS
+			{ "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1, NoCustom, "None" },
+			{ "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, "None" },
+			{ "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, "None" },
 
 		},
 		// Path the Charts directory
@@ -236,7 +234,7 @@ GTKMidiInfo GlobalInfo =
 			{
 	/*			1			2			3			4			5			6 		*/
 				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
-				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"Breath",
+				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"FunkyWah",
 				"PreTab", 		 "ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
 				"Scroll", 		"Drums", 		"Scroll", 		"NextSong",	"PrevSong", 	"LayoutSwitch",
 
@@ -307,7 +305,7 @@ GTKMidiInfo GlobalInfo =
 			{
 	/*			1			2			3			4			5			6 		*/
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
-				"FunkBass", 	"Slap Bass", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
+				"FunkBass", 	"FunkyWah", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -401,10 +399,10 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
 	int Loop1;
 	PortsInfo *thePorts;
 
-	printf("Main Information\n");
+	printd(LogInfo, "Main Information\n");
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printf("ID=%d %s %d %d %d %d %s\n", Loop,
+		printd(LogInfo, "ID=%d %s %d %d %d %d %s\n", Loop,
 			myInfo->MyPatchInfo[Loop].Name,
 			myInfo->MyPatchInfo[Loop].Patch,
 			myInfo->MyPatchInfo[Loop].OutPort,
@@ -413,47 +411,47 @@ void PrintDataStructure(GTKMidiInfo *myInfo) {
 			myInfo->MyPatchInfo[Loop].Chain);
 	}
 
-	printf("BaseName %s\n", myInfo->BasePath);
+	printd(LogInfo, "BaseName %s\n", myInfo->BasePath);
 
-	printf("Num Ports %d\n", myInfo->NumOutPorts);
+	printd(LogInfo, "Num Ports %d\n", myInfo->NumOutPorts);
 	for (Loop = 0; Loop < myInfo->NumOutPorts; Loop++) {
-		printf("Ports %s\n", myInfo->OutPortName[Loop]);
+		printd(LogInfo, "Ports %s\n", myInfo->OutPortName[Loop]);
 	}
 
 	for (Loop = 0; Loop < MaxApps; Loop++) {
-		printf("Apps %s %d\n", myInfo->Apps[Loop].Name,
+		printd(LogInfo, "Apps %s %d\n", myInfo->Apps[Loop].Name,
 			myInfo->Apps[Loop].PortID);
 	}
 
 	thePorts = &theInPorts;
 	for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
-		printf("In Name [%s]\n", thePorts->Devices[Loop].Name);
+		printd(LogInfo, "In Name [%s]\n", thePorts->Devices[Loop].Name);
 		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
-			printf("In SName %d, [%s]\n", Loop1,
+			printd(LogInfo, "In SName %d, [%s]\n", Loop1,
 				thePorts->Devices[Loop].Ports[Loop1].Name);
 		}
 	}
 
 	thePorts = &theOutPorts;
 	for (Loop = 0; Loop < thePorts->NumDevices; Loop++) {
-		printf("Out Name [%s]\n", thePorts->Devices[Loop].Name);
+		printd(LogInfo, "Out Name [%s]\n", thePorts->Devices[Loop].Name);
 		for (Loop1 = 0; Loop1 < thePorts->Devices[Loop].NumPorts; Loop1++) {
-			printf("Out SName %d, [%s]\n", Loop1,
+			printd(LogInfo, "Out SName %d, [%s]\n", Loop1,
 				thePorts->Devices[Loop].Ports[Loop1].Name);
 		}
 	}
 
 	for (Loop = 0; gMyInfo.LayoutPresets[Loop].Name[0] != 0; Loop++) {
-		printf("Lay=%d %s %d %d %d\n", Loop,
+		printd(LogInfo, "Lay=%d %s %d %d %d\n", Loop,
 			gMyInfo.LayoutPresets[Loop].Name,
 			gMyInfo.LayoutPresets[Loop].Presets[0],
 			gMyInfo.LayoutPresets[Loop].Presets[1],
 			gMyInfo.LayoutPresets[Loop].Presets[2]);
 	}
 
-	printf("Metronome Base %d On %d %d %d\n", myInfo->TempoMax,
+	printd(LogInfo, "Metronome Base %d On %d %d %d\n", myInfo->TempoMax,
 		myInfo->MetronomeOn, myInfo->Drum1, myInfo->DrumRest);
-	printf("Midi Base Note %d\n", myInfo->MidiBaseNote);
+	printd(LogInfo, "Midi Base Note %d\n", myInfo->MidiBaseNote);
 
 }
 
@@ -475,7 +473,7 @@ void WritePrefs(void) {
 	LIBXML_TEST_VERSION
 	;
 
-	printf("In Write Prefs\n");
+	printd(LogInfo, "In Write Prefs\n");
 	doc = xmlNewDoc(BAD_CAST "1.0");
 	root_node = xmlNewNode(NULL, BAD_CAST XML_BASIC_SETTINGS);
 	xmlDocSetRootElement(doc, root_node);
@@ -548,19 +546,19 @@ void WritePrefs(void) {
 	 */
 	Loop = 0;
 	node = xmlNewChild(root_node, NULL, BAD_CAST "Layouts", NULL);
-//	printf("Starting %x %s\n",node, gMyInfo.LayoutPresets[Loop].Name);
+//	printd(LogInfo, "Starting %x %s\n",node, gMyInfo.LayoutPresets[Loop].Name);
 	while(gMyInfo.LayoutPresets[Loop].Name[0]) {
 		sprintf(buff, "Layout%03d", Loop);
 		node1 = xmlNewChild(node, NULL, buff, NULL);
-//		printf("Loop %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
+//		printd(LogInfo, "Loop %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
 
 		xmlSetProp(node1, "LayoutName", gMyInfo.LayoutPresets[Loop].Name);
-//		printf("xmlSetProp %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
+//		printd(LogInfo, "xmlSetProp %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
 
 //		node1 = xmlNewChild(node, NULL, BAD_CAST LayoutPresets[Loop].Name, NULL);
 		for (PatchLoop = 0; PatchLoop< Max_Patches ;PatchLoop++) {
 			sprintf(buff, "Patch%03d", PatchLoop);
-//			printf("Patchnames %s\n",buff);
+//			printd(LogInfo, "Patchnames %s\n",buff);
 			node2 = xmlNewChild(node1, NULL, buff, NULL);
 			xmlSetProp(node2, "PatchName", gMyInfo.LayoutPresets[Loop].Presets[PatchLoop]);
 //			node2= xmlNewChild(node1, NULL, BAD_CAST LayoutPresets[Loop].Presets[PatchLoop], NULL);
@@ -720,7 +718,7 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp("Layouts", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelLayouts;
-			printf("Found Layouts\n");
+			printd(LogInfo, "Found Layouts\n");
 		}
 	}
 	if (TopLevelParse == dTopLevelOutPorts) {
@@ -761,7 +759,7 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 
 	/* ********************************** */
 	if (TopLevelParse == dTopLevelLayouts) {
-//printf("IN the TopLevel Layouts Parse\n");
+//printd(LogInfo, "IN the TopLevel Layouts Parse\n");
 //		printd(LogInfo, "dTopLevelLayouts %d %d\n",LayoutIndexXML,  PatchIndexXML);
 
 		if (Depth == 2 && NodeType == 1 ) {
@@ -778,7 +776,7 @@ static void processNode(xmlTextReaderPtr reader, char Location) {
 #if 0
 			if (!*value) {
 				TopLevelParse = dTopLevelNone;
-				printf("Layout Names end\n");
+				printd(LogInfo, "Layout Names end\n");
 				exit(0);
 				return;
 			}

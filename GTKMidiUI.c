@@ -55,7 +55,7 @@ theImageButtons TabButtons[MaxTabs];
 theImageButtons TempoDraw;
 
 // The Scale widgets.
-GtkWidget *VScale1, *VScale2, *VScale3,  *VScale4;
+GtkWidget *VScale1, *VScale2, *VScale3, *VScale4;
 GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3, *Adjustment4;
 
 // Images we use for the custom buttons.
@@ -71,11 +71,10 @@ PangoFontDescription *Tempofont_desc;
 // Hold the tempo string so we do not draw at inturrupt time.
 char TempStrBuf[10];
 
-
 GtkWidget *NoteBookPane;
 
 // The button size my change based on the screen size.
-int	ButtonSize;
+int ButtonSize;
 
 /*
  * Place Local prototypes here
@@ -103,8 +102,8 @@ tPatchIndex GetModePreset(tPatchIndex Value);
 
 #define MaxStatusHold 4
 char HoldStatus[MaxStatusHold][50];
-int	 HoldStatusIndex;
-int	MainButtonCountOn;
+int HoldStatusIndex;
+int MainButtonCountOn;
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -118,7 +117,7 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	va_start(ap, fmt);
 	vsnprintf(p, 512, fmt, ap);
 	va_end(ap);
-	printf("L%d-%s", LogLevel, p);
+	printf( "L%d-%s", LogLevel, p);
 	return NULL;
 }
 
@@ -134,7 +133,7 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
 	}
 	return pixbuf;
 #endif
-	return(NULL);
+	return (NULL);
 }
 
 /*--------------------------------------------------------------------
@@ -204,7 +203,7 @@ gboolean layout_click_handler(GtkWidget *widget,
 	theImageButtons *theButton;
 
 	theButton = (theImageButtons *) user_data;
-	printf("layout_click %x\n", theButton);
+	printd(LogInfo, "layout_click %x\n", theButton);
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 	IncrementMode();
 	MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
@@ -262,7 +261,7 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
  *---------------------------------------------------------------------*/
 void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 	/* break gtk_main() loop */
-//	printf("In Destroy\n");
+//	printd(LogInfo, "In Destroy\n");
 //	WritePrefs();
 	gtk_main_quit();
 }
@@ -279,11 +278,11 @@ void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
 			TempoDraw.ButtonUpImage);
 		gMyInfo.MetronomeOn = 0;
 	}
-		else {
-			gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-				TempoDraw.ButtonDownImage);
+	else {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+			TempoDraw.ButtonDownImage);
 		gMyInfo.MetronomeOn = 1;
-		}
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -295,7 +294,7 @@ void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 	//  GtkTreeView* view = (GtkTreeView *)data;
 //printd(LogInfo,"tab_focus_callback %x %x %x\n", notebook, arg1, data);
-	  //  GtkTreeView* view = (GtkTreeView *)data;
+	//  GtkTreeView* view = (GtkTreeView *)data;
 
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
@@ -308,7 +307,7 @@ gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
  * Description: Make sure the buttons arr all up.
  *---------------------------------------------------------------------*/
 void ClearMainButtons(void) {
-int	Loop;
+	int Loop;
 
 	if (MainButtonCountOn == 1) {
 		for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
@@ -321,9 +320,8 @@ int	Loop;
 		}
 	}
 	else
-		if (MainButtonCountOn)
-			MainButtonCountOn--;
-
+	if (MainButtonCountOn)
+		MainButtonCountOn--;
 }
 
 /*--------------------------------------------------------------------
@@ -344,99 +342,107 @@ int GTKIdel_cb(gpointer data) {
 		system(SysCallString);
 
 		SysCallString[0] = 0;
-		printf("IN Idle\n");
+		printd(LogInfo, "IN Idle\n");
 	}
 #endif
 	return (true);
 }
 
-void parse_cmdline(int argc, char *argv[])
-{
-    int c;
-    int digit_optind = 0;
+/*--------------------------------------------------------------------
+ * Function:            parse_cmdline
+ *
+ * Description: 	Deal with command line arguments.
+ *---------------------------------------------------------------------*/
+void parse_cmdline(int argc, char *argv[]) {
+	int c;
+	int digit_optind = 0;
 
-    while (1)
-      {
-        int this_option_optind = optind ? optind : 1;
-        int option_index = 0;
-        static struct option long_options[] =
-        {
-          {"size", required_argument, 0, 's'},
-          {"append", no_argument, 0, 0},
-          {"delete", required_argument, 0, 0},
-          {"verbose", 0, 0, 0},
-          {"create", required_argument, 0, 'c'},
-          {"FontSize", required_argument, 0, 'f'},
-          {"file", required_argument, 0, 0},
-          {0, 0, 0, 0}
-        };
+	while (1)  {
+		int this_option_optind = optind ? optind : 1;
+		int option_index = 0;
+		static struct option long_options[] = {
+				{ "verbose", no_argument, &verbose_flag, 1 },
+				{ "FontSize", required_argument, 0, 'f' },
+				{ "jack", required_argument, 0, 'j' },
 
-        c = getopt_long (argc, argv, "abc:dsf:012",
-                     long_options, &option_index);
-        if (c == -1)
-      break;
+				/* Not Used	*/
+				{ "size", required_argument, 0, 's' },
+				{ "append", no_argument, 0, 0 },
+				{ "delete", required_argument, 0, 0 },
+				{ "create", required_argument, 0, 'c' },
+				{ "file", required_argument, 0, 0 },
+				{ 0, 0, 0, 0 }
+			};
 
-        switch (c)
-          {
-          case 0:
-            printf ("option %s", long_options[option_index].name);
-            if (optarg)
-              printf (" with arg %s", optarg);
-            printf ("\n");
-            break;
+		c = getopt_long(argc, argv, "abcj:dsf:012",
+			long_options, &option_index);
+		if (c == -1)
+			break;
 
-          case '0':
-          case '1':
-          case '2':
-            if (digit_optind != 0 && digit_optind != this_option_optind)
-              printf ("digits occur in two different argv-elements.\n");
-            digit_optind = this_option_optind;
-            printf ("option %c\n", c);
-            break;
+		switch (c) {
+			case 0:
+				printd(LogInfo, "option %s", long_options[option_index].name);
+				if (optarg)
+					printd(LogInfo, " with arg %s", optarg);
+				printd(LogInfo, "\n");
+				break;
 
-          case 'a':
-            printf ("option a\n");
-            break;
+			case '0':
+				case '1':
+				case '2':
+				if (digit_optind != 0 && digit_optind != this_option_optind)
+					printd(LogInfo, "digits occur in two different argv-elements.\n");
+				digit_optind = this_option_optind;
+				printd(LogInfo, "option %c\n", c);
+				break;
 
-          case 'b':
-            printf ("option b\n");
-            break;
+			case 'a':
+				printd(LogInfo, "option a\n");
+				break;
 
-          case 'c':
-            printf ("option c with value `%s'\n", optarg);
-            break;
+			case 'b':
+				printd(LogInfo, "option b\n");
+				break;
 
-          case 'd':
-             printf ("option d with value `%s'\n", optarg);
-             break;
+			case 'c':
+				printd(LogInfo, "option c with value `%s'\n", optarg);
+				break;
 
-          case 'f':
-             ButtonSize = atoi(optarg);
-             printf ("Font Size %d\n", ButtonSize);
-            break;
+			case 'd':
+				printd(LogInfo, "option d with value `%s'\n", optarg);
+				break;
 
-          case 's':
-             printf ("size %s\n", optarg);
-             break;
+			case 'f':
+				ButtonSize = atoi(optarg);
+				printd(LogInfo, "Font Size %d\n", ButtonSize);
+				break;
 
-          case '?':
-            break;
+			case 'j':
+				strncpy(JackName, optarg, MaxStringPortName);
+				printd(LogInfo, "JackName %s\n", JackName);
+				break;
 
-          default:
-            printf ("?? getopt returned character code 0%o ??\n", c);
-            break;
-          }
-      }
+			case 's':
+				printd(LogInfo, "size %s\n", optarg);
+				break;
 
-    if (optind < argc)
-      {
-        printf ("non-option ARGV-elements: ");
-        while (optind < argc)
-        printf ("%s ", argv[optind++]);
-        printf ("\n");
-      }
+			case '?':
+				break;
 
- //   exit (0);    // whatever you want
+			default:
+				printd(LogInfo, "?? getopt returned character code 0%o ??\n", c);
+				break;
+		}
+	}
+
+	if (optind < argc) {
+		printd(LogInfo, "non-option ARGV-elements: ");
+		while (optind < argc)
+			printd(LogInfo, "%s ", argv[optind++]);
+		printd(LogInfo, "\n");
+	}
+
+	//   exit (0);    // whatever you want
 }
 /*--------------------------------------------------------------------
  * Function:            main
@@ -458,8 +464,8 @@ int main(int argc, char *argv[]) {
 	GdkDisplay *display;
 	GdkScreen *screen;
 	/*-----------------------*/
-	int	BButtonX, BButtonY, MButtonX, MButtonY;
-	int	Loop;
+	int BButtonX, BButtonY, MButtonX, MButtonY;
+	int Loop;
 	GdkScreen *myScreen;
 	/*
 	 * Let's setup some variables.
@@ -468,70 +474,70 @@ int main(int argc, char *argv[]) {
 	 */
 	CurrentLayout = 0;
 	WaitingforMidi = 0;
-	ButtonSize = 115;
-
+	verbose_flag = 0;
 
 	parse_cmdline(argc, argv);
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
 //	gtk_rc_parse( MAINPREFS_FILE);
-	myScreen = gdk_screen_get_default ();
-	printf("Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
+	myScreen = gdk_screen_get_default();
+	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 	ScreenSize = 0;
+	ButtonSize = 115;
+	strcpy(JackName, "default");
 
 	if (gdk_screen_get_width(myScreen) > 1000) {
 		ScreenSize = 1;
+		ButtonSize = 115;
 	}
 
 	if (gdk_screen_get_width(myScreen) > 1800) {
 		ScreenSize = 2;
+		ButtonSize = 180;
 	}
 
-
-		#if 0
+#if 0
 	GtkCssProvider *provider = gtk_css_provider_new();
 //	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
-    gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
-      "* {border-color: #CC0000}",
-      -1, NULL);
+	gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
+		"* {border-color: #CC0000}",
+		-1, NULL);
 	gtk_css_provider_load_from_data (provider,
-	                                 "GtkTextView {\n"
-	                                 "color: blue;\n"
-	                                 "font: Serif 38;\n"
-	                                 "background-color: yellow;\n"
-	                                 "-GtkWidget-cursor-color: red;\n"
-	                                 "}\n"
-	                                 "GtkTextView:selected {\n"
-	                                 "background-color: black;\n"
-	                                 "color: green;\n"
-	                                 "}\n", -1, NULL);
+		"GtkTextView {\n"
+		"color: blue;\n"
+		"font: Serif 38;\n"
+		"background-color: yellow;\n"
+		"-GtkWidget-cursor-color: red;\n"
+		"}\n"
+		"GtkTextView:selected {\n"
+		"background-color: black;\n"
+		"color: green;\n"
+		"}\n", -1, NULL);
 	FaderControl.png
-		.scale.slider,
-		.scale.slider.horizontal {
-		    background-image: -gtk-scaled(url("assets/scale-slider-horz-dark.png"), url("assets/sc
-		ale-slider-horz-dark@2.png"));
-		}
+	.scale.slider,
+	.scale.slider.horizontal {
+		background-image: -gtk-scaled(url("assets/scale-slider-horz-dark.png"), url("assets/scale-slider-horz-dark@2.png"));
+			}
 
-	/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
-	  provider = gtk_css_provider_new ();
-	  display = gdk_display_get_default ();
-	  screen = gdk_display_get_default_screen (display);
-	  gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+			/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
+			provider = gtk_css_provider_new ();
+			display = gdk_display_get_default ();
+			screen = gdk_display_get_default_screen (display);
+			gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-	  gsize bytes_written, bytes_read;
+			gsize bytes_written, bytes_read;
 
-	  const gchar* home = "YourPathHere";  // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
+			const gchar* home = "YourPathHere"; // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
 
-	  GError *error = 0;
+			GError *error = 0;
 
-	   gtk_css_provider_load_from_path (provider,
-	                                      g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
-	                                      NULL);
-	  g_object_unref (provider);
-	/*-------------------------------------------------------------------------------------------------------------------------*/
+			gtk_css_provider_load_from_path (provider,
+				g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
+				NULL);
+			g_object_unref (provider);
+			/*-------------------------------------------------------------------------------------------------------------------------*/
 
-
-	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+			gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 #endif
 	/*
 	 * Initialize the XML reader/writer and set some basic values here.
@@ -562,17 +568,17 @@ int main(int argc, char *argv[]) {
 #if 0
 	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
 		" GtkWindow {\n"
-			"   background-image: url('./LiveMusicRes/WindowBackground.png');\n"
-			"}\n", -1, NULL);
+		"   background-image: url('./LiveMusicRes/WindowBackground.png');\n"
+		"}\n", -1, NULL);
 #else
 // #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
 #define CSSFileName "/home/elias/workspace/LiveMusicApp/LiveMusicRes/LiveMusicApp.css"
 
-	printf("About to load\n");
-	   gtk_css_provider_load_from_path (GTK_CSS_PROVIDER(provider), CSSFileName, &err);
-//	   printf("After load error %s\n", err->message);
+	printd(LogInfo, "About to load\n");
+	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
+//	   printd(LogInfo, "After load error %s\n", err->message);
 #endif
-	   g_object_unref(provider);
+	g_object_unref(provider);
 //	  exit(0);
 	/*----------------------------------------------------------------------------------------------------------------------*/
 	g_signal_connect(G_OBJECT (main_window), "destroy",
@@ -581,9 +587,9 @@ int main(int argc, char *argv[]) {
 	gtk_window_set_icon(GTK_WINDOW(main_window), create_pixbuf(Icon_FILE));
 
 	BButtonX = ButtonSize;
-	BButtonY  = (int)((float)ButtonSize * 0.6);
-	MButtonX = (int)((float)ButtonSize * 1.0);
-	MButtonY  = (int)((float)ButtonSize * 0.4);
+	BButtonY = (int) ((float) ButtonSize * 0.6);
+	MButtonX = (int) ((float) ButtonSize * 1.0);
+	MButtonY = (int) ((float) ButtonSize * 0.4);
 
 	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
 		"./LiveMusicRes/MainSwitchOn.png", MButtonX, MButtonY, NULL, NULL);
@@ -594,9 +600,9 @@ int main(int argc, char *argv[]) {
 	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
 		"./LiveMusicRes/PatchSwitchOff.png", BButtonX, BButtonY, NULL, NULL);
 	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-		"./LiveMusicRes/NoteBSwitchOn.png", MButtonX, MButtonY,  NULL, NULL);
+		"./LiveMusicRes/NoteBSwitchOn.png", MButtonX, MButtonY, NULL, NULL);
 	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-		"./LiveMusicRes/NoteBSwitchOff.png", MButtonX, MButtonY,  NULL, NULL);
+		"./LiveMusicRes/NoteBSwitchOff.png", MButtonX, MButtonY, NULL, NULL);
 
 //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
@@ -626,7 +632,7 @@ int main(int argc, char *argv[]) {
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "Tempo"));
 
-	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
 
 	if (gMyInfo.MetronomeOn) {
 		MyImageButtonSetText(&TempoDraw, "On");
@@ -634,11 +640,11 @@ int main(int argc, char *argv[]) {
 			TempoDraw.ButtonDownImage);
 	}
 	else {
-			MyImageButtonSetText(&TempoDraw, "Off");
-			gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-				TempoDraw.ButtonUpImage);
-		}
-		g_signal_connect(G_OBJECT(EventBox),
+		MyImageButtonSetText(&TempoDraw, "Off");
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+			TempoDraw.ButtonUpImage);
+	}
+	g_signal_connect(G_OBJECT(EventBox),
 		"button-press-event",
 		G_CALLBACK(on_Tempo_Button),
 		&TempoDraw);
@@ -700,7 +706,7 @@ int main(int argc, char *argv[]) {
 	 */
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "LayoutEvent"));
-	printf("LayoutEvent %x\n", (unsigned int)EventBox);
+	printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
 	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
 		MainButtonOffImage);
 	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
@@ -725,7 +731,6 @@ int main(int argc, char *argv[]) {
 	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
 	ChorderMain(main_window, ChordWidget);
 
-
 	/*
 	 * Set the initial Volumes.
 	 */
@@ -743,7 +748,6 @@ int main(int argc, char *argv[]) {
 	 */
 	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
 	LivePlayerInit(main_window, PlayerWidget);
-
 
 	/*
 	 * Show the main window and let the show begin.
@@ -787,23 +791,31 @@ void UpdateStatus(char *String) {
 	 */
 	switch (HoldStatusIndex) {
 		case 0:
-			sprintf(DisString, "<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[1],(char*) &HoldStatus[2], (char*) &HoldStatus[3], String);
+			sprintf(DisString,
+				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
+				gMyInfo.StatusTextColor,
+				(char*) &HoldStatus[1], (char*) &HoldStatus[2], (char*) &HoldStatus[3], String);
 			break;
 
 		case 1:
-			sprintf(DisString, "<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",gMyInfo.StatusTextColor,
-				 (char*)  &HoldStatus[2], (char*) &HoldStatus[3], (char*) &HoldStatus[0], String);
+			sprintf(DisString,
+				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
+				gMyInfo.StatusTextColor,
+				(char*) &HoldStatus[2], (char*) &HoldStatus[3], (char*) &HoldStatus[0], String);
 			break;
 
 		case 2:
-			sprintf(DisString, "<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[3],	(char*) &HoldStatus[0], (char*) &HoldStatus[1], String);
+			sprintf(DisString,
+				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
+				gMyInfo.StatusTextColor,
+				(char*) &HoldStatus[3], (char*) &HoldStatus[0], (char*) &HoldStatus[1], String);
 			break;
 
 		case 3:
-			sprintf(DisString, "<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[0],	(char*) &HoldStatus[1], (char*) &HoldStatus[2], String);
+			sprintf(DisString,
+				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
+				gMyInfo.StatusTextColor,
+				(char*) &HoldStatus[0], (char*) &HoldStatus[1], (char*) &HoldStatus[2], String);
 			break;
 	}
 
@@ -821,8 +833,8 @@ void UpdateStatus(char *String) {
 	gtk_widget_override_font(MainStatus,
 		pango_font_description_from_string("Sans Bold 12"));
 //	gtk_label_set_text(MainStatus, DisString);
-//	printf("In Update Status %s\n", DisString);
-	gtk_label_set_markup( (GtkLabel *) MainStatus, DisString);
+//	printd(LogInfo, "In Update Status %s\n", DisString);
+	gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
 }
 #define UsingImageButtons
 gboolean click_handler(GtkWidget *widget,
@@ -830,16 +842,16 @@ gboolean click_handler(GtkWidget *widget,
 	gpointer user_data)
 {
 	int Loop;
-	GdkEvent	*theEvent;
+	GdkEvent *theEvent;
 
-	theEvent  = gtk_get_current_event();
-printf("Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
+	theEvent = gtk_get_current_event();
+	printd(LogInfo, "Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
 
 	Loop = (int) user_data;
 	CurrentPreset = Loop;
 	if (theEvent->button.state & GDK_CONTROL_MASK) {
-		printf("We have Control Down\n");
-		ShowPatchListSelect(GTK_WINDOW(widget),Loop);
+		printd(LogInfo, "We have Control Down\n");
+		ShowPatchListSelect(GTK_WINDOW(widget), Loop);
 
 	}
 //	PatchIndex = LayoutSwitchPatch(user_data, true);
@@ -890,16 +902,15 @@ gboolean Notebook_click_handler(GtkWidget *widget,
  * Description:		Build the notebook tab
  *---------------------------------------------------------------------*/
 void CreateTabButtons(void) {
-int	Loop;
-char Buffer[40];
-GtkWidget *MainButtonImage;
-GtkWidget *EventBox;
-
+	int Loop;
+	char Buffer[40];
+	GtkWidget *MainButtonImage;
+	GtkWidget *EventBox;
 
 	for (Loop = 0; Loop < MaxTabs; Loop++) {
 		sprintf(Buffer, "NTab%d", Loop + 1);
 		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
-		MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage,NoteBButtonOffImage);
+		MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage, NoteBButtonOffImage);
 
 		g_signal_connect(G_OBJECT(EventBox),
 			"button-press-event",
@@ -1013,17 +1024,17 @@ void CreateMainButtons(void) {
 		G_CALLBACK (VScale1_Changed), NULL);
 
 	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
-	Adjustment2 = (GtkAdjustment *)GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment2"));
+	Adjustment2 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment2"));
 	g_signal_connect(G_OBJECT (VScale2), "value_changed",
 		G_CALLBACK (VScale2_Changed), NULL);
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
-	Adjustment3 = (GtkAdjustment *)GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
+	Adjustment3 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
 	g_signal_connect(G_OBJECT (VScale3), "value_changed",
 		G_CALLBACK (VScale3_Changed), NULL);
 
 	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
-	Adjustment4 = (GtkAdjustment *)GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment4"));
+	Adjustment4 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment4"));
 	g_signal_connect(G_OBJECT (VScale4), "value_changed",
 		G_CALLBACK (VScale4_Changed), NULL);
 
@@ -1039,7 +1050,7 @@ void CreateMainButtons(void) {
 void VScale1_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	//   printf("\nVscale 1 %f\n", Adjustment1->value);
+	//   printd(LogInfo, "\nVscale 1 %f\n", Adjustment1->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 #if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1059,7 +1070,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
 void VScale2_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printf("\nVscale 1 %f\n", Adjustment2->value);
+//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment2);
 #if 1
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1079,12 +1090,11 @@ void VScale2_Changed(GtkAdjustment *adj) {
 void VScale3_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printf("\nVscale 1 %f\n", Adjustment2->value);
-
+//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
 #if 1
 
-	SetAlsaMasterVolume(	(long) gtk_adjustment_get_value(Adjustment3));
+	SetAlsaMasterVolume((long) gtk_adjustment_get_value(Adjustment3));
 #else
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1103,8 +1113,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 void VScale4_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printf("\nVscale 1 %f\n", Adjustment2->value);
-
+//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 #if 1
 
@@ -1131,7 +1140,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 	tPatchIndex PatchIndex;
 	GdkColor color;
 	char String[PatchNameSize];
-	int		StringLen;
+	int StringLen;
 
 #ifdef UsingImageButtons
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
@@ -1142,8 +1151,8 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-//	        printf("---%*s%*s---\n",10+strlen(s)/2,s,10-strlen(s)/2,"");
-			sprintf(String, "       %02d       \n%*s", Loop + 1,7+StringLen/2,
+//	        printd(LogInfo, "---%*s%*s---\n",10+strlen(s)/2,s,10-strlen(s)/2,"");
+			sprintf(String, "       %02d       \n%*s", Loop + 1, 7 + StringLen / 2,
 				gMyInfo.MyPatchInfo[PatchIndex].Name);
 			MyImageButtonSetText(&MainButtons[Loop], String);
 //			gtk_label_set_text((MainButtons[Loop].Label), String);
@@ -1179,9 +1188,9 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
  *
  *---------------------------------------------------------------------*/
 tPatchIndex DoPatch(PatchInfo *thePatch) {
-	int	Next;
+	int Next;
 	PatchInfo *NextPatch;
-	int	 NextCommand = 1;
+	int NextCommand = 1;
 
 	NextPatch = thePatch;
 
@@ -1226,8 +1235,8 @@ entry1 = GTK_WIDGET (gtk_builder_get_object (xml, "entry1") );
 void CreateHTMLGuide(GTKMidiInfo *myInfo) {
 	FILE *MyFile;
 	char FileName[255];
-	int	 Loop;
-	int	 Loop1;
+	int Loop;
+	int Loop1;
 
 	strcpy(FileName, myInfo->BasePath);
 	strcat(FileName, "/aaFootSwitch.html");
@@ -1336,7 +1345,7 @@ void IncrementMode(void) {
 		CurrentLayout = 0;
 	}
 
-//	printf("IncrementMode %d %s", CurrentLayout,
+//	printd(LogInfo, "IncrementMode %d %s", CurrentLayout,
 //		gMyInfo.LayoutPresets[CurrentLayout].Name);
 //	gtk_widget_override_font(CurrentLayoutWid,
 //		pango_font_description_from_string("Sans Bold 16"));
@@ -1409,7 +1418,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
  *---------------------------------------------------------------------*/
 int GuitarMidiPreset(void) {
 
-	printf("GuitarMidiPreset Start\n");
+	printd(LogInfo, "GuitarMidiPreset Start\n");
 
 	/* Set Audio Volume to zero
 	 */
@@ -1441,7 +1450,7 @@ int GuitarMidiPreset(void) {
 int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	tPatchIndex PatchChange;
 
-	printf("GuitarMidiPresetComplete Start %d\n", MidiNote);
+	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
 	/* Set Audio Volume back
 	 */
@@ -1463,7 +1472,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
 		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
 
-	printf("GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
+	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
 		PatchChange);
 	WaitingforMidi = 0;
 
@@ -1478,28 +1487,27 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 	GtkWidget *widget) {
 
-
 #if 0
 	switch (event->keyval) {
 		case GDK_p:
-		printf("key pressed: %s\n", "p");
+		printd(LogInfo, "key pressed: %s\n", "p");
 		break;
 		case GDK_s:
 		if (event->state & GDK_SHIFT_MASK) {
-			printf("key pressed: %s\n", "shift + s");
+			printd(LogInfo, "key pressed: %s\n", "shift + s");
 		} else if (event->state & GDK_CONTROL_MASK) {
-			printf("key pressed: %s\n", "ctrl + s");
+			printd(LogInfo, "key pressed: %s\n", "ctrl + s");
 		} else {
-			printf("key pressed: %s\n", "s");
+			printd(LogInfo, "key pressed: %s\n", "s");
 		}
 		break;
 		case GDK_m:
 		if (event->state & GDK_SHIFT_MASK) {
-			printf("key pressed: %s\n", "shift + m");
+			printd(LogInfo, "key pressed: %s\n", "shift + m");
 		} else if (event->state & GDK_CONTROL_MASK) {
-			printf("key pressed: %s\n", "ctrl + m");
+			printd(LogInfo, "key pressed: %s\n", "ctrl + m");
 		} else {
-			printf("key pressed: %s\n", "m");
+			printd(LogInfo, "key pressed: %s\n", "m");
 		}
 		break;
 
@@ -1579,6 +1587,6 @@ int FindString(int StringList, char *String) {
 		}
 
 	}
-return(0);
+	return (0);
 }
 

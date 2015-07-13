@@ -52,11 +52,11 @@ void show_status(void *handle)
 		fprintf(stderr, "timer status %i (%s)\n", err, snd_strerror(err));
 		return;
 	}
-	printf("STATUS:\n");
-	printf("  resolution = %li\n", snd_timer_status_get_resolution(status));
-	printf("  lost = %li\n", snd_timer_status_get_lost(status));
-	printf("  overrun = %li\n", snd_timer_status_get_overrun(status));
-	printf("  queue = %li\n", snd_timer_status_get_queue(status));
+	printd(LogInfo, "STATUS:\n");
+	printd(LogInfo, "  resolution = %li\n", snd_timer_status_get_resolution(status));
+	printd(LogInfo, "  lost = %li\n", snd_timer_status_get_lost(status));
+	printd(LogInfo, "  overrun = %li\n", snd_timer_status_get_overrun(status));
+	printd(LogInfo, "  queue = %li\n", snd_timer_status_get_queue(status));
 }
 
 bool MyAlsaClose(void) {
@@ -75,6 +75,7 @@ bool MyAlsaClose(void) {
 		g_warning("Cannot close sequncer, %s\n", snd_strerror(ret));
 	}
 	snd_mixer_close(MixerHandle);
+return(FALSE);
 }
 
 /*--------------------------------------------------------------------
@@ -91,11 +92,11 @@ bool MyAlsaInit() {
 		//   cerr<<"Could not open ALSA SeqPort1uencer: "<<snd_strerror(errno)<<endl;
 		return false;
 	}
-	printf("Init Ports  %d\n", gMyInfo.NumOutPorts);
+	printd(LogInfo, "Init Ports  %d\n", gMyInfo.NumOutPorts);
 
 	for (Loop = 0; Loop <= gMyInfo.NumOutPorts; Loop++) {
 		gMyInfo.SeqPort[Loop] = CreatePort(Seq, gMyInfo.OutPortName[Loop]);
-		printf("Port %d %s\n", Loop, gMyInfo.OutPortName[Loop]);
+		printd(LogInfo, "Port %d %s\n", Loop, gMyInfo.OutPortName[Loop]);
 //               gMyInfo.SeqQueue[Loop] = snd_seq_alloc_queue(gMyInfo.SeqPort[Loop]);
 	}
 
@@ -116,7 +117,7 @@ bool MyAlsaInit() {
 	 * Open Mixer for manipulation
 	 */
     snd_mixer_open(&MixerHandle, 0);
-    snd_mixer_attach(MixerHandle, MixerHardwareName);
+    snd_mixer_attach(MixerHandle, JackName);
     snd_mixer_selem_register(MixerHandle, NULL, NULL);
     snd_mixer_load(MixerHandle);
 
@@ -133,17 +134,17 @@ void SetupAlsaTimer(int Count) {
 	long NewDivider;
 # if 0
 	if (gMyInfo.AlsaTimerHandle) {
-		printf("Closing and freeing timers1\n");
+		printd(LogInfo, "Closing and freeing timers1\n");
 		snd_timer_stop(gMyInfo.AlsaTimerHandle);
-		printf("Closing and freeing timers2\n");
+		printd(LogInfo, "Closing and freeing timers2\n");
 		snd_timer_close(gMyInfo.AlsaTimerHandle);
-		printf("Closing and freeing timers3\n");
+		printd(LogInfo, "Closing and freeing timers3\n");
 //				snd_timer_id_free(gMyInfo.AlsaTimerid);
-		printf("Closing and freeing timers4\n");
+		printd(LogInfo, "Closing and freeing timers4\n");
 //  			snd_timer_info_free(&gMyInfo.AlsaTimerinfo);
-		printf("Closing and freeing timers5\n");
+		printd(LogInfo, "Closing and freeing timers5\n");
 //  			snd_timer_params_free(&gMyInfo.AlsaTimerParams);
-		printf("Closing and freeing timers6\n");
+		printd(LogInfo, "Closing and freeing timers6\n");
 		gMyInfo.AlsaTimerHandle = NULL;
 //   			gMyInfo.AlsaTimerid = 0;
 		//  			gMyInfo.AlsaTimerinfo = NULL;;
@@ -154,30 +155,30 @@ void SetupAlsaTimer(int Count) {
 	snd_timer_info_alloca(&gMyInfo.AlsaTimerinfo);
 	snd_timer_params_alloca(&gMyInfo.AlsaTimerParams);
 
-	printf("**************\n Setting up timers.\n *********************\n");
+	printd(LogInfo, "**************\n Setting up timers.\n *********************\n");
 
 //	    	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", class, sclass, card, device, subdevice);
 	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", 1, -1,
 		0, 3, 0);
-	printf("Timer Name %s\n", timername);
+	printd(LogInfo, "Timer Name %s\n", timername);
 	if ((err = snd_timer_open(&gMyInfo.AlsaTimerHandle, timername,
 		SND_TIMER_OPEN_NONBLOCK)) < 0) {
-		printf("timer open %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer open %i (%s)\n", err, snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
 
 	if ((err = snd_timer_info(gMyInfo.AlsaTimerHandle, gMyInfo.AlsaTimerinfo))
 		< 0) {
-		printf("timer info %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer info %i (%s)\n", err, snd_strerror(err));
 		exit(0);
 	}
-	printf("Timer info:\n");
-	printf("  slave = %s\n",
+	printd(LogInfo, "Timer info:\n");
+	printd(LogInfo, "  slave = %s\n",
 		snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo) ? "yes" : "no");
-	printf("  card = %i\n", snd_timer_info_get_card(gMyInfo.AlsaTimerinfo));
-	printf("  id = '%s'\n", snd_timer_info_get_id(gMyInfo.AlsaTimerinfo));
-	printf("  name = '%s'\n", snd_timer_info_get_name(gMyInfo.AlsaTimerinfo));
-	printf("  average resolution = %li\n",
+	printd(LogInfo, "  card = %i\n", snd_timer_info_get_card(gMyInfo.AlsaTimerinfo));
+	printd(LogInfo, "  id = '%s'\n", snd_timer_info_get_id(gMyInfo.AlsaTimerinfo));
+	printd(LogInfo, "  name = '%s'\n", snd_timer_info_get_name(gMyInfo.AlsaTimerinfo));
+	printd(LogInfo, "  average resolution = %li\n",
 		snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo));
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 //	    	NewDivider = 2500000000/Count;
@@ -197,7 +198,7 @@ void SetupAlsaTimer(int Count) {
 			snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 1);
 		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, NewDivider);
 
-		printf("Using %li tick(s)\n",
+		printd(LogInfo, "Using %li tick(s)\n",
 			snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams));
 	} else {
 		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 1);
@@ -205,7 +206,7 @@ void SetupAlsaTimer(int Count) {
 
 	if ((err = snd_timer_params(gMyInfo.AlsaTimerHandle,
 		gMyInfo.AlsaTimerParams)) < 0) {
-		printf("timer params %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer params %i (%s)\n", err, snd_strerror(err));
 		exit(0);
 	}
 	show_status(gMyInfo.AlsaTimerHandle);
@@ -213,12 +214,12 @@ void SetupAlsaTimer(int Count) {
 	err = snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
 		async_callback, &acount);
 	if (err < 0) {
-		printf("unable to add async handler %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "unable to add async handler %i (%s)\n", err, snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
 
 	if ((err = snd_timer_start(gMyInfo.AlsaTimerHandle)) < 0) {
-		printf("timer start %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer start %i (%s)\n", err, snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
 
@@ -417,7 +418,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 
 		adjbpm = (unsigned long) ((unsigned long) (60.0 * 1000000.0)
 			/ (unsigned long) Value);
-		printf("Tempo Change %d %ld port %d\n", Value, adjbpm, Port);
+		printd(LogInfo, "Tempo Change %d %ld port %d\n", Value, adjbpm, Port);
 		ev.data.queue.param.value = adjbpm;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
@@ -565,7 +566,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			break;
 
 		case cmdCountIn:
-			printf("Setting Count Active\n");
+			printd(LogInfo, "Setting Count Active\n");
 			CountInCount = thePatch->Patch;
 			CountInActive = 2;
 			break;
@@ -1318,8 +1319,8 @@ void *alsa_midi_thread(void * context_ptr) {
 		printd(LogInfo, "%s\n", msg_str_ptr);
 //		g_print("%s", msg_str_ptr);
 		/* get GTK thread lock */
-		gdk_threads_enter();
 #if 0 //ejk
+		gdk_threads_enter();
 		if (g_row_count >= MAX_LIST_SIZE) {
 			gtk_tree_model_get_iter_first(
 				GTK_TREE_MODEL(list_store_ptr),
@@ -1356,9 +1357,9 @@ void *alsa_midi_thread(void * context_ptr) {
 		gtk_container_check_resize(GTK_CONTAINER(child_ptr));
 
 		g_row_count++;
-#endif
 		/* release GTK thread lock */
 		gdk_threads_leave();
+#endif
 
 //	g_string_free(channel_str_ptr, true);
 //	g_string_free(msg_str_ptr, true);
@@ -1820,7 +1821,7 @@ void SetAlsaMasterVolume(long volume) {
     snd_mixer_selem_id_set_index(sid, 0);
     snd_mixer_selem_id_set_name(sid,  "Master");
   snd_mixer_elem_t* elem = snd_mixer_find_selem(MixerHandle, sid);
-printf("SetAlsaMasterVolume MixerHandle %x elem %x\n", MixerHandle, elem);
+printd(LogInfo, "SetAlsaMasterVolume MixerHandle %x elem %x\n", MixerHandle, elem);
 
 	/* This is the Mute button.		*/
 	snd_mixer_selem_set_playback_switch_all	(elem, 1 );
@@ -1844,7 +1845,7 @@ void SetAlsaCaptureVolume(long volume) {
     snd_mixer_selem_id_set_index(sid, 0);
     snd_mixer_selem_id_set_name(sid,  "Capture");
   snd_mixer_elem_t* elem = snd_mixer_find_selem(MixerHandle, sid);
-  printf("SetAlsaCaptureVolume MixerHandle %x elem %x %d\n", MixerHandle, elem, volume);
+  printd(LogInfo, "SetAlsaCaptureVolume MixerHandle %x elem %x %ld\n", MixerHandle, elem, volume);
 
   snd_mixer_selem_get_capture_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &MixerVolume);
 //	  snd_mixer_selem_channel_id_t 	channel,long * 	value  )

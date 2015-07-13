@@ -17,20 +17,21 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets);
 int ScalePage(void);
 tPatchIndex AssignPreset(int PresetNum, char *String);
 void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value);
+gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 static WebKitWebView* web_view;
-
 theImageButtons PresetButtons[MaxPresetButtons];
-theImageButtons SaveWebButton;;
-theImageButtons ScaleButton;;
-theImageButtons ForwardButton;;
-theImageButtons BackButton;;
-theImageButtons SetListButton;;
+theImageButtons SaveWebButton;
+theImageButtons ScaleButton;
+theImageButtons ForwardButton;
+theImageButtons BackButton;
+theImageButtons SetListButton;
+theImageButtons PlayPauseButton;
 
 GtkWidget *scrolled_window;
 // char		SetListFileName[FileNameMaxLength];
-char		SetListFileName[250];
-FILE		*SetListFile;
+char SetListFileName[250];
+FILE *SetListFile;
 #define ParseValue "Preset"
 #define MAXLINE 250
 
@@ -46,7 +47,6 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 		BackButton.ButtonDownImage);
 	webkit_web_view_go_back(web_view);
 	g_print("Back:\n");
-
 }
 
 /*--------------------------------------------------------------------
@@ -69,24 +69,24 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
  * Description:	Scroll the music
  *
  *---------------------------------------------------------------------*/
-int ScrollDown(int	Amount) {
-GtkAdjustment *Adjust;
-gint		Value,UpperV, VIncrement;
-
+int ScrollDown(int Amount) {
+	GtkAdjustment *Adjust;
+	gint Value, UpperV, VIncrement;
 
 	Adjust = gtk_scrolled_window_get_vadjustment(scrolled_window);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 	VIncrement = gtk_adjustment_get_page_increment(Adjust);
 	Value = gtk_adjustment_get_value(Adjust);
-	printd(LogInfo,"In ScrollDown %d  %d %d\n",UpperV,  VIncrement, Value);
-	if ( ( (VIncrement + Value) + (UpperV /10) )>= UpperV ) {
+	printd(LogInfo, "In ScrollDown %d  %d %d\n", UpperV, VIncrement, Value);
+	if (((VIncrement + Value) + (UpperV / 10)) >= UpperV) {
 		gtk_adjustment_set_value(Adjust, 0);
-		printd(LogInfo,"ScrollDown Rolling Over\n");
+		printd(LogInfo, "ScrollDown Rolling Over\n");
 	}
 	else {
-	gtk_adjustment_set_value(Adjust, VIncrement + Value);
+		gtk_adjustment_set_value(Adjust, VIncrement + Value);
 	}
-	}
+return(0);
+}
 /*--------------------------------------------------------------------
  * Function:		Scale the page to fit with scroll bars
  *
@@ -130,86 +130,13 @@ int ScalePage(void) {
 	return (0);
 }
 
-#if 0
-gint WebPageHeight;
-gint WebPageWidth;
-gint ScreenHeight;
-gint ScreenWidth;
-gint AvailHeight;
-gint AvailWidth;
-gfloat ScaleSizeW;
-gfloat ScaleSizeH;
-gboolean UserScale;
-gint WindowX,WindowY;
-GtkAdjustment *Adjust;
-GtkAllocation allocation;
-gint Upper;
-gtk_widget_get_allocation(GTK_WIDGET(scrolled_window), &allocation);
-printd(LogInfo, "Allocation %d %d %d %d\n",
-	allocation.x, allocation.y, allocation.width, allocation.height);
-
-//	gtk_widget_get_size_request(scrolled_window, &WindowX, &WindowY);
-//	printd(LogInfo, "****************Widget %d %d\n", WindowX, WindowY);
-Adjust = gtk_scrolled_window_get_hadjustment(scrolled_window);
-
-Upper = gtk_adjustment_get_upper(Adjust);
-printd(LogInfo, "****************Widget %x %x %f %f %f  %f  %f\n", scrolled_window,
-	Adjust, Adjust->page_size, Adjust->upper, Adjust->page_increment,
-	Adjust, Adjust->lower, Adjust->step_increment);
-
-WebKitViewportAttributes* attributes =
-webkit_web_view_get_viewport_attributes (web_view);
-g_object_get (G_OBJECT (attributes), "available-height", &AvailHeight, NULL);
-g_object_get (G_OBJECT (attributes), "available-width", &AvailWidth, NULL);
-printd(LogInfo, "****************InitHTMLA %d %d\n", AvailHeight, AvailWidth);
-
-#if 1
-g_object_get (G_OBJECT (attributes), "device-height", &ScreenHeight, NULL);
-g_object_get (G_OBJECT (attributes), "device-width", &ScreenWidth, NULL);
-printd(LogInfo, "****************InitHTMLD %d %d\n", ScreenHeight, ScreenWidth);
-g_object_get (G_OBJECT (attributes), "height", &WebPageHeight, NULL);
-g_object_get (G_OBJECT (attributes), "width", &WebPageWidth, NULL);
-printd(LogInfo, "****************InitHTMLW %d %d\n", WebPageHeight, WebPageWidth);
-#endif
-
-#if 0
-g_object_set (G_OBJECT (attributes), "available-height", WebPageHeight, NULL);
-printd(LogInfo, "Page Loaded %d\n", WebPageHeight);
-g_object_set (G_OBJECT (attributes), "available-width", WebPageWidth, NULL);
-printd(LogInfo, "Page Loaded %d\n", WebPageWidth);
-#endif
-
-if (AvailWidth > 200 && Upper != 0)
-ScaleSizeW = ((gfloat)(ScreenWidth - 150)/(gfloat)Upper);
-else
-ScaleSizeW = 1;
-
-if (AvailHeight > 200 )
-ScaleSizeH = (gfloat)ScreenHeight/(gfloat)AvailHeight;
-else
-ScaleSizeH = 1;
-
-printd(LogInfo, "Setting Scale %f W%d S%d D%d\n", ScaleSizeW, WebPageWidth, ScreenWidth, AvailWidth);
-printd(LogInfo, "Setting Scale %f W%d S%d D%d\n", ScaleSizeH, WebPageHeight, ScreenHeight, AvailHeight);
-//	ScaleSize =  (gfloat)WebPageHeight/(gfloat)ScreenHeight;
-printd(LogInfo, "Current Zoom %f\n", webkit_web_view_get_zoom_level(web_view));
-webkit_web_view_set_zoom_level (web_view, ScaleSizeW );
-//	webkit_web_view_set_zoom_level (web_view,MIN(ScaleSizeW,ScaleSizeH) );
-//	webkit_web_view_set_zoom_level (web_view,MIN(ScaleSizeW,.85) );
-
-g_object_get (G_OBJECT (attributes), "user-scalable", &UserScale, NULL);
-printd(LogInfo, "User-scable %d\n", UserScale);
-//	webkit_web_view_set_viewport_attributes (web_view, attributes);
-//	webkit_viewport_attributes_recompute (attributes);
-#endif
-
 /*--------------------------------------------------------------------
- * Function:		on_Forward_clicked
+ * Function:		on_scalebutton_clicked
  *
- * Description:	Web browser forward button
+ * Description:	Scale the graphics to fit the page
  *
  *---------------------------------------------------------------------*/
-void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
+void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
 	const gchar *CurrentURI;
 
 //	 webkit_web_view_reload(web_view);
@@ -227,10 +154,10 @@ void on_toolbutton3_clicked(GtkWidget *widget, gpointer data) {
  * Description:	The users patch 1 was selected.
  *
  *---------------------------------------------------------------------*/
-gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data) {
+gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 
 	tPatchIndex Preset;
-	int	CPatch;
+	int CPatch;
 
 	CPatch = (int) user_data;
 
@@ -238,7 +165,7 @@ gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data
 		Preset = gMyInfo.WebPresets.thePreset[CPatch];
 	}
 	else
-		return(false);
+		return (false);
 
 	printd(LogInfo, "In Button Preset %d %d\n", CPatch, Preset);
 	printd(LogInfo, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
@@ -249,7 +176,7 @@ gboolean on_patch_clicked(GtkWidget *widget,	GdkEvent *event, gpointer user_data
 	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[CPatch].Image),
 		PresetButtons[CPatch].ButtonDownImage);
 
-return(1);
+	return (1);
 }
 
 gboolean on_patch__release_handler(GtkWidget *widget,
@@ -260,8 +187,8 @@ gboolean on_patch__release_handler(GtkWidget *widget,
 	theButton = (theImageButtons *) user_data;
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 
-	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[(int)user_data].Image),
-		PresetButtons[(int)user_data].ButtonUpImage);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[(int )user_data].Image),
+		PresetButtons[(int) user_data].ButtonUpImage);
 	return TRUE; /* stop event propagation */
 }
 /*--------------------------------------------------------------------
@@ -279,8 +206,12 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 #endif
 	FILE *fp;
 
+	/*
+	 * Draw the button
+	 */
 	gtk_image_set_from_pixbuf(GTK_IMAGE(SaveWebButton.Image),
 		SaveWebButton.ButtonDownImage);
+
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	g_print("Save %s\n", CurrentURI);
@@ -335,8 +266,8 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 	}
 
 #ifndef WebKit2
-//	printf("WebKit Set Edit %d\n",
-		webkit_web_view_get_editable(web_view);
+//	printd(LogInfo, "WebKit Set Edit %d\n",
+	webkit_web_view_get_editable(web_view);
 #endif
 	webkit_web_view_set_zoom_level(web_view, 1);
 
@@ -358,7 +289,7 @@ static void viewport_recompute_cb(WebKitWebView* web_view,
 	gint override_available_width = 700;
 
 	g_object_get(G_OBJECT(attributes), "width", &override_available_width,
-	NULL);
+		NULL);
 	g_object_set(G_OBJECT(attributes), "available-width",
 		override_available_width, NULL);
 
@@ -371,7 +302,7 @@ static void viewport_changed_cb(WebKitWebView* web_view,
 	WebKitViewportAttributes* attributes, gpointer data) {
 	gfloat initialScale;
 	g_object_get(G_OBJECT(attributes), "initial-scale-factor", &initialScale,
-	NULL);
+		NULL);
 	webkit_web_view_set_zoom_level(web_view, initialScale);
 }
 
@@ -381,7 +312,7 @@ static void viewport_valid_changed_cb(WebKitViewportAttributes* attributes,
 	gboolean is_valid;
 	g_object_get(attributes, "valid", &is_valid, NULL);
 	if (!is_valid)
-		webkit_web_view_set_zoom_level(web_view, 1.0);
+	webkit_web_view_set_zoom_level(web_view, 1.0);
 }
 #endif
 #if 0
@@ -450,7 +381,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 	gpointer user_data) {
 	char *theURI;
 	char string[150];
-	int	Loop;
+	int Loop;
 
 #ifdef WebKit2
 	theURI = webkit_web_view_get_uri(web_view);
@@ -502,7 +433,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 		return (true);
 	}
 
-	if ( strstr(theURI, ".pdf")) {
+	if (strstr(theURI, ".pdf")) {
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
@@ -538,17 +469,16 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
  * Description:	If we have a set list saved then open a song from it.
  *
  *---------------------------------------------------------------------*/
-void  OpenSetListSong(int SongNumber) {
-int	Loop;
-char temp[MAXLINE];
-char Copy[MAXLINE];
-char *tokenizer;
-char *Found;
-int	Count = 0;
-int	SongCount = 0;
+void OpenSetListSong(int SongNumber) {
+	int Loop;
+	char temp[MAXLINE];
+	char Copy[MAXLINE];
+	char *tokenizer;
+	char *Found;
+	int Count = 0;
+	int SongCount = 0;
 
-
-printf("Made it to OpenSetListSong\n");
+	printd(LogInfo, "Made it to OpenSetListSong\n");
 
 	if (SongNumber < 1) {
 		printd(LogInfo, "Invalid SongNumber %d\n", SongNumber);
@@ -576,7 +506,7 @@ printf("Made it to OpenSetListSong\n");
 			SongCount++;
 			Found += 6;
 			tokenizer = strtok(Found, "\"");
-			printf("Parser found %d %s\n", SongCount, tokenizer);
+			printd(LogInfo, "Parser found %d %s\n", SongCount, tokenizer);
 
 			/*
 			 * If the is the SongNumber HREF count then grab the file name.
@@ -586,10 +516,10 @@ printf("Made it to OpenSetListSong\n");
 				strcpy(Copy, SetListFileName);
 //				dirname(SetListFileName);
 				dirname(Copy);
-				printf("After  %s\n", Copy);
-				strcat	(Copy, "/");
-				strcat	(Copy, tokenizer);
-				printf("Final  %s\n", Copy);
+				printd(LogInfo, "After  %s\n", Copy);
+				strcat(Copy, "/");
+				strcat(Copy, tokenizer);
+				printd(LogInfo, "Final  %s\n", Copy);
 				webkit_web_view_open(web_view, Copy);
 				break;
 			}
@@ -611,15 +541,14 @@ printf("Made it to OpenSetListSong\n");
  *---------------------------------------------------------------------*/
 void on_SetList_clicked(GtkWidget *widget, gpointer data) {
 	const gchar *CurrentURI;
-	char	*BasePtr;
-	int	Length;
-
+	char *BasePtr;
+	int Length;
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	strcpy(SetListFileName, CurrentURI);
 	BasePtr = basename(SetListFileName);
 	Length = strlen(BasePtr);
-	BasePtr[Length -5] = 0;
+	BasePtr[Length - 5] = 0;
 	MyImageButtonSetText(&SetListButton, BasePtr);
 	strcpy(SetListFileName, CurrentURI);
 
@@ -635,20 +564,20 @@ void InitHTML(GtkBuilder *gxml) {
 	char FileName[255];
 	GtkWidget *Widget;
 	int Loop;
-	char		Buffer[40];
+	char Buffer[40];
 	GtkWidget *EventBox;
 	/* Load the buttons and set the callbacks for them.
 	 */
 	CurrentSetListSong = 0;
 
-	for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
+	for (Loop = 0; Loop < MaxPresetButtons - 1; Loop++) {
 		sprintf(Buffer, "Patch%d", Loop + 1);
-		EventBox = GTK_WIDGET(gtk_builder_get_object((GtkBuilder *)gxml, Buffer));
+		EventBox = GTK_WIDGET(gtk_builder_get_object((GtkBuilder * )gxml, Buffer));
 //		gtk_widget_get_usize(EventBox);
 
 		MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
 			PatchButtonOffImage);
-		MyImageButtonSetText( &PresetButtons[Loop], Buffer);
+		MyImageButtonSetText(&PresetButtons[Loop], Buffer);
 
 		g_signal_connect(G_OBJECT(EventBox),
 			"button-press-event",
@@ -684,8 +613,8 @@ void InitHTML(GtkBuilder *gxml) {
 #endif
 
 	EventBox = GTK_WIDGET(
-		gtk_builder_get_object((GtkBuilder *)gxml, "BackButton"));
-	MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+		gtk_builder_get_object((GtkBuilder * )gxml, "BackButton"));
+	MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&BackButton, "Back");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 		G_CALLBACK(on_Back_clicked), &BackButton);
@@ -694,27 +623,25 @@ void InitHTML(GtkBuilder *gxml) {
 
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "ForwardButton"));
-	MyImageButtonInit(&ForwardButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&ForwardButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&ForwardButton, "Forward");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 		G_CALLBACK(on_Forward_clicked), &ForwardButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 		G_CALLBACK(normal_release_handler), &ForwardButton);
 
-
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "ScaleButton"));
-	MyImageButtonInit(&ScaleButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&ScaleButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&ScaleButton, "Scale");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
-		G_CALLBACK(on_toolbutton3_clicked), &ScaleButton);
+		G_CALLBACK(on_scalebutton_clicked), &ScaleButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 		G_CALLBACK(normal_release_handler), &ScaleButton);
 
-
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "SaveWeb"));
-	MyImageButtonInit(&SaveWebButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&SaveWebButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&SaveWebButton, "Save");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 		G_CALLBACK(on_SaveWeb_clicked), &SaveWebButton);
@@ -723,12 +650,21 @@ void InitHTML(GtkBuilder *gxml) {
 
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "SetList"));
-	MyImageButtonInit(&SetListButton, EventBox, MainButtonOnImage,	MainButtonOffImage);
+	MyImageButtonInit(&SetListButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 	MyImageButtonSetText(&SetListButton, "SetList");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 		G_CALLBACK(on_SetList_clicked), &SetListButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 		G_CALLBACK(normal_release_handler), &SetListButton);
+
+	EventBox = GTK_WIDGET(
+		gtk_builder_get_object(gxml, "PlayPause"));
+	MyImageButtonInit(&PlayPauseButton, EventBox, MainButtonOnImage, MainButtonOffImage);
+	MyImageButtonSetText(&PlayPauseButton, "Play");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+		G_CALLBACK(Play_click_handler), &PlayPauseButton);
+//	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
+//		G_CALLBACK(normal_release_handler), &PlayPauseButton);
 
 //    g_signal_connect(web_view, "load-finished", G_CALLBACK(load_finished_cb), NULL);
 
@@ -759,28 +695,29 @@ void InitHTML(GtkBuilder *gxml) {
 	strncpy(FileName, "file:///home/Dropbox/FusionBlue/index.html", 254);
 	webkit_web_view_load_uri (web_view, FileName);
 #endif
-	#if 1
+#if 1
 
-	WebKitWebSettings *settings = webkit_web_settings_new ();
-	g_object_set (G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
+	WebKitWebSettings *settings = webkit_web_settings_new();
+	g_object_set(G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
+	g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
 
 	if (ScreenSize == 0) {
-		g_object_set (G_OBJECT(settings), "default-font-size", 12, NULL);
-		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 12, NULL);
+		g_object_set(G_OBJECT(settings), "default-font-size", 12, NULL);
+		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 12, NULL);
 	}
 
 	if (ScreenSize == 1) {
-		g_object_set (G_OBJECT(settings), "default-font-size", 18, NULL);
-		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 18, NULL);
+		g_object_set(G_OBJECT(settings), "default-font-size", 18, NULL);
+		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 18, NULL);
 	}
 
 	if (ScreenSize == 2) {
-		g_object_set (G_OBJECT(settings), "default-font-size", 24, NULL);
-		g_object_set (G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
+		g_object_set(G_OBJECT(settings), "default-font-size", 24, NULL);
+		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
 	}
 
 	/* Apply the result */
-	webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
+	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
 #endif
 //	create_Popup_view(web_view);
 
@@ -788,8 +725,6 @@ void InitHTML(GtkBuilder *gxml) {
 	gtk_widget_show_all(scrolled_window);
 
 }
-
-
 
 /*--------------------------------------------------------------------
  * Function:		Search_in_File
@@ -804,10 +739,10 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	char *Found;
 	char Value;
 	char *tokenizer;
-	char	*String;
+	char *String;
 	int Count = 0;
-	char	DrumFile[FileNameMaxLength];
-	char	LoopFile[FileNameMaxLength];
+	char DrumFile[FileNameMaxLength];
+	char LoopFile[FileNameMaxLength];
 
 	/* Get passed the file://
 	 */
@@ -952,7 +887,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	/*
 	 * Check to see if we have requested a new file for the drum or the looper.
 	 */
-	if ( DrumFile[0] || LoopFile[0] ) {
+	if (DrumFile[0] || LoopFile[0]) {
 		/*
 		 * Make sure the the looper is the second argument even of the drum file is the same.
 		 */
@@ -960,7 +895,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			DrumFile[0] = 'A';
 
 		sprintf(Copy, "/home/Dropbox/LiveEffects/ReloadLivesFiles %s %s & ", DrumFile, LoopFile);
-		printf("Calling System with %s\n", Copy);
+		printd(LogInfo, "Calling System with %s\n", Copy);
 		system(Copy);
 	}
 
@@ -1008,27 +943,27 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 
 		case 1:
 			printd(LogInfo, "*********PresetNum Case 1 ");
-			SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name,1);
+			SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name, 1);
 			break;
 
 		case 2:
-			SetPatchTitles(&PresetButtons[1], gMyInfo.MyPatchInfo[Value].Name,2);
+			SetPatchTitles(&PresetButtons[1], gMyInfo.MyPatchInfo[Value].Name, 2);
 			break;
 
 		case 3:
-			SetPatchTitles(&PresetButtons[2], gMyInfo.MyPatchInfo[Value].Name,3);
+			SetPatchTitles(&PresetButtons[2], gMyInfo.MyPatchInfo[Value].Name, 3);
 			break;
 
 		case 4:
-			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name,4);
+			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name, 4);
 			break;
 
 		case 5:
-			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name,5);
+			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name, 5);
 			break;
 
 		case 6:
-			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name,6);
+			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name, 6);
 			break;
 
 		default:
@@ -1044,13 +979,13 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
  * Description:	When we load patched, rename the buttons.
  *
  *---------------------------------------------------------------------*/
-void SetPatchTitles(theImageButtons *MyButton, char *Text, int	Value) {
+void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value) {
 	char String[PatchNameSize];
-	int		StringLen;
+	int StringLen;
 
 	printd(LogInfo, "SetPatchTitles %x %s\n", MyButton, Text);
 	StringLen = strlen(Text);
-	sprintf(String, "       %02d       \n%*s", Value ,7+StringLen/2,
+	sprintf(String, "       %02d       \n%*s", Value, 7 + StringLen / 2,
 		Text);
 	MyImageButtonSetText(MyButton, String);
 }

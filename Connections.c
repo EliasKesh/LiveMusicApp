@@ -83,6 +83,7 @@ int InitConnections(void) {
 	return (0);
 }
 
+#if 0
 static void error_handler(const char *file, int line, const char *function,
 	int err, const char *fmt, ...) {
 	va_list arg;
@@ -101,6 +102,7 @@ static void error_handler(const char *file, int line, const char *function,
 static void usage(void) {
 
 }
+#endif
 
 /*
  * check permission (capability) of specified port
@@ -288,6 +290,7 @@ static void remove_all_connections(snd_seq_t *seq) {
 /*
  * main..
  */
+#if 0
 
 enum {
 	SUBSCRIBE, UNSUBSCRIBE, LIST, REMOVE_ALL
@@ -315,7 +318,6 @@ NULL, 0, NULL,
 },
 };
 
-#if 0
 int Temp(int argc, char **argv) {
 	int c;
 	snd_seq_t *seq;

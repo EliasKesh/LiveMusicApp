@@ -620,7 +620,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 
 	FretOffset = (int) ((float) (width - 300) / (float) NumStrings);
 
-	printf("FretOffset %d %d %d \n", FretOffset, width, NumStrings);
+	printd(LogInfo, "FretOffset %d %d %d \n", FretOffset, width, NumStrings);
 	StringOffset = 30;
 	myChord.Position = 2;
 	DisplayPosition = 2;
@@ -1049,7 +1049,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	FretOffset = Fwidth/MaxDisplayFrets;
 	StringOffset = (Fheight)/NumStrings;
 
-	printf("FretOffset %d %d %d %d %d\n", FretOffset,Fwidth,Fheight,NumStrings,StringOffset);
+	printd(LogInfo, "FretOffset %d %d %d %d %d\n", FretOffset,Fwidth,Fheight,NumStrings,StringOffset);
 	myChord.Position = 2;
 	DisplayPosition = 2;
 

@@ -21,7 +21,7 @@ then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
 	/home/Dropbox/LiveEffects/LiveMusicApp & 
-	sleep 4
+	sleep 6
 	cd /home/Dropbox/LiveEffects
 	/home/Dropbox/LiveEffects/GuitarEffects -c
 fi

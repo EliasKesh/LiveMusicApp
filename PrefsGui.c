@@ -676,6 +676,7 @@ enum
   N_COLUMNS
 };
 
+#if 0
 static void init_list(GtkWidget *list) {
 GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
@@ -693,7 +694,9 @@ GtkCellRenderer *renderer;
 
   g_object_unref(store);
 }
+#endif
 
+#if 0
 static void add_to_list(GtkWidget *list, const gchar *str) {
   GtkListStore *store;
   GtkTreeIter iter;
@@ -704,7 +707,7 @@ static void add_to_list(GtkWidget *list, const gchar *str) {
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, LIST_ITEM, str, -1);
 }
-
+#endif
 
 void  OnPatchSelected(GtkWidget *widget, int	Starting)
 {

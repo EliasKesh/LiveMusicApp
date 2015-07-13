@@ -94,7 +94,7 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 56
-#define Max_Patches	 140
+#define Max_Patches	 142
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
 #define Max_Layouts		10
@@ -324,6 +324,8 @@ unsigned int CurrentLayout;
 unsigned int CurrentPreset;
 GtkWidget *PatchPopupMenu;
 char		ScreenSize;
+int verbose_flag;
+char		JackName[MaxStringPortName];
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -353,6 +355,8 @@ extern unsigned int CurrentLayout;
 extern unsigned int CurrentPreset;
 extern GtkWidget *PatchPopupMenu;
 extern char		ScreenSize;
+extern int verbose_flag;
+extern char		JackName[MaxStringPortName];
 
 #endif
 
