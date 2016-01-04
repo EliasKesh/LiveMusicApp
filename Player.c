@@ -518,14 +518,14 @@ void SetPlayerFile(char *FileName) {
 
 	// sox Pools.mp3  -n spectrogram  -x 800 -Y 130 -c 1 −−clobber  -a -o spectrogram.png
 	sprintf(PlayerString,
-		"sox %s  -n spectrogram  -x 900 -Y 130 -c 1  -r -a -o ./spectrogram.png\n",
+		"sox \"%s\"  -n spectrogram  -x 900 -Y 130 -c 1  -r -a -o ./spectrogram.png\n",
 		FileName);
 	printd(LogInfo, "%s", PlayerString);
 	system(PlayerString);
 	gtk_image_clear(ImageWidget);
 	gtk_image_set_from_file(ImageWidget, "spectrogram.png");
 	strcpy(CurrentFile, FileName);
-	sprintf(PlayerString, "load %s\n", FileName);
+	sprintf(PlayerString, "load \"%s\"\n", FileName);
 	PlayerWrite(PlayerString);
 	PlayerWrite("stream_time_pos\n");
 	DontUpDateSlider = FALSE;

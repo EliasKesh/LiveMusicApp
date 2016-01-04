@@ -51,7 +51,7 @@ AudioSampleRate=44100
 	  AudioOutDevice="Intel"
 	  MidiGuitarInputPort="rakarrack"
 	  PedalBoardIn="Midilink"
-		PedalBoardIn="UX16"
+        PedalBoardIn="UX16"
 	  MidiOut="Midilink"
 	fi
 
@@ -126,7 +126,7 @@ AudioSampleRate=44100
 	if [ "$?" -eq 0 ]; then
 
 	  echo "We have " $Device >> $LogFile
-#	AudioSampleRate=96000
+	AudioSampleRate=48000
 	  AudioDevice=$Device
 	  AudioInDevice="iO4"
 	  AudioOutDevice="iO4"
@@ -141,6 +141,9 @@ AudioSampleRate=44100
 	echo $DeviceList | grep "${Device}"
 	if [ "$?" -eq 0 ]; then
 	  echo "We have " $Device >> $LogFile
+#	  AudioSampleRate=96000
+	AudioSampleRate=48000
+
 	  AudioDevice="$Device"
 	  AudioInDevice="iO Hub"
 	  AudioOutDevice="iO Hub"
@@ -154,7 +157,8 @@ AudioSampleRate=44100
 	echo $DeviceList | grep "${Device}"
 	if [ "$?" -eq 0 ]; then
 	  echo "We have " $Device >> $LogFile
-#		AudioSampleRate=96000
+#	AudioSampleRate=48000
+		AudioSampleRate=96000
 	  AudioDevice="$Device"
 	  AudioInDevice="Scarlett Solo"
 	  AudioOutDevice="Scarlett Solo"
@@ -455,12 +459,12 @@ function SetUpConnections {
 
 	echo "MidiGuitarInput "$MidiGuitarInput"0 to MidiSoundIn "$MidiSoundIn"0"  >> $LogFile
 	aconnect $MidiGuitarInput"0"  $MidiSoundIn"0" 
-	aconnect $MidiGuitarInput"1"  $MidiSoundIn"0" 
+#	aconnect $MidiGuitarInput"1"  $MidiSoundIn"0" 
 
 	aconnect $MidiEffectsOut"0"  $MidiSoundIn"0" 
 
 #	 Connect Midi in to effects apps for control
-#	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
+	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
 #	aconnect $MidiGuitarInput"1"  $MidiRouterIn"0" 
 
 	# Midi in to LiveEffect
@@ -619,7 +623,7 @@ function SetUpApplications {
 		echo "Starting Midi Router"  >> $LogFile
 		echo "Starting Midi Router" 
 		cd /home/Dropbox/LiveEffects/
-		./LiveMusicApp  > /dev/null 2>&1  &  
+		./LiveMusicApp  -j "${AudioOutDevice}"  > /dev/null 2>&1  &  
   
 	Delay 3
         fi
@@ -1070,7 +1074,8 @@ while getopts "abcdrpmvlswt" OPT; do
 		  killall jackd
 		  xset s on
 		  xset +dpms
-		  
+		  killall GuitarEffects
+
 		  exit 0
 	  ;;
         o)
@@ -1133,26 +1138,15 @@ done
   
 #	a2jmidid -e &
 
-	Delay 2
+	Delay 3
 	  # Set up the mier levels and the interconnection between devices.
 	SetUpConnections
 	SetPlacement
 
-	Delay 5
 
-	  # Set up the mier levels and the interconnection between devices.
-	SetUpConnections
-	SetPlacement
-
-	Delay 5
-
-	SetPlacement
-	SetUpConnections
-	
 	# Run the patch bay
 	echo "Starting Patch Bay"  >> $LogFile
 	patchage  > /dev/null 2>&1 &
-	Delay 5
 
 #	okular &
     

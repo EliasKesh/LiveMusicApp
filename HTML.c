@@ -371,6 +371,43 @@ PolicyRequestCD (WebKitWebView* view, WebKitWebFrame* frame,
 }
 
 #endif
+int ishex(int x)
+{
+	return	(x >= '0' && x <= '9')	||
+		(x >= 'a' && x <= 'f')	||
+		(x >= 'A' && x <= 'F');
+}
+
+int decode(const char *s, char *dec)
+{
+	char *o;
+	char *end = s + strlen(s);
+	int c;
+
+	for (o = dec; s <= end; o++) {
+		c = *s++;
+		if (c == '+') c = ' ';
+		else if (c == '%' && (	!ishex(*s++)	||
+					!ishex(*s++)	||
+					!sscanf(s - 2, "%2x", &c)))
+			return -1;
+
+		if (dec) *o = c;
+	}
+#if 0
+	size_t		Length;
+	int		Loop;
+	Length = o - dec;
+	o = dec;
+
+	for (Loop = 0; Loop < Length; Loop++)
+		if ( dec[Loop] == 0x20)
+			dec[Loop] = 255;
+#endif
+
+	return o - dec;
+}
+
 #ifndef WebKit2
 
 gboolean NavigationPolicy(WebKitWebView *web_view,
@@ -379,17 +416,18 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 	WebKitWebNavigationAction *navigation_action,
 	WebKitWebPolicyDecision *policy_decision,
 	gpointer user_data) {
-	char *theURI;
+	char *theOrgURI;
+	char theURI[250];
 	char string[150];
 	int Loop;
 
 #ifdef WebKit2
-	theURI = webkit_web_view_get_uri(web_view);
+	theOrgURI = webkit_web_view_get_uri(web_view);
 #else
-	theURI = webkit_web_navigation_action_get_original_uri(navigation_action);
+	theOrgURI = webkit_web_navigation_action_get_original_uri(navigation_action);
 #endif
 	//	uri=networkRequest.get_uri()
-
+	decode(theOrgURI, theURI);
 	printd(LogInfo, "NavigationPolicy %s \n", theURI);
 
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
@@ -416,14 +454,14 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 		return (true);
 	}
 
-	if (strstr(theURI, ".tg") || strstr(theURI, ".gp")) {
+	if (strstr(theURI, ".tg") || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
 #ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
 #endif
-		sprintf(string, "/usr/bin/tuxguitar %s &", theURI);
+		sprintf(string, "/usr/bin/tuxguitar \"%s\" &", theURI);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -440,7 +478,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 #ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
 #endif
-		sprintf(string, "/usr/bin/okular %s &", theURI);
+		sprintf(string, "/usr/bin/okular \"%s\" &", theURI);
 		for (Loop = 0; Loop < strlen(string); Loop++) {
 			if (string[Loop] == '%') {
 				string[Loop++] = 0x20;

@@ -49,7 +49,7 @@ GTKMidiInfo GlobalInfo =
 			{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "None" },
 			{ "FunkBass", 0xff, 9, RakarrakPort, 1, NoCustom, "None" },
 			{ "Satriani", 0xff, 16, RakarrakPort, 1, NoCustom, "None" },
-			{ "FunkyWah", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
+			{ "FunkyGuitar", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
 			{ "JazzRev", 0xff, 28, RakarrakPort, 1, NoCustom, "None" },
 			{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 			//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
@@ -77,16 +77,16 @@ GTKMidiInfo GlobalInfo =
 			{ "Mid-24", 0xff, 2, 0, 1, NoCustom, "None" },
 			{ "Mid Screen", SFDSF, 0, FluidPort, 1, NoCustom, "None" },
 			// 30	Button		Title		Bank	Patch	Outport
-			{ "Rak Eff6", 116, 11, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff7", 116, 13, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff8", 116, 15, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff9", 116, 17, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff10", 116, 18, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff1", 116, 0, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff2", 116, 2, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff3", 116, 4, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff4", 116, 6, FluidPort, 1, Controller, "None" },
-			{ "Rak Eff5", 116, 8, FluidPort, 1, Controller, "None" },
+			{ "Rak Eff6", 116, 11, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff7", 116, 13, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff8", 116, 15, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff9", 116, 17, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff10", 116, 18, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff1", 116, 0, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff2", 116, 2, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff3", 116, 4, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff4", 116, 6, RakarrakPort, 1, Controller, "None" },
+			{ "Rak Eff5", 116, 8, RakarrakPort, 1, Controller, "None" },
 			// 40	Button		Title		Bank	Patch	Outport
 			{ "TransStart", 0xff, 0, TransportPort, 1, TransStart, "None" },
 			{ "TransCont", 0xff, 0, TransportPort, 1, TransCont, "None" },
@@ -168,11 +168,11 @@ GTKMidiInfo GlobalInfo =
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 
 			// 110	Button		Title		Bank	Patch	Outport
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
+			{ "Holds-Mel", 0xff, 21, RakarrakPort, 1, NoCustom, "NiceAhh" },
+			{ "NiceAhh", SFDSF, 90, FluidPort, 1, NoCustom, "None" },
+			{ "Holds-Hard", 0xff, 22, RakarrakPort, 1, NoCustom, "NiceAhh" },
+			{ "NiceAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
+			{ "ToLate", SFVintage, 108, FluidPort, 1, NoCustom, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 			{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -234,7 +234,7 @@ GTKMidiInfo GlobalInfo =
 			{
 	/*			1			2			3			4			5			6 		*/
 				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
-				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"FunkyWah",
+				"Chorus", 		"SatrianiComp", 	"MS20Bass", 	"Flute", 		"CleanBass",	"FunkyGuitar",
 				"PreTab", 		 "ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
 				"Scroll", 		"Drums", 		"Scroll", 		"NextSong",	"PrevSong", 	"LayoutSwitch",
 
@@ -305,11 +305,28 @@ GTKMidiInfo GlobalInfo =
 			{
 	/*			1			2			3			4			5			6 		*/
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
-				"FunkBass", 	"FunkyWah", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
+				"FunkBass", 	"FunkyGuitar", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
+				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
+				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+			},
+		},
+
+		{ "Guitar",
+			{
+	/*			1			2			3			4			5			6 		*/
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"FunkyGuitar",
+				"CleanBass", 	"MedDist", 		"Breath", 		"Flute",		"MS20Bass",  	"Rak Eff2",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"Drums",		"Flute", 		"Satriani", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
+
+				"Piano", 		"Holds-Mel",	"Holds-Hard",	"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
 				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
 				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",

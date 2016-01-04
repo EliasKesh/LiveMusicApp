@@ -79,9 +79,9 @@ char chMajor6[] =
 char chMinor6[] =
 { 0, SN, 3, SN, 7, 9, SN, EOfscl };
 char chMajor9[] =
-{ 0, SN, 4, SN, 7, SN, SN, SN, 14, EOfscl };
+{ 0, SN, 4, SN, 7, SN, 11, SN, 14, EOfscl };
 char chMinor9[] =
-{ 0, SN, 3, SN, 7, SN, SN, SN, 14, EOfscl };
+{ 0, SN, 3, SN, 7, SN, 10, SN, 14, EOfscl };
 char chDom9[] =
 { 0, SN, 4, SN, 7, SN, 10, SN, 14, EOfscl };
 char ch69[] =

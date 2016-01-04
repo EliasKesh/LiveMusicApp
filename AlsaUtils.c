@@ -523,6 +523,11 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			break;
 
 		case Controller:
+#if 1
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
+				thePatch->Channel,
+				thePatch->BankSelect, thePatch->Patch);
+#endif
 
 			break;
 
