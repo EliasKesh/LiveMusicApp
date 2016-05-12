@@ -472,21 +472,45 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 	}
 
 	if (strstr(theURI, ".pdf")) {
+	char *PageIndex;
+	int	PageNumber;
+
 		/*
-		 * Tell web kit not to o anything with it.
+		 * Tell web kit not to do anything with it.
 		 */
 #ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
 #endif
-		sprintf(string, "/usr/bin/okular \"%s\" &", theURI);
+		PageIndex=strstr(theURI, "#page=");
+		if (PageIndex) {
+			*PageIndex=0;
+			PageIndex += 6;
+			PageNumber = atoi(PageIndex);
+		}
+		printf("PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
+
+		sprintf(string, "/usr/bin/okular \"%s\" --page=%d &", theURI, PageNumber);
+#if 0
+		for (Loop = 0; Loop < strlen(theURI); Loop++) {
+			String[Loop] = theURI[Loop];
+		}
+
 		for (Loop = 0; Loop < strlen(string); Loop++) {
 			if (string[Loop] == '%') {
 				string[Loop++] = 0x20;
 				string[Loop++] = 0x20;
 				string[Loop] = 0x20;
 			}
-		}
 
+			/*
+			 * If it's a reference to page terminate the string
+			 */
+			if (string[Loop] == '#') {
+				string[Loop] = '\"';
+				string[Loop++] = 0x20;
+				string[Loop] = 0x20;
+			}
+#endif
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 

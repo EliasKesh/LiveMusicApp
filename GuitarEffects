@@ -1526,6 +1526,16 @@ Script
 Boot from a 32 Gig USB stick in 15 Seconds
 
 
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.stop
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.preset
+"string:Presonus"
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.start
+
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.stop
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.preset
+"string:(default)"
+dbus-send --system /org/rncbc/qjackctl org.rncbc.qjackctl.start
+
 Patches
 	Control Audio, Midi, plus other functions
 	
