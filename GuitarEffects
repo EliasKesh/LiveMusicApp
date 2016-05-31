@@ -495,10 +495,10 @@ function SetUpConnections {
 #	aconnect $PedalBoardOut"1"  $MidiRouterIn"0" 
 
 	# If EliasMidi is there let set it up.
-	echo $MidiList | grep "EliasPedal2" >/dev/null
+	echo $MidiList | grep "EliasMIDI" >/dev/null
 	if [ "$?" -eq 0 ]; then
-	PedalBoardOut=`aconnect -o | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
-	echo "EliasMidi "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
+	PedalBoardOut=`aconnect -o | grep -m 1 "EliasMIDI" | awk '{ print $2}'`
+	echo "EliasMIDI "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
 	aconnect $PedalBoardOut"0"  $MidiRouterIn"0" 
 	fi
 	
@@ -712,8 +712,8 @@ function SetPlacement {
 
 Screentype=1
 
-#if [ `hostname` == "Keshie" ]; then
-if [ `hostname` == "Music" ]; then
+if [ `hostname` == "Keshie" ]; then
+#if [ `hostname` == "Music" ]; then
 
 AnalogDesktop=5
 LiveMusicAppDesktop=6
@@ -721,6 +721,7 @@ LooperDesktop=7
 MidiDesktop=7
 PatchageDesktop=8
 PlayerDesktop=8
+DrumDesktop=8
 else
 AnalogDesktop=0
 LiveMusicAppDesktop=1
@@ -728,6 +729,7 @@ LooperDesktop=2
 MidiDesktop=3
 PatchageDesktop=5
 PlayerDesktop=6
+DrumDesktop=8
 fi
 
 MaxOffSet=1368
@@ -742,13 +744,7 @@ if [ "$?" = "0" ] ; then
 	ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
 	xinput map-to-output $ExtID HDMI1
 	
-AnalogDesktop=0
-LiveMusicAppDesktop=0
-LooperDesktop=0
-MidiDesktop=0
-PatchageDesktop=4
-PlayerDesktop=0
-DrumDesktop=0
+
 XOffset=0
 NewOffset=`expr $XOffset + 1050`
 MaxOffSet=`expr 1368+1920`
@@ -763,13 +759,6 @@ if [ "$?" = "0" ] ; then
 	ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
 	xinput map-to-output $ExtID HDMI1
 	
-AnalogDesktop=0
-LiveMusicAppDesktop=0
-LooperDesktop=0
-MidiDesktop=0
-PatchageDesktop=4
-PlayerDesktop=0
-DrumDesktop=0
 XOffset=1370
 NewOffset=`expr $XOffset + 1050`
 MaxOffSet=`expr 1368+1920`
@@ -783,12 +772,7 @@ echo "Found Dell"
 
 	ExtID=`xinput list | grep -Po 'Quanta*id=\K[0-9]+'`
 	xinput map-to-output $ExtID HDMI1
-AnalogDesktop=0
-LiveMusicAppDesktop=0
-LooperDesktop=0
-MidiDesktop=0
-PatchageDesktop=0
-PlayerDesktop=0
+
 XOffset=1370
 NewOffset=`expr $XOffset + 1050`
 NewOffset=0
@@ -800,11 +784,12 @@ fi
 fi
 fi
 
-    wmctrl -a SooperLooper
-    wmctrl -a rakarrack
-    wmctrl -a LiveMusicApp 
+    # wmctrl -a SooperLooper
+    # wmctrl -a rakarrack
+    # wmctrl -Fa LiveMusicApp 
 
-	
+	wmctrl -a $LiveMusicAppDesktop
+
 }
 
 #---------------------------------------------------------------------#
@@ -840,10 +825,7 @@ set -x
       	wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
         wmctrl -r TuxGuitar -t $PlayerDesktop
 
-       wmctrl -r Hydrogen -t $DrumDesktop
-
-        
-         wmctrl -s $LiveMusicAppDesktop
+       	wmctrl -r Hydrogen -t $DrumDesktop
  }
  
  #---------------------------------------------------------------------#
@@ -879,7 +861,7 @@ set -x
       	wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
         wmctrl -r TuxGuitar -t $PlayerDesktop
         
-         wmctrl -s $LiveMusicAppDesktop
+
  }
  
   #---------------------------------------------------------------------#
@@ -893,13 +875,13 @@ set -x
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
         wmctrl -r rakarrack -e 0,0,30,850,650
-        wmctrl -r rakarrack -t 4
+        wmctrl -r rakarrack -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,70,10,1270,720
-        wmctrl -r LiveMusicApp -t 4
+        wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
 
         wmctrl -r Patchage -e 0,80,10,1000,700
-        wmctrl -r Patchage -t 5
+        wmctrl -r Patchage -t $PatchageDesktop
 
         wmctrl -r SooperLooper -e 0,0,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
@@ -908,13 +890,11 @@ set -x
         wmctrl -r qsynth -t $MidiDesktop
 
 		wmctrl -r clementine -e 0,0,150,1000,600
-        wmctrl -r clementine -t 4
+        wmctrl -r clementine -t $PlayerDesktop
         
 		wmctrl -r TuxGuitar -e 0,366,250,1000,500
-        wmctrl -r TuxGuitar -t 4
-        
-#         wmctrl -s $LiveMusicAppDesktop
- }
+        wmctrl -r TuxGuitar -t $PlayerDesktop
+}
  
  
 #---------------------------------------------------------------------#
@@ -1110,7 +1090,7 @@ done
 
 	date  > $LogFile
 	export IAM=`whoami`
-	ln -s   /home/Dropbox/LiveMusic/Prefs/rakarrack.prefs /home/$IAM/.fltk/rakarrack.sf.net/rakarrack.prefs
+	ln -s   /home/Dropbox/LiveEffects/Prefs/rakarrack.prefs /home/$IAM/.fltk/rakarrack.sf.net/rakarrack.prefs
 
 	  # Try and find what device we should use.
 	  FindDevice
