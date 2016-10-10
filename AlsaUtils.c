@@ -690,6 +690,10 @@ void *alsa_midi_thread(void * context_ptr) {
 //  list_store_ptr = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(child_ptr)));
 
 	while (snd_seq_event_input(SeqPort1In, &event_ptr) >= 0) {
+		printf("Event Type %d %d %d %d\n", event_ptr->type, 
+			event_ptr->data.control.channel, event_ptr->data.control.param,
+			event_ptr->data.control.value);
+		// 10 7 63 1,2,3
 //		g_print("Midi Event:\n");
 
 //	if (g_midi_ignore)
@@ -735,7 +739,6 @@ void *alsa_midi_thread(void * context_ptr) {
 		}
 
 //	msg_str_ptr = g_string_new("unknown event");
-
 		switch (event_ptr->type) {
 			case SND_SEQ_EVENT_SYSTEM:
 				sprintf(msg_str_ptr, "System event");
@@ -810,9 +813,15 @@ void *alsa_midi_thread(void * context_ptr) {
 						cc_name = "Main volume";
 						printd(LogInfo, "Send Midi Volume %d\n",
 							event_ptr->data.control.value);
-						SetVolume1(event_ptr->data.control.value);
-						//				SendMidi(MIDI_CTL_MSB_MAIN_VOLUME, 0, 1, TestProgram,
-						//		event_ptr->data.control.value);
+						
+						/* If we are in Guitar mode.
+						*/
+						if ( (FishmanSwitch != 2) && (FishmanSwitch != 3) ) {
+							SetVolume1(event_ptr->data.control.value);
+						} else {
+							SendMidi(MIDI_CTL_MSB_MAIN_VOLUME, 0, 1, TestProgram,
+							event_ptr->data.control.value);
+						}
 						break;
 					case MIDI_CTL_MSB_BALANCE:
 						cc_name = "Balance";
@@ -1012,6 +1021,12 @@ void *alsa_midi_thread(void * context_ptr) {
 					case MIDI_CTL_MONO2:
 						cc_name = "Mono2";
 						break;
+
+					case 63:
+						FishmanSwitch = event_ptr->data.control.value;
+						printf("Fishman Switch %d\n", event_ptr->data.control.value);
+					break;
+
 				}
 
 #if 0
@@ -1322,6 +1337,7 @@ void *alsa_midi_thread(void * context_ptr) {
 		}
 
 		printd(LogInfo, "%s\n", msg_str_ptr);
+		printf( "%s\n", msg_str_ptr);
 //		g_print("%s", msg_str_ptr);
 		/* get GTK thread lock */
 #if 0 //ejk

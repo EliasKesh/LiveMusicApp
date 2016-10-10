@@ -21,7 +21,7 @@
 
 #include <asoundlib.h>
 #include <gtk/gtk.h>
-#include <glade/glade.h>
+#include <gladeui/glade.h>
 #include "MyWidgets.h"
 
 /*
@@ -326,6 +326,7 @@ GtkWidget *PatchPopupMenu;
 char		ScreenSize;
 int verbose_flag;
 char		JackName[MaxStringPortName];
+int 		FishmanSwitch;
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -357,7 +358,7 @@ extern GtkWidget *PatchPopupMenu;
 extern char		ScreenSize;
 extern int verbose_flag;
 extern char		JackName[MaxStringPortName];
-
+extern int 		FishmanSwitch;
 #endif
 
 void NextDesktop(void);
