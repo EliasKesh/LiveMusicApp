@@ -557,6 +557,8 @@ int main(int argc, char *argv[]) {
 	 * get the window widget from the glade XML file
 	 */
 	main_window = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
+
+#if 1
 	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
 	provider = gtk_css_provider_new();
 	display = gdk_display_get_default();
@@ -572,15 +574,17 @@ int main(int argc, char *argv[]) {
 		"}\n", -1, NULL);
 #else
 // #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
-#define CSSFileName "/home/elias/workspace/LiveMusicApp/LiveMusicRes/LiveMusicApp.css"
+#define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
 
-	printd(LogInfo, "About to load\n");
+	printd(LogInfo, "ejk About to load\n");
 	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
-//	   printd(LogInfo, "After load error %s\n", err->message);
+//	   printd(LogInfo, "ejk After load error %s\n", err->message);
 #endif
 	g_object_unref(provider);
 //	  exit(0);
 	/*----------------------------------------------------------------------------------------------------------------------*/
+#endif
+
 	g_signal_connect(G_OBJECT (main_window), "destroy",
 		G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");

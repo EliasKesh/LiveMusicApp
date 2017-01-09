@@ -13,7 +13,7 @@
 #
 #---------------------------------------------------------------------#
 cp LiveMusicApp  /home/Dropbox/LiveEffects/
-cp ../KeepLiveMusicRunning.sh  /home/Dropbox/LiveEffects/
-cp ../GuitarEffects  /home/Dropbox/LiveEffects/
-rsync -avrx ../LiveMusicRes/ /home/Dropbox/LiveEffects/LiveMusicRes/
+cp ./KeepLiveMusicRunning.sh  /home/Dropbox/LiveEffects/
+cp ./GuitarEffects  /home/Dropbox/LiveEffects/
+rsync -avrx ./LiveMusicRes/ /home/Dropbox/LiveEffects/LiveMusicRes/
 

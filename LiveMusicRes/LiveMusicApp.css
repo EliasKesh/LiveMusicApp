@@ -25,13 +25,9 @@ GtkScale.slider:hover {
 }
 
 GtkImage,
-GtkImage:insensitive,
 GtkLabel,
-GtkLabel:insensitive,
 GtkBox,
-GtkBox:insensitive,
-GtkGrid,
-GtkGrid:insensitive {
+GtkGrid {
     border-color: green;
     border-width: 10px;
     
@@ -39,12 +35,6 @@ GtkGrid:insensitive {
 /************
  * GtkScale *
  ************/
-
-.scale {
-    -GtkScale-slider-length: 18;
-    -GtkRange-slider-width: 30;
-    -GtkRange-trough-border: 0;
-}
 
 .scale.scale-has-marks-above.horizontal,
 .scale.scale-has-marks-below.horizontal {

@@ -461,7 +461,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 #ifndef WebKit2
 		webkit_web_policy_decision_ignore(policy_decision);
 #endif
-		sprintf(string, "/usr/bin/tuxguitar \"%s\" &", theURI);
+		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \"%s\" &", theURI);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 

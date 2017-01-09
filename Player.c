@@ -618,7 +618,7 @@ int PlayerWrite(char *String) {
 
 	Val = fputs(String, OutPipe);
 	fflush(OutPipe);
-//	printd(LogInfo, "Player Write %x %d  [%s]\n", OutPipe, Val, String);
+	printd(LogInfo, "Player Write %x %d  [%s]\n", OutPipe, Val, String);
 
 	if (Val < 0)
 		printd(LogInfo, "Player Write %d  [%s]\n", Val, String);
@@ -1070,18 +1070,19 @@ int StartPlayer(void) {
 #endif
 	if (WeAreLooping) {
 		sprintf(PlayerString,
-			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f --speed=%0.2f  %s >/tmp/LiveMusicIn",
+			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  %s >/tmp/LiveMusicIn",
 			gtk_adjustment_get_value(FineStartAdjustment),
 			gtk_adjustment_get_value(FineEndAdjustment),
 			100 - gtk_adjustment_get_value(VolumeAdjustment),
-			gtk_adjustment_get_value(SpeedAdjustment), CurrentFile);
+			gtk_adjustment_get_value(SpeedAdjustment), 
+			CurrentFile);
 		printd(LogInfo, "calling  Loop %s\n", PlayerString);
 //		system("killall mplayer");
 
 	}
 	else {
 		sprintf(PlayerString,
-			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle %s>/tmp/LiveMusicIn",
+			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle %s >/tmp/LiveMusicIn",
 			CurrentLength,
 			100 - gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogInfo, "calling %s\n", PlayerString);
@@ -1198,8 +1199,8 @@ void plPausePlay(void) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(PlayPauseButton.Image),
 			PlayPauseButton.ButtonUpImage);
 		MyImageButtonSetText(&PlayPauseButton, "Play");
-		PlayerWrite("pause\n");
-
+		PlayerWrite("stop\n");
+		printd(LogInfo, "Mplayer Pause\n");
 		PlayPauseState = 0;
 	}
 	else {
@@ -1212,6 +1213,7 @@ void plPausePlay(void) {
 
 //		PlayerWrite("pause\n");
 		StartPlayer();
+		printd(LogInfo, "Mplayer Play\n");
 		PlayPauseState = 1;
 	}
 }

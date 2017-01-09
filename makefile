@@ -2,7 +2,8 @@
 CC=gcc
 
 
-CFLAGS = -I./ -g -ggdb -Wimplicit-function-declaration
+CFLAGS = -I./ -g -ggdb -Wimplicit-function-declaration -Wint-conversion
+CFLAGS += -Wpointer-to-int-cast
 CFLAGS += $(shell pkg-config --cflags gtk+-3.0)
 CFLAGS += $(shell pkg-config --cflags gladeui-2.0)
 

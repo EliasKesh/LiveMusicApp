@@ -464,7 +464,7 @@ function SetUpConnections {
 	aconnect $MidiEffectsOut"0"  $MidiSoundIn"0" 
 
 #	 Connect Midi in to effects apps for control
-	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
+#	aconnect $MidiGuitarInput"0"  $MidiRouterIn"0" 
 #	aconnect $MidiGuitarInput"1"  $MidiRouterIn"0" 
 
 	# Midi in to LiveEffect
@@ -606,7 +606,7 @@ function SetUpApplications {
 
   # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
-     	nice --15    qsynth -g 9  -o  synth.midi-bank-select=mma &
+     	nice --15    qsynth -g 5  -o  synth.midi-bank-select=mma &
 
  #       wmctrl -s 0
         # This is the Guitar effects processor
@@ -715,21 +715,21 @@ Screentype=1
 if [ `hostname` == "Keshie" ]; then
 #if [ `hostname` == "Music" ]; then
 
-AnalogDesktop=5
-LiveMusicAppDesktop=6
-LooperDesktop=7
-MidiDesktop=7
-PatchageDesktop=8
-PlayerDesktop=8
-DrumDesktop=8
+AnalogDesktop=4
+LiveMusicAppDesktop=5
+LooperDesktop=6
+MidiDesktop=6
+PatchageDesktop=7
+PlayerDesktop=3
+DrumDesktop=7
 else
 AnalogDesktop=0
 LiveMusicAppDesktop=1
 LooperDesktop=2
 MidiDesktop=3
-PatchageDesktop=5
-PlayerDesktop=6
-DrumDesktop=8
+PatchageDesktop=4
+PlayerDesktop=5
+DrumDesktop=6
 fi
 
 MaxOffSet=1368
@@ -802,30 +802,39 @@ set -x
 
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
+#        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
         wmctrl -r rakarrack -t $AnalogDesktop
+        wmctrl -r rakarrack -e 1,0,0,1200,900
 
-        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
+#        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
+#        wmctrl -r LiveMusicApp -b toggle,fullscreen
+        wmctrl -r LiveMusicApp -e 1,0,1920,1000
 
-        wmctrl -r Patchage -e 0,400,400,800,700
-        wmctrl -r Patchage -t $PatchageDesktop
-
-        wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
+ #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
-        
+        wmctrl -r SooperLooper -b toggle,fullscreen
+
         wmctrl -r qsynth -e 0,80,0,1200,700
         wmctrl -r qsynth -t $MidiDesktop
 
       	NewOffset=`expr $XOffset + 0`
-		wmctrl -r clementine -e 0,$NewOffset,350,1000,700
+#		wmctrl -r clementine -e 0,$NewOffset,350,1000,700
+		wmctrl -r clementine -e 1,0,0,1920,1000
         wmctrl -r clementine -t $PlayerDesktop
 
+
       	NewOffset=`expr $XOffset + 1000`
-      	wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
+#      	wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
         wmctrl -r TuxGuitar -t $PlayerDesktop
+      	wmctrl -r TuxGuitar -e 1,0,0,1920,1000
 
        	wmctrl -r Hydrogen -t $DrumDesktop
+       	wmctrl -r Hydrogen -e 1,0,0,1920,1000
+
+#        wmctrl -r Patchage -e 0,400,400,800,700
+        wmctrl -r Patchage -t $PatchageDesktop
+        wmctrl -r Patchage -e 1,0,0,1920,1000
  }
  
  #---------------------------------------------------------------------#
@@ -874,7 +883,7 @@ set -x
 
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r rakarrack -e 0,0,30,850,650
+        wmctrl -r rakarrack -e 1,0,30,850,650
         wmctrl -r rakarrack -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,70,10,1270,720
@@ -883,13 +892,13 @@ set -x
         wmctrl -r Patchage -e 0,80,10,1000,700
         wmctrl -r Patchage -t $PatchageDesktop
 
-        wmctrl -r SooperLooper -e 0,0,475,1000,575
+        wmctrl -r SooperLooper -e 1,0,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
         
         wmctrl -r qsynth -e 0,80,0,1200,700
         wmctrl -r qsynth -t $MidiDesktop
 
-		wmctrl -r clementine -e 0,0,150,1000,600
+		wmctrl -r clementine -e 1,0,150,1000,600
         wmctrl -r clementine -t $PlayerDesktop
         
 		wmctrl -r TuxGuitar -e 0,366,250,1000,500
@@ -923,7 +932,7 @@ Midings=true
 Rosegarden=false
 Hydrogen=false
 Ardour=false
-MP3Player=false
+MP3Player=true
 Looper=false
 MusicViewer=false
 LogFile=LogGuitar
@@ -1043,6 +1052,7 @@ while getopts "abcdrpmvlswt" OPT; do
 		  killall smplayer
 		  killall mplayer
 		  killall tuxguitar
+		  killall aqualung
 		  
 		  killall jackd
 		  killall jackd
@@ -1115,6 +1125,10 @@ done
 	  # Set up the other applications.
 	  SetUpApplications
 
+
+	# Run the patch bay
+	echo "Starting Patch Bay"  >> $LogFile
+	patchage  > /dev/null 2>&1 &
   
 #	a2jmidid -e &
 
@@ -1123,10 +1137,6 @@ done
 	SetUpConnections
 	SetPlacement
 
-
-	# Run the patch bay
-	echo "Starting Patch Bay"  >> $LogFile
-	patchage  > /dev/null 2>&1 &
 
 #	okular &
     
@@ -1595,3 +1605,17 @@ apt-get install wicd
 
 add to limits.conf
 
+Fishman
+Guitar
+8	63		1	
+1	7		0
+2	7		0
+Mix
+8	63		3	
+1	7		98
+2	7		98
+Synth
+
+8	63		2
+1	7		98
+2	7		98

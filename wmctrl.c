@@ -246,8 +246,8 @@ void RaiseWindows(char *AppName) {
 
 	printf("RaiseWindows %s\n", AppName);
 	if (!(disp = XOpenDisplay(NULL))) {
-		printf("Cannot open display.\n", stderr);
-		fputs("Cannot open display.\n", stderr);
+		printf("Cannot open display. %x\n", stderr);
+		fputs("Cannot open display. %x\n", stderr);
 		return;
 	}
 	options.param_window = AppName;
@@ -508,7 +508,7 @@ unsigned long data0, unsigned long data1, unsigned long data2,
 	event.xclient.message_type = XInternAtom(disp, msg, False);
 	event.xclient.window = win;
 	event.xclient.format = 32;
-	printf("client_msg %d\n", data0);
+	printf("client_msg %ld\n", data0);
 	event.xclient.data.l[0] = data0;
 	event.xclient.data.l[1] = data1;
 	event.xclient.data.l[2] = data2;
