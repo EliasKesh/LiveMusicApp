@@ -493,7 +493,7 @@ int main(int argc, char *argv[]) {
 
 	if (gdk_screen_get_width(myScreen) > 1800) {
 		ScreenSize = 2;
-		ButtonSize = 180;
+		ButtonSize = 177;
 	}
 
 #if 0
@@ -591,9 +591,9 @@ int main(int argc, char *argv[]) {
 	gtk_window_set_icon(GTK_WINDOW(main_window), create_pixbuf(Icon_FILE));
 
 	BButtonX = ButtonSize;
-	BButtonY = (int) ((float) ButtonSize * 0.6);
-	MButtonX = (int) ((float) ButtonSize * 1.0);
-	MButtonY = (int) ((float) ButtonSize * 0.4);
+	BButtonY = (int) ((float) ButtonSize * 0.60);
+	MButtonX = (int) ((float) ButtonSize * 0.95);
+	MButtonY = (int) ((float) ButtonSize * 0.42);
 
 	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
 		"./LiveMusicRes/MainSwitchOn.png", MButtonX, MButtonY, NULL, NULL);

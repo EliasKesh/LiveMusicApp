@@ -49,7 +49,8 @@ AudioSampleRate=44100
 	  # This is the Audio interface
 	  AudioInDevice="Intel"
 	  AudioOutDevice="Intel"
-	  MidiGuitarInputPort="rakarrack"
+	  MidiGuitarInputPort="gx_head_amp"
+#	  MidiGuitarInputPort="rakarrack"
 	  PedalBoardIn="Midilink"
         PedalBoardIn="UX16"
 	  MidiOut="Midilink"
@@ -245,7 +246,6 @@ function StartJack {
 	fi
 	
 	# Now start jack.
-set -x
 	echo "****************" >> $LogFile
 	echo "Starting Jack"   >> $LogFile
 	# Now start jack.
@@ -321,10 +321,12 @@ function SetUpConnections {
 	amixer cset name='Capture Switch' 2
 
 	# This is the port used to program change messages to the Effects program.
-	MidiEffectsIn=`aconnect -o | grep -m 1 rakarrack | awk '{ print $2}'`
+#	MidiEffectsIn=`aconnect -o | grep -m 1 rakarrack | awk '{ print $2}'`
+	MidiEffectsIn=`aconnect -o | grep -m 1 gx_head_amp | awk '{ print $2}'`
 	echo "MidiEffectsIn="$MidiEffectsIn  >> $LogFile
 
-	MidiEffectsOut=`aconnect -i | grep -m 1 rakarrack | awk '{ print $2}'`
+#	MidiEffectsOut=`aconnect -i | grep -m 1 rakarrack | awk '{ print $2}'`
+	MidiEffectsOut=`aconnect -i | grep -m 1 gx_head_amp | awk '{ print $2}'`
 	echo "MidiEffectsOut="$MidiEffectsOut  >> $LogFile
 
 	export MidiList=`aconnect -i`
@@ -403,8 +405,8 @@ function SetUpConnections {
 
 	# Guitar in goes to effects Rack
 	echo "jack_connect system:capture_1 rakarrack:in_1"  >> $LogFile
-	jack_connect system:capture_1 rakarrack:in_1
-	jack_connect system:capture_2 rakarrack:in_1
+	jack_connect system:capture_1 gx_head_amp:in_1
+	jack_connect system:capture_2 gx_head_amp:in_1
 
 	# Other channel (microphone) for use with the Vocoder
 	echo "jack_connect system:capture_2 rakarrack:aux"  >> $LogFile
@@ -413,13 +415,13 @@ function SetUpConnections {
 	# Effects rack channel 1 goes to 1 and 2 of output
 	echo "jack_connect rakarrack:out_1 system:playback_1"  >> $LogFile
 	echo "jack_connect rakarrack:out_2 system:playback_2"  >> $LogFile
-	jack_connect rakarrack:out_1 system:playback_1
-	jack_connect rakarrack:out_2 system:playback_2
-	jack_connect rakarrack:out_1 system:playback_2
+	jack_connect gx_head_fx:out_1 system:playback_1
+	jack_connect gx_head_fx:out_2 system:playback_2
+	jack_connect gx_head_fx:out_1 system:playback_2
 
 	# Connect Rakarrak out to loopert in 
-	jack_connect rakarrack:out_1 sooperlooper:common_in_1
-	jack_connect rakarrack:out_2 sooperlooper:common_in_2
+	jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
+	jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
   
 	# Connect the Looper to the main outputs
   	jack_connect sooperlooper:common_out_1 system:playback_1
@@ -447,6 +449,7 @@ function SetUpConnections {
 	  # jack_connect system:capture_2 "ardour:Audio 2/in 1"
 	  # Connect the rack output to the recorder.
 	  jack_connect rakarrack:out_1 "ardour:Audio 1/in 1"
+	  jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
 	fi
 
 	# It takes time to set up Jackd
@@ -485,7 +488,13 @@ function SetUpConnections {
 	echo "Jack Connect p1 "${LoopCapture}" to Fluid "${LoopPlayback} >> $LogFile
 	jack_connect "${LoopCapture}" "${LoopPlayback}"
 	
+# Connect Midi Pedal to Guitarix
+	RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Rakarrak" | grep "capture"`
+	GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
+	echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn} >> $LogFile
+	jack_connect "${RouterLiveOut}" "${GuitarixIn}"
 	
+
 # ------------------------------------
 # ------- Router
 # ------------------------------------
@@ -600,6 +609,8 @@ function FindUSB {
 #---------------------------------------------------------------------#
 function SetUpApplications {
 
+set -x
+
   # Set the first Desktop to use.
   qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 5
 
@@ -613,7 +624,7 @@ function SetUpApplications {
         if test "${Rakarrack}" = "true"; then
                 echo "Starting Guitar Effects"  >> $LogFile
 	#	rakarrack -b $EffectsDir/EliasBankNew.rkrb &
-		nice --15 	rakarrack &
+		nice --15 	${RakarrackName}  &
 #	rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr & 
 	Delay 3
 	fi
@@ -622,7 +633,7 @@ function SetUpApplications {
 	if test "${Midings}" = "true"; then
 		echo "Starting Midi Router"  >> $LogFile
 		echo "Starting Midi Router" 
-		cd /home/Dropbox/LiveEffects/
+#		cd /home/Dropbox/LiveEffects/
 		./LiveMusicApp  -j "${AudioOutDevice}"  > /dev/null 2>&1  &  
   
 	Delay 3
@@ -745,9 +756,9 @@ if [ "$?" = "0" ] ; then
 	xinput map-to-output $ExtID HDMI1
 	
 
-XOffset=0
-NewOffset=`expr $XOffset + 1050`
-MaxOffSet=`expr 1368+1920`
+#XOffset=0
+#NewOffset=`expr $XOffset + 1050`
+#MaxOffSet=`expr 1368+1920`
 SetPlacement1920
 else
 
@@ -779,7 +790,7 @@ NewOffset=0
 MaxOffSet=`expr 1368+1600`
 SetPlacement1600
 else
-SetPlacement1200
+SetPlacement1920
 fi
 fi
 fi
@@ -803,38 +814,38 @@ set -x
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
 #        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
-        wmctrl -r rakarrack -t $AnalogDesktop
-        wmctrl -r rakarrack -e 1,0,0,1200,900
+        wmctrl -r ${RakarrackName} -t $AnalogDesktop
+        wmctrl -r ${RakarrackName} -e 0,0,0,1200,900
 
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
 #        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
 #        wmctrl -r LiveMusicApp -b toggle,fullscreen
-        wmctrl -r LiveMusicApp -e 1,0,1920,1000
+        wmctrl -r LiveMusicApp -e 0,0,0,1860,1040
 
  #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -b toggle,fullscreen
+        wmctrl -r SooperLooper -e 0,80,0,1200,700
 
         wmctrl -r qsynth -e 0,80,0,1200,700
         wmctrl -r qsynth -t $MidiDesktop
 
       	NewOffset=`expr $XOffset + 0`
 #		wmctrl -r clementine -e 0,$NewOffset,350,1000,700
-		wmctrl -r clementine -e 1,0,0,1920,1000
+		wmctrl -r clementine -e 0,0,0,1920,1000
         wmctrl -r clementine -t $PlayerDesktop
 
 
       	NewOffset=`expr $XOffset + 1000`
 #      	wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
         wmctrl -r TuxGuitar -t $PlayerDesktop
-      	wmctrl -r TuxGuitar -e 1,0,0,1920,1000
+      	wmctrl -r TuxGuitar -e 0,0,0,1920,1000
 
        	wmctrl -r Hydrogen -t $DrumDesktop
-       	wmctrl -r Hydrogen -e 1,0,0,1920,1000
+       	wmctrl -r Hydrogen -e 0,0,0,1920,1000
 
 #        wmctrl -r Patchage -e 0,400,400,800,700
         wmctrl -r Patchage -t $PatchageDesktop
-        wmctrl -r Patchage -e 1,0,0,1920,1000
+        wmctrl -r Patchage -e 0,0,0,1700,1000
  }
  
  #---------------------------------------------------------------------#
@@ -847,8 +858,8 @@ set -x
 
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
-        wmctrl -r rakarrack -t $AnalogDesktop
+        wmctrl -r ${RakarrackName} -e 0,$NewOffset,30,850,650
+        wmctrl -r ${RakarrackName} -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 550`,10,1340,800
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
@@ -856,8 +867,8 @@ set -x
         wmctrl -r Patchage -e 0,80,10,1200,700
         wmctrl -r Patchage -t $PatchageDesktop
 
-        wmctrl -r SooperLooper -e 0,`expr $NewOffset + 900`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
+        wmctrl -r SooperLooper -e 0,80,0,1200,700
         
         wmctrl -r qsynth -e 0,80,0,1200,700
         wmctrl -r qsynth -t $MidiDesktop
@@ -883,8 +894,8 @@ set -x
 
 		echo "Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r rakarrack -e 1,0,30,850,650
-        wmctrl -r rakarrack -t $AnalogDesktop
+        wmctrl -r ${RakarrackName} -e 1,0,30,850,650
+        wmctrl -r ${RakarrackName} -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,70,10,1270,720
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
@@ -892,8 +903,8 @@ set -x
         wmctrl -r Patchage -e 0,80,10,1000,700
         wmctrl -r Patchage -t $PatchageDesktop
 
-        wmctrl -r SooperLooper -e 1,0,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
+        wmctrl -r SooperLooper -e 0,80,0,1200,700
         
         wmctrl -r qsynth -e 0,80,0,1200,700
         wmctrl -r qsynth -t $MidiDesktop
@@ -928,6 +939,8 @@ set -x
    
 echo "Line "$1
 Rakarrack=true
+RakarrackName="guitarix"
+
 Midings=true
 Rosegarden=false
 Hydrogen=false
@@ -935,7 +948,8 @@ Ardour=false
 MP3Player=true
 Looper=false
 MusicViewer=false
-LogFile=LogGuitar
+# LogFile=LogGuitar
+LogFile=/dev/tty
 JackFile=LogJack
 TabPlayer=false
 XOffset=0
@@ -1024,7 +1038,7 @@ while getopts "abcdrpmvlswt" OPT; do
 		  echo "Closing down Effects"
 		  killall KeepLiveMusicRunning.sh
 		  killall patchage
-		  killall rakarrack
+		  killall ${RakarrackName}
 		  killall qsynth
 		  killall jackd
 		  killall /usr/bin/qjackctl.bin
@@ -1052,6 +1066,7 @@ while getopts "abcdrpmvlswt" OPT; do
 		  killall smplayer
 		  killall mplayer
 		  killall tuxguitar
+		kill `ps aux | grep tuxguitar | awk {'print $2'}`
 		  killall aqualung
 		  
 		  killall jackd
@@ -1100,7 +1115,7 @@ done
 
 	date  > $LogFile
 	export IAM=`whoami`
-	ln -s   /home/Dropbox/LiveEffects/Prefs/rakarrack.prefs /home/$IAM/.fltk/rakarrack.sf.net/rakarrack.prefs
+#	ln -s   /home/Dropbox/LiveEffects/Prefs/rakarrack.prefs /home/$IAM/.fltk/rakarrack.sf.net/rakarrack.prefs
 
 	  # Try and find what device we should use.
 	  FindDevice
@@ -1130,7 +1145,7 @@ done
 	echo "Starting Patch Bay"  >> $LogFile
 	patchage  > /dev/null 2>&1 &
   
-#	a2jmidid -e &
+	a2jmidid -e &
 
 	Delay 3
 	  # Set up the mier levels and the interconnection between devices.
@@ -1605,6 +1620,10 @@ apt-get install wicd
 
 add to limits.conf
 
+Med Dist 	7
+
+Bells DX7-5
+
 Fishman
 Guitar
 8	63		1	
@@ -1619,3 +1638,6 @@ Synth
 8	63		2
 1	7		98
 2	7		98
+
+
+klick -T 100 ; Master 100bpm

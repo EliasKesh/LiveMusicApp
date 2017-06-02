@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkAboutDialog" id="AboutDialog">
@@ -11,7 +11,7 @@
     <property name="version">V0.6</property>
     <property name="copyright" translatable="yes">Copyright Elias Keshishoglou
 Elias@kesh.com</property>
-    <property name="comments" translatable="yes">2012-2016</property>
+    <property name="comments" translatable="yes">2012-2017</property>
     <property name="website">www.kesh.com</property>
     <property name="license" translatable="yes">License</property>
     <property name="authors">Authors</property>
@@ -1442,7 +1442,6 @@ Elias@kesh.com</property>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="x_options">GTK_FILL</property>
                     <property name="y_options"/>
                   </packing>
                 </child>

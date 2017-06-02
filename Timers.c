@@ -206,7 +206,7 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 //	printd(LogInfo," IN tempo_handler\n");
 /* Turn this off for now MTC	*/
-	#if 0
+	#if 1
 // #ifndef AlsaTimer
 	snd_seq_event_t ev;
 	int err;
