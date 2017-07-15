@@ -55,15 +55,15 @@ GTKMidiInfo GlobalInfo = {
 		{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 #else
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
-		{ "Chorus", 0xff, 1, RakarrakPort, 1, NoCustom, "None" },
-		{ "SatrianiComp", 0xff, 2, RakarrakPort, 1, NoCustom, "None" },
-		{ "CleanBass", 0xff, 3, RakarrakPort, 1, NoCustom, "None" },
+		{ "Chorus", 0xff, 0, RakarrakPort, 1, NoCustom, "None" },
+		{ "SatrianiComp", 0xff, 1, RakarrakPort, 1, NoCustom, "None" },
+		{ "CleanBass", 0xff, 2, RakarrakPort, 1, NoCustom, "None" },
+		{ "FunkyGuitar", 0xff, 3, RakarrakPort, 1, NoCustom, "None" },
 		{ "MedDist", 0xff, 4, RakarrakPort, 1, NoCustom, "None" },
 		{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "None" },
 		{ "FunkBass", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
 		{ "EBell", 0xff, 7, RakarrakPort, 1, NoCustom, "None" },
-		{ "FunkyGuitar", 0xff, 8, RakarrakPort, 1, NoCustom, "None" },
-		{ "JazzRev", 0xff, 9, RakarrakPort, 1, NoCustom, "None" },
+		{ "JazzRev", 0xff, 8, RakarrakPort, 1, NoCustom, "None" },
 		{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 #endif
 

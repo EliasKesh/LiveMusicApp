@@ -53,6 +53,7 @@ AudioSampleRate=44100
 #	  MidiGuitarInputPort="rakarrack"
 	  PedalBoardIn="Midilink"
         PedalBoardIn="UX16"
+        PedalBoardIn="Uno"
 	  MidiOut="Midilink"
 	fi
 
@@ -67,6 +68,7 @@ AudioSampleRate=44100
 	  AudioOutDevice="USB Audio CODEC"
 	  MidiGuitarInputPort="Midilink"
 	  PedalBoardIn="UX16"
+	  PedalBoardIn="uno"
 	  MidiOut="Midilink"
 	fi
 
@@ -404,22 +406,22 @@ function SetUpConnections {
 # jack_lsp -c
 
 	# Guitar in goes to effects Rack
-	echo "jack_connect system:capture_1 rakarrack:in_1"  >> $LogFile
-	jack_connect system:capture_1 gx_head_amp:in_1
-	jack_connect system:capture_2 gx_head_amp:in_1
+	echo "jack_connect system:capture_1 gx_head_amp:in_1"  >> $LogFile
+	jack_connect system:capture_1 gx_head_amp:in_0
+	jack_connect system:capture_2 gx_head_amp:in_0
 
 	# Other channel (microphone) for use with the Vocoder
 	echo "jack_connect system:capture_2 rakarrack:aux"  >> $LogFile
-	jack_connect system:capture_2 rakarrack:aux
+#	jack_connect system:capture_2 rakarrack:aux
 
 	# Effects rack channel 1 goes to 1 and 2 of output
 	echo "jack_connect rakarrack:out_1 system:playback_1"  >> $LogFile
 	echo "jack_connect rakarrack:out_2 system:playback_2"  >> $LogFile
 	jack_connect gx_head_fx:out_1 system:playback_1
 	jack_connect gx_head_fx:out_2 system:playback_2
-	jack_connect gx_head_fx:out_1 system:playback_2
+#	jack_connect gx_head_fx:out_1 system:playback_2
 
-	# Connect Rakarrak out to loopert in 
+	# Connect Guitarix out to loopert in 
 	jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
 	jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
   
@@ -728,19 +730,19 @@ if [ `hostname` == "Keshie" ]; then
 
 AnalogDesktop=4
 LiveMusicAppDesktop=5
-LooperDesktop=6
-MidiDesktop=6
+LooperDesktop=$AnalogDesktop
+MidiDesktop=$AnalogDesktop
 PatchageDesktop=7
 PlayerDesktop=3
 DrumDesktop=7
 else
 AnalogDesktop=0
 LiveMusicAppDesktop=1
-LooperDesktop=2
-MidiDesktop=3
-PatchageDesktop=4
-PlayerDesktop=5
-DrumDesktop=6
+LooperDesktop=$AnalogDesktop
+MidiDesktop=$AnalogDesktop
+PatchageDesktop=3
+PlayerDesktop=2
+DrumDesktop=3
 fi
 
 MaxOffSet=1368
@@ -811,22 +813,22 @@ fi
 function SetPlacement1920 {
 set -x
 
-		echo "Placement Offset "$XOffset
+		echo "1900 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
 #        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
         wmctrl -r ${RakarrackName} -t $AnalogDesktop
-        wmctrl -r ${RakarrackName} -e 0,0,0,1200,900
+        wmctrl -r ${RakarrackName} -e 0,0,0,652,1060
 
-        wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
+        wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
 #        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
 #        wmctrl -r LiveMusicApp -b toggle,fullscreen
-        wmctrl -r LiveMusicApp -e 0,0,0,1860,1040
+        wmctrl -F -r LiveMusicApp -e 0,0,0,1860,1040
 
  #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,80,0,1200,700
+        wmctrl -r SooperLooper -e 0,800,400,1000,500
 
-        wmctrl -r qsynth -e 0,80,0,1200,700
+        wmctrl -r qsynth -e 0,800,0,1000,350
         wmctrl -r qsynth -t $MidiDesktop
 
       	NewOffset=`expr $XOffset + 0`
@@ -856,7 +858,7 @@ set -x
 function SetPlacement1600 {
 set -x
 
-		echo "Placement Offset "$XOffset
+		echo "1600 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
         wmctrl -r ${RakarrackName} -e 0,$NewOffset,30,850,650
         wmctrl -r ${RakarrackName} -t $AnalogDesktop
@@ -892,7 +894,7 @@ set -x
 function SetPlacement1200 {
 set -x
 
-		echo "Placement Offset "$XOffset
+		echo "1200 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
         wmctrl -r ${RakarrackName} -e 1,0,30,850,650
         wmctrl -r ${RakarrackName} -t $AnalogDesktop
@@ -1141,13 +1143,14 @@ done
 	  SetUpApplications
 
 
+	Delay 4
+
+	a2jmidid -e &
+
 	# Run the patch bay
 	echo "Starting Patch Bay"  >> $LogFile
 	patchage  > /dev/null 2>&1 &
   
-	a2jmidid -e &
-
-	Delay 3
 	  # Set up the mier levels and the interconnection between devices.
 	SetUpConnections
 	SetPlacement
@@ -1641,3 +1644,6 @@ Synth
 
 
 klick -T 100 ; Master 100bpm
+
+Guitarix:
+/usr/share/gx_head/skins/
