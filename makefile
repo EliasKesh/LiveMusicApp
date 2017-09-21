@@ -15,11 +15,12 @@ LDFLAGS += $(shell pkg-config --cflags --libs alsa)
 LDFLAGS += $(shell pkg-config --cflags --libs gladeui-2.0)
 LDFLAGS += $(shell pkg-config --cflags --libs webkitgtk-3.0)
 LDFLAGS += $(shell pkg-config --cflags --libs jack)
+LDFLAGS += $(shell pkg-config --cflags --libs liblo)
    
 
 SOURCES = AlsaUtils.c  Connections.c HTML.c Player.c PrefsGui.c 
 SOURCES += Timers.c Chorder.c GTKMidiUI.c MyWidgets.c PrefsFile.c RightMenuClick.c wmctrl.c
-SOURCES += transport.c
+SOURCES += transport.c SooperOSC.c
 
 
 # SUBDIRS := GTK DecTrack

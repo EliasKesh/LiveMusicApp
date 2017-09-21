@@ -142,6 +142,9 @@ typedef struct {
 	tPatchIndex MidiBaseNote;
 	LayoutType LayoutPresets[Max_Layouts];
 
+	char 		OSCIPAddress[20];
+	char 		OSCPortNum[6];
+
 	// Generated Beyond this point.
 	snd_seq_t *SeqPort[MaxOutPorts];
 	//	int			SeqQueue[MaxOutPorts];
@@ -167,7 +170,7 @@ typedef struct {
 } GTKMidiInfo;
 
 enum {
-	FluidPort = 0, RakarrakPort, LooperPort, TransportPort,
+	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
 	TempoPort, ClickPort};
 
 enum {

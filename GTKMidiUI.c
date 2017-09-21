@@ -30,6 +30,7 @@
 #include "getopt.h"
 #include "Timers.h"
 #include "Player.h"
+#include "SooperOSC.h"
 
 //#define UsingNewButtons	1
 
@@ -694,6 +695,9 @@ int main(int argc, char *argv[]) {
 	SetAlsaMasterVolume(60);
 	SetAlsaCaptureVolume(50);
 
+
+	MyOSCInit();
+
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
 	 */
@@ -768,6 +772,7 @@ int main(int argc, char *argv[]) {
 	 */
 	WritePrefs();
 	MyAlsaClose();
+	MyOSCClose();
 	LivePlayerClose();
 
 	return 0;

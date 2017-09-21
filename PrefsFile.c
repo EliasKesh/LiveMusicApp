@@ -43,31 +43,31 @@ GTKMidiInfo GlobalInfo = {
 
 #if 0
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
-		{ "Chorus", 0xff, 1, RakarrakPort, 1, NoCustom, "None" },
-		{ "SatrianiComp", 0xff, 2, RakarrakPort, 1, NoCustom, "None" },
-		{ "CleanBass", 0xff, 3, RakarrakPort, 1, NoCustom, "None" },
-		{ "MedDist", 0xff, 4, RakarrakPort, 1, NoCustom, "None" },
-		{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "None" },
-		{ "FunkBass", 0xff, 7, RakarrakPort, 1, NoCustom, "None" },
-		{ "EBell", 0xff, 19, RakarrakPort, 1, NoCustom, "None" },
-		{ "FunkyGuitar", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
-		{ "JazzRev", 0xff, 28, RakarrakPort, 1, NoCustom, "None" },
+		{ "Chorus", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatrianiComp", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
+		{ "CleanBass", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
+		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
+		{ "OctBass", 0xff, 5, GuitarixPort, 1, NoCustom, "None" },
+		{ "FunkBass", 0xff, 7, GuitarixPort, 1, NoCustom, "None" },
+		{ "EBell", 0xff, 19, GuitarixPort, 1, NoCustom, "None" },
+		{ "FunkyGuitar", 0xff, 6, GuitarixPort, 1, NoCustom, "None" },
+		{ "JazzRev", 0xff, 28, GuitarixPort, 1, NoCustom, "None" },
 		{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 #else
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
-		{ "Chorus", 0xff, 0, RakarrakPort, 1, NoCustom, "None" },
-		{ "SatrianiComp", 0xff, 1, RakarrakPort, 1, NoCustom, "None" },
-		{ "CleanBass", 0xff, 2, RakarrakPort, 1, NoCustom, "None" },
-		{ "FunkyGuitar", 0xff, 3, RakarrakPort, 1, NoCustom, "None" },
-		{ "MedDist", 0xff, 4, RakarrakPort, 1, NoCustom, "None" },
-		{ "OctBass", 0xff, 5, RakarrakPort, 1, NoCustom, "None" },
-		{ "FunkBass", 0xff, 6, RakarrakPort, 1, NoCustom, "None" },
-		{ "EBell", 0xff, 7, RakarrakPort, 1, NoCustom, "None" },
-		{ "JazzRev", 0xff, 8, RakarrakPort, 1, NoCustom, "None" },
+		{ "Chorus", 0xff, 0, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatrianiComp", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
+		{ "CleanBass", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
+		{ "FunkyGuitar", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
+		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
+		{ "OctBass", 0xff, 5, GuitarixPort, 1, NoCustom, "None" },
+		{ "FunkBass", 0xff, 6, GuitarixPort, 1, NoCustom, "None" },
+		{ "EBell", 0xff, 7, GuitarixPort, 1, NoCustom, "None" },
+		{ "JazzRev", 0xff, 8, GuitarixPort, 1, NoCustom, "None" },
 		{ "LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None" },
 #endif
 
-		//	{"Preset10",	"Change",		0xff,		0,		RakarrakPort,	2,	ToNextDesktop,0},
+		//	{"Preset10",	"Change",		0xff,		0,		GuitarixPort,	2,	ToNextDesktop,0},
 		// 10	Button		Title		Bank	Patch	Outport
 		{ "Piano", SFDSF, 63, FluidPort, 1, NoCustom, "None" },
 		{ "Honky", SFFluidGM, 3, FluidPort, 1, NoCustom, "None" },
@@ -86,22 +86,22 @@ GTKMidiInfo GlobalInfo = {
 		{ "Synth Hard", SFDSF, 60, FluidPort, 1, NoCustom, "None" },
 		{ "Marimba", SFDSF, 12, FluidPort, 1, NoCustom, "None" },
 		{ "Breath", SFDSF, 48, FluidPort, 1, NoCustom, "None" },
-		{ "Steel Drums", SFDSF, 114, FluidPort, 1, NoCustom, "None" },
+		{ "Steel DrumsDUP", SFDSF, 114, FluidPort, 1, NoCustom, "None" },
 		{ "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, "None" },
 		{ "Mid0", 0xff, 0, 0, 1, NoCustom, "None" },
 		{ "Mid-24", 0xff, 2, 0, 1, NoCustom, "None" },
 		{ "Mid Screen", SFDSF, 0, FluidPort, 1, NoCustom, "None" },
 		// 30	Button		Title		Bank	Patch	Outport
-		{ "Rak Eff6", 116, 11, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff7", 116, 13, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff8", 116, 15, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff9", 116, 17, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff10", 116, 18, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff1", 116, 0, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff2", 116, 2, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff3", 116, 4, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff4", 116, 6, RakarrakPort, 1, Controller, "None" },
-		{ "Rak Eff5", 116, 8, RakarrakPort, 1, Controller, "None" },
+		{ "Rak Eff6", 116, 11, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff7", 116, 13, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff8", 116, 15, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff9", 116, 17, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff10", 116, 18, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff1", 116, 0, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff2", 116, 2, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff3", 116, 4, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff4", 116, 6, GuitarixPort, 1, Controller, "None" },
+		{ "Rak Eff5", 116, 8, GuitarixPort, 1, Controller, "None" },
 		// 40	Button		Title		Bank	Patch	Outport
 		{ "TransStart", 0xff, 0, TransportPort, 1, TransStart, "None" },
 		{ "TransCont", 0xff, 0, TransportPort, 1, TransCont, "None" },
@@ -128,7 +128,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "AnalogApp", 0xff, AnalogApp, 0, 1, RaiseApp, "None" },
 		{ "MidiSoundApp", 0xff, MidiSoundApp, 0, 1, RaiseApp, "None" },
 		{ "LooperApp", 0xff, LooperApp, 0, 1, RaiseApp, "None" },
-		{ "MidiApp", 0xff, LiveMusicApp, 0, 1, RaiseApp, "None" },
+		{ "LiveApp", 0xff, LiveMusicApp, 0, 1, RaiseApp, "None" },
 		{ "MP3Player", 0xff, MP3Player, 0, 1, RaiseApp, "None" },
 		{ "TabPlayer", 0xff, TabPlayer, 0, 1, RaiseApp, "None" },
 		{ "PreTab", 0xff, 0, 0, 1, SwitchTab, "None" },
@@ -183,9 +183,9 @@ GTKMidiInfo GlobalInfo = {
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 
 		// 110	Button		Title		Bank	Patch	Outport
-		{ "Holds-Mel", 0xff, 21, RakarrakPort, 1, NoCustom, "NiceAhh" },
+		{ "Holds-Mel", 0xff, 21, GuitarixPort, 1, NoCustom, "NiceAhh" },
 		{ "NiceAhh", SFDSF, 90, FluidPort, 1, NoCustom, "None" },
-		{ "Holds-Hard", 0xff, 22, RakarrakPort, 1, NoCustom, "NiceAhh" },
+		{ "Holds-Hard", 0xff, 22, GuitarixPort, 1, NoCustom, "NiceAhh" },
 		{ "NiceAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
 		{ "ToLate", SFVintage, 108, FluidPort, 1, NoCustom, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -200,7 +200,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Vibra", SFVintage, 93, FluidPort, 1, NoCustom, "None" },
 		{ "Mariba1", SFDX7, 91, FluidPort, 1, NoCustom, "None" },
 		{ "Tenor", SFRolandTenor, 1, FluidPort, 1, NoCustom, "None" },
-		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
+		{ "CleanDist", 0xff, 15, GuitarixPort, 1, NoCustom, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -216,21 +216,27 @@ GTKMidiInfo GlobalInfo = {
 		{ "Preset6", 0xff, 6, 0, 1, cmdPreset, "None" },
 		{ "Midi Pre", 0xff, FluidPort, 0, 1, cmdMidiSelect, "None" },
 		// FIX THIS
-		{ "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, RakarrakPort, 1, NoCustom, "None" },
+		{ "Slide1", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, GuitarixPort, 1, NoCustom, "None" },
 		{ "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, "None" },
 		{ "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, "None" },
+
+/*
+6 60
+6 62
+6 91 Stereo Marimba
+*/
 
 	},
 	// Path the Charts directory
 	"/home/Dropbox/FusionBlue/index.html",
 	// Number and name of the output ports
 	5,
-	{ "Fluid", "Rakarrak", "Looper", "Transport", "Tempo", "Click" },
+	{ "Fluid", "Guitarix", "Looper", "Transport", "Tempo", "Click" },
 
 	// Apps[MaxApps];
 	// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiApp, MP3Player, TabPlayer, MaxApps };
 	{
-		{ "rakarrack", 0 },
+		{ "guitarix", 0 },
 		{ "qsynth", 0 },
 		{ "SooperLooper", 0 },
 		{ "audacity", 0 },
@@ -252,7 +258,7 @@ GTKMidiInfo GlobalInfo = {
 			{
 				/*			1				2				3				4				5					6 		*/
 				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
-				"Chorus", 		"SatrianiComp", "CleanBass", 	"Flute", 		"CleanBass",	"FunkyGuitar",
+				"Chorus", 		"SatrianiComp", "CleanBass", 	"CleanDist", 		"CleanBass",	"FunkyGuitar",
 				"PreTab", 		"ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
 				"Scroll", 		"Drums", 		"Scroll", 		"NextSong",		"PrevSong", 	"LayoutSwitch",
 
@@ -346,14 +352,14 @@ GTKMidiInfo GlobalInfo = {
 			{
 				/*			1				2				3				4				5					6 		*/
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 	"SatrianiComp", "FunkyGuitar",
-				"CleanBass", 	"MedDist", 		"Breath", 		"Flute",	"MS20Bass",  	"EBell",
-				"Tenor", 		"BellsComp", 	 "Vibra", 		"Sax",		"LP Rec", 		"LP Pause",
-				"Drums",		"Flute", 		"Satriani", 	"MedDist", 	"OctBass", 		"LayoutSwitch",
+				"CleanDist", 	"MedDist", 		"Breath", 		"Flute",	"SynthLead",  	"EBell",
+				"Tenor", 		"Strings", 	     "Vibra", 		"Sax",		"AnalogApp", 		"LiveApp",
+				"ToLate",	    "Flute", 		 "Walky", 		"MedDist", 	"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Holds-Mel",	"Holds-Hard",	"Midi Pre", 	"Flute",
-				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
-				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
-				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+				"Drums", 		"Slap Bass",  	"Marimba", 	    "Breath",  		"Steel Drums",
+				"BellsComp",	 "EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+				"Sax", 		"Vibra",		 "Moog2",		"BassSlap", 	 "Mariba1",
 				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
 				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
 			},
@@ -419,6 +425,10 @@ void InitPref(void) {
 	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;
+
+	strcpy(gMyInfo.OSCIPAddress, "127.0.0.1");
+	strcpy(gMyInfo.OSCPortNum , "9951");
+
 //    ReadPrefs();
 //    PrintDataStructure(&gMyInfo);
 //exit(1);

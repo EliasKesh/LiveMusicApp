@@ -787,7 +787,7 @@ void InitHTML(GtkBuilder *gxml) {
 	gtk_widget_show_all(scrolled_window);
 
 }
-
+#define ContentTagLen	9
 /*--------------------------------------------------------------------
  * Function:		Search_in_File
  *
@@ -830,7 +830,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		Found = strstr(temp, "Preset1");
 		if (Found != NULL) {
 			/* skip 8  "preset1 "	*/
-			Found += 8;
+			Found += (8 + ContentTagLen);
 			thePresets->thePreset[0] = AssignPreset(1, Found);
 			strncpy(temp, Copy, MAXLINE);
 
@@ -840,32 +840,32 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "Preset2");
 		if (Found != NULL) {
-			Found += 8;
+			Found +=  (8 + ContentTagLen);
 			thePresets->thePreset[1] = AssignPreset(2, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 
 		Found = strstr(temp, "Preset3");
 		if (Found != NULL) {
-			Found += 8;
+			Found +=  (8 + ContentTagLen);
 			thePresets->thePreset[2] = AssignPreset(3, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset4");
 		if (Found != NULL) {
-			Found += 8;
+			Found +=  (8 + ContentTagLen);
 			thePresets->thePreset[3] = AssignPreset(4, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset5");
 		if (Found != NULL) {
-			Found += 8;
+			Found +=  (8 + ContentTagLen);
 			thePresets->thePreset[4] = AssignPreset(5, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
 		Found = strstr(temp, "Preset6");
 		if (Found != NULL) {
-			Found += 8;
+			Found += (8 + ContentTagLen);
 			thePresets->thePreset[5] = AssignPreset(6, Found);
 			strncpy(temp, Copy, MAXLINE);
 		}
@@ -899,7 +899,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "SetNow");
 		if (Found != NULL) {
-			Found += 7;
+			Found +=  (7 + ContentTagLen);
 			printd(LogInfo, "SetNow %s\n", Found);
 			AssignPreset(0, Found);
 			strncpy(temp, Copy, MAXLINE);
@@ -1017,15 +1017,15 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 			break;
 
 		case 4:
-			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name, 4);
+			SetPatchTitles(&PresetButtons[3], gMyInfo.MyPatchInfo[Value].Name, 4);
 			break;
 
 		case 5:
-			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name, 5);
+			SetPatchTitles(&PresetButtons[4], gMyInfo.MyPatchInfo[Value].Name, 5);
 			break;
 
 		case 6:
-			SetPatchTitles(&PresetButtons[6], gMyInfo.MyPatchInfo[Value].Name, 6);
+			SetPatchTitles(&PresetButtons[5], gMyInfo.MyPatchInfo[Value].Name, 6);
 			break;
 
 		default:

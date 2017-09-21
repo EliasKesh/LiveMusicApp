@@ -411,12 +411,12 @@ function SetUpConnections {
 	jack_connect system:capture_2 gx_head_amp:in_0
 
 	# Other channel (microphone) for use with the Vocoder
-	echo "jack_connect system:capture_2 rakarrack:aux"  >> $LogFile
+	echo "jack_connect system:capture_2 Guitarix:aux"  >> $LogFile
 #	jack_connect system:capture_2 rakarrack:aux
 
 	# Effects rack channel 1 goes to 1 and 2 of output
-	echo "jack_connect rakarrack:out_1 system:playback_1"  >> $LogFile
-	echo "jack_connect rakarrack:out_2 system:playback_2"  >> $LogFile
+	echo "jack_connect Guitarix:out_1 system:playback_1"  >> $LogFile
+	echo "jack_connect Guitarix:out_2 system:playback_2"  >> $LogFile
 	jack_connect gx_head_fx:out_1 system:playback_1
 	jack_connect gx_head_fx:out_2 system:playback_2
 #	jack_connect gx_head_fx:out_1 system:playback_2
@@ -450,7 +450,7 @@ function SetUpConnections {
 	  # Connect the second input to a microphone.
 	  # jack_connect system:capture_2 "ardour:Audio 2/in 1"
 	  # Connect the rack output to the recorder.
-	  jack_connect rakarrack:out_1 "ardour:Audio 1/in 1"
+	  jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
 	  jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
 	fi
 
@@ -491,7 +491,7 @@ function SetUpConnections {
 	jack_connect "${LoopCapture}" "${LoopPlayback}"
 	
 # Connect Midi Pedal to Guitarix
-	RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Rakarrak" | grep "capture"`
+	RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Guitarix" | grep "capture"`
 	GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
 	echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn} >> $LogFile
 	jack_connect "${RouterLiveOut}" "${GuitarixIn}"
@@ -626,7 +626,7 @@ set -x
         if test "${Rakarrack}" = "true"; then
                 echo "Starting Guitar Effects"  >> $LogFile
 	#	rakarrack -b $EffectsDir/EliasBankNew.rkrb &
-		nice --15 	${RakarrackName}  &
+		nice --15 	${EffectsProcessorName}  &
 #	rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr & 
 	Delay 3
 	fi
@@ -816,8 +816,8 @@ set -x
 		echo "1900 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
 #        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
-        wmctrl -r ${RakarrackName} -t $AnalogDesktop
-        wmctrl -r ${RakarrackName} -e 0,0,0,652,1060
+        wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
+        wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
 
         wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
 #        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
@@ -860,8 +860,8 @@ set -x
 
 		echo "1600 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r ${RakarrackName} -e 0,$NewOffset,30,850,650
-        wmctrl -r ${RakarrackName} -t $AnalogDesktop
+        wmctrl -r ${EffectsProcessorName} -e 0,$NewOffset,30,850,650
+        wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 550`,10,1340,800
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
@@ -896,8 +896,8 @@ set -x
 
 		echo "1200 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r ${RakarrackName} -e 1,0,30,850,650
-        wmctrl -r ${RakarrackName} -t $AnalogDesktop
+        wmctrl -r ${EffectsProcessorName} -e 1,0,30,850,650
+        wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
 
         wmctrl -r LiveMusicApp -e 0,70,10,1270,720
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
@@ -941,7 +941,7 @@ set -x
    
 echo "Line "$1
 Rakarrack=true
-RakarrackName="guitarix"
+EffectsProcessorName="guitarix"
 
 Midings=true
 Rosegarden=false
@@ -1040,7 +1040,7 @@ while getopts "abcdrpmvlswt" OPT; do
 		  echo "Closing down Effects"
 		  killall KeepLiveMusicRunning.sh
 		  killall patchage
-		  killall ${RakarrackName}
+		  killall ${EffectsProcessorName}
 		  killall qsynth
 		  killall jackd
 		  killall /usr/bin/qjackctl.bin
@@ -1310,104 +1310,6 @@ Program change, 15Program change, 15CC Bank selection (0), value 0CC Bank select
 
 CC Bank selection (0), value 0CC Bank selection (0), value 0CC Bank selection (32), value 11CC Bank selection (32), value 11Program change, 16Program change, 16
 
-Starting Jack
-****************
-jackd -R -t1000 -dalsa -Chw:1 -Phw:1 -r44100 -p128 -n3 -P85
-****************
-Starting qsynth
-Starting Guitar Effects
-Starting Midi Router
-Starting Patch Bay
-Starting Midi Router
-MidiEffectsIn=129:
-MidiGuitarInput=24:
-LooperInput=133:
-LooperOutput=133:
-PedalBoardOut=24:
-MidiGIOut=Midilink
-MidiKeyBoardIn=
-MidiKeyBoardOut=
-MidiSound=130:
-MidiRoutxerIn=131:
-MidiRouterOut=132:
-SequencerIn=
-SequencerOut=
-LPADIn=
-XSessionIn=
-jack_connect system:capture_1 rakarrack:in_1
-jack_connect system:capture_2 rakarrack:aux
-jack_connect rakarrack:out_1 system:playback_1
-jack_connect rakarrack:out_2 system:playback_2
-MidiGuitarInput 24:0 to MidiSound 130:0
-Connecting Pedal Board 24: to Router131:
-Keyboard  to Sequencer  0
-Jack Connect p1  to Fluid a2j:sooperlooper [133] (playback): sooperlooper
-Connection router p0 132:1 to Fluid 130:0
-Connecting router p1 132:2 to Rak 129:0
-Connecting router p2 132:3 to Looper 133:0
-Connecting router p4 132:4 to Gi20 24:0
-elias@keshie .../elias/LiveEffects]$ aconnect -li
-client 0: 'System' [type=kernel]
-    0 'Timer           '
-        Connecting To: 129:0
-    1 'Announce        '
-        Connecting To: 15:0, 134:0, 135:0
-client 14: 'Midi Through' [type=kernel]
-    0 'Midi Through Port-0'
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-client 24: 'Midilink' [type=kernel]
-    0 'Midilink MIDI 1 '
-        Connecting To: 135:0[real:0], 130:0
-        Connected From: 135:0
-    1 'Midilink MIDI 2 '
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-client 128: 'rakarrack' [type=user]
-    0 'rakarrack MC OUT'
-        Connecting To: 135:0[real:0]
-client 131: 'LiveMusicApp' [type=user]
-    0 'Fluid           '
-        Connecting To: 135:0[real:0]
-    1 'Rakarrak        '
-        Connecting To: 135:0[real:0]
-    2 'Looper          '
-        Connecting To: 135:0[real:0]
-    3 'Transport       '
-        Connecting To: 135:0[real:0]
-    4 'GI20            '
-        Connecting To: 135:0[real:0]
-client 133: 'sooperlooper' [type=user]
-    0 'sooperlooper    '
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-        
-elias@keshie .../elias/LiveEffects]$ aconnect -lo
-client 14: 'Midi Through' [type=kernel]
-    0 'Midi Through Port-0'
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-client 24: 'Midilink' [type=kernel]
-    0 'Midilink MIDI 1 '
-        Connecting To: 135:0[real:0], 130:0
-        Connected From: 135:0
-    1 'Midilink MIDI 2 '
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-client 129: 'rakarrack' [type=user]
-    0 'rakarrack IN    '
-        Connected From: 0:0, 135:0
-client 130: 'FLUID Synth (qsynth)' [type=user]
-    0 'Synth input port (qsynth:0)'
-        Connected From: 135:0, 24:0
-client 132: 'LiveMusicApp' [type=user]
-    0 'input           '
-        Connected From: 135:0
-client 133: 'sooperlooper' [type=user]
-    0 'sooperlooper    '
-        Connecting To: 135:0[real:0]
-        Connected From: 135:0
-
 
 # wmctrl -s 2
 # xinput --set-prop "PixArtImaging OpticalTouchScreen" --type=int --format=32  "Evdev Axis Calibration" 1515 1400 1052F
@@ -1647,3 +1549,38 @@ klick -T 100 ; Master 100bpm
 
 Guitarix:
 /usr/share/gx_head/skins/
+
+/mnt/Personal/home/src/Music/OSCDataMonitor/Current 2017 Version Applications/application.linux64
+
+http://essej.net/sooperlooper/docs.html
+http://essej.net/sooperlooper/doc_osc.html
+
+
+oscsend localhost 9951 /sl/0/hit s "pause"  osc.udp://localhost:9952/ osc.udp://localhost:9952/
+oscdump  9953
+
+oscsend localhost 9951 /ping ss osc.udp://localhost:9952 osc.udp://localhost:9952/
+oscsend localhost 9951 /set sf "tempo"  100 osc.udp://localhost:9952 osc.udp://localhost:9952/
+
+oscsend localhost 9951 /loop_add  if  "1"  20 osc.udp://localhost:9952/ osc.udp://localhost:9952/
+
+oscsend localhost 9951 /sl/1/load_loop s "/home/elias/Dropbox/LiveEffects/Guitarix/guitarix/pluginpresets/loops/tape1.wav"  osc.udp://localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 /sl/1/load_loop sss /home/elias/Dropbox/LiveEffects/Guitarix/guitarix/pluginpresets/loops/tape1.wav osc.udp://localhost:9952/ osc.udp://localhost:9952
+
+oscsend localhost 9951 /get sss "sync_source"   osc.udp://localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 /set si "sync_source" -1
+oscsend localhost 9951 /sl/1/get sss "cycle_len"   osc.udp://localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 /set sf "eighth_per_cycle" 10
+oscsend localhost 9951 /sl/-1/set sf "overdub_quantized" 0
+oscsend localhost 9951 /sl/-1/set sf "replace_quantized" 0
+oscsend localhost 9951 /sl/-1/set sf "round" 1
+oscsend localhost 9951 /sl/-1/set sf "relative_sync" 1
+oscsend localhost 9951 /set sf "smart_eighths" 0
+
+oscsend localhost 9951 /sl/-1/set sf sync 1
+oscsend localhost 9951 /sl/-1/set sf playback_sync 1
+oscsend localhost 9951 /sl/-1/set si quantize 1
+oscsend localhost 9951 /sl/-1/set si mute_quantized 1
+oscsend localhost 9951 /sl/-1/hit s mute
+oscsend localhost 9951 /sl/-1/hit s trigger
+
