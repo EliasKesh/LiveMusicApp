@@ -21,7 +21,7 @@
 #include "Timers.h"
 #include <gtk/gtk.h>
 #include "GTKMidiUI.h"
-
+#include "SooperOSC.h"
 
 
 /*
@@ -178,6 +178,8 @@ printf("*** Found First Down beat, Senting TransStart\n");
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {
+				MyOSCPoll();
+
 			if (TempoState)
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);

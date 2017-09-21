@@ -11,6 +11,7 @@
 #include "AlsaUtils.h"
 #include <glib.h>
 #include "alsa/timer.h"
+#include "SooperOSC.h"
 
 //snd_seq_t *SeqPort1;
 //snd_seq_t *SeqPort2;
@@ -578,6 +579,12 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
 		case cmdVolume:
 			SetVolume1(thePatch->Patch + gMyInfo.AnalogVolume);
+			break;
+
+		/* OSC to sooperlooper
+		*/
+		case cmdOSC:
+			OSCCommand(thePatch->Patch);
 			break;
 
 		case cmdLnTransPort:

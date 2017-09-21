@@ -26,11 +26,25 @@
 void MyOSCInit(void);
 
 void MyOSCClose(void);
+void MyOSCPoll(void);
+int OSCCommand(int Command);
 
 /*
  * Place Static variables here.
  */
+enum {
+	OSCSelect1,
+	OSCSelect2,
+	OSCSelect3,
+	OSCSelect4,
+	OSCRec,
+	OSCPause,
+	OSCTrig,
+	OSCUndo,
+	OSCAddLoop,
 
+	MaxOSCCommands
+};
 
 
 #endif

@@ -662,7 +662,7 @@ int main(int argc, char *argv[]) {
 		G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
 	/*
-	 * The OK Button on the Abiout Box
+	 * The OK Button on the About Box
 	 */
 	g_signal_connect(G_OBJECT(main_window), "key_press_event",
 		G_CALLBACK(button_press_notify_cb), NULL);
@@ -694,8 +694,6 @@ int main(int argc, char *argv[]) {
 	printd(LogInfo, "After MyAlsaInit\n");
 	SetAlsaMasterVolume(60);
 	SetAlsaCaptureVolume(50);
-
-
 	MyOSCInit();
 
 	/* Call the Jackd

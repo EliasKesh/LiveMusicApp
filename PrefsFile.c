@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <libxml/parser.h>
 #include "xmltok/xmlparse.h"
+#include "SooperOSC.h"
 
 // /usr/include/libxml2/
 /*
@@ -113,6 +114,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Tuner", 116, 123, FluidPort, 1, Controller, "None" },
 		{ "AnaOnOff", 116, 124, FluidPort, 1, Controller, "None" },
 		{ "AnaOnOff", 116, 124, FluidPort, 1, Controller, "None" },
+#if 0
 		// 50	Button		Title		Bank	Patch	Outport
 		{ "LP Undo", 0xff, 69, LooperPort, 1, NoCustom, "None" },
 		{ "LP 1", 0xff, 70, LooperPort, 1, NoCustom, "LooperApp" },
@@ -124,6 +126,19 @@ GTKMidiInfo GlobalInfo = {
 		{ "LP Trig", 0xff, 76, LooperPort, 1, NoCustom, "None" },
 		{ "LP Tap", 0xff, 77, LooperPort, 1, NoCustom, "None" },
 		{ "LP SelAll", 0xff, 78, LooperPort, 1, NoCustom, "None" },
+#else
+		// 50	Button		Title		Bank	Patch	Outport
+		{ "LP Undo", 0xff, OSCUndo, 0, 1, cmdOSC, "None" },
+		{ "LP 1", 0xff, OSCSelect1, 0, 1, cmdOSC, "None" },
+		{ "LP 2", 0xff, OSCSelect2, 0, 1, cmdOSC, "None" },
+		{ "LP 3", 0xff, OSCSelect3, 0, 1, cmdOSC, "None" },
+		{ "LP 4", 0xff, OSCSelect4, 0, 1, cmdOSC, "None" },
+		{ "LP Rec", 0xff, OSCRec, 0, 1, cmdOSC, "None" },
+		{ "LP Pause", 0xff, OSCPause, 0, 1, cmdOSC, "None" },
+		{ "LP Trig", 0xff, OSCTrig, 0, 1, cmdOSC, "None" },
+		{ "LP Tap", 0xff, 77, 0, 1, cmdOSC, "None" },
+		{ "LP Add", 0xff, OSCAddLoop, 0, 1, cmdOSC, "None" },
+#endif
 		// 60	Button		Title		Bank	Patch	Outport
 		{ "AnalogApp", 0xff, AnalogApp, 0, 1, RaiseApp, "None" },
 		{ "MidiSoundApp", 0xff, MidiSoundApp, 0, 1, RaiseApp, "None" },
@@ -297,7 +312,7 @@ GTKMidiInfo GlobalInfo = {
 				"TransStart", "TransCont", "TransStop", "TransBack", "TransPos",
 				"Tap", "Midi Tog", "Tuner", "AnaOnOff", "AnaOnOff",
 				"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
-				"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP SelAll",
+				"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP Add",
 				"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
 				"LayoutSwitch", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
 				"Piano", "Honky", "Breath", "Organ", "Flute",
@@ -313,8 +328,8 @@ GTKMidiInfo GlobalInfo = {
 			"Looper",
 			{
 		/*			1				2				3				4				5					6 		*/
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP Undo",  	"LP SelAll",
-				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP SelAll",	"LP 1", 		
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP Undo",  	"LP Add",
+				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",	"LP 1", 		
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"Flute", 		"Satriani", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
 

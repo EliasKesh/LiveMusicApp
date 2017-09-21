@@ -194,6 +194,7 @@ enum {
 	cmdLnTransPort,
 	cmdSetList,
 	cmdScroll,
+	cmdOSC,
 	MaxCommands
 };
 
