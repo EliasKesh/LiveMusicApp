@@ -151,6 +151,8 @@ typedef struct {
 	WebLoadPresets WebPresets;
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned char Tempo;
+	unsigned char CountInBeats;
+	unsigned char LoopRecBeats;
 	unsigned long TempoReload;
 	unsigned long TimerCount;
 	unsigned int TempoTimerID;
@@ -316,6 +318,7 @@ char *CustomCommands[] = {
 int WaitingforMidi;
 GtkBuilder *gxml;
 unsigned int CountInCount;
+unsigned int LoopRecBeats;
 char CountInActive;
 char	SysCallString[200];
 GdkPixbuf *MainButtonOnImage;
@@ -348,6 +351,7 @@ extern int preModeRehearsal[];
 extern int WaitingforMidi;
 extern GtkBuilder *gxml;
 extern unsigned int CountInCount;
+extern unsigned int LoopRecBeats;
 extern char CountInActive;
 extern char	SysCallString[200];
 extern GdkPixbuf *MainButtonOnImage;

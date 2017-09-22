@@ -573,8 +573,10 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
 		case cmdCountIn:
 			printd(LogInfo, "Setting Count Active\n");
-			CountInCount = thePatch->Patch;
+			CountInCount = gMyInfo.CountInBeats;
 			CountInActive = 2;
+			LoopRecBeats = gMyInfo.LoopRecBeats;
+
 			break;
 
 		case cmdVolume:

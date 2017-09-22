@@ -26,7 +26,7 @@
 void MyOSCInit(void);
 
 void MyOSCClose(void);
-void MyOSCPoll(void);
+void MyOSCPoll(char	DownBeat);
 int OSCCommand(int Command);
 
 /*

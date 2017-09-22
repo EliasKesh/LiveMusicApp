@@ -111,7 +111,7 @@ void SetTempo(unsigned int NewTempo) {
 	/*
 	 * This gives us TimerTicksPerQuater ticks per quarter.
 	 */
-	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
+	gMyInfo.TempoReload = (59900 / (NewTempo * TimerTicksPerQuater));
 	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
 	/* Start the new timer 1000 is one second.
@@ -154,38 +154,61 @@ void ToggleTempo(void) {
 	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater/2)))
 		TempoState = 0;
 
-	ClearMainButtons();
-
+	/* This is the tempo in BPM		*/
 	if (!(TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
-		Count = (TempoState / TimerTicksPerQuater) + 1;
 
+//		Count = (TempoState / TimerTicksPerQuater) + 1;
+	ClearMainButtons();
+	printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d Count %d\n",
+		 gMyInfo.MetronomeOn, CountInActive, LoopRecBeats, Count);
+
+		if (CountInActive == 0 && LoopRecBeats > 0) {
+			if (--LoopRecBeats == 0) {
+				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+				printf("Loop Off\n\n");
+			}
+
+		}
+
+		/* CountInActive is set from the patch cmdCountIn	*/
 		if (CountInActive == 1 && Count == 1) {
-			printf("*** Found Second Down beat, Sending Loop Record\n");
+//			printf("*** Found Second Down beat, Sending Loop Record\n");
 			CountInActive = 0;
 			gMyInfo.MetronomeOn = FALSE;
+// EJK CHECK THIS
 			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 		}
 
-		if (CountInActive == 2 && Count == 1) {
-printf("*** Found First Down beat, Senting TransStart\n");
-			CountInActive = 1;
+		if (CountInActive == 2) 
 			gMyInfo.MetronomeOn = TRUE;
-			DoPatch(
-				&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TransStart")]);
+
+		 if ( CountInCount-- == 0) {
+	//			printf("*** Found First Down beat, Senting TransStart\n");
+			CountInActive = 0;
+			gMyInfo.MetronomeOn = FALSE;
+			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+
+// EJK CHECK THIS
+//			DoPatch(
+//				&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TransStart")]);
 		}
 
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {
-				MyOSCPoll();
 
-			if (TempoState)
+// EJK CHECK THIS
+				MyOSCPoll(TempoState);
+
+			if (TempoState) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			else
+			}
+			else {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+			}
 
 			sprintf(TempStrBuf, "On   %d", Count);
 		}

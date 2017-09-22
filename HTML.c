@@ -873,7 +873,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "Tempo");
 		if (Found != NULL) {
-			Found += 6;
+			Found += 7 + ContentTagLen;
 			Value = atoi(Found);
 			if (Value > 60 && Value < 160)
 				thePresets->theTempo = Value;
@@ -886,7 +886,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "LMA_Time");
 		if (Found != NULL) {
-			Found += 9;
+			Found += 10 + ContentTagLen;
 			Value = atoi(Found);
 			/* Since we flash we need twice as many counts.
 			 */
@@ -910,7 +910,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "LoopFile");
 		if (Found != NULL) {
-			Found += 10;
+			Found += 10 + ContentTagLen;
 			String = Found;
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "LoopFile %s\n", tokenizer);
@@ -921,7 +921,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "DrumFile");
 		if (Found != NULL) {
-			Found += 10;
+			Found += 10 + ContentTagLen;
 			String = Found;
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "DrumFile %s\n", tokenizer);
@@ -934,12 +934,25 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "IntroCount");
 		if (Found != NULL) {
-			Found += 11;
+			Found += 12 + ContentTagLen;
 			Value = atoi(Found);
 			printd(LogInfo, "IntroCount %d\n", Value);
 			strncpy(temp, Copy, MAXLINE);
+			gMyInfo.CountInBeats = Value;
 
 		}
+
+		/* Set the current patch to this one.
+		 */
+		Found = strstr(temp, "LoopLength");
+		if (Found != NULL) {
+			Found += 12 + ContentTagLen;
+			Value = atoi(Found);
+			printd(LogInfo, "LoopLength %d\n", Value);
+			strncpy(temp, Copy, MAXLINE);
+			gMyInfo.LoopRecBeats = Value;
+		}
+
 	}
 	//Close the file if still open.
 	if (fp) {

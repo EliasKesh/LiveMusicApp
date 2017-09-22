@@ -147,17 +147,22 @@ void MyOSCInit(void) {
 }
 
 
-void MyOSCPoll(void) {
+void MyOSCPoll(char DownBeat) {
 	
 
-	printd(LogDebug, "MyOSCPoll: %x %s\n", osc_server, our_url);
+	if (DownBeat == 0) {
+		printd(LogDebug, "Downbeat\n");
+	}
+
+	printd(LogDebug, "MyOSCPoll: %x %s Down %d\n", 
+		osc_server, our_url, DownBeat);
+
 	lo_server_recv_noblock (osc_server, 2);
 //    lo_send(OSCaddr, "/ping", "ss", our_url, "/pingack");
 //	lo_send(OSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
  lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 
 }
-
 
 
 void MyOSCClose(void) {

@@ -618,7 +618,7 @@ int PlayerWrite(char *String) {
 
 	Val = fputs(String, OutPipe);
 	fflush(OutPipe);
-	printd(LogInfo, "Player Write %x %d  [%s]\n", OutPipe, Val, String);
+//	printd(LogInfo, "Player Write %x %d  [%s]\n", OutPipe, Val, String);
 
 	if (Val < 0)
 		printd(LogInfo, "Player Write %d  [%s]\n", Val, String);
