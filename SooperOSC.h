@@ -27,19 +27,17 @@ void MyOSCInit(void);
 
 void MyOSCClose(void);
 void MyOSCPoll(char	DownBeat);
-int OSCCommand(int Command);
+int OSCCommand(int Command, char Option);
 void MyOSCTap(char DownBeat);
 void MyOSCSetSync(char Type);
+void MyOSCLoadFile(char *FileName);
 
 /*
  * Place Static variables here.
  */
 enum {
 	OSCSelectAll,
-	OSCSelect1,
-	OSCSelect2,
-	OSCSelect3,
-	OSCSelect4,
+	OSCSelect,
 	OSCRec,
 	OSCPause,
 	OSCTrig,

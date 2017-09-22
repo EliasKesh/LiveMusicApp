@@ -149,6 +149,7 @@ typedef struct {
 	snd_seq_t *SeqPort[MaxOutPorts];
 	//	int			SeqQueue[MaxOutPorts];
 	WebLoadPresets WebPresets;
+	char LoopFileName[100];
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned char Tempo;
 	unsigned char CountInBeats;
@@ -177,7 +178,7 @@ enum {
 	TempoPort, ClickPort};
 
 enum {
-	NoCustom,
+	NoCustom = 0,
 	ToNextDesktop,
 	ToPrevDesktop,
 	ToDesktop,
@@ -300,6 +301,7 @@ char *CustomCommands[] = {
 	"SwitchTab",
 	"RaiseApp",
 	"TransStart",
+	"TransCont",
 	"TransStop",
 	"TransPosition",
 	"TransTempo",
@@ -308,10 +310,14 @@ char *CustomCommands[] = {
 	"MidiSelect",
 	"CountIn",
 	"VolSwitch",
+	"Transport",
 	"SetList",
 	"Scroll",
-	"MediaTransport"
+	"LooperCommand",
+	"oops1",
+	"oops2"
 };
+
 
 //int		ModeArray[ModeLastItem][Max_Patches];
 

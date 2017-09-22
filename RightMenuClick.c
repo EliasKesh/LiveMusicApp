@@ -156,22 +156,6 @@ void create_Popup_view(GtkWidget *view) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*--------------------------------------------------------------------
  * Function:		Patch_Popup_CB
  * Description:
@@ -251,7 +235,7 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 		/* Note: event can be NULL here when called from view_onPopupMenu;
 		 *  gdk_event_get_time() accepts a NULL argument */
 		gtk_menu_popup(GTK_MENU(PatchPopupMenu), NULL, NULL, NULL, NULL,
-			0, NULL);
+			0, 0);
 
 		return TRUE; /* we handled this */
 	}

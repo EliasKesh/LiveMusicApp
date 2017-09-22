@@ -73,7 +73,7 @@ int ScrollDown(int Amount) {
 	GtkAdjustment *Adjust;
 	gint Value, UpperV, VIncrement;
 
-	Adjust = gtk_scrolled_window_get_vadjustment(scrolled_window);
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)scrolled_window);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 	VIncrement = gtk_adjustment_get_page_increment(Adjust);
 	Value = gtk_adjustment_get_value(Adjust);
@@ -104,10 +104,10 @@ int ScalePage(void) {
 	attributes = webkit_web_view_get_viewport_attributes(web_view);
 #endif
 
-	Adjust = gtk_scrolled_window_get_hadjustment(scrolled_window);
+	Adjust = gtk_scrolled_window_get_hadjustment((GtkScrolledWindow *)scrolled_window);
 	UpperH = gtk_adjustment_get_upper(Adjust);
 
-	Adjust = gtk_scrolled_window_get_vadjustment(scrolled_window);
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)scrolled_window);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 
 #ifndef WebKit2 // FIX THIS
@@ -245,7 +245,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
  *
  *---------------------------------------------------------------------*/
 void PageLoaded(GtkWidget *widget, gpointer data) {
-	const gchar *CurrentURI;
+	 gchar *CurrentURI;
 	char *Pointer;
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
@@ -378,7 +378,7 @@ int ishex(int x)
 		(x >= 'A' && x <= 'F');
 }
 
-int decode(const char *s, char *dec)
+int decode(char *s, char *dec)
 {
 	char *o;
 	char *end = s + strlen(s);
@@ -805,6 +805,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	int Count = 0;
 	char DrumFile[FileNameMaxLength];
 	char LoopFile[FileNameMaxLength];
+	char StatusString[40];
+
 
 	/* Get passed the file://
 	 */
@@ -879,6 +881,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 
 			SetTempo(Value);
 			printd(LogInfo, "Tempo %d\n", Value);
+			sprintf(StatusString, "Tempo %d", Value);
+			UpdateStatus(StatusString);
 		}
 
 		/* Set the Tempo for this tune.
@@ -914,6 +918,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "LoopFile %s\n", tokenizer);
 			strcpy(LoopFile, tokenizer);
+			strcpy(gMyInfo.LoopFileName, tokenizer);
+			MyOSCLoadFile(gMyInfo.LoopFileName);
 		}
 
 		/* Get the Drum File patch.
@@ -938,6 +944,9 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			printd(LogInfo, "IntroCount %d\n", Value);
 			strncpy(temp, Copy, MAXLINE);
 			gMyInfo.CountInBeats = Value;
+			sprintf(StatusString, "Intro Count %d", Value);
+			UpdateStatus(StatusString);
+
 
 		}
 
@@ -950,6 +959,9 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			printd(LogInfo, "BeatsPerMeasure %d\n", Value);
 			strncpy(temp, Copy, MAXLINE);
 			gMyInfo.BeatsPerMeasure = Value;
+			sprintf(StatusString, "Beats  %d", Value);
+			UpdateStatus(StatusString);
+
 		}
 
 		/* Set the current patch to this one.
@@ -961,6 +973,9 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			printd(LogInfo, "LoopLength %d\n", Value);
 			strncpy(temp, Copy, MAXLINE);
 			gMyInfo.LoopRecBeats = Value;
+			sprintf(StatusString, "Loop Len  %d", Value);
+			UpdateStatus(StatusString);
+
 		}
 	}
 
@@ -969,6 +984,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		fclose(fp);
 	}
 
+
+#if 0
 	/*
 	 * Check to see if we have requested a new file for the drum or the looper.
 	 */
@@ -983,7 +1000,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		printd(LogInfo, "Calling System with %s\n", Copy);
 		system(Copy);
 	}
-
+#endif
 	return (0);
 }
 

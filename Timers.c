@@ -2,7 +2,7 @@
 |
 |	File: 	Timers
 |
-|	Contains: 	
+|	Contains:
 |
 |
 |	Written By: 	Elias Keshishoglou on Sun Mar 8 11:03:38 PDT 2015
@@ -60,15 +60,17 @@ extern char TempStrBuf[10];
  *---------------------------------------------------------------------*/
 void MyTimerInit(void) {
 
-/* Set up a timer for Tempo.
-*/
+	/* Set up a timer for Tempo.
+	*/
 #ifdef AlsaTimer
-SetupAlsaTimer(100);
+	SetupAlsaTimer(100);
 #else
 //	g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
 #endif
-gMyInfo.TempoTimerID = 0;
-SetTempo(120);
+	gMyInfo.TempoTimerID = 0;
+	SetTempo(120);
+	CountInActive = 0;
+	LoopRecBeats = 0;
 
 }
 
@@ -92,11 +94,11 @@ void SetTempo(unsigned int NewTempo) {
 	/* Send out a message our tempo is changing.
 	 */
 	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, 0,
-		(int) NewTempo);
+	         (int) NewTempo);
 //      NewDivider = 100000;
 //      gMyInfo.TempoReload = 25000/NewTempo;
 
-	gMyInfo.TempoReload = 24900/NewTempo;
+	gMyInfo.TempoReload = 24900 / NewTempo;
 	gMyInfo.TimerCount = 0;
 #else
 	/* Tell the timer to stop.
@@ -117,7 +119,7 @@ void SetTempo(unsigned int NewTempo) {
 	/* Start the new timer 1000 is one second.
 	 */
 	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,
-		(GSourceFunc) tempo_handler, (gpointer) gxml);
+	                                     (GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 #endif
@@ -133,7 +135,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean time_handler(GtkWidget *widget) {
 
-	printd(LogInfo," IN time_handler\n");
+	printd(LogInfo, " IN time_handler\n");
 	return TRUE;
 }
 #endif
@@ -154,7 +156,7 @@ void ToggleTempo(void) {
 	 * Needs to be sent 24 time per quarter.
 	 */
 // EJK Remove gMyInfo.TempoMax
-	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater/2))) {
+	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater / 2))) {
 		TempoState = 0;
 	}
 
@@ -162,17 +164,18 @@ void ToggleTempo(void) {
 	if (!(TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
 
-		if (++TempoCount >gMyInfo.BeatsPerMeasure)	
+		if (++TempoCount > gMyInfo.BeatsPerMeasure)
 			TempoCount = 1;
 
 //		Count = (TempoState / TimerTicksPerQuater) + 1;
 		ClearMainButtons();
 
-	printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d\n",
-		 gMyInfo.MetronomeOn, CountInActive, LoopRecBeats);
+		// printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d\n",
+		//        gMyInfo.MetronomeOn, CountInActive, LoopRecBeats);
 
 		if (CountInActive == 0 && LoopRecBeats > 0) {
 			if (--LoopRecBeats == 0) {
+				printf("*&*&*& 1\n");
 				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				printf("Loop Off\n\n");
 			}
@@ -185,12 +188,13 @@ void ToggleTempo(void) {
 			gMyInfo.MetronomeOn = FALSE;
 		}
 
-		if (CountInActive == 2) 
+		if (CountInActive == 2) {
 			gMyInfo.MetronomeOn = TRUE;
 
-		 if ( CountInCount-- == 0) {
-			CountInActive = 0;
-			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+			if ( CountInCount-- == 0) {
+				CountInActive = 0;
+				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+			}
 		}
 
 		/* On the first beat play a different sound.
@@ -201,17 +205,15 @@ void ToggleTempo(void) {
 
 			if (TempoCount != 1) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			}
-			else {
+				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			} else {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
-			sprintf(TempStrBuf, "On   %d", TempoCount);
-		}
-		else
-			sprintf(TempStrBuf, "Off  %d", TempoCount);
+			sprintf(TempStrBuf, "On %d - %d", gMyInfo.Tempo, TempoCount);
+		} else
+			sprintf(TempStrBuf, "Off %d - %d", gMyInfo.Tempo, TempoCount);
 
 		MyImageButtonSetText(&TempoDraw, TempStrBuf);
 		MyOSCPoll(FALSE);
@@ -228,7 +230,7 @@ void ToggleTempo(void) {
 static gboolean tempo_handler(GtkWidget *widget) {
 
 //	printd(LogInfo," IN tempo_handler\n");
-/* Turn this off for now MTC	*/
+	/* Turn this off for now MTC	*/
 #if 0
 // #ifndef AlsaTimer
 	snd_seq_event_t ev;

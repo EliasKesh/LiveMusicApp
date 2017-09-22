@@ -2,8 +2,13 @@
 CC=gcc
 
 
-CFLAGS = -I./ -Wimplicit-function-declaration -Wint-conversion
-CFLAGS += -Wpointer-to-int-cast
+CFLAGS = -I./ 
+CFLAGS += -w
+CFLAGS += -Wno-deprecated-declarations
+CFLAGS += -Wno-int-conversion
+CFLAGS += -Wno-implicit-function-declaration 
+CFLAGS += -Wno-pointer-to-int-cast
+CFLAGS += -Wno-format
 CFLAGS += $(shell pkg-config --cflags gtk+-3.0)
 CFLAGS += $(shell pkg-config --cflags gladeui-2.0)
 CFLAGS += $(shell pkg-config --cflags jack)
@@ -33,7 +38,7 @@ EXECUTABLE=LiveMusicApp
 
 all: $(SOURCES) $(EXECUTABLE) $(OBJECTS) $(OBJECTSPP)
 $(EXECUTABLE): $(OBJECTS)
-	$(CC)  $(OBJECTS) $(CFLAGS)  $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@ 

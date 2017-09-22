@@ -227,8 +227,8 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 			break;
 
 		case Command_COLUMN:
-			for (Loop1 = 0; Loop1 < MaxCommands; Loop1++) {
-				if (strstr(&CustomCommands[Loop1], new_text)) {
+			for (Loop1 = 0; Loop1 <= MaxCommands; Loop1++) {
+				if (strstr((char *)&CustomCommands[Loop1], new_text)) {
 					gMyInfo.MyPatchInfo[Loop].CustomCommand = Loop1;
 				}
 			}

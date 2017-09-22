@@ -586,7 +586,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 		/* OSC to sooperlooper
 		*/
 		case cmdOSC:
-			OSCCommand(thePatch->Patch);
+			OSCCommand(thePatch->Patch, thePatch->BankSelect);
 			break;
 
 		case cmdLnTransPort:

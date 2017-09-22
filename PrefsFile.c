@@ -127,12 +127,12 @@ GTKMidiInfo GlobalInfo = {
 		{ "LP Tap", 0xff, 77, LooperPort, 1, NoCustom, "None" },
 		{ "LP SelAll", 0xff, 78, LooperPort, 1, NoCustom, "None" },
 #else
-		// 50	Button		Title		Bank	Patch	Outport
+		// 50	Title	Bank	Patch	Outport
 		{ "LP Undo", 0xff, OSCUndo, 0, 1, cmdOSC, "None" },
-		{ "LP 1", 0xff, OSCSelect1, 0, 1, cmdOSC, "None" },
-		{ "LP 2", 0xff, OSCSelect2, 0, 1, cmdOSC, "None" },
-		{ "LP 3", 0xff, OSCSelect3, 0, 1, cmdOSC, "None" },
-		{ "LP 4", 0xff, OSCSelect4, 0, 1, cmdOSC, "None" },
+		{ "LP 1", 1, OSCSelect, 0, 1, cmdOSC, "None" },
+		{ "LP 2", 2, OSCSelect, 0, 1, cmdOSC, "None" },
+		{ "LP 3", 3, OSCSelect, 0, 1, cmdOSC, "None" },
+		{ "LP 4", 4, OSCSelect, 0, 1, cmdOSC, "None" },
 		{ "LP Rec", 0xff, OSCRec, 0, 1, cmdOSC, "None" },
 		{ "LP Pause", 0xff, OSCPause, 0, 1, cmdOSC, "None" },
 		{ "LP Trig", 0xff, OSCTrig, 0, 1, cmdOSC, "None" },
@@ -180,7 +180,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "MoogLead1", SFElias, 53, FluidPort, 1, NoCustom, "None" },
 		{ "CZBrass4", SFElias, 64, FluidPort, 1, NoCustom, "None" },
 		{ "SinSymph", SFElias, 90, FluidPort, 1, NoCustom, "None" },
-		{ "TrigCount", 0xff, 4, TransportPort, 1, cmdCountIn, "None" },
+		{ "TrigCount", 0xff, 4, TransportPort, 1, cmdCountIn, "LooperApp" },
 		{ "NextSong", 0xff, 2, FluidPort, 1, cmdSetList, "None" },
 		{ "PrevSong", 0xff, 1, FluidPort, 1, cmdSetList, "None" },
 		// 100	Button		Title		Bank	Patch	Outport
@@ -203,7 +203,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Holds-Hard", 0xff, 22, GuitarixPort, 1, NoCustom, "NiceAhh" },
 		{ "NiceAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
 		{ "ToLate", SFVintage, 108, FluidPort, 1, NoCustom, "None" },
-		{ "LP All", 0xff, OSCSelectAll, 0, 1, cmdOSC, "None" },
+		{ "LP All", 0xff, OSCSelect, 0, 1, cmdOSC, "None" },
 		{ "LP Mute", 0xff, OSCMute, 0, 1, cmdOSC, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -327,11 +327,11 @@ GTKMidiInfo GlobalInfo = {
 		{
 			"Looper",
 			{
-		/*			1				2				3				4				5					6 		*/
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  	"LP Add",
+		/*			1				2				3				4				5				6 		*/
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"LP Add",
 				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",		"TrigCount", 		
-				"LP Undo", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
-				"LP Pause All",	"LooperApp", 	"LiveApp", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
+				"LP Undo", 		"LP Pause All", "LP Mute", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"EBuzz",		"LooperApp", 	"LiveApp", 		"LP Mute", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 		"Breath",  		"Steel Drums",

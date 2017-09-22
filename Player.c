@@ -297,9 +297,9 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 		GTK_ADJUSTMENT(VolumeAdjustment));
 	g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
 		G_CALLBACK (VolumeSlider_Changed), NULL);
-	gtk_scale_set_draw_value(VolumeSpin, FALSE);
-	gtk_scale_set_has_origin(VolumeSpin, TRUE);
-	gtk_scale_set_digits(VolumeSpin, TRUE);
+	gtk_scale_set_draw_value((GtkScale *)VolumeSpin, FALSE);
+	gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
+	gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
 
 	/*
 	 * Loop Segment prev
@@ -402,22 +402,22 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
 //	gtk_box_set_homogeneous(GTK_BOX(PositionBox), TRUE);
 	theFrame = gtk_frame_new("A Position");
-	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionStartBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
 	theFrame = gtk_frame_new("B Position");
-	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionEndBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
 	theFrame = gtk_frame_new("Speed");
-	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), SpeedBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
 	theFrame = gtk_frame_new("Volume");
-	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), VolumeSpin);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
@@ -429,7 +429,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_box_pack_start(GTK_BOX(PlayControlBox), NextSegBox, TRUE, TRUE, 5);
 
 	SavedFrame = gtk_frame_new("Saved Loops");
-	gtk_frame_set_label_align(SavedFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)SavedFrame, 0.5, 0.5);
 	gtk_frame_set_shadow_type(GTK_FRAME(SavedFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_container_add(GTK_CONTAINER(SavedFrame), SaveLoopBox);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, TRUE, 5);
@@ -439,7 +439,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //	gtk_box_set_homogeneous(GTK_BOX(MainBox), TRUE);
 	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, TRUE, 5);
 	theFrame = gtk_frame_new("Song Position");
-	gtk_frame_set_label_align(theFrame, 0.5, 0.5);
+	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 
@@ -522,8 +522,8 @@ void SetPlayerFile(char *FileName) {
 		FileName);
 	printd(LogInfo, "%s", PlayerString);
 	system(PlayerString);
-	gtk_image_clear(ImageWidget);
-	gtk_image_set_from_file(ImageWidget, "spectrogram.png");
+	gtk_image_clear((GtkImage *)ImageWidget);
+	gtk_image_set_from_file((GtkImage *)ImageWidget, "spectrogram.png");
 	strcpy(CurrentFile, FileName);
 	sprintf(PlayerString, "load \"%s\"\n", FileName);
 	PlayerWrite(PlayerString);

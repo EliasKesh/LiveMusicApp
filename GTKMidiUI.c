@@ -101,7 +101,7 @@ void VScale3_Changed(GtkAdjustment *adj);
 void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
 
-#define MaxStatusHold 4
+#define MaxStatusHold 8
 char HoldStatus[MaxStatusHold][50];
 int HoldStatusIndex;
 int MainButtonCountOn;
@@ -144,14 +144,6 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
  *
  *---------------------------------------------------------------------*/
 void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
-#if 0
-	GtkStyle *style = gtk_style_new();
-	gdk_font_unref(style->font_desc);
-	style->font_desc = gdk_font_load(fload);
-	style->font_desc = gdk_font_load("12x24");
-//	gtk_style_set_font(style,fload);
-	gtk_widget_set_style(GTK_WIDGET(widget), style);
-#else
 	PangoFontDescription *pfd;
 	pfd = pango_font_description_from_string(fload);
 
@@ -162,7 +154,6 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 			pfd);
 
 	pango_font_description_free(pfd);
-#endif
 }
 
 /*--------------------------------------------------------------------
@@ -784,64 +775,31 @@ int main(int argc, char *argv[]) {
  *---------------------------------------------------------------------*/
 void UpdateStatus(char *String) {
 	GtkStyle *hold;
-	char DisString[160];
+	char DisString[500];
+	int Loop;
+	int StringOff = 0;
 
-#if 0
-	printd(LogInfo,"Status Update %d\n", HoldStatusIndex);
-	printd(LogInfo,"%s\n", &HoldStatus[0]);
-	printd(LogInfo,"%s\n", &HoldStatus[1]);
-	printd(LogInfo,"%s\n", &HoldStatus[2]);
-	printd(LogInfo,"%s\n", &HoldStatus[3]);
-#endif
-
-	/* Based on where we are in the circlular buffer.
-	 */
-	switch (HoldStatusIndex) {
-		case 0:
-			sprintf(DisString,
-				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
+	for (Loop = 0; Loop < MaxStatusHold -1; Loop++) {
+		strcpy(HoldStatus[Loop], HoldStatus[Loop+1]);
+//	printf("String off %d %s\n", StringOff, HoldStatus[Loop]);
+		StringOff += sprintf((DisString + StringOff),
+		"<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
 				gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[1], (char*) &HoldStatus[2], (char*) &HoldStatus[3], String);
-			break;
+				(char*) &HoldStatus[Loop]);
 
-		case 1:
-			sprintf(DisString,
-				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
-				gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[2], (char*) &HoldStatus[3], (char*) &HoldStatus[0], String);
-			break;
-
-		case 2:
-			sprintf(DisString,
-				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
-				gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[3], (char*) &HoldStatus[0], (char*) &HoldStatus[1], String);
-			break;
-
-		case 3:
-			sprintf(DisString,
-				"<span font=\"12\" color='#%lx'><b>%12s\n%12s\n%12s\n%12s</b></span>",
-				gMyInfo.StatusTextColor,
-				(char*) &HoldStatus[0], (char*) &HoldStatus[1], (char*) &HoldStatus[2], String);
-			break;
 	}
-
-	/* Copy the patch names the the buffer.
-	 */
-	strncpy(&HoldStatus[HoldStatusIndex++], String, 50);
-
-	/* Reset the circular list of we have to.
-	 */
-	if (HoldStatusIndex >= MaxStatusHold)
-		HoldStatusIndex = 0;
+	strcpy(HoldStatus[MaxStatusHold -1], String);
+	sprintf((DisString + StringOff),
+		"<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
+				gMyInfo.StatusTextColor,
+				(char*) String);
 
 	/* Actually draw the text to the window.
 	 */
 	gtk_widget_override_font(MainStatus,
 		pango_font_description_from_string("Sans Bold 12"));
-//	gtk_label_set_text(MainStatus, DisString);
-//	printd(LogInfo, "In Update Status %s\n", DisString);
 	gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
+
 }
 #define UsingImageButtons
 gboolean click_handler(GtkWidget *widget,

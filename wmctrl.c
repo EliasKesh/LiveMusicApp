@@ -246,8 +246,8 @@ void RaiseWindows(char *AppName) {
 
 	printf("RaiseWindows %s\n", AppName);
 	if (!(disp = XOpenDisplay(NULL))) {
-		printf("Cannot open display. %x\n", stderr);
-		fputs("Cannot open display. %x\n", stderr);
+//		printf("Cannot open display. %x\n", stderr);
+//		fputs("Cannot open display. %x\n", stderr);
 		return;
 	}
 	options.param_window = AppName;
