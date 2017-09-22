@@ -162,6 +162,7 @@ typedef struct {
     snd_timer_info_t *AlsaTimerinfo;
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
+	unsigned int BeatsPerMeasure;
 
 	/*
 	 * Colors

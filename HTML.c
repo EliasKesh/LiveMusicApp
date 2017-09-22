@@ -833,7 +833,6 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			Found += (8 + ContentTagLen);
 			thePresets->thePreset[0] = AssignPreset(1, Found);
 			strncpy(temp, Copy, MAXLINE);
-
 		}
 
 		/* Set up Preset 2 Button.
@@ -944,6 +943,17 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 
 		/* Set the current patch to this one.
 		 */
+		Found = strstr(temp, "BeatsPerMeasure");
+		if (Found != NULL) {
+			Found += 17 + ContentTagLen;
+			Value = atoi(Found);
+			printd(LogInfo, "BeatsPerMeasure %d\n", Value);
+			strncpy(temp, Copy, MAXLINE);
+			gMyInfo.BeatsPerMeasure = Value;
+		}
+
+		/* Set the current patch to this one.
+		 */
 		Found = strstr(temp, "LoopLength");
 		if (Found != NULL) {
 			Found += 12 + ContentTagLen;
@@ -952,8 +962,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			strncpy(temp, Copy, MAXLINE);
 			gMyInfo.LoopRecBeats = Value;
 		}
-
 	}
+
 	//Close the file if still open.
 	if (fp) {
 		fclose(fp);

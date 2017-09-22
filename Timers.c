@@ -111,7 +111,7 @@ void SetTempo(unsigned int NewTempo) {
 	/*
 	 * This gives us TimerTicksPerQuater ticks per quarter.
 	 */
-	gMyInfo.TempoReload = (59900 / (NewTempo * TimerTicksPerQuater));
+	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
 	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
 	/* Start the new timer 1000 is one second.
@@ -137,6 +137,8 @@ static gboolean time_handler(GtkWidget *widget) {
 	return TRUE;
 }
 #endif
+
+static char		TempoCount = 0;
 /*--------------------------------------------------------------------
  * Function:		ToggleTempo
  *
@@ -145,63 +147,59 @@ static gboolean time_handler(GtkWidget *widget) {
  *
  *---------------------------------------------------------------------*/
 void ToggleTempo(void) {
-	char Count;
-	int	Loop;
+//	char Count;
+//	int	Loop;
 
 	/*
 	 * Needs to be sent 24 time per quarter.
 	 */
-	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater/2)))
+// EJK Remove gMyInfo.TempoMax
+	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater/2))) {
 		TempoState = 0;
+	}
 
 	/* This is the tempo in BPM		*/
 	if (!(TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
 
+		if (++TempoCount >gMyInfo.BeatsPerMeasure)	
+			TempoCount = 1;
+
 //		Count = (TempoState / TimerTicksPerQuater) + 1;
-	ClearMainButtons();
-	printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d Count %d\n",
-		 gMyInfo.MetronomeOn, CountInActive, LoopRecBeats, Count);
+		ClearMainButtons();
+
+	printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d\n",
+		 gMyInfo.MetronomeOn, CountInActive, LoopRecBeats);
 
 		if (CountInActive == 0 && LoopRecBeats > 0) {
 			if (--LoopRecBeats == 0) {
 				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				printf("Loop Off\n\n");
 			}
-
 		}
 
 		/* CountInActive is set from the patch cmdCountIn	*/
-		if (CountInActive == 1 && Count == 1) {
-//			printf("*** Found Second Down beat, Sending Loop Record\n");
+		if (CountInActive == 1) {
+			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 			CountInActive = 0;
 			gMyInfo.MetronomeOn = FALSE;
-// EJK CHECK THIS
-			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 		}
 
 		if (CountInActive == 2) 
 			gMyInfo.MetronomeOn = TRUE;
 
 		 if ( CountInCount-- == 0) {
-	//			printf("*** Found First Down beat, Senting TransStart\n");
 			CountInActive = 0;
-			gMyInfo.MetronomeOn = FALSE;
 			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-
-// EJK CHECK THIS
-//			DoPatch(
-//				&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TransStart")]);
 		}
 
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {
 
-// EJK CHECK THIS
-				MyOSCPoll(TempoState);
+			MyOSCTap(TempoState);
 
-			if (TempoState) {
+			if (TempoCount != 1) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			}
@@ -210,13 +208,13 @@ void ToggleTempo(void) {
 				DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
-			sprintf(TempStrBuf, "On   %d", Count);
+			sprintf(TempStrBuf, "On   %d", TempoCount);
 		}
 		else
-			sprintf(TempStrBuf, "Off  %d", Count);
+			sprintf(TempStrBuf, "Off  %d", TempoCount);
 
 		MyImageButtonSetText(&TempoDraw, TempStrBuf);
-
+		MyOSCPoll(FALSE);
 	}
 }
 
@@ -231,13 +229,12 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 //	printd(LogInfo," IN tempo_handler\n");
 /* Turn this off for now MTC	*/
-	#if 1
+#if 0
 // #ifndef AlsaTimer
 	snd_seq_event_t ev;
 	int err;
 	unsigned long adjbpm;
 	snd_seq_queue_tempo_t *queue_tempo;
-
 	snd_seq_ev_clear(&ev);
 	snd_seq_ev_set_source(&ev, TempoPort);
 	snd_seq_ev_set_subs(&ev);
@@ -254,9 +251,10 @@ static gboolean tempo_handler(GtkWidget *widget) {
 	err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &ev);
 	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
 #endif
+
 	PlayerPoll(TRUE);
 
-	/* HANDE Tempo Midi
+	/*  Tempo Midi
 	 */
 	ToggleTempo();
 

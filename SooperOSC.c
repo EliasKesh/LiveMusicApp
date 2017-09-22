@@ -43,12 +43,22 @@ static lo_server osc_server = 0;
 static char our_url[100];
 static char CurrentLoop;
 
+/*--------------------------------------------------------------------
+ * Function:		OSCCommand.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
 int OSCCommand(int Command) {
 char NewCommand[100];
 
 	printd(LogDebug, "OSCCommand: %d\n",Command);
 
 	switch(Command) {
+		case  OSCSelectAll:
+			CurrentLoop = -1;
+		break;
+
 		case OSCSelect1:
 		CurrentLoop = 0;
 		break;
@@ -68,21 +78,36 @@ char NewCommand[100];
 		case  OSCRec:
 			sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
 			printd(LogDebug, "OSCRec %s\n",NewCommand);
-
 			lo_send(OSCaddr, NewCommand, "s", "record");
 		break;
 
 		case  OSCPause:
+			sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+			printd(LogDebug, "OSCRec %s\n",NewCommand);
+			lo_send(OSCaddr, NewCommand, "s", "pause");
 		break;
 
 		case  OSCTrig:
+			sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+			printd(LogDebug, "OSCRec %s\n",NewCommand);
+			lo_send(OSCaddr, NewCommand, "s", "trigger");
 		break;
 
 		case  OSCUndo:
+			sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+			printd(LogDebug, "OSCRec %s\n",NewCommand);
+			lo_send(OSCaddr, NewCommand, "s", "undo");
 		break;
 
 		case OSCAddLoop:
+			printf("OSC Add\n");
 			lo_send(OSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
+		break;
+
+		case OSCMute:
+			sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+			printd(LogDebug, "OSCRec %s\n",NewCommand);
+			lo_send(OSCaddr, NewCommand, "s", "mute");
 		break;
 
 // lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
@@ -121,6 +146,12 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
 }
 
 
+/*--------------------------------------------------------------------
+ * Function:		MyOSCInit.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
 void MyOSCInit(void) {
 
 	printd(LogDebug, "MyOSCInit: %s  %s\n",
@@ -147,24 +178,40 @@ void MyOSCInit(void) {
 }
 
 
+/*--------------------------------------------------------------------
+ * Function:		MyOSCPoll.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
 	
-
-	if (DownBeat == 0) {
-		printd(LogDebug, "Downbeat\n");
-	}
-
-	printd(LogDebug, "MyOSCPoll: %x %s Down %d\n", 
-		osc_server, our_url, DownBeat);
-
 	lo_server_recv_noblock (osc_server, 2);
 //    lo_send(OSCaddr, "/ping", "ss", our_url, "/pingack");
-//	lo_send(OSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
+	lo_send(OSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
+// lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		MyOSCTap.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+void MyOSCTap(char DownBeat) {
+	
  lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 
 }
 
 
+/*--------------------------------------------------------------------
+ * Function:		MyOSCClose.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
 void MyOSCClose(void) {
 	
 	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
@@ -175,7 +222,23 @@ void MyOSCClose(void) {
 
 }
 
+/*--------------------------------------------------------------------
+ * Function:		MyOSCClose.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+void MyOSCSetSync(char Type) {
+char NewCommand[100];
 
+	// sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+	// printd(LogDebug, "OSCRec %s\n",NewCommand);
+
+	/* Sync Internal	*/
+	lo_send(OSCaddr, "/set", "si", "sync_source", "-3");
+
+
+}
 
 #if 0
 

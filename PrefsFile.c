@@ -203,8 +203,8 @@ GTKMidiInfo GlobalInfo = {
 		{ "Holds-Hard", 0xff, 22, GuitarixPort, 1, NoCustom, "NiceAhh" },
 		{ "NiceAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
 		{ "ToLate", SFVintage, 108, FluidPort, 1, NoCustom, "None" },
-		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
+		{ "LP All", 0xff, OSCSelectAll, 0, 1, cmdOSC, "None" },
+		{ "LP Mute", 0xff, OSCMute, 0, 1, cmdOSC, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -328,10 +328,10 @@ GTKMidiInfo GlobalInfo = {
 			"Looper",
 			{
 		/*			1				2				3				4				5					6 		*/
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP Undo",  	"LP Add",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  	"LP Add",
 				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",		"TrigCount", 		
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
-				"Drums",		"Flute", 		"Satriani", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
+				"LP Undo", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"LP Pause All",	"LooperApp", 	"LiveApp", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 		"Breath",  		"Steel Drums",
@@ -440,6 +440,10 @@ void InitPref(void) {
 	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;
+
+	gMyInfo.BeatsPerMeasure = 4;
+	gMyInfo.LoopRecBeats = 16;
+	gMyInfo.CountInBeats = 4;
 
 	strcpy(gMyInfo.OSCIPAddress, "127.0.0.1");
 	strcpy(gMyInfo.OSCPortNum , "9951");

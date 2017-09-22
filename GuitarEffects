@@ -619,7 +619,7 @@ set -x
 
   # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
-     	nice --15    qsynth -g 5  -o  synth.midi-bank-select=mma &
+     	nice --15    qsynth -g 1.0  -o  synth.midi-bank-select=mma &
 
  #       wmctrl -s 0
         # This is the Guitar effects processor
@@ -706,8 +706,8 @@ set -x
 #       qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 7
 #       sooperlooper &
 #       wmctrl -s 2
-        nice --15 sooperlooper -p 9952 -m ./Prefs/SLMidi.slb -L ./Prefs/EliasLooper.slsess &
-        slgui -L ./Looper/EliasLooper.slsess -P=9952 &
+        nice --15 sooperlooper -p 9951 -m ./Prefs/SLMidi.slb -L ./Prefs/EliasLooper.slsess &
+        slgui -L ./Looper/EliasLooper.slsess -P=9951 &
 #        slgui -P=9952 &
   fi
  
@@ -730,7 +730,7 @@ if [ `hostname` == "Keshie" ]; then
 
 AnalogDesktop=4
 LiveMusicAppDesktop=5
-LooperDesktop=$AnalogDesktop
+LooperDesktop=$LiveMusicAppDesktop
 MidiDesktop=$AnalogDesktop
 PatchageDesktop=7
 PlayerDesktop=3
@@ -738,7 +738,7 @@ DrumDesktop=7
 else
 AnalogDesktop=0
 LiveMusicAppDesktop=1
-LooperDesktop=$AnalogDesktop
+LooperDesktop=$LiveMusicAppDesktop
 MidiDesktop=$AnalogDesktop
 PatchageDesktop=3
 PlayerDesktop=2
@@ -1048,6 +1048,7 @@ while getopts "abcdrpmvlswt" OPT; do
 
 		  killall qmidiroute 
 		  killall mididings 
+		  killall guitarix 
 
 		  killall rosegarden 
 		  killall hydrogen 
