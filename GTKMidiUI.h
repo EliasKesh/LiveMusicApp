@@ -93,7 +93,7 @@ typedef struct {
 	char *location;
 } SongInfo;
 
-#define Max_Main_Buttons 56
+#define Max_Main_Buttons 57
 #define Max_Patches	 142
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
@@ -157,10 +157,10 @@ typedef struct {
 	unsigned long TempoReload;
 	unsigned long TimerCount;
 	unsigned int TempoTimerID;
-    snd_timer_t *AlsaTimerHandle;
-    snd_timer_params_t *AlsaTimerParams;
-    snd_timer_id_t *AlsaTimerid;
-    snd_timer_info_t *AlsaTimerinfo;
+	snd_timer_t *AlsaTimerHandle;
+	snd_timer_params_t *AlsaTimerParams;
+	snd_timer_id_t *AlsaTimerid;
+	snd_timer_info_t *AlsaTimerinfo;
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
 	unsigned int BeatsPerMeasure;
@@ -175,7 +175,8 @@ typedef struct {
 
 enum {
 	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
-	TempoPort, ClickPort};
+	TempoPort, ClickPort
+};
 
 enum {
 	NoCustom = 0,

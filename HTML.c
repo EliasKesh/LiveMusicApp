@@ -605,14 +605,24 @@ void on_SetList_clicked(GtkWidget *widget, gpointer data) {
 	const gchar *CurrentURI;
 	char *BasePtr;
 	int Length;
+	int Loop;
+
+	printd(LogDebug, "on_SetList_clicked  1\n");
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	strcpy(SetListFileName, CurrentURI);
-	BasePtr = basename(SetListFileName);
+	Length =  strlen(SetListFileName);
+	for (Loop = Length; Loop; Loop--)
+		if (SetListFileName[Loop] == '/')
+			break;
+
+//	BasePtr = basename(SetListFileName);
+	BasePtr = &SetListFileName[Loop+1];
 	Length = strlen(BasePtr);
 	BasePtr[Length - 5] = 0;
 	MyImageButtonSetText(&SetListButton, BasePtr);
 	strcpy(SetListFileName, CurrentURI);
+	printd(LogInfo, "on_SetList_clicked  4\n");
 
 }
 

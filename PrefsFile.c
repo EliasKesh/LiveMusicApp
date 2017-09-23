@@ -45,7 +45,7 @@ GTKMidiInfo GlobalInfo = {
 #if 0
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
 		{ "Chorus", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
-		{ "SatrianiComp", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatriComp", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
 		{ "CleanBass", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
 		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
 		{ "OctBass", 0xff, 5, GuitarixPort, 1, NoCustom, "None" },
@@ -57,7 +57,7 @@ GTKMidiInfo GlobalInfo = {
 #else
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
 		{ "Chorus", 0xff, 0, GuitarixPort, 1, NoCustom, "None" },
-		{ "SatrianiComp", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatriComp", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
 		{ "CleanBass", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
 		{ "FunkyGuitar", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
 		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
@@ -235,11 +235,11 @@ GTKMidiInfo GlobalInfo = {
 		{ "Slide2", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 1, NoCustom, "None" },
 		{ "Slide3", 0xff, MIDI_CTL_MSB_MAIN_VOLUME, FluidPort, 2, NoCustom, "None" },
 
-/*
-6 60
-6 62
-6 91 Stereo Marimba
-*/
+		/*
+		6 60
+		6 62
+		6 91 Stereo Marimba
+		*/
 
 	},
 	// Path the Charts directory
@@ -271,18 +271,18 @@ GTKMidiInfo GlobalInfo = {
 		{
 			"Default",
 			{
-				/*			1				2				3				4				5					6 		*/
-				"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
-				"Chorus", 		"SatrianiComp", "CleanBass", 	"CleanDist", 		"CleanBass",	"FunkyGuitar",
-				"PreTab", 		"ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
-				"Scroll", 		"Drums", 		"Scroll", 		"NextSong",		"PrevSong", 	"LayoutSwitch",
+/*			1				2				3				4				5					6 		*/
+"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
+"Chorus", 		"SatriComp", "CleanBass", 	"CleanDist", 		"CleanBass",	"FunkyGuitar",
+"PreTab", 		"ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
+"Scroll", 		"Drums", 		"Scroll", 		"NextSong",		"PrevSong", 	"LayoutSwitch",
 
-				"Chorus", 		"SatrianiComp", 		"CleanBass", 		"MedDist", 	"OctBass",
-				"OctBass", 		"FunkBass",  	"EBell", 	"FunkyGuitar",  		"JazzRev",
-				"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
-				"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
-				"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
-				"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
+"Chorus", 		"SatriComp", 		"CleanBass", 		"MedDist", 	"OctBass",
+"OctBass", 		"FunkBass",  	"EBell", 	"FunkyGuitar",  		"JazzRev",
+"Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
+"Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
+"Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
+"CZBrass4", 	"SinSymph",	"Rak Eff1", 		"Rak Eff2", 		"Rak Eff3",
 			},
 		},
 
@@ -290,7 +290,7 @@ GTKMidiInfo GlobalInfo = {
 			"Practice",
 			{
 				/*			1				2				3				4				5					6 		*/
-				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatriComp", 	"CleanBass",
 				"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
@@ -327,9 +327,9 @@ GTKMidiInfo GlobalInfo = {
 		{
 			"Looper",
 			{
-		/*			1				2				3				4				5				6 		*/
+				/*			1				2				3				4				5				6 		*/
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"LP Add",
-				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",		"TrigCount", 		
+				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",		"TrigCount",
 				"LP Undo", 		"LP Pause All", "LP Mute", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"EBuzz",		"LooperApp", 	"LiveApp", 		"LP Mute", 		"OctBass", 		"LayoutSwitch",
 
@@ -349,7 +349,7 @@ GTKMidiInfo GlobalInfo = {
 			{
 				/*			1				2				3				4				5					6 		*/
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
-				"FunkBass", 	"FunkyGuitar", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
+				"FunkBass", 	"FunkyGuitar", 	"Breath", 		"Flute",		"MS20Bass",  	"SatriComp",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"Flute", 		"Satriani", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
 
@@ -366,7 +366,7 @@ GTKMidiInfo GlobalInfo = {
 			"Guitar",
 			{
 				/*			1				2				3				4				5					6 		*/
-				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 	"SatrianiComp", "FunkyGuitar",
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 	"SatriComp", "FunkyGuitar",
 				"CleanDist", 	"MedDist", 		"Breath", 		"Flute",	"SynthLead",  	"EBell",
 				"Tenor", 		"Strings", 	     "Vibra", 		"Sax",		"AnalogApp", 		"LiveApp",
 				"ToLate",	    "Flute", 		 "Walky", 		"MedDist", 	"OctBass", 		"LayoutSwitch",
