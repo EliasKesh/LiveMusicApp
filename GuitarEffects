@@ -436,9 +436,10 @@ function SetUpConnections {
 	jack_connect qsynth:right sooperlooper:common_in_2
 
 	# Connect qsynth to the Looper.
-	jack_connect qsynth:left sooperlooper:common_in_1
-	jack_connect qsynth:left sooperlooper:common_in_2
-  
+#	jack_connect qsynth:left sooperlooper:common_in_1
+#	jack_connect qsynth:left sooperlooper:common_in_2
+ 
+
 	# Drum Machine
 	jack_connect Hydrogen:out_L sooperlooper:common_in_1
 	jack_connect Hydrogen:out_R sooperlooper:common_in_2
@@ -490,11 +491,18 @@ function SetUpConnections {
 	echo "Jack Connect p1 "${LoopCapture}" to Fluid "${LoopPlayback} >> $LogFile
 	jack_connect "${LoopCapture}" "${LoopPlayback}"
 	
+
 # Connect Midi Pedal to Guitarix
 	RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Guitarix" | grep "capture"`
 	GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
 	echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn} >> $LogFile
 	jack_connect "${RouterLiveOut}" "${GuitarixIn}"
+	
+# Connect Midi Tap to Looper
+	LiveClickOut=`jack_lsp -c | grep "a2j" | grep "LiveMusic" | grep "Click"`
+	LooperClickIn=`jack_lsp -c | grep "a2j" | grep "sooperlooper" | grep "playback"`
+	echo "Guitarix "${LiveClickOut}" to Fluid "${LooperClickIn} >> $LogFile
+	jack_connect "${LiveClickOut}" "${LooperClickIn}"
 	
 
 # ------------------------------------
@@ -528,6 +536,8 @@ function SetUpConnections {
 	aconnect $MidiRouterOut"3 " $LooperInput"0" 
 	# Tempo
 	aconnect $MidiRouterOut"4 " $LooperInput"0" 
+	# Click
+	aconnect $MidiRouterOut"5 " $MidiSoundIn"0" 
 
 	if test "${Rosegarden}" = "true"; then
 	# The port 4 goes to the Rosegarden
@@ -710,7 +720,14 @@ set -x
         slgui -L ./Looper/EliasLooper.slsess -P=9951 &
 #        slgui -P=9952 &
   fi
+
+	if test "${JamStik}" = "true"; then
+		mididings -f /home/Dropbox/LiveEffects/P4Tuning.py
+ 	fi
+
  
+
+
 	/home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh & 
 #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
@@ -822,7 +839,7 @@ set -x
         wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
 #        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
 #        wmctrl -r LiveMusicApp -b toggle,fullscreen
-        wmctrl -F -r LiveMusicApp -e 0,0,0,1860,1040
+        wmctrl -F -r LiveMusicApp -e 0,0,0,1860,1070
 
  #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
@@ -955,6 +972,7 @@ LogFile=/dev/tty
 JackFile=LogJack
 TabPlayer=false
 XOffset=0
+JamStik=false
 
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
@@ -973,18 +991,19 @@ while getopts "abcdrpmvlswt" OPT; do
     case "$OPT" in
         h)
             echo "
+				a - Ardour
 				b - Adjust Placement
 				c - Make Connections
 				d - Drum Machine
-				  r - Rosegarden
-				  a - Ardour
-				  p - PFD viewer
-				  m - Music Player
-				  v - version
-				  l - Looper
-				  s - Stop everything
-				  w - Working Scoring
-				  t - Tab Editor"
+				j - JamStik
+				l - Looper
+				r - Rosegarden
+				p - PFD viewer
+				m - Music Player
+				v - version
+				s - Stop everything
+				w - Working Scoring
+				t - Tab Editor"
             exit 0
             ;;
         v)
@@ -1009,6 +1028,14 @@ while getopts "abcdrpmvlswt" OPT; do
 			echo "Drum Machine"
             Hydrogen=true
             ;;
+        j)
+			echo "JamStik"
+            JamStik=true
+            ;;
+        l)
+			echo "Looper"
+            Looper=true
+            ;;
         m)
 			echo "MP3 Player"
             MP3Player=true
@@ -1021,10 +1048,7 @@ while getopts "abcdrpmvlswt" OPT; do
 			echo "Tab Player"
             TabPlayer=true
             ;;
-        l)
-			echo "Looper"
-            Looper=true
-            ;;
+
         p)
 			echo "PDF"
             MusicViewer=true
@@ -1071,7 +1095,8 @@ while getopts "abcdrpmvlswt" OPT; do
 		  killall tuxguitar
 		kill `ps aux | grep tuxguitar | awk {'print $2'}`
 		  killall aqualung
-		  
+		  killall mididings
+
 		  killall jackd
 		  killall jackd
 		  killall jackd
@@ -1553,3 +1578,38 @@ Guitarix:
 
 /mnt/Personal/home/src/Music/OSCDataMonitor/Current 2017 Version Applications/application.linux64
 
+cat ChartsHTML/Peg/Peg.html | hxselect "code"
+cat ChartsHTML/Peg/Peg.html | grep -o '<a .*href=.*>'
+cat ChartsHTML/Peg/Peg.html | grep -o '<img .*>'
+cat ChartsHTML/AlittleBumpin/AlittleBumpin.html | grep -o '<embed .*>'
+cat BlueMonk/BlueMonk.html | hxwls
+cat BlueMonk/BlueMonk.html | hxselect "title"
+2>STDERR
+
+Title=`hxselect "title" 2>STDERR < BlueMonk/BlueMonk.html`
+links=`grep -o '<a .*href=.*>' BlueMonk/BlueMonk.html`
+echo "${links}"
+
+Meta=`hxselect "meta" 2>STDERR < BlueMonk/BlueMonk.html`
+echo "${Meta}"
+
+Page=`grep -o '<img .*>' BlueMonk/BlueMonk.html`
+echo "${Page}"
+
+Page=`grep -o '<embed .*>' BlueMonk/BlueMonk.html`
+echo $?
+
+# get links
+grep -Po '(?<=href=)[^>]*' BlueMonk/BlueMonk.html
+
+Print line X of meta
+awk '/meta name/{ gsub(/.*meta name=\042|\042.*/,"");print }'  BlueMonk/BlueMonk.html | sed -n '3p'
+grep -Po '(?<=content=)[^>]*' BlueMonk/BlueMonk.html
+
+grep -Po '(?<=meta name=)[^>]*' BlueMonk/BlueMonk.html | sed -n '3p' | awk -F[\"]  '{print $2}'
+grep -Po '(?<=meta name=)[^>]*' BlueMonk/BlueMonk.html | sed -n '3p' | awk -F[\"]  '{print $4}'
+
+# basename DealWithIt.mp3 .mp3
+extension="${filename##*.}"
+filename="${filename%.*}"
+filename="${fullfile##*/}"

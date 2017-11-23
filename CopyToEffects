@@ -16,4 +16,7 @@ cp LiveMusicApp  /home/Dropbox/LiveEffects/
 cp ./KeepLiveMusicRunning.sh  /home/Dropbox/LiveEffects/
 cp ./GuitarEffects  /home/Dropbox/LiveEffects/
 rsync -avrx ./LiveMusicRes/ /home/Dropbox/LiveEffects/LiveMusicRes/
-
+cp /home/elias/workspace/MusicFiles/CreateChartIndex /home/Dropbox/LiveEffects/
+cp /home/elias/workspace/MusicFiles/RegenerateCharts /home/Dropbox/LiveEffects/
+cp /home/elias/workspace/MusicFiles/ExtractHTML /home/Dropbox/LiveEffects/
+cp /home/elias/workspace/MusicFiles/CreateChartFile /home/Dropbox/LiveEffects/

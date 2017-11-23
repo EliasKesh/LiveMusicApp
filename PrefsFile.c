@@ -201,7 +201,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Holds-Mel", 0xff, 21, GuitarixPort, 1, NoCustom, "NiceAhh" },
 		{ "NiceAhh", SFDSF, 90, FluidPort, 1, NoCustom, "None" },
 		{ "Holds-Hard", 0xff, 22, GuitarixPort, 1, NoCustom, "NiceAhh" },
-		{ "NiceAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
+		{ "BetAhh", SFVintage, 63, FluidPort, 1, NoCustom, "None" },
 		{ "ToLate", SFVintage, 108, FluidPort, 1, NoCustom, "None" },
 		{ "LP All", 0xff, OSCSelect, 0, 1, cmdOSC, "None" },
 		{ "LP Mute", 0xff, OSCMute, 0, 1, cmdOSC, "None" },
@@ -272,13 +272,23 @@ GTKMidiInfo GlobalInfo = {
 			"Default",
 			{
 /*			1				2				3				4				5					6 		*/
-"Preset1", 		"Preset2", 		"Preset3", 		"Preset4",	 	"VolUp",		"VolDown",
-"Chorus", 		"SatriComp", "CleanBass", 	"CleanDist", 		"CleanBass",	"FunkyGuitar",
-"PreTab", 		"ScoreTab", 	"OctBass",		"Strings", 		"Trumpet",		"Steel Drums",
-"Scroll", 		"Drums", 		"Scroll", 		"NextSong",		"PrevSong", 	"LayoutSwitch",
+"Preset1", 		"Preset2", 		"Preset3", 		
+	"Preset4",	 	"Chorus",		"SatriComp",
+// -------------------------------------------------------------------------------
+"CleanDist", 	"FunkyGuitar", 	"CZOrgan", 		"BasBiy", 		"SinSymph",		
+// -------------------------------------------------------------------------------
+"BetAhh", 		"PreTab", 		"ScoreTab", 	
+ 	"Trumpet",	"PrevSong",		"NextSong",	
+// -------------------------------------------------------------------------------
+"Steel Drums",	"Scroll", 		"Drums", 		
+	"SinSymph", 	"Moog2",	"MoogLead1", 
+// -------------------------------------------------------------------------------
+"LayoutSwitch",	"Chorus", 		"SatriComp", 		
+	"CleanBass", 		"MedDist", 	"OctBass",
+// -------------------------------------------------------------------------------
 
-"Chorus", 		"SatriComp", 		"CleanBass", 		"MedDist", 	"OctBass",
-"OctBass", 		"FunkBass",  	"EBell", 	"FunkyGuitar",  		"JazzRev",
+
+"BassSlap", 	"FunkBass",  	"EBell", 	"FunkyGuitar",  		"JazzRev",
 "Low Synth",	"EBuzz", 		"SynthB11", 	"KStatB", 		"MS20Bass",
 "Juno", 		"Moog1",		 "Moog2",		"BassSlap", 	 "Taurus2",
 "Ultimate2a", 	"SynthB1", 		"FilterBass",	"CZOrgan", 	"MoogLead1",
@@ -328,9 +338,9 @@ GTKMidiInfo GlobalInfo = {
 			"Looper",
 			{
 				/*			1				2				3				4				5				6 		*/
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"LP Add",
-				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP Tap",		"LP Add",		"TrigCount",
-				"LP Undo", 		"LP Pause All", "LP Mute", 		"LP Undo",		"LP Rec", 		"LP Pause",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"TrigCount",
+				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP All",	"LP Pause All",	"LP Add",		
+				"LP Undo", 		"LP Tap", 		"LP Mute", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"EBuzz",		"LooperApp", 	"LiveApp", 		"LP Mute", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",

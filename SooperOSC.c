@@ -56,7 +56,12 @@ int OSCCommand(int Command, char Option) {
 
 	switch (Command) {
 	case  OSCSelect:
+
 		CurrentLoop = Option;
+
+		if (CurrentLoop >= 0)
+			CurrentLoop = Option -1;	
+
 		break;
 
 	case  OSCRec:

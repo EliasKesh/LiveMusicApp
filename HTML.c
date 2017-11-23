@@ -809,7 +809,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 	char temp[MAXLINE];
 	char Copy[MAXLINE];
 	char *Found;
-	char Value;
+	int Value;
 	char *tokenizer;
 	char *String;
 	int Count = 0;
@@ -889,8 +889,8 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 			if (Value > 60 && Value < 160)
 				thePresets->theTempo = Value;
 
-			SetTempo(Value);
 			printd(LogInfo, "Tempo %d\n", Value);
+			SetTempo(Value);
 			sprintf(StatusString, "Tempo %d", Value);
 			UpdateStatus(StatusString);
 		}
@@ -912,7 +912,7 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "SetNow");
 		if (Found != NULL) {
-			Found +=  (7 + ContentTagLen);
+			Found +=  (8 + ContentTagLen);
 			printd(LogInfo, "SetNow %s\n", Found);
 			AssignPreset(0, Found);
 			strncpy(temp, Copy, MAXLINE);
