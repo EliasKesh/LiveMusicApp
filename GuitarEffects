@@ -521,6 +521,16 @@ function SetUpConnections {
 	aconnect $PedalBoardOut"0"  $MidiRouterIn"0" 
 	fi
 	
+	# If EliasMidi is there let set it up.
+	echo $MidiList | grep "EliasPedal2" >/dev/null
+	if [ "$?" -eq 0 ]; then
+	PedalBoardOut=`aconnect -o | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
+	PedalBoardIn=`aconnect -i | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
+	echo "EliasPedal2 "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
+	aconnect $PedalBoardOut"0"  $MidiRouterIn"0" 
+	aconnect $MidiRouterOut"0" $PedalBoardIn"0"
+	fi
+	
 	# One port from the Router goes to the Soundfont player.
 	echo "Connection router p0 "$MidiRouterOut"1 to Fluid "$MidiSoundIn"0"  >> $LogFile
 	aconnect $MidiRouterOut"0" $MidiSoundIn"0" 
@@ -725,9 +735,6 @@ set -x
 		mididings -f /home/Dropbox/LiveEffects/P4Tuning.py
  	fi
 
- 
-
-
 	/home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh & 
 #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
@@ -752,6 +759,14 @@ MidiDesktop=$AnalogDesktop
 PatchageDesktop=7
 PlayerDesktop=3
 DrumDesktop=7
+elif [ `hostname` == "livemusic-ThinkPad-Twist" ]; then 
+AnalogDesktop=0
+LiveMusicAppDesktop=1
+LooperDesktop=$LiveMusicAppDesktop
+MidiDesktop=$AnalogDesktop
+PatchageDesktop=3
+PlayerDesktop=2
+DrumDesktop=3
 else
 AnalogDesktop=0
 LiveMusicAppDesktop=1
@@ -762,24 +777,17 @@ PlayerDesktop=2
 DrumDesktop=3
 fi
 
-MaxOffSet=1368
+
+MaxOffSet=1360
 ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
 xinput map-to-output $ExtID LVDS1
 
 xinput | grep "ILITEK"
 if [ "$?" = "0" ] ; then
 	echo "Found GeChic"
-#	xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
-
 	ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
 	xinput map-to-output $ExtID HDMI1
-	
-
-#XOffset=0
-#NewOffset=`expr $XOffset + 1050`
-#MaxOffSet=`expr 1368+1920`
-SetPlacement1920
-else
+fi
 
 xinput | grep "PixArtImaging"
 if [ "$?" = "0" ] ; then
@@ -793,7 +801,8 @@ XOffset=1370
 NewOffset=`expr $XOffset + 1050`
 MaxOffSet=`expr 1368+1920`
 SetPlacement1920
-else
+fi
+
 
 xinput | grep "Quanta HID-TQH-FS"
 if [ "$?" = "0" ] ; then
@@ -808,10 +817,11 @@ NewOffset=`expr $XOffset + 1050`
 NewOffset=0
 MaxOffSet=`expr 1368+1600`
 SetPlacement1600
+elif [ `hostname` == "livemusic-ThinkPad-Twist" ]; then
+NewOffset=0
+SetPlacement1200
 else
 SetPlacement1920
-fi
-fi
 fi
 
     # wmctrl -a SooperLooper
@@ -832,13 +842,10 @@ set -x
 
 		echo "1900 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-#        wmctrl -r rakarrack -e 0,$NewOffset,30,850,650
         wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
         wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
 
         wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
-#        wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 50`,10,1860,1040
-#        wmctrl -r LiveMusicApp -b toggle,fullscreen
         wmctrl -F -r LiveMusicApp -e 0,0,0,1860,1070
 
  #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
@@ -913,19 +920,19 @@ set -x
 
 		echo "1200 Placement Offset "$XOffset
 		NewOffset=`expr $XOffset + 0`
-        wmctrl -r ${EffectsProcessorName} -e 1,0,30,850,650
+        wmctrl -r ${EffectsProcessorName} -e 1,0,30,850,850
         wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
 
-        wmctrl -r LiveMusicApp -e 0,70,10,1270,720
+        wmctrl -r LiveMusicApp -e 0,70,10,1300,760
         wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
 
         wmctrl -r Patchage -e 0,80,10,1000,700
         wmctrl -r Patchage -t $PatchageDesktop
 
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,80,0,1200,700
+        wmctrl -r SooperLooper -e 0,80,0,900,600
         
-        wmctrl -r qsynth -e 0,80,0,1200,700
+        wmctrl -r qsynth -e 0,80,0,400,400
         wmctrl -r qsynth -t $MidiDesktop
 
 		wmctrl -r clementine -e 1,0,150,1000,600
@@ -1613,3 +1620,12 @@ grep -Po '(?<=meta name=)[^>]*' BlueMonk/BlueMonk.html | sed -n '3p' | awk -F[\"
 extension="${filename##*.}"
 filename="${filename%.*}"
 filename="${fullfile##*/}"
+
+Print
+html2ps file:///home/Dropbox/FusionBlue/Stratify/Brazilian//Brazilian.html   | lp -d IMT_HP_Color_LaserJet_CP5225dn
+
+lp *.pdf -p 1 -d IMT_HP_Color_LaserJet_CP5225dn
+
+find ./ -iname \*.mp3 -exec id3tool {} -g 102 \;
+
+ffmpeg -i input.mp4 -f mp3 -ab 192000 -vn BeirutItaly.mp3

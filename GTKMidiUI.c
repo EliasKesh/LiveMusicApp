@@ -41,6 +41,7 @@
 #endif
 #define Icon_FILE ResourceDirectory"LiveIcon.png"
 #define MaxTabs	5
+
 /*
  * Place Global variables here
  */
@@ -469,18 +470,19 @@ int main(int argc, char *argv[]) {
 	myScreen = gdk_screen_get_default();
 	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 	ScreenSize = 0;
-	ButtonSize = 115;
+	ButtonSize = 95;
 	strcpy(JackName, "default");
 
-	if (gdk_screen_get_width(myScreen) > 1000) {
+	if (gdk_screen_get_width(myScreen) > 1400) {
 		ScreenSize = 1;
 		ButtonSize = 115;
 	}
 
 	if (gdk_screen_get_width(myScreen) > 1800) {
 		ScreenSize = 2;
-		ButtonSize = 177;
+		ButtonSize = 135;
 	}
+	printd(LogInfo, "Button Size %d %d\n", ButtonSize);
 
 #if 0
 	GtkCssProvider *provider = gtk_css_provider_new();
@@ -567,7 +569,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 //	   printd(LogInfo, "ejk After load error %s\n", err->message);
 #endif
 	g_object_unref(provider);
-//	  exit(0);
+
 	/*----------------------------------------------------------------------------------------------------------------------*/
 #endif
 
@@ -616,6 +618,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	HoldStatusIndex = 0;
 	memset(HoldStatus, 0, sizeof(HoldStatus));
 
+
 	/*
 	 * Get the metronome button loaded and displayed.
 	 */
@@ -623,6 +626,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	               gtk_builder_get_object(gxml, "Tempo"));
 
 	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
+
 
 	if (gMyInfo.MetronomeOn) {
 		MyImageButtonSetText(&TempoDraw, "On");
@@ -729,6 +733,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	SetVolume2(gMyInfo.MidiVolume);
 //       create_Patch_Popup_view(main_window);
 	printd(LogInfo, "Enterint gtk_main\n");
+
 
 	MyTimerInit();
 //	g_idle_add(GTKIdel_cb, main_window);

@@ -101,6 +101,26 @@ char scSLoc[] =
 char scLydian[] =
 { 0, 2, 4, 6, 7, 9, 11, EOfscl };
 
+char scAcoustic[] =
+{ 0, 2, 4, 6, 7, 9, 10, EOfscl };
+char scHungMaj1[] =
+{ 0, 3, 4, 6, 7, 9, 10, EOfscl };
+char scHungMaj2[] =
+{ 0, 3, 4, 6, 7, 9, 11, EOfscl };
+char scHungMin1[] =
+{ 0, 2, 3, 6, 7, 8, 11, EOfscl };
+char scHungMin2[] =
+{ 0, 2, 3, 6, 7, 9, 10, EOfscl };
+char scEnigAs[] =
+{ 0, 1, 4, 7, 8, 10, 11, EOfscl };
+char scEnigDe[] =
+{ 0, 1, 4, 6, 8, 10, 11, EOfscl };
+char scNeapolitanMaj[] =
+{ 0, 1, 3, 5, 7, 9, 11, EOfscl };
+char scNeapolitanMin[] =
+{ 0, 1, 3, 5, 7, 8, 11, EOfscl };
+
+
 // Super Locrian
 typedef struct {
 	thePreChord *PreChord;
@@ -141,6 +161,17 @@ ChordMenu myChordMenu[] =
 	{ scSLoc, "S Loc" },
 	{ scLydian, "Lydian" },
 	{ scMinPent, "Min Pent" },
+
+	{ scAcoustic, "Acoustic" },
+	{ scHungMaj1, "Hungarian Maj1" },
+	{ scHungMaj2, "Hungarian Maj2" },
+	{ scHungMin1, "Hungarian Min1" },
+	{ scHungMin2, "Hungarian Min2" },
+
+	{ scEnigAs, "Enigmatic Asending" },
+	{ scEnigDe, "Enigmatic Descending" },
+	{ scNeapolitanMaj, "Neopolitan Maj" },
+	{ scNeapolitanMin, "Neopolitan Min" },
 	{ NULL, "" }
 
 };

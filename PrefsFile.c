@@ -45,7 +45,7 @@ GTKMidiInfo GlobalInfo = {
 #if 0
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
 		{ "Chorus", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
-		{ "SatriComp", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatrianiComp", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
 		{ "CleanBass", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
 		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
 		{ "OctBass", 0xff, 5, GuitarixPort, 1, NoCustom, "None" },
@@ -57,7 +57,7 @@ GTKMidiInfo GlobalInfo = {
 #else
 		//Title			Bank	Patch 	Outport		Chan	Command Chain
 		{ "Chorus", 0xff, 0, GuitarixPort, 1, NoCustom, "None" },
-		{ "SatriComp", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
+		{ "SatrianiComp", 0xff, 1, GuitarixPort, 1, NoCustom, "None" },
 		{ "CleanBass", 0xff, 2, GuitarixPort, 1, NoCustom, "None" },
 		{ "FunkyGuitar", 0xff, 3, GuitarixPort, 1, NoCustom, "None" },
 		{ "MedDist", 0xff, 4, GuitarixPort, 1, NoCustom, "None" },
@@ -86,7 +86,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Slap Bass", SFDSF, 24, FluidPort, 1, NoCustom, "None" },
 		{ "Synth Hard", SFDSF, 60, FluidPort, 1, NoCustom, "None" },
 		{ "Marimba", SFDSF, 12, FluidPort, 1, NoCustom, "None" },
-		{ "Breath", SFDSF, 48, FluidPort, 1, NoCustom, "None" },
+		{ "Breath1", SFDSF, 48, FluidPort, 1, NoCustom, "None" },
 		{ "Steel DrumsDUP", SFDSF, 114, FluidPort, 1, NoCustom, "None" },
 		{ "Low Synth", SFDSF, 45, FluidPort, 1, NoCustom, "None" },
 		{ "Mid0", 0xff, 0, 0, 1, NoCustom, "None" },
@@ -216,8 +216,8 @@ GTKMidiInfo GlobalInfo = {
 		{ "Mariba1", SFDX7, 91, FluidPort, 1, NoCustom, "None" },
 		{ "Tenor", SFRolandTenor, 1, FluidPort, 1, NoCustom, "None" },
 		{ "CleanDist", 0xff, 15, GuitarixPort, 1, NoCustom, "None" },
-		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
-		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
+		{ "OctUp", 0xff, 6, GuitarixPort, 1, NoCustom, "None" },
+		{ "AutoWah", 0xff, 7, GuitarixPort, 1, NoCustom, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
 		{ "Null", 0xff, 0, 0, 1, MaxCommands, "None" },
@@ -260,7 +260,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "Tux", 0 }
 	},
 	8, /* TempoMax	*/
-	1, /* Metronome On	*/
+	0, /* Metronome On	*/
 	37, /* Drum down beat, midi code.*/
 	44, /* Drum Other beats */
 	40, /* Base Midi Note for switching.	*/
@@ -272,19 +272,19 @@ GTKMidiInfo GlobalInfo = {
 			"Default",
 			{
 /*			1				2				3				4				5					6 		*/
-"Preset1", 		"Preset2", 		"Preset3", 		
-	"Preset4",	 	"Chorus",		"SatriComp",
+"Preset1","Preset2","Preset3", 		
+"Preset4","Chorus","SatrianiComp",
 // -------------------------------------------------------------------------------
-"CleanDist", 	"FunkyGuitar", 	"CZOrgan", 		"BasBiy", 		"SinSymph",		
+"CleanDist","FunkyGuitar","AutoWah","OctUp","MedDist",		
 // -------------------------------------------------------------------------------
-"BetAhh", 		"PreTab", 		"ScoreTab", 	
- 	"Trumpet",	"PrevSong",		"NextSong",	
+"BetAhh","PreTab","ScoreTab", 	
+"Trumpet","PrevSong","NextSong",	
 // -------------------------------------------------------------------------------
-"Steel Drums",	"Scroll", 		"Drums", 		
-	"SinSymph", 	"Moog2",	"MoogLead1", 
+"Steel Drums","Scroll","Drums", 		
+"SinSymph","Moog2","MoogLead1", 
 // -------------------------------------------------------------------------------
-"LayoutSwitch",	"Chorus", 		"SatriComp", 		
-	"CleanBass", 		"MedDist", 	"OctBass",
+"LayoutSwitch","Chorus","SatrianiComp", 		
+"CleanBass","MedDist","OctBass",
 // -------------------------------------------------------------------------------
 
 
@@ -300,7 +300,7 @@ GTKMidiInfo GlobalInfo = {
 			"Practice",
 			{
 				/*			1				2				3				4				5					6 		*/
-				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatriComp", 	"CleanBass",
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"SatrianiComp", 	"CleanBass",
 				"TransStart", 	"TransCont", 	"TransStop", 	"TransBack",	"MidiApp",  	"MP3Player",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"Drums",		"RepeatA", 		"RepeatB", 		"MedDist", 		"OctBass", 		"LayoutSwitch",
@@ -316,6 +316,25 @@ GTKMidiInfo GlobalInfo = {
 		},
 
 		{
+			"Midi",
+			{
+				/*			1				2				3				4				5					6 		*/
+				"Piano", "Honky", "Breath", "Organ", "Flute",
+				"SynthLead", "Trumpet", "Steel Drums", "Walky", "Drums",
+				"Slap Bass", "Synth Hard", "Marimba", "Breath1", "Low Synth",
+				"EBuzz", "SynthB11", "KStatB", "MS20Bass", "Juno",
+				"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
+				"Moog1", "Moog2", "Preset1", "Preset2", "LayoutSwitch",
+				"Piano", "Honky", "BassSlap", "Taurus2", "Ultimate2a",
+				"SynthB1", "FilterBass", "BasBiy", "CZOrgan", "MoogLead1",
+				"CZBrass4", "SinSymph", "BetAhh", "ToLate", "BellsComp",
+				"Sax", "Vibra", "Mariba1", "Tenor", "Mid Screen",
+				"Rak Eff6", "Rak Eff7", "Rak Eff8", "Rak Eff9", "Rak Eff10",
+				"Rak Eff1", "Rak Eff2", "Rak Eff3", "Rak Eff4", "Rak Eff5",
+			},
+		},
+
+		{
 			"Rehearsal",
 			{
 				/*			1				2				3				4				5					6 		*/
@@ -324,7 +343,7 @@ GTKMidiInfo GlobalInfo = {
 				"LP Undo", "LP 1", "LP 2", "LP 3", "LP 4",
 				"LP Rec", "LP Pause", "LP Trig", "LP Tap", "LP Add",
 				"Chorus", "HardDist", "CleanBass", "MedDist", "OctBass",
-				"LayoutSwitch", "Satriani", "Preset1", "Preset2", "LayoutSwitch",
+				"LayoutSwitch", "SatrianiComp", "Preset1", "Preset2", "LayoutSwitch",
 				"Piano", "Honky", "Breath", "Organ", "Flute",
 				"SynthLead", "Strings", "Trumpet", "Steel Drums", "Walky",
 				"Drums", "Slap Bass", "Synth Hard", "Marimba", "Breath",
@@ -359,9 +378,9 @@ GTKMidiInfo GlobalInfo = {
 			{
 				/*			1				2				3				4				5					6 		*/
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"OctBass", 		"CleanBass",
-				"FunkBass", 	"FunkyGuitar", 	"Breath", 		"Flute",		"MS20Bass",  	"SatriComp",
+				"FunkBass", 	"FunkyGuitar", 	"Breath", 		"Flute",		"MS20Bass",  	"SatrianiComp",
 				"LP 1", 		"LP 2", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
-				"Drums",		"Flute", 		"Satriani", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
+				"Drums",		"Flute", 		"SatrianiComp", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",
@@ -376,7 +395,7 @@ GTKMidiInfo GlobalInfo = {
 			"Guitar",
 			{
 				/*			1				2				3				4				5					6 		*/
-				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 	"SatriComp", "FunkyGuitar",
+				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 	"SatrianiComp", "FunkyGuitar",
 				"CleanDist", 	"MedDist", 		"Breath", 		"Flute",	"SynthLead",  	"EBell",
 				"Tenor", 		"Strings", 	     "Vibra", 		"Sax",		"AnalogApp", 		"LiveApp",
 				"ToLate",	    "Flute", 		 "Walky", 		"MedDist", 	"OctBass", 		"LayoutSwitch",
@@ -397,7 +416,7 @@ GTKMidiInfo GlobalInfo = {
 				"Preset1", 		"Preset2", 		"Preset3",		"Chorus", 		"NextSeq", 		"PrevSeg",
 				"RepeatA", 		"RepeatB", 		"Loop Toggle",	"PlPlay",		"SpeeedUp",  	"SlowDown",
 				"Seek Fw", 		"Seek Bk", 		"LP 3", 		"LP Undo",		"LP Rec", 		"LP Pause",
-				"Drums",		"Flute", 		"Satriani", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
+				"Drums",		"Flute", 		"SatrianiComp", 	"MedDist", 		"OctBass", 		"LayoutSwitch",
 
 				"Piano", 		"Honky", 		"Breath", 		"Midi Pre", 	"Flute",
 				"Drums", 		"Slap Bass",  	"Marimba", 	"Breath",  		"Steel Drums",

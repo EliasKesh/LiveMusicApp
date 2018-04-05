@@ -38,21 +38,21 @@ GtkGrid {
 
 .scale.scale-has-marks-above.horizontal,
 .scale.scale-has-marks-below.horizontal {
-	-GtkScale-slider-length: 21;
-    -GtkRange-slider-width: 20;
+	-GtkScale-min-height: 21;
+    -GtkRange-min-width: 20;
 }
 
 .scale.scale-has-marks-right.horizontal,
 .scale.scale-has-marks-left.horizontal {
-	-GtkScale-slider-length: 20;
-    -GtkRange-slider-width: 20;
+    -GtkScale-min-height: 21;
+    -GtkRange-min-width: 20;
 }
 
 .scale.slider,
 .scale.slider:hover,
-.scale.slider:insensitive,
+.scale.slider:disabled,
 .scale.slider:backdrop,
-.scale.slider:insensitive:backdrop {
+.scale.slider:disabled:backdrop {
     border-radius: 0;
     border-style: none;
 
@@ -94,8 +94,8 @@ GtkGrid {
 .scale.trough row,
 .scale.trough row:hover,
 .scale.trough row:selected,
-.scale.trough row:selected:focused,
-.scale.trough:insensitive {
+.scale.trough row:selected:focus,
+.scale.trough:disabled {
 	background-color: transparent;
     background-image: linear-gradient(to bottom,
                                      alpha(black, 0.5),
@@ -161,14 +161,11 @@ GtkGrid {
 .scrollbar {
     background-image: none;
     border-style: solid;
-    -GtkRange-trough-border: 0;
     -GtkScrollbar-has-backward-stepper: false;
     -GtkScrollbar-has-forward-stepper: false;
-    -GtkRange-slider-width: 30;
-    -GtkScrollbar-min-slider-length: 42; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
+    -GtkRange-min-width: 30;
+    -GtkScrollbar-min-length: 42; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
 
-    -GtkRange-stepper-spacing: 0;
-    -GtkRange-trough-under-steppers: 1;
 }
 
 .scrollbars-junction, /* the small square between scrollbars!!! */
@@ -186,7 +183,7 @@ GtkGrid {
 .scrollbar.button,
 .scrollbar.button:active,
 .scrollbar.button:active:hover,
-.scrollbar.button:insensitive,
+.scrollbar.button:disabled,
 .scrollbar.button:hover:backdrop,
 .scrollbar.button:active:hover:backdrop {
     border-style: none;
@@ -199,8 +196,8 @@ GtkGrid {
 .notebook .scrollbars-junction,
 .notebook .scrollbar.trough,
 .notebook .scrollbar.trough:backdrop,
-.notebook .scrollbar.trough:insensitive,
-.notebook .scrollbar.trough:insensitive:backdrop {
+.notebook .scrollbar.trough:disabled,
+.notebook .scrollbar.trough:disabled:backdrop {
     background-color: @scrollbar_trough_notebook;
     box-shadow: 1px 0 rgba(0,0,0,0.20) inset,
 				2px 0 rgba(0,0,0,0.04) inset;
@@ -214,12 +211,12 @@ GtkGrid {
 
 .scrollbars-junction,
 .scrollbars-junction:backdrop,
-.scrollbars-junction:insensitive,
-.scrollbars-junction:insensitive:backdrop,
+.scrollbars-junction:disabled,
+.scrollbars-junction:disabled:backdrop,
 .notebook .scrollbars-junction,
 .notebook .scrollbars-junction:backdrop,
-.notebook .scrollbars-junction:insensitive,
-.notebook .scrollbars-junction:insensitive:backdrop {
+.notebook .scrollbars-junction:disabled,
+.notebook .scrollbars-junction:disabled:backdrop {
 	box-shadow:none;
 }
 

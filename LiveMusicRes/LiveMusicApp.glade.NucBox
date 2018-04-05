@@ -8,16 +8,16 @@
     <property name="title" translatable="yes">About LiveMusic</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">LiveMusic</property>
-    <property name="version">V1.2</property>
+    <property name="version">V0.6</property>
     <property name="copyright" translatable="yes">Copyright Elias Keshishoglou
 Elias@kesh.com</property>
-    <property name="comments" translatable="yes">2012-2018</property>
+    <property name="comments" translatable="yes">2012-2017</property>
     <property name="website">www.kesh.com</property>
-    <property name="authors">Elias Keshishoglou	</property>
-    <property name="documenters">Elias Keshishoglou</property>
-    <property name="artists">Elias Keshishoglou</property>
+    <property name="license" translatable="yes">License</property>
+    <property name="authors">Authors</property>
+    <property name="documenters">Documenters</property>
+    <property name="artists">Artists</property>
     <property name="logo_icon_name">image-missing</property>
-    <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="can_focus">False</property>
@@ -65,7 +65,7 @@ Elias@kesh.com</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">LiveMusic</property>
-    <property name="default_width">1000</property>
+    <property name="default_width">1600</property>
     <property name="default_height">800</property>
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <child>
@@ -462,8 +462,40 @@ Elias@kesh.com</property>
                         <property name="n_rows">4</property>
                         <property name="n_columns">9</property>
                         <property name="column_spacing">1</property>
-                        <property name="row_spacing">5</property>
+                        <property name="row_spacing">1</property>
                         <property name="homogeneous">True</property>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox23">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox24">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
                         <child>
                           <object class="GtkEventBox" id="eventbox25">
                             <property name="visible">True</property>
@@ -473,6 +505,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options"/>
@@ -488,8 +522,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options"/>
@@ -505,8 +539,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
+                            <property name="left_attach">5</property>
+                            <property name="right_attach">6</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_EXPAND</property>
@@ -522,8 +556,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">3</property>
-                            <property name="right_attach">4</property>
+                            <property name="left_attach">6</property>
+                            <property name="right_attach">7</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_EXPAND</property>
@@ -539,12 +573,26 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">4</property>
-                            <property name="right_attach">5</property>
+                            <property name="left_attach">7</property>
+                            <property name="right_attach">8</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_EXPAND</property>
                             <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox22">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                         <child>
@@ -556,8 +604,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">5</property>
-                            <property name="right_attach">6</property>
+                            <property name="left_attach">8</property>
+                            <property name="right_attach">9</property>
                             <property name="top_attach">3</property>
                             <property name="bottom_attach">4</property>
                             <property name="x_options"/>
@@ -573,10 +621,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -590,10 +636,10 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">7</property>
-                            <property name="right_attach">8</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -607,10 +653,10 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">8</property>
-                            <property name="right_attach">9</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -624,6 +670,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -639,8 +687,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -656,8 +704,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
+                            <property name="left_attach">5</property>
+                            <property name="right_attach">6</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -673,8 +721,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">3</property>
-                            <property name="right_attach">4</property>
+                            <property name="left_attach">6</property>
+                            <property name="right_attach">7</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -690,8 +738,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">4</property>
-                            <property name="right_attach">5</property>
+                            <property name="left_attach">7</property>
+                            <property name="right_attach">8</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -707,8 +755,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">5</property>
-                            <property name="right_attach">6</property>
+                            <property name="left_attach">8</property>
+                            <property name="right_attach">9</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options"/>
@@ -724,10 +772,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -741,10 +787,10 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">7</property>
-                            <property name="right_attach">8</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -758,10 +804,10 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">8</property>
-                            <property name="right_attach">9</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -775,6 +821,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
                             <property name="x_options"/>
@@ -790,57 +838,6 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox45">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox46">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">3</property>
-                            <property name="right_attach">4</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox47">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
                             <property name="left_attach">4</property>
                             <property name="right_attach">5</property>
                             <property name="top_attach">1</property>
@@ -850,7 +847,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox48">
+                          <object class="GtkEventBox" id="eventbox45">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -867,7 +864,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox49">
+                          <object class="GtkEventBox" id="eventbox46">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -884,10 +881,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox50">
+                          <object class="GtkEventBox" id="eventbox47">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -904,10 +898,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox51">
+                          <object class="GtkEventBox" id="eventbox48">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -924,10 +915,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox52">
+                          <object class="GtkEventBox" id="eventbox49">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -940,7 +928,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox53">
+                          <object class="GtkEventBox" id="eventbox50">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -955,7 +943,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox54">
+                          <object class="GtkEventBox" id="eventbox51">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -970,7 +958,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox55">
+                          <object class="GtkEventBox" id="eventbox52">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -985,7 +973,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox56">
+                          <object class="GtkEventBox" id="eventbox53">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1000,7 +988,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox57">
+                          <object class="GtkEventBox" id="eventbox54">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1010,6 +998,51 @@ Elias@kesh.com</property>
                           <packing>
                             <property name="left_attach">5</property>
                             <property name="right_attach">6</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox55">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">6</property>
+                            <property name="right_attach">7</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox56">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">7</property>
+                            <property name="right_attach">8</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox57">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">8</property>
+                            <property name="right_attach">9</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -1038,12 +1071,12 @@ Elias@kesh.com</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="border_width">4</property>
-                        <property name="n_columns">9</property>
+                        <property name="n_rows">2</property>
+                        <property name="n_columns">6</property>
                         <property name="column_spacing">1</property>
-                        <property name="row_spacing">5</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkEventBox" id="eventbox18">
+                          <object class="GtkEventBox" id="eventbox21">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1051,21 +1084,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox19">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -1086,7 +1106,69 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox21">
+                          <object class="GtkEventBox" id="eventbox19">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox18">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox17">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">5</property>
+                            <property name="right_attach">6</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox16">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox15">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1096,8 +1178,74 @@ Elias@kesh.com</property>
                           <packing>
                             <property name="left_attach">3</property>
                             <property name="right_attach">4</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox14">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox13">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEventBox" id="eventbox12">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="ByPass">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">ByPass</property>
+                            <attributes>
+                              <attribute name="size" value="7400"/>
+                              <attribute name="scale" value="2"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
                           </packing>
                         </child>
                         <child>
@@ -1112,66 +1260,8 @@ Elias@kesh.com</property>
                             </attributes>
                           </object>
                           <packing>
-                            <property name="left_attach">8</property>
-                            <property name="right_attach">9</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="ByPass">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">ByPass</property>
-                            <attributes>
-                              <attribute name="size" value="7400"/>
-                              <attribute name="scale" value="2"/>
-                            </attributes>
-                          </object>
-                          <packing>
-                            <property name="left_attach">7</property>
-                            <property name="right_attach">8</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox24">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox23">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
                             <property name="left_attach">5</property>
                             <property name="right_attach">6</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox22">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">4</property>
-                            <property name="right_attach">5</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
                           </packing>
                         </child>
                       </object>
@@ -1185,23 +1275,10 @@ Elias@kesh.com</property>
                       <object class="GtkTable" id="table2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">32</property>
-                        <property name="margin_right">32</property>
-                        <property name="n_columns">8</property>
-                        <property name="row_spacing">5</property>
+                        <property name="n_columns">7</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkEventBox" id="eventbox10">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
                           <object class="GtkEventBox" id="eventbox11">
@@ -1212,14 +1289,14 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
+                            <property name="left_attach">5</property>
+                            <property name="right_attach">6</property>
                             <property name="x_options">GTK_EXPAND</property>
                             <property name="y_options"/>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox12">
+                          <object class="GtkEventBox" id="eventbox10">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1227,14 +1304,14 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox13">
+                          <object class="GtkEventBox" id="eventbox9">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1249,7 +1326,7 @@ Elias@kesh.com</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox14">
+                          <object class="GtkEventBox" id="eventbox8">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1257,29 +1334,17 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">4</property>
-                            <property name="right_attach">5</property>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox15">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">5</property>
-                            <property name="right_attach">6</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <object class="GtkEventBox" id="eventbox16">
+                          <object class="GtkEventBox" id="eventbox7">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1287,23 +1352,8 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox17">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">7</property>
-                            <property name="right_attach">8</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>
@@ -1312,7 +1362,6 @@ Elias@kesh.com</property>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
-                        <property name="padding">4</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
@@ -1320,9 +1369,8 @@ Elias@kesh.com</property>
                       <object class="GtkTable" id="table5">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="n_columns">9</property>
+                        <property name="n_columns">6</property>
                         <property name="column_spacing">1</property>
-                        <property name="row_spacing">5</property>
                         <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkEventBox" id="eventbox2">
@@ -1408,51 +1456,6 @@ Elias@kesh.com</property>
                             </child>
                           </object>
                           <packing>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox7">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox8">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">7</property>
-                            <property name="right_attach">8</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEventBox" id="eventbox9">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">8</property>
-                            <property name="right_attach">9</property>
                             <property name="x_options"/>
                             <property name="y_options"/>
                           </packing>

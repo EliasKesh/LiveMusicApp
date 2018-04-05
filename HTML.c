@@ -160,19 +160,28 @@ gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data
 	int CPatch;
 
 	CPatch = (int) user_data;
+	printd(LogInfo, "In Button Preset %d\n", CPatch);
 
+	/* Check to make sure the preset value is valid.	*/
 	if (CPatch >= 0 && CPatch < MaxPresetButtons) {
 		Preset = gMyInfo.WebPresets.thePreset[CPatch];
 	}
 	else
 		return (false);
 
+	/* Make sure the preset is at least in the correct range.
+	*/
+	if (Preset < 0  ||  Preset > Max_Patches)
+		return (false);
+
 	printd(LogInfo, "In Button Preset %d %d\n", CPatch, Preset);
 	printd(LogInfo, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
-	if (Preset != -1)
-		DoPatch(&gMyInfo.MyPatchInfo[Preset]);
+	/* Execute the patch change.
+	*/
+	DoPatch(&gMyInfo.MyPatchInfo[Preset]);
 
+	/* Redraw the button.	*/
 	gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[CPatch].Image),
 		PresetButtons[CPatch].ButtonDownImage);
 
@@ -540,7 +549,7 @@ void OpenSetListSong(int SongNumber) {
 	int Count = 0;
 	int SongCount = 0;
 
-	printd(LogInfo, "Made it to OpenSetListSong\n");
+	printd(LogInfo, "Made it to OpenSetListSong %d\n",SongNumber);
 
 	if (SongNumber < 1) {
 		printd(LogInfo, "Invalid SongNumber %d\n", SongNumber);
@@ -563,11 +572,12 @@ void OpenSetListSong(int SongNumber) {
 		/*
 		 * Look for the Links and .Count the number.
 		 */
-		Found = strstr(temp, "href=\"");
+		Found = strstr(temp, "href=");
+
 		if (Found != NULL) {
 			SongCount++;
 			Found += 6;
-			tokenizer = strtok(Found, "\"");
+			tokenizer = strtok(Found, ">");
 			printd(LogInfo, "Parser found %d %s\n", SongCount, tokenizer);
 
 			/*
@@ -587,6 +597,8 @@ void OpenSetListSong(int SongNumber) {
 			}
 		}
 	}
+
+	printd(LogInfo, "Leaving OpenSetListSong\n");
 
 	// Close the file if still open.
 	if (SetListFile) {
@@ -1099,5 +1111,7 @@ void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value) {
 	StringLen = strlen(Text);
 	sprintf(String, "       %02d       \n%*s", Value, 7 + StringLen / 2,
 		Text);
+
+	printd(LogInfo, "SetPatchTitles %s\n", String);
 	MyImageButtonSetText(MyButton, String);
 }
