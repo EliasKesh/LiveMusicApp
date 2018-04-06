@@ -95,8 +95,8 @@ void InitGuiPrefs(void) {
 	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "BasePath"));
 	g_signal_connect_data(G_OBJECT(widget), "changed",
 		G_CALLBACK(on_BasePath_changed), NULL, NULL, 0);
-
 	gtk_entry_set_text(widget, gMyInfo.BasePath);
+
 }
 
 /*--------------------------------------------------------------------
@@ -420,9 +420,11 @@ static GtkWidget *CreatePatchViewModel(void) {
 
 	/* connect a cell data function */
 //  gtk_tree_view_column_set_cell_data_func(col, renderer, age_cell_data_func, NULL, NULL);
+
 	model = CreatePatchModel();
 	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
-	sel = gtk_tree_view_get_selection((GtkTreeView*) model);
+
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 
 //	g_signal_connect (view, "row_activated", G_CALLBACK (row_activated_cb), model);

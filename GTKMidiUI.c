@@ -71,13 +71,15 @@ GtkWidget *TempoChild;
 PangoFontDescription *Tempofont_desc;
 
 // Hold the tempo string so we do not draw at inturrupt time.
-char TempStrBuf[10];
+char TempStrBuf[100];
 
 GtkWidget *NoteBookPane;
 
 // The button size my change based on the screen size.
 int ButtonSize;
 
+// Foot switch layout.
+int KeyLayout = 1;
 /*
  * Place Local prototypes here
  */
@@ -353,6 +355,7 @@ void parse_cmdline(int argc, char *argv[]) {
 			{ "jack", required_argument, 0, 'j' },
 
 			/* Not Used	*/
+			{ "Layout", required_argument, 0, 'l' },
 			{ "size", required_argument, 0, 's' },
 			{ "append", no_argument, 0, 0 },
 			{ "delete", required_argument, 0, 0 },
@@ -361,7 +364,7 @@ void parse_cmdline(int argc, char *argv[]) {
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "abcj:dsf:012",
+		c = getopt_long(argc, argv, "abcj:dsfl:012",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
@@ -407,6 +410,11 @@ void parse_cmdline(int argc, char *argv[]) {
 		case 'j':
 			strncpy(JackName, optarg, MaxStringPortName);
 			printd(LogInfo, "JackName %s\n", JackName);
+			break;
+
+		case 'l':
+			KeyLayout = atoi(optarg);
+			printd(LogInfo, "Layout %d\n", KeyLayout);
 			break;
 
 		case 's':
@@ -536,7 +544,10 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 the window1 root node.
 	 */
 	gxml = gtk_builder_new();
-	if (!gtk_builder_add_from_file(gxml, GLADE_FILE, &error)) {
+
+	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
+	
+	if (!gtk_builder_add_from_file(gxml, TempStrBuf, &error)) {
 		g_warning("Couldn't load builder file: %s", error->message);
 		g_error_free(error);
 	}
@@ -595,7 +606,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	                         "./LiveMusicRes/NoteBSwitchOn.png", MButtonX, MButtonY, NULL, NULL);
 	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
 	                          "./LiveMusicRes/NoteBSwitchOff.png", MButtonX, MButtonY, NULL, NULL);
-
 //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
@@ -618,7 +628,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	HoldStatusIndex = 0;
 	memset(HoldStatus, 0, sizeof(HoldStatus));
 
-
 	/*
 	 * Get the metronome button loaded and displayed.
 	 */
@@ -626,7 +635,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	               gtk_builder_get_object(gxml, "Tempo"));
 
 	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
-
 
 	if (gMyInfo.MetronomeOn) {
 		MyImageButtonSetText(&TempoDraw, "On");
@@ -692,6 +700,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * Set up the buttons, text and patches.
 	 */
+
 	CreateMainButtons();
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 	CreateTabButtons();
@@ -718,6 +727,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Set up the connections between applications.
 	 */
 	InitConnections();
+
 
 	/*
 	 * Set the up Chord page in case we need it later.
@@ -979,22 +989,22 @@ void CreateMainButtons(void) {
 
 #if 1
 	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
-	Adjustment1 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment1"));
+	Adjustment1 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment1"));
 	g_signal_connect(G_OBJECT (VScale1), "value_changed",
 	                 G_CALLBACK (VScale1_Changed), NULL);
 
 	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
-	Adjustment2 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment2"));
+	Adjustment2 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment2"));
 	g_signal_connect(G_OBJECT (VScale2), "value_changed",
 	                 G_CALLBACK (VScale2_Changed), NULL);
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
-	Adjustment3 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment3"));
+	Adjustment3 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment3"));
 	g_signal_connect(G_OBJECT (VScale3), "value_changed",
 	                 G_CALLBACK (VScale3_Changed), NULL);
 
 	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
-	Adjustment4 = (GtkAdjustment *) GTK_WIDGET(gtk_builder_get_object(gxml, "adjustment4"));
+	Adjustment4 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment4"));
 	g_signal_connect(G_OBJECT (VScale4), "value_changed",
 	                 G_CALLBACK (VScale4_Changed), NULL);
 

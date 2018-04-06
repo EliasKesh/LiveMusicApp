@@ -639,6 +639,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	char Loop, Buffer[120];
 	int width, height;
 
+
 	/* This is called in all GTK applications. Arguments are parsed
 	 * from the command line and are returned to the application. */
 //   gtk_init (&argc, &argv);
@@ -648,9 +649,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	NoteNames = FlatNotes;
 	NumStrings = 9;
 	FretOffset = 60;
-
 	FretOffset = (int) ((float) (width - 300) / (float) NumStrings);
-
 	printd(LogInfo, "FretOffset %d %d %d \n", FretOffset, width, NumStrings);
 	StringOffset = 30;
 	myChord.Position = 2;
@@ -938,7 +937,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 				GDK_CAP_ROUND, GDK_JOIN_MITER);
 		} else {
 			gdk_gc_set_rgb_fg_color(gc, &labeloncolor);
-			pango_layout_set_text(layout, NoteNames[StringLayout[Loop][0]], 2);
+		pango_layout_set_text(layout, NoteNames[StringLayout[Loop][0]], 2);
 			gdk_gc_set_line_attributes(gc, 2, GDK_LINE_SOLID, GDK_CAP_ROUND,
 				GDK_JOIN_MITER);
 		}
@@ -1029,7 +1028,6 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
  *---------------------------------------------------------------------*/
 int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	GtkWidget *button;
-	GtkWidget *event_box;
 	GtkWidget *rootBox;
 	GtkWidget *rootBox1;
 	GtkWidget *chdBox;
@@ -1139,6 +1137,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 		sprintf(Buffer, "%02d Pos", Loop);
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX(FretCombo), Buffer);
 	}
+
 	label3 = gtk_label_new("Fret Position ");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(FretCombo), DisplayPosition);
 	gtk_fixed_put(GTK_FIXED(FretFixed), label3, 0, 0);
@@ -1152,11 +1151,25 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	 */
 	PreChordFixed = gtk_fixed_new();
 	PreChordCombo = gtk_combo_box_text_new();
+  gsize *bytesW;
+  gchar *UTFString;
+  GError *error = NULL;
+
 //    for (Loop = 0; myPreChordMenu[Loop].PreChord; Loop++) {
 	for (Loop = 0; myPreChordMenu[Loop].Name[0]; Loop++) {
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX(PreChordCombo),
-			myPreChordMenu[Loop].Name);
+
+		UTFString = g_convert (myPreChordMenu[Loop].Name, strlen(myPreChordMenu[Loop].Name), "UTF-8", "ISO-8859-1",
+                            NULL, NULL, &error);
+
+
+	// UTFString = g_filename_to_utf8(myPreChordMenu[Loop].Name,-1, NULL, bytesW, NULL );
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX(PreChordCombo), UTFString);
+	//	gtk_combo_box_text_append_text(GTK_COMBO_BOX(PreChordCombo), myPreChordMenu[Loop].Name);
+
+
+
 	}
+
 	label4 = gtk_label_new("PreChord Select");
 	gtk_fixed_put(GTK_FIXED(PreChordFixed), label4, 0, 0);
 	gtk_fixed_put(GTK_FIXED(PreChordFixed), PreChordCombo, 0, 25);
@@ -1192,15 +1205,11 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	g_signal_connect_swapped(button, "clicked", G_CALLBACK (gtk_widget_destroy),
 		window);
 
-	event_box = gtk_event_box_new();
-
 	rootBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
-//   rootBox1 = gtk_hbox_new(TRUE, 5);
 	chdBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
 	SclBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
 	BottomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 10);
-
 	Fingerboard = gtk_drawing_area_new ();
 	gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);
 //    gtk_window_get_size(MainWindow, &Cwidth, &Cheight);

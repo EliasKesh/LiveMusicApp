@@ -2,7 +2,7 @@
 |
 |	File: 	MyWidgets
 |
-|	Contains: 	
+|	Contains:
 |
 |
 |	Written By: 	Elias Keshishoglou on Tue Feb 10 15:53:13 PST 2015
@@ -41,26 +41,27 @@
  *
  * Description:         Create a new button from an eventbox..
  *---------------------------------------------------------------------*/
-int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf *On, GdkPixbuf *Off) {
+int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
 	GtkWidget *overlay;
 
-    /*
-       * A GtkImage doesn't have a window, so we need to put it inside
-       * a GtkEventBox so we can capture events.
-       */
-   GtkWidget *image = gtk_image_new ();
+	/*
+	   * A GtkImage doesn't have a window, so we need to put it inside
+	   * a GtkEventBox so we can capture events.
+	   */
+	GtkWidget *image = gtk_image_new ();
 
-        overlay = gtk_overlay_new ();
+	overlay = gtk_overlay_new ();
+	gtk_container_add(GTK_CONTAINER(overlay), image);
+	gtk_container_add(GTK_CONTAINER(EventBox), overlay);
+	theButton->Label = gtk_label_new("Hello There");
 
-	  gtk_container_add(GTK_CONTAINER(overlay), image);
-	  gtk_container_add(GTK_CONTAINER(EventBox), overlay);
-		theButton->Label = gtk_label_new("Hello There");;
-		MyImageButtonSetText(theButton->Label, "Hello There");
+	MyImageButtonSetText(theButton, "Hello There");
+
 //	          gtk_label_set_markup(GTK_LABEL(theButton->Label),
- //             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
+//             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
 
-   gtk_overlay_add_overlay (GTK_OVERLAY (overlay), theButton->Label);
-   	   theButton->EventBox = EventBox;
+	gtk_overlay_add_overlay (GTK_OVERLAY (overlay), GTK_WIDGET(theButton->Label));
+	theButton->EventBox = EventBox;
 	theButton->Image = image;
 	theButton->Overlay = overlay;
 	theButton->ButtonUpImage = Off;
@@ -69,11 +70,11 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf
 
 #if 0
 	g_signal_connect(G_OBJECT(EventBox),
-		"button-release-event",
-		G_CALLBACK(normal_release_handler),
-		&theButton);
+	                 "button-release-event",
+	                 G_CALLBACK(normal_release_handler),
+	                 &theButton);
 #endif
-	return(0);
+	return (0);
 }
 
 /*--------------------------------------------------------------------
@@ -82,26 +83,25 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf
  * Description:         Change or Set the text of a button..
  *---------------------------------------------------------------------*/
 int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
-char		FormatString[100];
-
+	char		FormatString[100];
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
 //sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
 //sprintf(FormatString, "<span size=\"12800\" color=\"white\"><b>%s</b></span>", String);
-sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", gMyInfo.ButtonTextColor, String);
-	gtk_label_set_markup(GTK_LABEL(theButton->Label),FormatString);
+	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", gMyInfo.ButtonTextColor, String);
 
-return(0);
+	gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
+
+	return (0);
 }
 
 gboolean normal_release_handler(GtkWidget *widget,
-	GdkEvent *event,
-	gpointer user_data)
-{
+                                GdkEvent *event,
+                                gpointer user_data) {
 	theImageButtons *theButton;
 	theButton = (theImageButtons *) user_data;
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-		theButton->ButtonUpImage);
+	                          theButton->ButtonUpImage);
 	return TRUE; /* stop event propagation */
 }

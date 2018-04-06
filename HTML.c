@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 
-//#define WebKit2 1
+#define WebKit2 1
 #ifdef WebKit2
 #include <webkit2/webkit2.h>
 #else
@@ -35,6 +35,8 @@ FILE *SetListFile;
 #define ParseValue "Preset"
 #define MAXLINE 250
 
+// ~/.config/mimeapps.list
+
 /*--------------------------------------------------------------------
  * Function:		on_Back_clicked
  *
@@ -47,6 +49,13 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 		BackButton.ButtonDownImage);
 	webkit_web_view_go_back(web_view);
 	g_print("Back:\n");
+	SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
+	SetPatchTitles(&PresetButtons[1], "Preset 2", 2);
+	SetPatchTitles(&PresetButtons[2], "Preset 3", 3);
+	SetPatchTitles(&PresetButtons[3], "Preset 4", 4);
+	SetPatchTitles(&PresetButtons[4], "Preset 5", 5);
+	SetPatchTitles(&PresetButtons[5], "Preset 6", 6);
+
 }
 
 /*--------------------------------------------------------------------
@@ -592,7 +601,9 @@ void OpenSetListSong(int SongNumber) {
 				strcat(Copy, "/");
 				strcat(Copy, tokenizer);
 				printd(LogInfo, "Final  %s\n", Copy);
-				webkit_web_view_open(web_view, Copy);
+// ejk				webkit_web_view_open(web_view, Copy);
+				webkit_web_view_load_uri(web_view, Copy);
+ 
 				break;
 			}
 		}
@@ -650,6 +661,7 @@ void InitHTML(GtkBuilder *gxml) {
 	int Loop;
 	char Buffer[40];
 	GtkWidget *EventBox;
+
 	/* Load the buttons and set the callbacks for them.
 	 */
 	CurrentSetListSong = 0;
@@ -674,7 +686,6 @@ void InitHTML(GtkBuilder *gxml) {
 			Loop);
 
 	}
-
 	scrolled_window = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "scrolledwindow1"));
 
@@ -682,10 +693,14 @@ void InitHTML(GtkBuilder *gxml) {
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
+//	WebSet = webkit_settings_new();
+
 	/* Create a new webkit view to display our data.
 	 */
+//	web_view = WEBKIT_WEB_VIEW(webkit_web_view_new_with_settings(WebSet));
 	web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
 	gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(web_view));
+
 
 #ifndef WebKit2
 	/* Make the view editable.
@@ -695,6 +710,7 @@ void InitHTML(GtkBuilder *gxml) {
 	 */
 	webkit_web_view_set_full_content_zoom(web_view, TRUE);
 #endif
+
 
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object((GtkBuilder * )gxml, "BackButton"));
@@ -762,7 +778,8 @@ void InitHTML(GtkBuilder *gxml) {
 
 	/* Register a callback that gets invoked each time that a page is finished downloading */
 
-	g_signal_connect(web_view, "load-finished", G_CALLBACK(PageLoaded), NULL);
+	g_signal_connect(web_view, "load-changed", G_CALLBACK(PageLoaded), NULL);
+//	g_signal_connect(web_view, "load-finished", G_CALLBACK(PageLoaded), NULL);
 #if 0
 	g_signal_connect(web_view, "download-requested", G_CALLBACK(DownloadRequestcb), NULL);
 	g_signal_connect(web_view, "mime-type-policy-decision-requested", G_CALLBACK(PolicyRequestCD), NULL);
@@ -781,7 +798,7 @@ void InitHTML(GtkBuilder *gxml) {
 #endif
 #if 1
 
-	WebKitWebSettings *settings = webkit_web_settings_new();
+	WebKitSettings *settings = webkit_settings_new ();
 	g_object_set(G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
 	g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
 
@@ -800,14 +817,20 @@ void InitHTML(GtkBuilder *gxml) {
 		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
 	}
 
+	webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
+	webkit_web_view_set_editable(G_OBJECT(settings), TRUE);
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
+	
+//	printd(LogInfo, "Have file %x %s\n", webkit_plugin_get_path(, fname);
+
+
+
 #endif
 //	create_Popup_view(web_view);
 
 //	gtk_widget_grab_focus (GTK_WIDGET (web_view));
 	gtk_widget_show_all(scrolled_window);
-
 }
 #define ContentTagLen	9
 /*--------------------------------------------------------------------

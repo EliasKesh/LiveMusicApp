@@ -292,7 +292,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Playback volume slider
 	 */
-	VolumeAdjustment = gtk_adjustment_new(25, 0.0, 100, 1, 10, 0);
+	VolumeAdjustment = gtk_adjustment_new(50, 0.0, 100, 1, 10, 0);
 	VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
 		GTK_ADJUSTMENT(VolumeAdjustment));
 	g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
