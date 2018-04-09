@@ -224,6 +224,15 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 #endif
 	FILE *fp;
 
+
+	if (webkit_web_view_is_editable(web_view) ) {
+		MyImageButtonSetText(&SaveWebButton, "Edit");
+		webkit_web_view_set_editable(web_view, FALSE);
+		return;
+	}
+
+	MyImageButtonSetText(&SaveWebButton, "Save");
+	webkit_web_view_set_editable(web_view, TRUE);
 	/*
 	 * Draw the button
 	 */
@@ -283,10 +292,8 @@ void PageLoaded(GtkWidget *widget, gpointer data) {
 		return;
 	}
 
-#ifndef WebKit2
-//	printd(LogInfo, "WebKit Set Edit %d\n",
-	webkit_web_view_get_editable(web_view);
-#endif
+//	webkit_web_view_set_editable(web_view, 1);
+
 	webkit_web_view_set_zoom_level(web_view, 1);
 
 }
@@ -541,6 +548,93 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 	//   webkit_web_policy_decision_use(policy_decision);
 	return (false);
 }
+#else
+gboolean NavigationPolicy(WebKitWebView *web_view,
+               WebKitPolicyDecision    *decision,
+               WebKitPolicyDecisionType decision_type,
+               gpointer                 user_data) {
+	char *theOrgURI;
+	char theURI[250];
+	char string[150];
+	int Loop;
+
+	theOrgURI = webkit_web_view_get_uri(web_view);
+
+	//	uri=networkRequest.get_uri()
+	decode(theOrgURI, theURI);
+	printd(LogInfo, "NavigationPolicy %s \n", theURI);
+
+	/* If we find an MP3 file then handle it ourselves and tell WebKit
+	 * not to deal with it.
+	 */
+	if (strstr(theURI, ".mp3")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		SetPlayerFile((theURI + 7));
+
+	    webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+#if 0
+		sprintf(SysCallString, "/usr/bin/smplayer %s &",
+			theURI);
+		printd(LogInfo, "***Before  systemcall %s\n", SysCallString);
+		system(SysCallString);
+#endif
+		printd(LogInfo, "*** After systemcall %s\n", SysCallString);
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	if (strstr(theURI, ".tg") || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+//		empathy_webkit_handle_navigation (web_view, WEBKIT_NAVIGATION_POLICY_DECISION (decision));
+	    webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \"%s\" &", theURI);
+		system(string);
+		printd(LogInfo, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	if (strstr(theURI, ".pdf")) {
+	char *PageIndex;
+	int	PageNumber;
+
+		/*
+		 * Tell web kit not to do anything with it.
+		 */
+//	empathy_webkit_handle_navigation (web_view, WEBKIT_NAVIGATION_POLICY_DECISION (decision));
+    webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		PageIndex=strstr(theURI, "#page=");
+		if (PageIndex) {
+			*PageIndex=0;
+			PageIndex += 6;
+			PageNumber = atoi(PageIndex);
+		}
+		printf("PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
+
+		sprintf(string, "/usr/bin/okular \"%s\" --page=%d &", theURI, PageNumber);
+		system(string);
+		printd(LogInfo, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	//   webkit_web_policy_decision_use(policy_decision);
+	return (false);
+}
+
 #endif
 
 /*--------------------------------------------------------------------
@@ -619,7 +713,7 @@ void OpenSetListSong(int SongNumber) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		on_SaveWeb_clicked
+ * Function:		on_SetList_clicked
  *
  * Description:	Save the changes to the file
  *
@@ -661,6 +755,7 @@ void InitHTML(GtkBuilder *gxml) {
 	int Loop;
 	char Buffer[40];
 	GtkWidget *EventBox;
+
 
 	/* Load the buttons and set the callbacks for them.
 	 */
@@ -742,7 +837,7 @@ void InitHTML(GtkBuilder *gxml) {
 	EventBox = GTK_WIDGET(
 		gtk_builder_get_object(gxml, "SaveWeb"));
 	MyImageButtonInit(&SaveWebButton, EventBox, MainButtonOnImage, MainButtonOffImage);
-	MyImageButtonSetText(&SaveWebButton, "Save");
+	MyImageButtonSetText(&SaveWebButton, "Edit");
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 		G_CALLBACK(on_SaveWeb_clicked), &SaveWebButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
@@ -787,7 +882,12 @@ void InitHTML(GtkBuilder *gxml) {
 #ifndef WebKit2
 	g_signal_connect(web_view, "navigation-policy-decision-requested",
 		G_CALLBACK(NavigationPolicy), NULL);
+#else
+	g_signal_connect(web_view, "decide-policy",
+		G_CALLBACK(NavigationPolicy), NULL);
 #endif
+
+
 	strncpy(FileName, gMyInfo.BasePath, 254);
 	//   strcat(FileName, "/indexCharts.html");
 #ifndef WebKit2
@@ -817,6 +917,9 @@ void InitHTML(GtkBuilder *gxml) {
 		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
 	}
 
+
+	webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
+	webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
 	webkit_web_view_set_editable(G_OBJECT(settings), TRUE);
 	/* Apply the result */

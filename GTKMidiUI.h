@@ -43,8 +43,11 @@ char *printd(char LogLevel, const char *fmt, ...);
 
 #define OutPortAnalog 	0
 #define OutPortMidi		1
-#define MaxOutPorts		10
 #define MaxStringPortName	32
+enum {
+	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
+	TempoPort, ClickPort, PedalPort, MaxOutPorts
+};
 
 // Timer countdown in Miliseconds
 
@@ -111,6 +114,7 @@ typedef struct {
 	char Name[255];
 	char PortID;
 } PortInformation;
+
 #define MaxPresetButtons 6
 typedef struct {
 	char	thePreset[MaxPresetButtons];
@@ -173,10 +177,6 @@ typedef struct {
 
 } GTKMidiInfo;
 
-enum {
-	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
-	TempoPort, ClickPort
-};
 
 enum {
 	NoCustom = 0,

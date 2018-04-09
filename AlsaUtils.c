@@ -286,6 +286,8 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	snd_seq_ev_set_source(&ev, Port);
 	snd_seq_ev_set_subs(&ev);
 
+//	printd(LogInfo, "** SendMidi =%x\n", Type);
+
 	/* Channel, Controller, Value
 	 */
 	snd_seq_ev_set_controller(&ev, Channel - 1, Controller, (int )Value);
@@ -297,25 +299,23 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	//      snd_seq_ev_set_dest(&ev, snd_seq_client_id(gMyInfo.SeqPort[Port]), Port);
 
 	if (Type == SND_SEQ_EVENT_PGMCHANGE) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_PGMCHANGE %x\n", Type);
 		ev.type = SND_SEQ_EVENT_PGMCHANGE;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 	}
 
-	if (Type == SND_SEQ_EVENT_CONTROLLER) {
-		ev.type = SND_SEQ_EVENT_CONTROLLER;
-		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-	}
 //	SND_SEQ_EVENT_SAMPLE_VOLUME
-	if (Type == MIDI_CTL_MSB_MAIN_VOLUME) {
+	if (Type == SND_SEQ_EVENT_CONTROLLER) {
 		ev.type = SND_SEQ_EVENT_CONTROLLER;
 		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
 //		ev.data.sample.param.volume = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-		printd(LogInfo, "SendMidi Volume %d %d\n", Port, err);
+		printd(LogInfo, "** SendMidi Volume %d %d Type %d\n", Port, err, Type);
 
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
+//	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_NOTEON %x\n", Type);
 		ev.type = SND_SEQ_EVENT_NOTEON;
 		ev.data.note.note = Value;
 		ev.data.note.velocity = 100;
@@ -324,7 +324,9 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 
 	}
 
+// EJK YOU ARE HERE
 	if (Type == SND_SEQ_EVENT_NOTEOFF) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_NOTEOFF %x\n", Type);
 		ev.type = SND_SEQ_EVENT_NOTEOFF;
 		ev.data.note.note = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
@@ -332,30 +334,35 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	}
 
 	if (Type == SND_SEQ_EVENT_START) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_START %x\n", Type);
 		ev.type = SND_SEQ_EVENT_START;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 
 	}
 
 	if (Type == SND_SEQ_EVENT_STOP) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_STOP %x\n", Type);
 		ev.type = SND_SEQ_EVENT_STOP;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 
 	}
 
 	if (Type == SND_SEQ_EVENT_CONTINUE) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_CONTINUE %x\n", Type);
 		ev.type = SND_SEQ_EVENT_CONTINUE;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 
 	}
 
 	if (Type == SND_SEQ_EVENT_SETPOS_TICK) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_SETPOS_TICK %x\n", Type);
 		ev.type = SND_SEQ_EVENT_SETPOS_TICK;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 
 	}
 
 	if (Type == SND_SEQ_EVENT_SETPOS_TIME) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_SETPOS_TIME %x\n", Type);
 		ev.type = SND_SEQ_EVENT_SETPOS_TIME;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 
@@ -369,12 +376,14 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	MIDI Clock byte must occur every 96 / 24 (ie, 4) PPQN clocks.
 #endif
 	if (Type == SND_SEQ_EVENT_CLOCK) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_CLOCK %x\n", Type);
 		ev.type = SND_SEQ_EVENT_CLOCK;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		snd_seq_drain_output(gMyInfo.SeqPort[Port]);
 	}
 
 	if (Type == SND_SEQ_EVENT_QFRAME) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_QFRAME %x\n", Type);
 		ev.type = SND_SEQ_EVENT_CLOCK;
 		ev.data.queue.param.d32[1] = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
@@ -384,6 +393,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	/* Every 10ms
 	 */
 	if (Type == SND_SEQ_EVENT_TICK) {
+	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_TICK %x\n", Type);
 		ev.type = SND_SEQ_EVENT_TICK;
 		ev.data.queue.param.d32[1] = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
@@ -450,6 +460,8 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
  *---------------------------------------------------------------------*/
 int SendMidiPatch(PatchInfo *thePatch) {
 	int err = 0;
+
+	printd(LogInfo, "SendMidiPatch %x\n", thePatch->Channel);
 
 	switch (thePatch->CustomCommand) {
 		case NoCustom:
@@ -525,6 +537,8 @@ int SendMidiPatch(PatchInfo *thePatch) {
 
 		case Controller:
 #if 1
+			printd(LogInfo, "Controller \n");
+
 			SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 				thePatch->Channel,
 				thePatch->BankSelect, thePatch->Patch);
@@ -814,13 +828,17 @@ void *alsa_midi_thread(void * context_ptr) {
 					case MIDI_CTL_MSB_DATA_ENTRY:
 						cc_name = "Data entry";
 						break;
+					case MIDI_CTL_MSB_EFFECT2:
+						cc_name = "MIDI_CTL_MSB_EFFECT2";
+
+					break;
 
 						/* Here is the main Volume Pedal.
 						 */
 					case MIDI_CTL_MSB_MAIN_VOLUME:
 						// ejk SEND
 						cc_name = "Main volume";
-						printd(LogInfo, "Send Midi Volume %d\n",
+						printd(LogInfo, "Send Midi Volume main%d\n",
 							event_ptr->data.control.value);
 						
 						/* If we are in Guitar mode.
@@ -828,7 +846,7 @@ void *alsa_midi_thread(void * context_ptr) {
 						if ( (FishmanSwitch != 2) && (FishmanSwitch != 3) ) {
 							SetVolume1(event_ptr->data.control.value);
 						} else {
-							SendMidi(MIDI_CTL_MSB_MAIN_VOLUME, 0, 1, TestProgram,
+							SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, 1, TestProgram,
 							event_ptr->data.control.value);
 						}
 						break;
@@ -839,19 +857,20 @@ void *alsa_midi_thread(void * context_ptr) {
 						cc_name = "Panpot";
 						break;
 					case MIDI_CTL_MSB_EXPRESSION:
-						cc_name = "Expression";
+						cc_name = "MSB Expression";
+						printd(LogInfo, "Send General 2 expression %d\n",
+							event_ptr->data.control.value);
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, TestProgram,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_EFFECT1:
 						cc_name = "Effect1";
 						break;
-					case MIDI_CTL_MSB_EFFECT2:
+					case MIDI_CTL_MSB_GENERAL_PURPOSE2:
 						cc_name = "Effect2";
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE1:
 						cc_name = "General purpose 1";
-						break;
-					case MIDI_CTL_MSB_GENERAL_PURPOSE2:
-						cc_name = "General purpose 2";
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE3:
 						cc_name = "General purpose 3";
@@ -890,7 +909,7 @@ void *alsa_midi_thread(void * context_ptr) {
 						cc_name = "Panpot";
 						break;
 					case MIDI_CTL_LSB_EXPRESSION:
-						cc_name = "Expression";
+						cc_name = "LSB Expression";
 						break;
 					case MIDI_CTL_LSB_EFFECT1:
 						cc_name = "Effect1";
@@ -1347,6 +1366,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 		printd(LogInfo, "%s\n", msg_str_ptr);
 		printf( "%s\n", msg_str_ptr);
+		printd(LogInfo, "%s\n", cc_name);
 //		g_print("%s", msg_str_ptr);
 		/* get GTK thread lock */
 #if 0 //ejk

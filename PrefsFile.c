@@ -245,8 +245,8 @@ GTKMidiInfo GlobalInfo = {
 	// Path the Charts directory
 	"/home/Dropbox/FusionBlue/index.html",
 	// Number and name of the output ports
-	5,
-	{ "Fluid", "Guitarix", "Looper", "Transport", "Tempo", "Click" },
+	6,
+	{ "Fluid", "Guitarix", "Looper", "Transport", "Tempo", "Click", "Pedal" },
 
 	// Apps[MaxApps];
 	// enum { AnalogApp = 0, MidiSoundApp, LooperApp, TransportApp, MidiApp, MP3Player, TabPlayer, MaxApps };
@@ -465,7 +465,7 @@ void InitPref(void) {
 
 	gMyInfo.MidiBaseNote = 40;
 #endif
-	gMyInfo.AnalogVolume = 80;
+	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;

@@ -451,7 +451,6 @@ int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GtkWidget *ChordWidget;
 	GtkWidget *PlayerWidget;
-//	GtkCssProvider *provider;
 	GtkWidget *EventBox;
 	GError *err = NULL;
 	/*----- CSS ----------- */
@@ -470,7 +469,7 @@ int main(int argc, char *argv[]) {
 	CurrentLayout = 0;
 	WaitingforMidi = 0;
 	verbose_flag = 0;
-
+	KeyLayout = 1;
 	parse_cmdline(argc, argv);
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
@@ -488,7 +487,7 @@ int main(int argc, char *argv[]) {
 
 	if (gdk_screen_get_width(myScreen) > 1800) {
 		ScreenSize = 2;
-		ButtonSize = 135;
+		ButtonSize = 150;
 	}
 	printd(LogInfo, "Button Size %d %d\n", ButtonSize);
 

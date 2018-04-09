@@ -197,6 +197,14 @@ void ToggleTempo(void) {
 			}
 		}
 
+			if (TempoCount != 1) {
+				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			} else {
+				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+			}
+
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {

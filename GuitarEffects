@@ -530,7 +530,7 @@ function SetUpConnections {
 	PedalBoardIn=`aconnect -i | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
 	echo "EliasPedal2 "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
 	aconnect $PedalBoardOut"0"  $MidiRouterIn"0" 
-	aconnect $MidiRouterOut"0" $PedalBoardIn"0"
+	aconnect $MidiRouterOut"0" $PedalBoardIn"6"
 	fi
 	
 	# One port from the Router goes to the Soundfont player.
