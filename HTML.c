@@ -743,6 +743,8 @@ void on_SetList_clicked(GtkWidget *widget, gpointer data) {
 
 }
 
+// /usr/lib/mozilla/plugins
+// libevbrowserplugin.so
 /*--------------------------------------------------------------------
  * Function:		InitHTML
  *

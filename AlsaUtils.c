@@ -286,7 +286,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	snd_seq_ev_set_source(&ev, Port);
 	snd_seq_ev_set_subs(&ev);
 
-//	printd(LogInfo, "** SendMidi =%x\n", Type);
+//X	printd(LogInfo, "** SendMidi =%x\n", Type);
 
 	/* Channel, Controller, Value
 	 */

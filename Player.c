@@ -406,16 +406,19 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionStartBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	
 	theFrame = gtk_frame_new("B Position");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionEndBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	
 	theFrame = gtk_frame_new("Speed");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), SpeedBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	
 	theFrame = gtk_frame_new("Volume");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), VolumeSpin);
@@ -435,19 +438,22 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EditLoopBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, TRUE, 5);
-
 //	gtk_box_set_homogeneous(GTK_BOX(MainBox), TRUE);
 	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, TRUE, 5);
+
 	theFrame = gtk_frame_new("Song Position");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 
+
+	// Pack everything together 
 	gtk_box_pack_start(GTK_BOX(MainBox), theFrame, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(MainBox), PositionBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(MainBox), PlayControlBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(MainBox), SavedFrame, TRUE, TRUE, 5);
 
+	// Add this to the main window.
 	gtk_container_add(GTK_CONTAINER(window), MainBox);
 	gtk_widget_set_size_request(window, 100, 100);
 //	gtk_window_set_default_size(window, 200, 200);
@@ -530,9 +536,11 @@ void SetPlayerFile(char *FileName) {
 	PlayerWrite("stream_time_pos\n");
 	DontUpDateSlider = FALSE;
 	PlayerAsk = 0;
-	ResetPlayer();
+	PlayPauseState = 0;
+	plPausePlay();
 	OpenSavedLoopFile(FileName);
 	PlayerWrite("get_time_length\n");
+	ResetPlayer();
 
 }
 
@@ -618,10 +626,12 @@ int PlayerWrite(char *String) {
 
 	Val = fputs(String, OutPipe);
 	fflush(OutPipe);
-//	printd(LogInfo, "Player Write %x %d  [%s]\n", OutPipe, Val, String);
+
+//	printd(LogInfo, "Player Write %x %d  %s", OutPipe, Val, String);
 
 	if (Val < 0)
-		printd(LogInfo, "Player Write %d  [%s]\n", Val, String);
+		printd(LogInfo, "Error **Player Write %d  %s", Val, String);
+
 return(0);
 }
 

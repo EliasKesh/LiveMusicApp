@@ -419,7 +419,7 @@ function SetUpConnections {
 	echo "jack_connect Guitarix:out_2 system:playback_2"  >> $LogFile
 	jack_connect gx_head_fx:out_1 system:playback_1
 	jack_connect gx_head_fx:out_2 system:playback_2
-#	jack_connect gx_head_fx:out_1 system:playback_2
+#	jack_conxnect gx_head_fx:out_1 system:playback_2
 
 	# Connect Guitarix out to loopert in 
 	jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
@@ -530,7 +530,7 @@ function SetUpConnections {
 	PedalBoardIn=`aconnect -i | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
 	echo "EliasPedal2 "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
 	aconnect $PedalBoardOut"0"  $MidiRouterIn"0" 
-	aconnect $MidiRouterOut"0" $PedalBoardIn"6"
+	aconnect $MidiRouterOut"6" $PedalBoardIn"0"
 	fi
 	
 	# One port from the Router goes to the Soundfont player.
@@ -753,7 +753,7 @@ Screentype=1
 
 if [ `hostname` == "Keshie" ]; then
 #if [ `hostname` == "Music" ]; then
-
+echo "Found Main PC"
 AnalogDesktop=4
 LiveMusicAppDesktop=5
 LooperDesktop=$LiveMusicAppDesktop
@@ -762,6 +762,7 @@ PatchageDesktop=7
 PlayerDesktop=3
 DrumDesktop=7
 elif [ `hostname` == "livemusic-ThinkPad-Twist" ]; then 
+echo "livemusic-ThinkPad-Twist"
 AnalogDesktop=0
 LiveMusicAppDesktop=1
 LooperDesktop=$LiveMusicAppDesktop
@@ -770,6 +771,7 @@ PatchageDesktop=3
 PlayerDesktop=2
 DrumDesktop=3
 else
+echo "Default PC"
 AnalogDesktop=0
 LiveMusicAppDesktop=1
 LooperDesktop=$LiveMusicAppDesktop
@@ -848,7 +850,7 @@ set -x
         wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
 
         wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
-        wmctrl -F -r LiveMusicApp -e 0,0,0,1860,1070
+        wmctrl -F -r LiveMusicApp -e 0,0,0,1855,1070
 
  #       wmctrl -r SooperLooper -e 0,`expr $NewOffset`,475,1000,575
         wmctrl -r SooperLooper -t $LooperDesktop
@@ -1631,3 +1633,5 @@ lp *.pdf -p 1 -d IMT_HP_Color_LaserJet_CP5225dn
 find ./ -iname \*.mp3 -exec id3tool {} -g 102 \;
 
 ffmpeg -i input.mp4 -f mp3 -ab 192000 -vn BeirutItaly.mp3
+
+https://developer.gnome.org/gtk3/stable/gtk-broadway.html

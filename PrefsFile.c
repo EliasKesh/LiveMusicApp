@@ -180,7 +180,7 @@ GTKMidiInfo GlobalInfo = {
 		{ "MoogLead1", SFElias, 53, FluidPort, 1, NoCustom, "None" },
 		{ "CZBrass4", SFElias, 64, FluidPort, 1, NoCustom, "None" },
 		{ "SinSymph", SFElias, 90, FluidPort, 1, NoCustom, "None" },
-		{ "TrigCount", 0xff, 4, TransportPort, 1, cmdCountIn, "LooperApp" },
+		{ "TrigCountIn", 0xff, 4, TransportPort, 1, cmdCountIn, "LooperApp" },
 		{ "NextSong", 0xff, 2, FluidPort, 1, cmdSetList, "None" },
 		{ "PrevSong", 0xff, 1, FluidPort, 1, cmdSetList, "None" },
 		// 100	Button		Title		Bank	Patch	Outport
@@ -357,7 +357,7 @@ GTKMidiInfo GlobalInfo = {
 			"Looper",
 			{
 				/*			1				2				3				4				5				6 		*/
-				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"TrigCount",
+				"LP 1", 		"LP 2", 		"LP 3", 		"LP 4",			"LP All",  		"TrigCountIn",
 				"LP Rec", 		"LP Trig",		"LP Pause", 	"LP All",	"LP Pause All",	"LP Add",		
 				"LP Undo", 		"LP Tap", 		"LP Mute", 		"LP Undo",		"LP Rec", 		"LP Pause",
 				"EBuzz",		"LooperApp", 	"LiveApp", 		"LP Mute", 		"OctBass", 		"LayoutSwitch",

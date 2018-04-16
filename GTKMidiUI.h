@@ -118,7 +118,7 @@ typedef struct {
 #define MaxPresetButtons 6
 typedef struct {
 	char	thePreset[MaxPresetButtons];
-	char theTempo;
+	char 	theTempo;
 } WebLoadPresets;
 
 enum {
