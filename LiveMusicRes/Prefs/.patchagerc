@@ -1,0 +1,13 @@
+window_location 0 0
+window_size 1201 730
+zoom_level 1
+"FastTrack Pro" input 1702.5 1319.75
+"FastTrack Pro" output 1441.25 1291
+"Midi Through" input 1442.25 996
+"Midi Through" output 1169.75 996
+"USB Uno MIDI Interface" input 1408.25 1348.5
+"USB Uno MIDI Interface" output 1212.75 1162.75
+"UX16" input 1037 980
+"UX16" output 1036 934
+"system" input 1918.75 1053.25
+"system" output 1472.25 1053.25
