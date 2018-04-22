@@ -16,16 +16,28 @@
 sleep 4
 
 while true
+	cd /home/Dropbox/LiveEffects
 do
 pid=`pgrep LiveMusicApp`
 if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
-	/home/Dropbox/LiveEffects/LiveMusicApp & 
-	sleep 6
-	cd /home/Dropbox/LiveEffects
-	/home/Dropbox/LiveEffects/GuitarEffects -c
+	.LiveMusicApp & 
+	sleep 3
+	./GuitarEffects -c
 fi
-sleep 2
+
+
+pid=`pgrep guitarix`
+if [ -z $pid ]
+then
+theDATE=$(date +"%d%H%M%S")
+#	cd /home/Dropbox/LiveEffects
+	guitarix & 
+	sleep 3
+	./GuitarEffects -c
+fi
+
+sleep 5
 done

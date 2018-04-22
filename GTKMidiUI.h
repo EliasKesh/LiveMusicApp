@@ -388,7 +388,8 @@ void CreatePatchPopupMenu(void);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 
-void PrintDataStructure(GTKMidiInfo *myInfo);
+void PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef);
+
 int GuitarMidiPresetComplete(tPatchIndex MidiNote);
 int GuitarMidiPreset(void);
 int SetVolume1(int Value);

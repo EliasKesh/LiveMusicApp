@@ -1092,7 +1092,7 @@ int StartPlayer(void) {
 	}
 	else {
 		sprintf(PlayerString,
-			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle %s >/tmp/LiveMusicIn",
+			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
 			CurrentLength,
 			100 - gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogInfo, "calling %s\n", PlayerString);
