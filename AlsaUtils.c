@@ -286,7 +286,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	snd_seq_ev_set_source(&ev, Port);
 	snd_seq_ev_set_subs(&ev);
 
-//X	printd(LogInfo, "** SendMidi =%x\n", Type);
+//	printd(LogInfo, "** SendMidi =%x\n", Type);
 
 	/* Channel, Controller, Value
 	 */
@@ -307,11 +307,12 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 //	SND_SEQ_EVENT_SAMPLE_VOLUME
 	if (Type == SND_SEQ_EVENT_CONTROLLER) {
 		ev.type = SND_SEQ_EVENT_CONTROLLER;
-		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
-//		ev.data.sample.param.volume = Value;
+		/* Controller can be volume or Bank select.	*/
+		ev.data.control.param = Controller;
+//		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
+		ev.data.control.value = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
 		printd(LogInfo, "** SendMidi Volume %d %d Type %d\n", Port, err, Type);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
@@ -478,9 +479,11 @@ int SendMidiPatch(PatchInfo *thePatch) {
 					(thePatch->BankSelect >> 7) & 0x7f,
 					thePatch->BankSelect & 0x7f);
 			}
+
 			/* Now send the standard program change.
 			 */
 			TestProgram++;
+			TestProgram = 20;
 			SendMidi(SND_SEQ_EVENT_PGMCHANGE, thePatch->OutPort,
 				thePatch->Channel,
 				TestProgram, thePatch->Patch);
@@ -860,7 +863,7 @@ void *alsa_midi_thread(void * context_ptr) {
 						cc_name = "MSB Expression";
 						printd(LogInfo, "Send General 2 expression %d\n",
 							event_ptr->data.control.value);
-						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, TestProgram,
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
 							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_EFFECT1:

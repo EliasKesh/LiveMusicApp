@@ -56,12 +56,12 @@ InitPref (void) {
 	int Count;
 
 	memset (&gMyInfo, 0, sizeof (GTKMidiInfo));
-
-#if 1
 	memcpy (&gMyInfo, &GlobalInfo, sizeof (GTKMidiInfo));
+
+#if 0
 	WritePrefs ();
 #else
-	ReadPrefs ();
+//	ReadPrefs ();
 
 #endif
 #if 1
@@ -84,9 +84,9 @@ InitPref (void) {
 	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
 	strcpy (gMyInfo.OSCPortNum, "9951");
 
-//    ReadPrefs();
+    ReadPrefs();
 	PrintDataStructure(&gMyInfo, DefinePrefsFile);
-	exit(1);
+//	exit(1);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //      WritePrefs();
 
@@ -236,7 +236,9 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	}
 	if (PrefsFile) {
 		fprintf (PrefsFile, "{\n \"\", { },\t},\n },\n}; \n");
+		fflush(PrefsFile);
 	}
+
 
 
 	printd (LogInfo, "Metronome Base %d On %d %d %d\n", myInfo->TempoMax,

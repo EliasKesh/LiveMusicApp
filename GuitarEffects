@@ -34,6 +34,22 @@ function FindDevice {
 
 echo "FindDevice 1"
 
+	RouterNameIn="LiveMusic"
+	RouterNameOut="LiveMusic"
+	DrumNameIn="Hydrogen"
+	DrumNameOut="Hydrogen"
+
+	# Piano connections
+	KeyBoardMidi="UX16"
+
+	# Midi controller
+#	PedalBoardIn="Uno"
+	KeyBoardMidi="Uno"
+    Sequencer="rosegarden"
+  
+
+
+
 AudioSampleRate=44100
 # Let's check the hardware we have and see what we can do
 	# The Default is none.
@@ -81,9 +97,9 @@ AudioSampleRate=44100
 #		AudioSampleRate=96000
 
 	  # This is the Audio interface
-	  AudioInDevice="UA-25"
-	  AudioOutDevice="UA-25"
-	  MidiGuitarInputPort="UA-25"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
+	  MidiGuitarInputPort=$Device
 	fi
 
 	# If we have the Quattro use that instead.
@@ -93,8 +109,8 @@ AudioSampleRate=44100
 	  echo "We have " $Device >> $LogFile
 	  AudioDevice=$Device
 	  # This is the Audio interface
-	  AudioInDevice="Quattro"
-	  AudioOutDevice="Quattro"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
 	fi
 
 	# If we have the Quattro use that instead.
@@ -104,8 +120,8 @@ AudioSampleRate=44100
 	  echo "We have " $Device >> $LogFile
 	  AudioDevice=$Device
 	  # This is the Audio interface
-	  AudioInDevice="UA-30"
-	  AudioOutDevice="UA-30"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
 	fi
 
 	# If we have the M-Audio FastTrack Pro use that instead.
@@ -117,9 +133,9 @@ AudioSampleRate=44100
 	  #	jackd -p128 -t1000 -dalsa -dhw:2,1 -r44100 -p128 -n4
 	  AudioDevice=$Device
 	  # This is the Audio interface
-	  AudioInDevice="FastTrack"
-	  AudioOutDevice="FastTrack"
-	  MidiGuitarInputPort="FastTrack"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
+	  MidiGuitarInputPort=$Device
 	  DeviceAdder=",1"
 	fi
 
@@ -131,8 +147,8 @@ AudioSampleRate=44100
 	  echo "We have " $Device >> $LogFile
 	AudioSampleRate=48000
 	  AudioDevice=$Device
-	  AudioInDevice="iO4"
-	  AudioOutDevice="iO4"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
 	  MidiGuitarInputPort="iO4"
 	  PedalBoardIn="iO4"
 	  MidiOut="iO4"
@@ -148,8 +164,8 @@ AudioSampleRate=44100
 	AudioSampleRate=48000
 
 	  AudioDevice="$Device"
-	  AudioInDevice="iO Hub"
-	  AudioOutDevice="iO Hub"
+	  AudioInDevice=$Device
+	  AudioOutDevice=$Device
 #	  MidiGuitarInputPort="iO4"
 #	  PedalBoardIn="iO4"
 #	  MidiOut="iO4"
@@ -170,16 +186,20 @@ AudioSampleRate=44100
 #	  MidiOut="iO4"
 	fi
 
-	
-	
-	
 	# Check if we have found something.
 	if test "$AudioDevice" = "None"; then
 	  echo "We found no interfaces"  >> $LogFile
 	  exit 1
 	fi
 
-	}
+	echo "Audio Interface is: " ${AudioInDevice}" " ${AudioOutDevice}  >> $LogFile
+	# Get the port numbers of the interface
+	AudioInHW=`arecord -l | grep -m 1 "${AudioInDevice}" | awk '{ print $2}' | cut -d":" -f1`
+	AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
+	export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
+	echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
+
+}
 
 #---------------------------------------------------------------------#
 #
@@ -208,7 +228,6 @@ function SetDefinitions {
   Sequencer="rosegarden"
   
 	echo "Audio Interface is: " ${AudioInDevice}  >> $LogFile
-
 	# Get the port numbers of the interface
 	AudioInHW=`arecord -l | grep -m 1 "${AudioInDevice}" | awk '{ print $2}' | cut -d":" -f1`
 	AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
@@ -416,14 +435,14 @@ function SetUpConnections {
 
 	# Effects rack channel 1 goes to 1 and 2 of output
 	echo "jack_connect Guitarix:out_1 system:playback_1"  >> $LogFile
-	echo "jack_connect Guitarix:out_2 system:playback_2"  >> $LogFile
+#	echo "jack_connect Guitarix:out_2 system:playback_2"  >> $LogFile
 	jack_connect gx_head_fx:out_1 system:playback_1
-	jack_connect gx_head_fx:out_2 system:playback_2
+#	jack_connect gx_head_fx:out_2 system:playback_2
 #	jack_conxnect gx_head_fx:out_1 system:playback_2
 
 	# Connect Guitarix out to loopert in 
 	jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
-	jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
+#	jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
   
 	# Connect the Looper to the main outputs
   	jack_connect sooperlooper:common_out_1 system:playback_1
@@ -648,7 +667,7 @@ set -x
         if test "${Rakarrack}" = "true"; then
                 echo "Starting Guitar Effects"  >> $LogFile
 	#	rakarrack -b $EffectsDir/EliasBankNew.rkrb &
-		nice --15 	${EffectsProcessorName}  &
+		nice --15 	${EffectsProcessorName}   > /dev/null 2>&1  &
 #	rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr & 
 	Delay 3
 	fi
@@ -1031,7 +1050,7 @@ while getopts "abcdrpmvlswt" OPT; do
            ;;
         c)
 			FindDevice
-			SetDefinitions
+#			SetDefinitions
            SetUpConnections
             exit 0
             ;;
@@ -1078,7 +1097,7 @@ while getopts "abcdrpmvlswt" OPT; do
 		  killall ${EffectsProcessorName}
 		  killall qsynth
 		  killall jackd
-		  killall /usr/bin/qjackctl.bin
+		  killall qjackctl
 		  killall ardour2
 
 		  killall qmidiroute 
@@ -1160,7 +1179,9 @@ done
 	  FindDevice
 
 	  # Set the definitions for the functions.
-	  SetDefinitions
+#	  SetDefinitions
+
+
 
 	  # Start up Jack
 	  StartJack
@@ -1170,6 +1191,13 @@ done
 		StartJack
 	  fi
 	
+	a2jmidid -e &
+#	Patchage takes a while to start so kick it off early.
+	# Run the patch bay
+	echo "Starting Patch Bay"  >> $LogFile
+	patchage  > /dev/null 2>&1 &
+  
+
 	  # If jackd is still not running then exit.
 	  if [ `ps -ew|grep -c jackd` == 0 ] ; then
 		echo "Exiting, could not launch Sound System"  >> $LogFile
@@ -1182,12 +1210,7 @@ done
 
 	Delay 4
 
-	a2jmidid -e &
 
-	# Run the patch bay
-	echo "Starting Patch Bay"  >> $LogFile
-	patchage  > /dev/null 2>&1 &
-  
 	  # Set up the mier levels and the interconnection between devices.
 	SetUpConnections
 	SetPlacement

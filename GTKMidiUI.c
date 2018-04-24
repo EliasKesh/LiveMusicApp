@@ -741,7 +741,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	SetVolume1(gMyInfo.AnalogVolume);
 	SetVolume2(gMyInfo.MidiVolume);
 //       create_Patch_Popup_view(main_window);
-	printd(LogInfo, "Enterint gtk_main\n");
+	printd(LogInfo, "Entering gtk_main\n");
 
 
 	MyTimerInit();
@@ -770,6 +770,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	MyAlsaClose();
 	MyOSCClose();
 	LivePlayerClose();
+	printd(LogInfo, "Closing LiveApp\n");
 
 	return 0;
 }
