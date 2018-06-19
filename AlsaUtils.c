@@ -312,7 +312,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 //		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
 		ev.data.control.value = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-		printd(LogInfo, "** SendMidi Volume %d %d Type %d\n", Port, err, Type);
+		printd(LogInfo, "** SendMidi expression %d %d Type %d\n", Port, err, Type);
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
@@ -821,6 +821,10 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 					case MIDI_CTL_MSB_BREATH:
 						cc_name = "Breath";
+							printd(LogInfo, "Send MIDI_CTL_MSB_BREATH %d\n",
+							event_ptr->data.control.value);
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_FOOT:
 						cc_name = "Foot";
@@ -833,7 +837,6 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 					case MIDI_CTL_MSB_EFFECT2:
 						cc_name = "MIDI_CTL_MSB_EFFECT2";
-
 					break;
 
 						/* Here is the main Volume Pedal.
@@ -841,7 +844,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					case MIDI_CTL_MSB_MAIN_VOLUME:
 						// ejk SEND
 						cc_name = "Main volume";
-						printd(LogInfo, "Send Midi Volume main%d\n",
+						printd(LogInfo, "Send Midi MSB Volume main%d\n",
 							event_ptr->data.control.value);
 						
 						/* If we are in Guitar mode.
@@ -868,6 +871,10 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 					case MIDI_CTL_MSB_EFFECT1:
 						cc_name = "Effect1";
+						printd(LogInfo, "Send Effect1 expression %d\n",
+							event_ptr->data.control.value);
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE2:
 						cc_name = "Effect2";
@@ -889,6 +896,10 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 					case MIDI_CTL_LSB_BREATH:
 						cc_name = "Breath";
+						printd(LogInfo, "Send MIDI_CTL_LSB_BREATH expression %d\n",
+							event_ptr->data.control.value);
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 						/* Possible use of Custom Pedal messages here.
 						 */
@@ -1052,7 +1063,6 @@ void *alsa_midi_thread(void * context_ptr) {
 					case MIDI_CTL_MONO2:
 						cc_name = "Mono2";
 						break;
-
 					case 63:
 						FishmanSwitch = event_ptr->data.control.value;
 						printf("Fishman Switch %d\n", event_ptr->data.control.value);

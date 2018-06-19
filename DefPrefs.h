@@ -237,9 +237,9 @@ GTKMidiInfo GlobalInfo = {
 				"Preset1", "Preset2", "Preset3",
 				"Preset4", "Chorus", "SatrianiComp",
 // -------------------------------------------------------------------------------
-				"CleanDist", "FunkyGuitar", "AutoWah", "OctUp", "MedDist",
+				"CleanDist", "FunkyGuitar","PreTab", "ScoreTab","MedDist",
 // -------------------------------------------------------------------------------
-				"BetAhh", "PreTab", "ScoreTab",
+				"BetAhh", "AutoWah", "OctUp", 
 				"Trumpet", "PrevSong", "NextSong",
 // -------------------------------------------------------------------------------
 				"Steel Drums", "Scroll", "Drums",

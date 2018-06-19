@@ -246,7 +246,7 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #endif
 
 #if 0
-#define ModeSwitchKey		29
+#define ModeSwitchKey	29
 #define PresetMidiKey	28
 #define Preset1FButton	27
 #define Preset2FButton	26
@@ -319,6 +319,20 @@ char *CustomCommands[] = {
 	"oops2"
 };
 
+char *SoundFontBankNames[] = {
+"SFFluidGM",
+"SFElias",
+"SFSonidoGM",
+"SFSynthGM",
+"SFVintage",
+"SFDX7",
+"SFDSF",
+"SFRolandTenor",
+"SFAltoSax",
+"SFFlute",
+"SFDrums",
+"SFDrumsElias"
+};
 
 //int		ModeArray[ModeLastItem][Max_Patches];
 
@@ -349,6 +363,7 @@ extern int LastPortUsed;
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
 extern char *CustomCommands[];
+extern char *SoundFontBankNames[];
 extern PortsInfo theInPorts;
 extern PortsInfo theOutPorts;
 extern char *theModes[];

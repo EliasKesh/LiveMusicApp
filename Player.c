@@ -501,6 +501,7 @@ int ResetPlayer(void) {
 	gtk_adjustment_set_value(FineEndAdjustment, 0);
 	gtk_adjustment_set_value(SpeedAdjustment, 1.0);
 	PlayerWrite("set_property time_pos 0.0 \n");
+	WeAreLooping = 0;
 return(0);
 }
 
@@ -601,7 +602,7 @@ void SaveLoopFile(void) {
 	/*
 	 * Let's open the Saved Looped file.
 	 */
-	sprintf(SaveLoopName, "%s.Loops", CurrentFile);
+	sprintf(SaveLoopName, "\"%s.Loops\"", CurrentFile);
 	printd(LogInfo, " SavedLoopFile %s\n", SaveLoopName);
 	SavedLoop = fopen(SaveLoopName, "w");
 	if (SavedLoop) {
@@ -1070,6 +1071,7 @@ int StartPlayer(void) {
 	system("killall mplayer");
 	system("killall mplayer");
 	printd(LogInfo, "After Kill\n");
+	sleep(.3);
 
 #if 1
 	if (OutPipe) {
@@ -1080,14 +1082,13 @@ int StartPlayer(void) {
 #endif
 	if (WeAreLooping) {
 		sprintf(PlayerString,
-			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  %s >/tmp/LiveMusicIn",
+			"mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  \"%s\" >/tmp/LiveMusicIn",
 			gtk_adjustment_get_value(FineStartAdjustment),
 			gtk_adjustment_get_value(FineEndAdjustment),
 			100 - gtk_adjustment_get_value(VolumeAdjustment),
 			gtk_adjustment_get_value(SpeedAdjustment), 
 			CurrentFile);
 		printd(LogInfo, "calling  Loop %s\n", PlayerString);
-//		system("killall mplayer");
 
 	}
 	else {
@@ -1096,7 +1097,6 @@ int StartPlayer(void) {
 			CurrentLength,
 			100 - gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogInfo, "calling %s\n", PlayerString);
-		system("killall mplayer");
 	}
 
 	OutPipe = popen(PlayerString, "w");
@@ -1105,11 +1105,6 @@ int StartPlayer(void) {
 	}
 	printd(LogInfo, "After Loop open %x\n", OutPipe);
 
-#if 0
-	OutPipe = popen(
-		"mplayer -slave -quiet -idle  -af scaletempo -idle >/tmp/LiveMusicIn ",
-		"w");
-#endif
 return(0);
 }
 

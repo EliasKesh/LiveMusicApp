@@ -84,7 +84,7 @@ InitPref (void) {
 	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
 	strcpy (gMyInfo.OSCPortNum, "9951");
 
-    ReadPrefs();
+//    ReadPrefs();
 	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 //	exit(1);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
