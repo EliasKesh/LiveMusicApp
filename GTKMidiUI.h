@@ -49,6 +49,8 @@ enum {
 	TempoPort, ClickPort, PedalPort, MaxOutPorts
 };
 
+
+
 // Timer countdown in Miliseconds
 
 #define Timer1Ticks		250
@@ -177,6 +179,7 @@ typedef struct {
 
 } GTKMidiInfo;
 
+#define MaxSoundFonts 12
 
 enum {
 	NoCustom = 0,
@@ -292,6 +295,16 @@ GTKMidiInfo gMyInfo;
 //LayoutType LayoutPresets[Max_Layouts];
 int LastPortUsed;
 
+char *CustomPorts[] = {
+	"FluidPort",
+	"GuitarixPort",
+	"LooperPort",
+	"TransportPort",
+	"TempoPort", 
+	"ClickPort", 
+	"PedalPort"
+};
+
 PortsInfo theInPorts;
 PortsInfo theOutPorts;
 char *CustomCommands[] = {
@@ -307,16 +320,17 @@ char *CustomCommands[] = {
 	"TransStop",
 	"TransPosition",
 	"TransTempo",
-	"PresetX",
-	"BankSelect",
-	"MidiSelect",
-	"CountIn",
-	"VolSwitch",
-	"Transport",
-	"SetList",
-	"Scroll",
-	"LooperCommand",
-	"oops1",
+	"cmdPreset",
+	"cmdBankSelect",
+	"cmdMidiSelect",
+	"cmdCountIn",
+	"cmdVolume",
+	"cmdLnTransPort",
+	"cmdSetList",
+	"cmdScroll",
+	"cmdOSC",
+	"cmdSendCC",
+	"MaxCommands",
 	"oops2"
 };
 
@@ -364,6 +378,7 @@ extern int LastPortUsed;
 //extern PatchInfo  *MyPatchInfo;
 extern GTKMidiInfo gMyInfo;
 extern char *CustomCommands[];
+extern char *CustomPorts[];
 extern char *SoundFontBankNames[];
 extern PortsInfo theInPorts;
 extern PortsInfo theOutPorts;

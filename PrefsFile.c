@@ -40,8 +40,8 @@ void WritePrefs (void);
  * Place Static variables here
  */
 /* @formatter:off */
-#include "DefPrefs.h"
-//#include "GenPrefs.h"
+//#include "DefPrefs.h"
+#include "GenPrefs.h"
 
 // START-ECLIPSE-FORMATTING
 
@@ -108,6 +108,7 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	int Loop1;
 	PortsInfo *thePorts;
 	FILE *PrefsFile = NULL;
+	char SFName[100];
 
 	printd (LogInfo, "Main Information\n");
 
@@ -119,28 +120,34 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	if (PrefsFile)
 		fprintf (PrefsFile, "GTKMidiInfo GlobalInfo = {\n \t{\n");
 
+//	if ()
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printd (LogInfo, "ID=%d %s %d %d %d %d %d %s\n", Loop,
+		if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
+			strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
+		else		
+			strcpy(SFName, "0xff");
+
+		printd (LogInfo, "ID=%d %s %s %d %s %d %s %s\n", Loop,
 		        myInfo->MyPatchInfo[Loop].Name,
-		        myInfo->MyPatchInfo[Loop].BankSelect,
+		        SFName, // SoundFontBankNames
 		        myInfo->MyPatchInfo[Loop].Patch,
-		        myInfo->MyPatchInfo[Loop].OutPort,
+		        CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 		        myInfo->MyPatchInfo[Loop].Channel,
-		        myInfo->MyPatchInfo[Loop].CustomCommand,
+		        CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
 		        myInfo->MyPatchInfo[Loop].Chain);
 
 
 		/* Patch definiations.
 		*/
 		if (PrefsFile)
-			fprintf (PrefsFile, "/* %3d */ {\"%s\", %3d, %3d, %3d, %3d, %3d, \"%s\" },\n", Loop,
+			fprintf (PrefsFile, "/* %3d */ {\"%s\", %s, %3d, %s, %3d, %s, \"%s\" },\n", Loop,
 			         myInfo->MyPatchInfo[Loop].Name,
-			         myInfo->MyPatchInfo[Loop].BankSelect,
+			         SFName,
 			         myInfo->MyPatchInfo[Loop].Patch,
-			         myInfo->MyPatchInfo[Loop].OutPort,
+		        	 CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 			         myInfo->MyPatchInfo[Loop].Channel,
-			         myInfo->MyPatchInfo[Loop].CustomCommand,
+			         CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
 			         myInfo->MyPatchInfo[Loop].Chain);
 
 	}
