@@ -40,8 +40,8 @@ void WritePrefs (void);
  * Place Static variables here
  */
 /* @formatter:off */
-//#include "DefPrefs.h"
-#include "GenPrefs.h"
+#include "DefPrefs.h"
+//#include "GenPrefs.h"
 
 // START-ECLIPSE-FORMATTING
 

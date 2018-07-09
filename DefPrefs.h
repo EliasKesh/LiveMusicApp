@@ -11,7 +11,7 @@ GTKMidiInfo GlobalInfo = {
 		{"FunkBass", 0xff, 7, GuitarixPort, 1, NoCustom, "None"},
 		{"EBell", 0xff, 19, GuitarixPort, 1, NoCustom, "None"},
 		{"FunkyGuitar", 0xff, 6, GuitarixPort, 1, NoCustom, "None"},
-		{"JazzRev", 0xff, 28, GuitarixPort, 1, NoCustom, "None"},
+		{"WahToggle", 0xff, 28, GuitarixPort, 1, NoCustom, "None"},
 		{"LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None"},
 #else
 		//Title                 Bank    Patch   Outport         Chan    Command Chain
@@ -23,7 +23,7 @@ GTKMidiInfo GlobalInfo = {
 		{"OctBass", 0xff, 5, GuitarixPort, 1, NoCustom, "None"},
 		{"FunkBass", 0xff, 6, GuitarixPort, 1, NoCustom, "None"},
 		{"EBell", 0xff, 7, GuitarixPort, 1, NoCustom, "None"},
-		{"JazzRev", 0xff, 8, GuitarixPort, 1, NoCustom, "None"},
+		{"WahToggle", 0xff, 14, GuitarixPort, 1, cmdSendCC, "None"},
 		{"LayoutSwitch", 0xff, 0, FluidPort, 1, cmdBankSelect, "None"},
 #endif
 
@@ -250,7 +250,7 @@ GTKMidiInfo GlobalInfo = {
 // -------------------------------------------------------------------------------
 
 
-				"BassSlap", "FunkBass", "EBell", "FunkyGuitar", "JazzRev",
+				"BassSlap", "FunkBass", "EBell", "FunkyGuitar", "WahToggle",
 				"Low Synth", "EBuzz", "SynthB11", "KStatB", "MS20Bass",
 				"Juno", "Moog1", "Moog2", "BassSlap", "Taurus2",
 				"Ultimate2a", "SynthB1", "FilterBass", "CZOrgan", "MoogLead1",

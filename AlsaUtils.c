@@ -661,6 +661,11 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			}
 			break;
 
+			case cmdSendCC:
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
+					thePatch->Channel,
+					thePatch->Patch, (thePatch->BankSelect >> 7) & 0x7f);
+			break;
 
 // SND_SEQ_EVENT_SETPOS_TIME
 // SND_SEQ_EVENT_TEMPO
@@ -881,12 +886,18 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE1:
 						cc_name = "General purpose 1";
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE3:
 						cc_name = "General purpose 3";
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_MSB_GENERAL_PURPOSE4:
 						cc_name = "General purpose 4";
+						SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
+							event_ptr->data.control.value);
 						break;
 					case MIDI_CTL_LSB_BANK:
 						cc_name = "Bank selection";

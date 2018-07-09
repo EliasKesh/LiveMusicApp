@@ -200,6 +200,7 @@ enum {
 	cmdSetList,
 	cmdScroll,
 	cmdOSC,
+	cmdSendCC,
 	MaxCommands
 };
 

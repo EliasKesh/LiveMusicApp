@@ -1658,3 +1658,30 @@ find ./ -iname \*.mp3 -exec id3tool {} -g 102 \;
 ffmpeg -i input.mp4 -f mp3 -ab 192000 -vn BeirutItaly.mp3
 
 https://developer.gnome.org/gtk3/stable/gtk-broadway.html
+
+
+fluidsynth -a alsa /home/SoundFonts/JD990/Patches/A-02\ Pulse\ Pad.sf2 /home/SoundFonts/MidiTest/024AcGuitar.mid -i &
+
+-k 1
+
+fluidsynth –f fluidconfig.txt
+
+“load fluidr3_gm2-2.sf2
+
+prog 0 10”
+prog chan num
+channels
+fonts show loaded fonts
+inst {fontNumber}
+
+
+fluidsynth -a alsa -i -f ./FluidCountChannels.txt  | sed  '/fluidsynth:/d' | sed '/???-???/'
+
+fluidsynth -a alsa -i -f ./FluidCountChannels.txt | sed -n '/^[0-9].*[0-9].*[0-9]/p' | sed '/*fluidsynth:/!p' 2>/dev/null
+
+Only clean Way:
+fluidsynth -a alsa -i -f ./FluidCountChannels.txt | sed -n '/^[0-9].*[0-9].*[0-9]/p' | sed '/*fluidsynth:/!p' > Temp
+
+
+CountSFPatches /home/SoundFonts/JD990/Patches/A-64\ AfricaMetals.sf2 2>/dev/null
+
