@@ -46,7 +46,7 @@ char *printd(char LogLevel, const char *fmt, ...);
 #define MaxStringPortName	32
 enum {
 	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
-	TempoPort, ClickPort, PedalPort, MaxOutPorts
+	TempoPort, ClickPort, PedalPort, InternalPort, MaxOutPorts
 };
 
 
@@ -228,6 +228,7 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define SFFlute  9
 #define SFDrums		128
 #define SFDrumsElias 129
+#define NoBank		0xff
 
 #if 0
 #define SF32GM  0
@@ -302,7 +303,8 @@ char *CustomPorts[] = {
 	"TransportPort",
 	"TempoPort", 
 	"ClickPort", 
-	"PedalPort"
+	"PedalPort",
+	"InternalPort"
 };
 
 PortsInfo theInPorts;

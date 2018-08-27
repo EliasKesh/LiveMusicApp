@@ -1052,7 +1052,9 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 		 */
 		Found = strstr(temp, "SetNow");
 		if (Found != NULL) {
-			Found +=  (8 + ContentTagLen);
+			Found +=  (7 + ContentTagLen);
+//			String = Found;
+//			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "SetNow %s\n", Found);
 			AssignPreset(0, Found);
 			strncpy(temp, Copy, MAXLINE);

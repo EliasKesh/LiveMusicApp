@@ -665,6 +665,7 @@ int SendMidiPatch(PatchInfo *thePatch) {
 			SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 					thePatch->Channel,
 					thePatch->Patch, (thePatch->BankSelect >> 7) & 0x7f);
+
 			break;
 
 // SND_SEQ_EVENT_SETPOS_TIME

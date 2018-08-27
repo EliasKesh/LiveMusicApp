@@ -12,11 +12,14 @@
 #
 #
 #---------------------------------------------------------------------#
-cp LiveMusicApp  /home/Dropbox/LiveEffects/
-cp ./KeepLiveMusicRunning.sh  /home/Dropbox/LiveEffects/
-cp ./GuitarEffects  /home/Dropbox/LiveEffects/
-rsync -avrx ./LiveMusicRes/ /home/Dropbox/LiveEffects/LiveMusicRes/
-cp /home/elias/workspace/MusicFiles/CreateChartIndex /home/Dropbox/LiveEffects/
-cp /home/elias/workspace/MusicFiles/RegenerateCharts /home/Dropbox/LiveEffects/
-cp /home/elias/workspace/MusicFiles/ExtractHTML /home/Dropbox/LiveEffects/
-cp /home/elias/workspace/MusicFiles/CreateChartFile /home/Dropbox/LiveEffects/
+# DestDir="/home/GDriveKesh/Music/LiveEffects/"
+DestDir="/home/Dropbox/LiveEffects/"
+
+cp LiveMusicApp  ${DestDir}
+cp ./KeepLiveMusicRunning.sh  ${DestDir}
+cp ./GuitarEffects  ${DestDir}
+rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
+cp /home/elias/workspace/MusicFiles/CreateChartIndex ${DestDir}
+cp /home/elias/workspace/MusicFiles/RegenerateCharts ${DestDir}
+cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
+cp /home/elias/workspace/MusicFiles/CreateChartFile ${DestDir}

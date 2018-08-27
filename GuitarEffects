@@ -17,7 +17,7 @@
 function Delay {
 
 echo "Delay "`expr $1 \* 3`" "$1
- sleep `expr $1 \* 2`
+ sleep `expr $1 \* 1`
 
 }
 
@@ -160,8 +160,8 @@ AudioSampleRate=44100
 	echo $DeviceList | grep "${Device}"
 	if [ "$?" -eq 0 ]; then
 	  echo "We have " $Device >> $LogFile
-#	  AudioSampleRate=96000
-	AudioSampleRate=48000
+	  AudioSampleRate=96000
+#	AudioSampleRate=48000
 
 	  AudioDevice="$Device"
 	  AudioInDevice=$Device
@@ -254,7 +254,6 @@ function StartJack {
 	# See if Jackd is already running
 	if [ `ps -ew|grep -c jackd` != 0 ] ; then
 	  ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
-
 	Delay 2
 	fi
 
@@ -721,9 +720,9 @@ set -x
 		  konqueror --open-session FusionBlue &
 #		  okular /home/Music/BandStuff/Poblano/WebCharts/PoblanoCharts1.pdf
            fi
+	Delay 3
         fi
         
-	Delay 3
 #       qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 5
 
         
@@ -735,7 +734,7 @@ set -x
 	Delay 3
         fi
         
-	Delay 3
+#	Delay 3
 
 	if test "${TabPlayer}" = "true"; then
     # Set the first Desktop to use.
@@ -1186,11 +1185,13 @@ done
 	  # Start up Jack
 	  StartJack
 	  
-	  # If at first you don't succeed ....
+	  # If at first you don\'t succeed ....
 	  if [ `ps -ew|grep -c jackd` == 0 ] ; then
 		StartJack
 	  fi
 	
+		StartJack
+
 	a2jmidid -e &
 #	Patchage takes a while to start so kick it off early.
 	# Run the patch bay
@@ -1674,7 +1675,6 @@ channels
 fonts show loaded fonts
 inst {fontNumber}
 
-
 fluidsynth -a alsa -i -f ./FluidCountChannels.txt  | sed  '/fluidsynth:/d' | sed '/???-???/'
 
 fluidsynth -a alsa -i -f ./FluidCountChannels.txt | sed -n '/^[0-9].*[0-9].*[0-9]/p' | sed '/*fluidsynth:/!p' 2>/dev/null
@@ -1685,3 +1685,17 @@ fluidsynth -a alsa -i -f ./FluidCountChannels.txt | sed -n '/^[0-9].*[0-9].*[0-9
 
 CountSFPatches /home/SoundFonts/JD990/Patches/A-64\ AfricaMetals.sf2 2>/dev/null
 
+sendmidi dev "input" pc 8
+
+Guitarix Notes:
+Juicy:
+Tuner:Compressor:Amp:Wah:ImpulseResponse:3 Band EQ:Zita Rev1
+Tube pre 12ax7/Master 6v6
+Impluse Response: Auto, others middle
+Stereo three band 3Q: Bass 1.8 -3.5 5.0 2.7
+Stereo Zita Rev1:
+
+Chorus:
+Tuner:WaveShaper:MBChorus:Commpressor:Chorus:Freverb:Volume
+
+Amp Impulse:Tube Style (Holdsworth)

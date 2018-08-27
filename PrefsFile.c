@@ -109,6 +109,8 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	PortsInfo *thePorts;
 	FILE *PrefsFile = NULL;
 	char SFName[100];
+	const char *padding="                                ";
+	int 	StringLen;
 
 	printd (LogInfo, "Main Information\n");
 
@@ -120,16 +122,23 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	if (PrefsFile)
 		fprintf (PrefsFile, "GTKMidiInfo GlobalInfo = {\n \t{\n");
 
-//	if ()
-
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
-			strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
-		else		
-			strcpy(SFName, "0xff");
 
-		printd (LogInfo, "ID=%d %s %s %d %s %d %s %s\n", Loop,
+		if (myInfo->MyPatchInfo[Loop].CustomCommand == NoCustom) {
+			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
+				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
+			else
+				strcpy(SFName, "NoBank");
+		} else if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
+			sprintf(SFName, "0x%02x", myInfo->MyPatchInfo[Loop].BankSelect);
+		else
+			strcpy(SFName, "NoBank");
+
+
+		StringLen = strlen(myInfo->MyPatchInfo[Loop].Name);
+		printd (LogInfo, "ID=%d %-15s %-10s %d %-12s %d %-10s %-10s\n", Loop,
 		        myInfo->MyPatchInfo[Loop].Name,
+
 		        SFName, // SoundFontBankNames
 		        myInfo->MyPatchInfo[Loop].Patch,
 		        CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
@@ -141,11 +150,13 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 		/* Patch definiations.
 		*/
 		if (PrefsFile)
-			fprintf (PrefsFile, "/* %3d */ {\"%s\", %s, %3d, %s, %3d, %s, \"%s\" },\n", Loop,
+			fprintf (PrefsFile, "/* %3d */ {\"%s\",%*.*s %-15s, %3d, %-15s, %3d, %-10s, \"%s\" },\n", Loop,
 			         myInfo->MyPatchInfo[Loop].Name,
-			         SFName,
+		        	15 - StringLen,15 - StringLen,
+		        	padding,
+		             SFName,
 			         myInfo->MyPatchInfo[Loop].Patch,
-		        	 CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
+			         CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 			         myInfo->MyPatchInfo[Loop].Channel,
 			         CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
 			         myInfo->MyPatchInfo[Loop].Chain);
@@ -169,12 +180,12 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 
 		fprintf (PrefsFile, "},\n{\n");
 
-		for (Loop = 0; Loop < MaxApps-1; Loop++) {
+		for (Loop = 0; Loop < MaxApps - 1; Loop++) {
 			fprintf (PrefsFile, "{ \"%s\", %d },\n", myInfo->Apps[Loop].Name,
 			         myInfo->Apps[Loop].PortID);
 		}
 		fprintf (PrefsFile, "{ \"%s\", %d }\n", myInfo->Apps[Loop].Name,
-         myInfo->Apps[Loop].PortID);
+		         myInfo->Apps[Loop].PortID);
 
 		fprintf (PrefsFile, "},\n");
 		/* Middle Numbers.

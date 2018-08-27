@@ -72,7 +72,6 @@ GTKMidiInfo GlobalInfo = {
 		{"Midi Tog", 116, 122, FluidPort, 1, Controller, "None"},
 		{"Tuner", 116, 123, FluidPort, 1, Controller, "None"},
 		{"AnaOnOff", 116, 124, FluidPort, 1, Controller, "None"},
-		{"AnaOnOff", 116, 124, FluidPort, 1, Controller, "None"},
 #if 0
 		// 50   Button          Title           Bank    Patch   Outport
 		{"LP Undo", 0xff, 69, LooperPort, 1, NoCustom, "None"},
