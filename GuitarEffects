@@ -160,15 +160,11 @@ AudioSampleRate=44100
 	echo $DeviceList | grep "${Device}"
 	if [ "$?" -eq 0 ]; then
 	  echo "We have " $Device >> $LogFile
-	  AudioSampleRate=96000
-#	AudioSampleRate=48000
-
-	  AudioDevice="$Device"
-	  AudioInDevice=$Device
-	  AudioOutDevice=$Device
-#	  MidiGuitarInputPort="iO4"
-#	  PedalBoardIn="iO4"
-#	  MidiOut="iO4"
+#	  	AudioSampleRate=96000
+		AudioSampleRate=48000
+	  	AudioDevice="$Device"
+	  	AudioInDevice=$Device
+	  	AudioOutDevice=$Device
 	fi
 
 	# If we have the Focuswrite scarlett
@@ -176,15 +172,42 @@ AudioSampleRate=44100
 	echo $DeviceList | grep "${Device}"
 	if [ "$?" -eq 0 ]; then
 	  echo "We have " $Device >> $LogFile
-#	AudioSampleRate=48000
+#		AudioSampleRate=48000
 		AudioSampleRate=96000
-	  AudioDevice="$Device"
-	  AudioInDevice="Scarlett Solo"
-	  AudioOutDevice="Scarlett Solo"
-#	  MidiGuitarInputPort="iO4"
-#	  PedalBoardIn="iO4"
-#	  MidiOut="iO4"
+#		AudioSampleRate=192000
+	  	AudioDevice="$Device"
+	  	AudioInDevice="Scarlett Solo"
+	  	AudioOutDevice="Scarlett Solo"
 	fi
+
+	# If we have the Focuswrite scarlett
+	Device="NUX USB Audio"
+	echo $DeviceList | grep "${Device}"
+	if [ "$?" -eq 0 ]; then
+	  echo "We have " $Device >> $LogFile
+#		AudioSampleRate=48000
+		AudioSampleRate=96000
+#		AudioSampleRate=192000
+	  	AudioDevice="$Device"
+	  	AudioInDevice="$Device"
+	  	AudioOutDevice="$Device"
+	fi
+
+	# If we have the Focuswrite scarlett
+	Device="pisound"
+	echo $DeviceList | grep "${Device}"
+	if [ "$?" -eq 0 ]; then
+	  echo "We have " $Device >> $LogFile
+#		AudioSampleRate=48000
+		AudioSampleRate=96000
+#		AudioSampleRate=192000
+	  	AudioDevice="$Device"
+	  	AudioInDevice="$Device"
+	  	AudioOutDevice="$Device"
+	fi
+
+
+
 
 	# Check if we have found something.
 	if test "$AudioDevice" = "None"; then
@@ -251,14 +274,19 @@ function SetDefinitions {
 #---------------------------------------------------------------------#
 function StartJack {
 
+	JBuffer=128
+	JPeriod=3
+
 	# See if Jackd is already running
 	if [ `ps -ew|grep -c jackd` != 0 ] ; then
 	  ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
 	Delay 2
 	fi
-
+# https://wiki.linuxaudio.org/wiki/list_of_jack_frame_period_settings_ideal_for_usb_interface
+# 
 	if [ "${AudioInDevice}" == "iO4" ] ; then
-		jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p128 -n3 &
+#		jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p128 -n3 &
+		jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p64 -n2 &
 
 		sleep 3
 		/home/ebin/KillAll jackd
@@ -270,7 +298,12 @@ function StartJack {
 	echo "Starting Jack"   >> $LogFile
 	# Now start jack.
 	echo "Starting Jack"   >> $LogFile
-	nice --15 jackd -R -P89 -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p128 -n3 &
+#	nice --15 /usr/src/Music/jack2/build/jackd \
+	nice --15 jackd \
+	-R -P89 -t5000 -dalsa \
+	-Chw:$AudioInHW$DeviceAdder \
+	-Phw:$AudioOutHW$DeviceAdder \
+	-r$AudioSampleRate -p$JBuffer -n$JPeriod &
 
 	#	nice --15 jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3 &
 # Old Kernel	jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3 &
@@ -1143,7 +1176,7 @@ while getopts "abcdrpmvlswt" OPT; do
         o)
             Group=$OPTARG
             ;;
-        \?)
+        ?)
             # getopts issues an error message
             echo $USAGE >&2
             exit 1

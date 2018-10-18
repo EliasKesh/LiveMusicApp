@@ -1170,6 +1170,10 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 
 		NextCommand = FindString(fsPatchNames, NextPatch->Chain);
 		NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
+
+		if (NextCommand != -1)
+			usleep(150000);
+
 	} while (NextCommand != -1);
 	return (0);
 }
