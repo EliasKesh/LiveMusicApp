@@ -687,8 +687,8 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
-	SetAlsaMasterVolume(60);
-	SetAlsaCaptureVolume(50);
+	SetAlsaMasterVolume(90);
+	SetAlsaCaptureVolume(90);
 	MyOSCInit();
 
 	/* Call the Jackd

@@ -1,6 +1,5 @@
-
+# Makefile for Live Music App
 CC=gcc
-
 
 CFLAGS = -I./ 
 CFLAGS += -w
@@ -22,14 +21,13 @@ LDFLAGS += $(shell pkg-config --cflags --libs webkit2gtk-4.0)
 LDFLAGS += $(shell pkg-config --cflags --libs jack)
 LDFLAGS += $(shell pkg-config --cflags --libs liblo)
    
-
 SOURCES = AlsaUtils.c  Connections.c HTML.c Player.c PrefsGui.c 
 SOURCES += Timers.c Chorder.c GTKMidiUI.c MyWidgets.c PrefsFile.c RightMenuClick.c wmctrl.c
 SOURCES += transport.c SooperOSC.c
 
-
-# SUBDIRS := GTK DecTrack
-# include $(SUBDIRS)
+INCLUDES = aconfig.h DefPrefs.h HTML.h PrefsFile.h Timers.h
+INCLUDES += AlsaUtils.h GenPrefs.h MyWidgets.h PrefsGui.h
+INCLUDES += Connections.h GTKMidiUI.h Player.h SooperOSC.h
 
 OBJECTS=$(SOURCES:.cxx=.o)
 # OBJECTS+=$(SOURCES:.c=.o)
@@ -37,7 +35,7 @@ OBJECTS=$(SOURCES:.cxx=.o)
 EXECUTABLE=LiveMusicApp
 
 all: $(SOURCES) $(EXECUTABLE) $(OBJECTS) $(OBJECTSPP)
-$(EXECUTABLE): $(OBJECTS)
+$(EXECUTABLE): $(OBJECTS) $(INCLUDES)
 	$(CC) $(CFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:

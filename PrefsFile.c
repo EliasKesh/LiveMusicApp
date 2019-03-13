@@ -86,12 +86,11 @@ InitPref (void) {
 
 //    ReadPrefs();
 	PrintDataStructure(&gMyInfo, DefinePrefsFile);
-//	exit(1);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //      WritePrefs();
 
 	/*
-	 * Create the popup Menu's not what we have the presets.
+	 * Create the popup Menu's now that we have the presets.
 	 */
 	CreatePatchPopupMenu ();
 }

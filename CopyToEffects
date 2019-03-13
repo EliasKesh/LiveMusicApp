@@ -23,3 +23,4 @@ cp /home/elias/workspace/MusicFiles/CreateChartIndex ${DestDir}
 cp /home/elias/workspace/MusicFiles/RegenerateCharts ${DestDir}
 cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
 cp /home/elias/workspace/MusicFiles/CreateChartFile ${DestDir}
+cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}

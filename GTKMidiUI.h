@@ -99,7 +99,7 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 57
-#define Max_Patches	 142
+#define Max_Patches	 182
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
 #define Max_Layouts		10
