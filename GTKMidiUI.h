@@ -170,6 +170,9 @@ typedef struct {
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
 	unsigned int BeatsPerMeasure;
+	unsigned int ExpreP1Out;
+	unsigned int ExpreP1Port;
+
 
 	/*
 	 * Colors
@@ -204,6 +207,7 @@ enum {
 	cmdScroll,
 	cmdOSC,
 	cmdSendCC,
+	cmdSetExpr,
 	MaxCommands
 };
 
@@ -271,6 +275,16 @@ enum {
 	ToMidiControl
 };
 
+enum {
+	FishmanUp = 0,
+	FishmanDown,
+	FishmanLeft,
+	FishmanRight,
+	FishmanGuitar,
+	FishmanMix,
+	FishmanSynth
+};
+
 #define MAINPREFS_FILE ".GTKMidi"
 
 #define DefaultMidiChannel		1
@@ -332,6 +346,7 @@ char *CustomCommands[] = {
 	"cmdScroll",
 	"cmdOSC",
 	"cmdSendCC",
+	"cmdSetExpr",
 	"MaxCommands",
 	"oops2"
 };
@@ -373,6 +388,8 @@ char		ScreenSize;
 int verbose_flag;
 char		JackName[MaxStringPortName];
 int 		FishmanSwitch;
+int 		FishmanSelSwitch;
+int 		LastPatch;
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -408,6 +425,8 @@ extern char		ScreenSize;
 extern int verbose_flag;
 extern char		JackName[MaxStringPortName];
 extern int 		FishmanSwitch;
+extern int 		FishmanSelSwitch;
+extern int 		LastPatch;
 #endif
 
 void NextDesktop(void);

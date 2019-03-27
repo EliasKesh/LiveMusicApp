@@ -80,6 +80,7 @@ InitPref (void) {
 	gMyInfo.BeatsPerMeasure = 4;
 	gMyInfo.LoopRecBeats = 16;
 	gMyInfo.CountInBeats = 4;
+	gMyInfo.ExpreP1Out = 7;
 
 	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
 	strcpy (gMyInfo.OSCPortNum, "9951");

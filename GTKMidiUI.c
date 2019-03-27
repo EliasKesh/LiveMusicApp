@@ -1062,9 +1062,13 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 //    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
+	MyOSCJackVol(gMyInfo.AnalogVolume * 650);
+	printf("SetVolume1 %d\n", gMyInfo.AnalogVolume);
+
 #if 1
 
 	SetAlsaMasterVolume((long) gtk_adjustment_get_value(Adjustment3));
+
 #else
 	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1340,12 +1344,15 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex RetVal;
 	int Loop;
 
-//    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
-//           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
+    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
+           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}
+
+	printf("Old LastPatch %d\n", LastPatch);
+	LastPatch = MidiIn;
 
 	/*
 	 * Toggle the on screen buttons if the midi input is used.
@@ -1426,7 +1433,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
-	/* Set Audio Volume back
+	/* Set Audio Volume back`
 	 */
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 	         gMyInfo.MyPatchInfo[Slider1].OutPort,
@@ -1444,7 +1451,8 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	PatchChange = MidiNote - gMyInfo.MidiBaseNote;
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
-		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
+		LayoutSwitchPatch(PatchChange, TRUE);
+//		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
 
 	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
 	       PatchChange);

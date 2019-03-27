@@ -17,8 +17,8 @@ DestDir="/home/Dropbox/LiveEffects/"
 
 cp LiveMusicApp  ${DestDir}
 cp ./KeepLiveMusicRunning.sh  ${DestDir}
-cp ./GuitarEffects  ${DestDir}
 rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
+cp /home/elias/workspace/MusicFiles/GuitarEffects ${DestDir}
 cp /home/elias/workspace/MusicFiles/CreateChartIndex ${DestDir}
 cp /home/elias/workspace/MusicFiles/RegenerateCharts ${DestDir}
 cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}

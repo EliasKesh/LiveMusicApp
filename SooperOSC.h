@@ -31,6 +31,7 @@ int OSCCommand(int Command, char Option);
 void MyOSCTap(char DownBeat);
 void MyOSCSetSync(char Type);
 void MyOSCLoadFile(char *FileName);
+void MyOSCJackVol(int volume);
 
 /*
  * Place Static variables here.

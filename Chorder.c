@@ -32,9 +32,9 @@
  * Constants
  */
 
-#define MaxDisplayFrets	10
-#define MaxNumStrings		9
-#define MaxNumFrets		18
+#define MaxDisplayFrets	24
+#define MaxNumStrings	8
+#define MaxNumFrets		24
 
 #if (GTK_MAJOR_VERSION == 2)
 #define XOffset		70
@@ -441,6 +441,7 @@ void PrintBoard() {
  * ** TODO Make this dynamic based on Preferences
  *---------------------------------------------------------------------*/
 void SetOpenString(void) {
+#if 0
 	StringLayout[8][0] = NValueB;
 	StringLayout[7][0] = NValueE;
 	StringLayout[6][0] = NValueA;
@@ -450,6 +451,16 @@ void SetOpenString(void) {
 	StringLayout[2][0] = NValueF;
 	StringLayout[1][0] = NValueBb;
 	StringLayout[0][0] = NValueEb;
+#endif
+	StringLayout[8][0] = NValueE;
+	StringLayout[7][0] = NValueE;
+	StringLayout[6][0] = NValueA;
+	StringLayout[5][0] = NValueE;
+	StringLayout[4][0] = NValueA;
+	StringLayout[3][0] = NValueD;
+	StringLayout[2][0] = NValueG;
+	StringLayout[1][0] = NValueC;
+	StringLayout[0][0] = NValueF;
 }
 
 /*--------------------------------------------------------------------
@@ -640,6 +651,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	int width, height;
 
 
+	printf("FretOffset 0\n");
 	/* This is called in all GTK applications. Arguments are parsed
 	 * from the command line and are returned to the application. */
 //   gtk_init (&argc, &argv);
@@ -651,15 +663,19 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	FretOffset = 60;
 	FretOffset = (int) ((float) (width - 300) / (float) NumStrings);
 	printd(LogInfo, "FretOffset %d %d %d \n", FretOffset, width, NumStrings);
+	printf("FretOffset %d %d %d \n", FretOffset, width, NumStrings);
 	StringOffset = 30;
 	myChord.Position = 2;
 	DisplayPosition = 2;
 	SetOpenString();
+	printf("FretOffset 1\n");
 	SetupFretBoard();
+	printf("FretOffset 2\n");
 	CurRootNote = NValueC;
 	CurScale = chMajor;
 	WindowWidth = width;
 	SetScale(CurRootNote, CurScale);
+	printf("FretOffset 3\n");
 
 	printd(LogInfo, "Chorder %x\n", window);
 
@@ -1058,9 +1074,12 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	gfloat x_scaling;
 	gfloat y_scaling;
 
+	printf("FretOffset 0\n");
+
 	gtk_frame_set_shadow_type (GTK_FRAME (window), GTK_SHADOW_IN);
 	MyFretArea = gtk_drawing_area_new ();
 	CSurface = cairo_image_surface_create_from_png (ResourceDirectory"RedWood.png");
+	printf("FretOffset 1\n");
 
 	/* Scale the loaded image to occupy the entire screen  */
 	image_width = cairo_image_surface_get_width (CSurface);
@@ -1068,19 +1087,20 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_window_get_size(GTK_WIDGET(MainWindow), &Fwidth, &Fheight);
 //      gtk_widget_get_size_request((window), &width, &height);
 
-	Fwidth -= 200;
-	Fheight = 300;
+	printf("FretOffset 2\n");
+	Fwidth += 50;
+	Fheight = 350;
 	gtk_widget_set_size_request (MyFretArea, Fwidth, Fheight);
 
 	NoteNames = FlatNotes;
-	NumStrings = 9;
+	NumStrings = MaxNumStrings;
 //  FretOffset = width/MaxDisplayFrets;
 	FretOffset = Fwidth/MaxDisplayFrets;
 	StringOffset = (Fheight)/NumStrings;
 
 	printd(LogInfo, "FretOffset %d %d %d %d %d\n", FretOffset,Fwidth,Fheight,NumStrings,StringOffset);
-	myChord.Position = 2;
-	DisplayPosition = 2;
+	myChord.Position = 0;
+	DisplayPosition = 0;
 
 	SetOpenString();
 	SetupFretBoard();

@@ -239,6 +239,14 @@ void MyOSCLoadFile(char *FileName) {
 	        "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
 }
 
+
+void MyOSCJackVol(int Volume) {
+	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume/65000);
+}
+
+//	oscsend localhost 9951 /net/mhcloud/volume/jack-volume/master f  1.0		
+
+
 #if 0
 
 load_session s
