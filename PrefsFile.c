@@ -70,7 +70,7 @@ InitPref (void) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
-	gMyInfo.MidiBaseNote = 40;
+	gMyInfo.MidiBaseNote = 45;
 #endif
 	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 80;
@@ -80,7 +80,9 @@ InitPref (void) {
 	gMyInfo.BeatsPerMeasure = 4;
 	gMyInfo.LoopRecBeats = 16;
 	gMyInfo.CountInBeats = 4;
-	gMyInfo.ExpreP1Out = 7;
+	gMyInfo.ExpreP1Slider = Slider3;
+	gMyInfo.MidiPassThru = 1;
+	gMyInfo.MidiPassLevel = 110;
 
 	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
 	strcpy (gMyInfo.OSCPortNum, "9951");
@@ -109,7 +111,7 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	PortsInfo *thePorts;
 	FILE *PrefsFile = NULL;
 	char SFName[100];
-	const char *padding="                                ";
+	const char *padding = "                                ";
 	int 	StringLen;
 
 	printd (LogInfo, "Main Information\n");
@@ -152,9 +154,9 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 		if (PrefsFile)
 			fprintf (PrefsFile, "/* %3d */ {\"%s\",%*.*s %-15s, %3d, %-15s, %3d, %-10s, \"%s\" },\n", Loop,
 			         myInfo->MyPatchInfo[Loop].Name,
-		        	15 - StringLen,15 - StringLen,
-		        	padding,
-		             SFName,
+			         15 - StringLen, 15 - StringLen,
+			         padding,
+			         SFName,
 			         myInfo->MyPatchInfo[Loop].Patch,
 			         CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 			         myInfo->MyPatchInfo[Loop].Channel,

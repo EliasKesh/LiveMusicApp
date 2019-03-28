@@ -2,7 +2,7 @@
 |
 |	File: 	SooperOSC
 |
-|	Contains: 	
+|	Contains:
 |
 |
 |	Written By: 	Elias Keshishoglou on Wed Sep 20 16:37:37 PDT 2017
@@ -31,7 +31,8 @@ int OSCCommand(int Command, char Option);
 void MyOSCTap(char DownBeat);
 void MyOSCSetSync(char Type);
 void MyOSCLoadFile(char *FileName);
-void MyOSCJackVol(int volume);
+void MyOSCJackVol(int volume, int channel);
+void MyOSCJackMute(int Mute, int channel);
 
 /*
  * Place Static variables here.

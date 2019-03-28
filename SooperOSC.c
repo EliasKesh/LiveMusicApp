@@ -60,7 +60,7 @@ int OSCCommand(int Command, char Option) {
 		CurrentLoop = Option;
 
 		if (CurrentLoop >= 0)
-			CurrentLoop = Option -1;	
+			CurrentLoop = Option - 1;
 
 		break;
 
@@ -240,12 +240,27 @@ void MyOSCLoadFile(char *FileName) {
 }
 
 
-void MyOSCJackVol(int Volume) {
-	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume/65000);
+/*--------------------------------------------------------------------
+ * Function:		MyOSCJackVol.
+ *
+ * Description:		Set Jack Master Volume
+ * 		Values 0 - 127
+ *---------------------------------------------------------------------*/
+void MyOSCJackVol(int Volume, int channel) {
+	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume / 127);
 }
 
-//	oscsend localhost 9951 /net/mhcloud/volume/jack-volume/master f  1.0		
+/*--------------------------------------------------------------------
+ * Function:		MyOSCJackMute.
+ *
+ * Description:		Set Jack Master Volume
+ * 		Values 0 - 127
+ *---------------------------------------------------------------------*/
+void MyOSCJackMute(int Mute, int channel) {
+	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+}
 
+//	oscsend localhost 9951 /net/mhcloud/volume/jack-volume/master f  1.0
 
 #if 0
 

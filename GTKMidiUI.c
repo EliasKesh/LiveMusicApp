@@ -498,16 +498,7 @@ int main(int argc, char *argv[]) {
 	                                 "* {border-color: #CC0000}",
 	                                 -1, NULL);
 	gtk_css_provider_load_from_data (provider,
-	                                 "GtkTextView {\n"
-	                                 "color: blue;\n"
-	                                 "font: Serif 38;\n"
-	                                 "background-color: yellow;\n"
-	                                 "-GtkWidget-cursor-color: red;\n"
-	                                 "}\n"
-	                                 "GtkTextView:selected {\n"
-	                                 "background-color: black;\n"
-	                                 "color: green;\n"
-	                                 "}\n", -1, NULL);
+     "}\n", -1, NULL);
 	FaderControl.png
 	.scale.slider,
 	.scale.slider.horizontal {
@@ -545,7 +536,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	gxml = gtk_builder_new();
 
 	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
-	
+
 	if (!gtk_builder_add_from_file(gxml, TempStrBuf, &error)) {
 		g_warning("Couldn't load builder file: %s", error->message);
 		g_error_free(error);
@@ -986,29 +977,37 @@ void CreateMainButtons(void) {
 	gtk_container_add (GTK_CONTAINER (ButtonFrame), Table);
 #endif
 #endif
+	GtkWidget *Label;
 
-#if 1
 	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
 	Adjustment1 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment1"));
 	g_signal_connect(G_OBJECT (VScale1), "value_changed",
 	                 G_CALLBACK (VScale1_Changed), NULL);
+	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider1].Name);
+
 
 	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
 	Adjustment2 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment2"));
 	g_signal_connect(G_OBJECT (VScale2), "value_changed",
 	                 G_CALLBACK (VScale2_Changed), NULL);
+	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider2].Name);
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
 	Adjustment3 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment3"));
 	g_signal_connect(G_OBJECT (VScale3), "value_changed",
 	                 G_CALLBACK (VScale3_Changed), NULL);
+	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider3].Name);
 
 	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
 	Adjustment4 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment4"));
 	g_signal_connect(G_OBJECT (VScale4), "value_changed",
 	                 G_CALLBACK (VScale4_Changed), NULL);
+	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider4].Name);
 
-#endif
 }
 
 /*--------------------------------------------------------------------
@@ -1018,17 +1017,27 @@ void CreateMainButtons(void) {
  *
  *---------------------------------------------------------------------*/
 void VScale1_Changed(GtkAdjustment *adj) {
+	int ThisPatchNum;
+	PatchInfo *ThisPatch;
+	unsigned int NewValue;
+
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	//   printd(LogInfo, "\nVscale 1 %f\n", Adjustment1->value);
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
-#if 1
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider1].OutPort,
-	         gMyInfo.MyPatchInfo[Slider1].Channel,
-	         gMyInfo.MyPatchInfo[Slider1].Patch,
-	         (char) gMyInfo.AnalogVolume);
-#endif
+	NewValue = gtk_adjustment_get_value(Adjustment1);
+	printd(LogInfo, "\nVscale 1 %d\n", NewValue);
+	ThisPatchNum = Slider1;
+	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+
+	if (ThisPatch->OutPort == InternalPort)
+		MyOSCJackVol(NewValue, 0);
+	else
+		SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		         ThisPatch->OutPort,
+		         ThisPatch->Channel,
+		         ThisPatch->Patch,
+		         (char) NewValue);
 }
 
 /*--------------------------------------------------------------------
@@ -1038,17 +1047,27 @@ void VScale1_Changed(GtkAdjustment *adj) {
  *
  *---------------------------------------------------------------------*/
 void VScale2_Changed(GtkAdjustment *adj) {
+	int ThisPatchNum;
+	PatchInfo *ThisPatch;
+	unsigned int NewValue;
+
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment2);
-#if 1
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider2].OutPort,
-	         gMyInfo.MyPatchInfo[Slider2].Channel,
-	         gMyInfo.MyPatchInfo[Slider2].Patch,
-	         (char) gMyInfo.AnalogVolume);
-#endif
+	NewValue = gtk_adjustment_get_value(Adjustment2);
+	printd(LogInfo, "\nVscale 2 %d\n", NewValue);
+	ThisPatchNum = Slider2;
+	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+
+	if (ThisPatch->OutPort == InternalPort)
+		MyOSCJackVol(NewValue, 0);
+	else
+		SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		         ThisPatch->OutPort,
+		         ThisPatch->Channel,
+		         ThisPatch->Patch,
+		         (char) NewValue);
 }
 
 /*--------------------------------------------------------------------
@@ -1058,25 +1077,27 @@ void VScale2_Changed(GtkAdjustment *adj) {
  *
  *---------------------------------------------------------------------*/
 void VScale3_Changed(GtkAdjustment *adj) {
+	int ThisPatchNum;
+	PatchInfo *ThisPatch;
+	unsigned int NewValue;
+
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
-	MyOSCJackVol(gMyInfo.AnalogVolume * 650);
-	printf("SetVolume1 %d\n", gMyInfo.AnalogVolume);
+	NewValue = gtk_adjustment_get_value(Adjustment3);
+	printd(LogInfo, "\nVscale 3 %d\n", NewValue);
+	ThisPatchNum = Slider3;
+	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-#if 1
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 
-	SetAlsaMasterVolume((long) gtk_adjustment_get_value(Adjustment3));
-
-#else
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider3].OutPort,
-	         gMyInfo.MyPatchInfo[Slider3].Channel,
-	         gMyInfo.MyPatchInfo[Slider3].Patch,
-	         (char) gMyInfo.AnalogVolume);
-#endif
+	if (ThisPatch->OutPort == InternalPort)
+		MyOSCJackVol(NewValue, 0);
+	else
+		SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		         ThisPatch->OutPort,
+		         ThisPatch->Channel,
+		         ThisPatch->Patch,
+		         (char) NewValue);
 }
 /*--------------------------------------------------------------------
  * Function:		VScale4_Changed
@@ -1085,22 +1106,80 @@ void VScale3_Changed(GtkAdjustment *adj) {
  *
  *---------------------------------------------------------------------*/
 void VScale4_Changed(GtkAdjustment *adj) {
+	int ThisPatchNum;
+	PatchInfo *ThisPatch;
+	unsigned int NewValue;
+
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-//    printd(LogInfo, "\nVscale 1 %f\n", Adjustment2->value);
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
-#if 1
+	NewValue = gtk_adjustment_get_value(Adjustment4);
+	printd(LogInfo, "\nVscale 4 %d\n", NewValue);
+	ThisPatchNum = Slider4;
+	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-	SetAlsaCaptureVolume((long) gtk_adjustment_get_value(Adjustment4));
-#else
-	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider3].OutPort,
-	         gMyInfo.MyPatchInfo[Slider3].Channel,
-	         gMyInfo.MyPatchInfo[Slider3].Patch,
-	         (char) gMyInfo.AnalogVolume);
-#endif
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+
+	if (ThisPatch->OutPort == InternalPort)
+		MyOSCJackVol(NewValue, 0);
+	else
+		SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		         ThisPatch->OutPort,
+		         ThisPatch->Channel,
+		         ThisPatch->Patch,
+		         (char) NewValue);
 }
+
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume1
+ *
+ * Description:	Change the Volume Slider based on midi input.
+ *---------------------------------------------------------------------*/
+int SetVolume1(int Value) {
+	gtk_adjustment_set_value(Adjustment1, Value);
+	printf("Slider 1\n");
+	gMyInfo.AnalogVolume = Value;
+	gtk_range_set_adjustment(VScale1, Adjustment1);
+
+	return (Value);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume2
+ *
+ * Description:	Change the Volume Slider based on midi input.
+ *---------------------------------------------------------------------*/
+int SetVolume2(int Value) {
+	gtk_adjustment_set_value(Adjustment2, Value);
+	gMyInfo.MidiVolume = Value;
+	gtk_range_set_adjustment(VScale2, Adjustment2);
+	return (Value);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume3
+ *
+ * Description:
+ *---------------------------------------------------------------------*/
+int SetVolume3(int Value) {
+	gtk_adjustment_set_value(Adjustment3, Value);
+//	gMyInfo.MidiVolume = Value;
+	gtk_range_set_adjustment(VScale3, Adjustment3);
+	return (Value);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetVolume4
+ *
+ * Description:
+ *---------------------------------------------------------------------*/
+int SetVolume4(int Value) {
+	gtk_adjustment_set_value(Adjustment4, Value);
+//	gMyInfo.MidiVolume = Value;
+	gtk_range_set_adjustment(VScale4, Adjustment4);
+	return (Value);
+}
+
 /*--------------------------------------------------------------------
  * Function:		SetUpMainButtons
  *
@@ -1344,8 +1423,10 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex RetVal;
 	int Loop;
 
-    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, GetModePreset(MidiIn),
-           &gMyInfo.MyPatchInfo[(char) GetModePreset(MidiIn)]);
+	LastPatch = MidiIn;
+	LastAbsPatch = GetModePreset(MidiIn);
+	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
+	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
@@ -1401,6 +1482,9 @@ int GuitarMidiPreset(void) {
 
 	printd(LogInfo, "GuitarMidiPreset Start\n");
 
+	// MyOSCJackVol(NewValue);
+	MyOSCJackMute(1, 0);
+#if 0
 	/* Set Audio Volume to zero
 	 */
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1416,7 +1500,7 @@ int GuitarMidiPreset(void) {
 	         gMyInfo.MyPatchInfo[Slider2].Channel,
 	         gMyInfo.MyPatchInfo[Slider2].Patch,
 	         0);
-
+#endif
 	WaitingforMidi = 1;
 
 	return (0);
@@ -1433,6 +1517,8 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
+	MyOSCJackMute(0, 0);
+#if 0
 	/* Set Audio Volume back`
 	 */
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1448,7 +1534,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	         gMyInfo.MyPatchInfo[Slider2].Channel,
 	         gMyInfo.MyPatchInfo[Slider2].Patch,
 	         gMyInfo.MidiVolume);
-
+#endif
 	PatchChange = MidiNote - gMyInfo.MidiBaseNote;
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
 		LayoutSwitchPatch(PatchChange, TRUE);
@@ -1498,47 +1584,6 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 	}
 #endif
 	return (FALSE);
-}
-
-/*--------------------------------------------------------------------
- * Function:		SetVolume1
- *
- * Description:	Change the Volume Slider based on midi input.
- *---------------------------------------------------------------------*/
-int SetVolume1(int Value) {
-	gtk_adjustment_set_value(Adjustment1, Value);
-
-	gMyInfo.AnalogVolume = Value;
-	gtk_range_set_adjustment(VScale1, Adjustment1);
-
-#if 1
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider1].OutPort,
-	         gMyInfo.MyPatchInfo[Slider1].Channel,
-	         gMyInfo.MyPatchInfo[Slider1].Patch,
-	         (char) Value);
-#endif
-	return (Value);
-}
-
-/*--------------------------------------------------------------------
- * Function:		SetVolume2
- *
- * Description:	Change the Volume Slider based on midi input.
- *---------------------------------------------------------------------*/
-int SetVolume2(int Value) {
-	gtk_adjustment_set_value(Adjustment2, Value);
-	gMyInfo.MidiVolume = Value;
-	gtk_range_set_adjustment(VScale2, Adjustment2);
-
-#if 1
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider2].OutPort,
-	         gMyInfo.MyPatchInfo[Slider2].Channel,
-	         gMyInfo.MyPatchInfo[Slider2].Patch,
-	         (char) Value);
-#endif
-	return (Value);
 }
 
 /*--------------------------------------------------------------------

@@ -33,7 +33,7 @@
 #define LogWarn 3
 #define LogInfo 4
 #define LogDebug 5
-#define MyLogLevel	5
+#define MyLogLevel	LogWarn
 
 #define PatchNameSize 60
 
@@ -98,7 +98,7 @@ typedef struct {
 	char *location;
 } SongInfo;
 
-#define Max_Main_Buttons 57
+#define Max_Main_Buttons 70
 #define Max_Patches	 182
 #define Max_Layouts	 10
 #define FileNameMaxLength	40
@@ -108,9 +108,10 @@ typedef struct {
 	char Presets[Max_Patches][PatchNameSize];
 } LayoutType;
 
-#define Slider1		Max_Patches -3
-#define Slider2		Max_Patches -2
-#define Slider3		Max_Patches -1
+#define Slider1		Max_Patches -4
+#define Slider2		Max_Patches -3
+#define Slider3		Max_Patches -2
+#define Slider4		Max_Patches -1
 
 typedef struct {
 	char Name[255];
@@ -163,6 +164,9 @@ typedef struct {
 	unsigned long TempoReload;
 	unsigned long TimerCount;
 	unsigned int TempoTimerID;
+	unsigned int MidiPassThru;
+	unsigned int MidiPassLevel;
+
 	snd_timer_t *AlsaTimerHandle;
 	snd_timer_params_t *AlsaTimerParams;
 	snd_timer_id_t *AlsaTimerid;
@@ -172,6 +176,7 @@ typedef struct {
 	unsigned int BeatsPerMeasure;
 	unsigned int ExpreP1Out;
 	unsigned int ExpreP1Port;
+	unsigned int ExpreP1Slider;
 
 
 	/*
@@ -390,6 +395,7 @@ char		JackName[MaxStringPortName];
 int 		FishmanSwitch;
 int 		FishmanSelSwitch;
 int 		LastPatch;
+int 		LastAbsPatch;
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -427,6 +433,7 @@ extern char		JackName[MaxStringPortName];
 extern int 		FishmanSwitch;
 extern int 		FishmanSelSwitch;
 extern int 		LastPatch;
+extern int 		LastAbsPatch;
 #endif
 
 void NextDesktop(void);
@@ -446,6 +453,8 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote);
 int GuitarMidiPreset(void);
 int SetVolume1(int Value);
 int SetVolume2(int Value);
+int SetVolume3(int Value);
+int SetVolume4(int Value);
 int FindString(int StringList, char *String);
 int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
 int InitConnections(void);
