@@ -80,6 +80,9 @@ int ButtonSize;
 
 // Foot switch layout.
 int KeyLayout = 1;
+
+int RunLogLevel = LogDebug;
+
 /*
  * Place Local prototypes here
  */
@@ -121,7 +124,10 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	va_start(ap, fmt);
 	vsnprintf(p, 512, fmt, ap);
 	va_end(ap);
-	printf( "L%d-%s", LogLevel, p);
+
+	if (RunLogLevel >= LogLevel)
+		printf( "L%d-%s", LogLevel, p);
+
 	return NULL;
 }
 
@@ -382,6 +388,7 @@ void parse_cmdline(int argc, char *argv[]) {
 		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
 		static struct option long_options[] = {
+			{ "PrintLevel", required_argument, &verbose_flag, 1 },
 			{ "verbose", no_argument, &verbose_flag, 1 },
 			{ "FontSize", required_argument, 0, 'f' },
 			{ "jack", required_argument, 0, 'j' },
@@ -396,7 +403,7 @@ void parse_cmdline(int argc, char *argv[]) {
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "abcj:dsfl:012",
+		c = getopt_long(argc, argv, "abcj:dsfP:l:012",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
@@ -454,6 +461,11 @@ void parse_cmdline(int argc, char *argv[]) {
 			break;
 
 		case '?':
+			break;
+
+		case 'P':
+			RunLogLevel = atoi(optarg);
+			printd(LogInfo, "Layout %d\n", KeyLayout);
 			break;
 
 		default:
