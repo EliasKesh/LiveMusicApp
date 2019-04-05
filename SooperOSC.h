@@ -46,7 +46,11 @@ enum {
 	OSCUndo,
 	OSCAddLoop,
 	OSCMute,
-
+	OSCStartRecord,
+	OSCStopRecord,
+	OSCSyncOn,
+	OSCSyncOff,
+	OSCSyncSource,
 	MaxOSCCommands
 };
 

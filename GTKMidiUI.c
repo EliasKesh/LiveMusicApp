@@ -165,6 +165,7 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
  *
  *---------------------------------------------------------------------*/
 void SwitchToTab(char Tab) {
+	PreviousTab = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPane));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
 	printd(LogInfo, "Switch to Tab %d\n", Tab);
 }
@@ -295,7 +296,7 @@ gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 /*--------------------------------------------------------------------
  * Function:            ClearMainButtons
  *
- * Description: Make sure the buttons arr all up.
+ * Description: Make sure the buttons are all up.
  *---------------------------------------------------------------------*/
 void ClearMainButtons(void) {
 	int Loop;
@@ -320,13 +321,44 @@ void ClearMainButtons(void) {
  *---------------------------------------------------------------------*/
 int GTKIdel_cb(gpointer data) {
 
+	HIDPoll();
+
+	// Can't call this from the thread so the
+	// thread sets teh structure and then the action
+	// gets performed here.
+	// Expression control of active GUI sliders.
+	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+		switch (gMyInfo.ExpreP1Slider) {
+		case Slider1:
+			SetVolume1(AlsaEvent.data.control.value);
+			break;
+
+		case Slider2:
+			SetVolume2(AlsaEvent.data.control.value);
+			break;
+
+		case Slider3:
+			SetVolume3(AlsaEvent.data.control.value);
+			break;
+
+		case Slider4:
+			SetVolume4(AlsaEvent.data.control.value);
+			break;
+
+		default:
+			break;
+		}
+		AlsaEvent.data.control.param = 0;
+	}
+
+
+#if 0
 	if (gUpdateTempo) {
 		MyImageButtonSetText(&TempoDraw, TempStrBuf);
 //		gtk_label_set_text((TempoChild), TempStrBuf);
 		gUpdateTempo = 0;
 	}
 
-#if 0
 	if (SysCallString[0]) {
 		system(SysCallString);
 
@@ -436,9 +468,8 @@ void parse_cmdline(int argc, char *argv[]) {
 			printd(LogInfo, "%s ", argv[optind++]);
 		printd(LogInfo, "\n");
 	}
-
-	//   exit (0);    // whatever you want
 }
+
 /*--------------------------------------------------------------------
  * Function:            main
  *
@@ -461,6 +492,7 @@ int main(int argc, char *argv[]) {
 	int BButtonX, BButtonY, MButtonX, MButtonY;
 	int Loop;
 	GdkScreen *myScreen;
+
 	/*
 	 * Let's setup some variables.
 	 * CurrentLayout is the default to start with
@@ -470,7 +502,13 @@ int main(int argc, char *argv[]) {
 	WaitingforMidi = 0;
 	verbose_flag = 0;
 	KeyLayout = 1;
+
 	parse_cmdline(argc, argv);
+	/* Handle any HID pedals,
+	Must be called before gtk_init
+	*/
+	InitHIDGrab();
+
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
 //	gtk_rc_parse( MAINPREFS_FILE);
@@ -498,7 +536,7 @@ int main(int argc, char *argv[]) {
 	                                 "* {border-color: #CC0000}",
 	                                 -1, NULL);
 	gtk_css_provider_load_from_data (provider,
-     "}\n", -1, NULL);
+	                                 "}\n", -1, NULL);
 	FaderControl.png
 	.scale.slider,
 	.scale.slider.horizontal {
@@ -718,7 +756,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	InitConnections();
 
-
 	/*
 	 * Set the up Chord page in case we need it later.
 	 */
@@ -736,13 +773,16 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 
 	MyTimerInit();
-//	g_idle_add(GTKIdel_cb, main_window);
+
+	g_idle_add(GTKIdel_cb, main_window);
 
 	/*
 	 * Set up the Live Player
 	 */
 	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
 	LivePlayerInit(main_window, PlayerWidget);
+
+	WaitingforMidi = WaitingforMidiHold = 0;
 
 	/*
 	 * Show the main window and let the show begin.
@@ -757,11 +797,13 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * After we quit we should write back the changes.
 	 */
+	CloseHIDGrab();
 	WritePrefs();
 	MyAlsaClose();
 	MyOSCClose();
 	LivePlayerClose();
 	printd(LogInfo, "Closing LiveApp\n");
+
 
 	return 0;
 }
@@ -780,7 +822,7 @@ void UpdateStatus(char *String) {
 
 	for (Loop = 0; Loop < MaxStatusHold - 1; Loop++) {
 		strcpy(HoldStatus[Loop], HoldStatus[Loop + 1]);
-//	printf("String off %d %s\n", StringOff, HoldStatus[Loop]);
+//	printd(LogDebug,"String off %d %s\n", StringOff, HoldStatus[Loop]);
 		StringOff += sprintf((DisString + StringOff),
 		                     "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
 		                     gMyInfo.StatusTextColor,
@@ -1057,9 +1099,9 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	printd(LogInfo, "\nVscale 2 %d\n", NewValue);
 	ThisPatchNum = Slider2;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+	gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
 
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
-
+#if 0
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(NewValue, 0);
 	else
@@ -1068,6 +1110,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
 		         (char) NewValue);
+#endif
 }
 
 /*--------------------------------------------------------------------
@@ -1088,7 +1131,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	ThisPatchNum = Slider3;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
 
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(NewValue, 0);
@@ -1117,7 +1160,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
 	ThisPatchNum = Slider4;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(NewValue, 0);
@@ -1137,7 +1180,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
  *---------------------------------------------------------------------*/
 int SetVolume1(int Value) {
 	gtk_adjustment_set_value(Adjustment1, Value);
-	printf("Slider 1\n");
+	printd(LogDebug, "Slider 1\n");
 	gMyInfo.AnalogVolume = Value;
 	gtk_range_set_adjustment(VScale1, Adjustment1);
 
@@ -1151,7 +1194,7 @@ int SetVolume1(int Value) {
  *---------------------------------------------------------------------*/
 int SetVolume2(int Value) {
 	gtk_adjustment_set_value(Adjustment2, Value);
-	gMyInfo.MidiVolume = Value;
+	gMyInfo.MidiVolume = (Value * 1.25);
 	gtk_range_set_adjustment(VScale2, Adjustment2);
 	return (Value);
 }
@@ -1163,7 +1206,6 @@ int SetVolume2(int Value) {
  *---------------------------------------------------------------------*/
 int SetVolume3(int Value) {
 	gtk_adjustment_set_value(Adjustment3, Value);
-//	gMyInfo.MidiVolume = Value;
 	gtk_range_set_adjustment(VScale3, Adjustment3);
 	return (Value);
 }
@@ -1425,14 +1467,14 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 
 	LastPatch = MidiIn;
 	LastAbsPatch = GetModePreset(MidiIn);
-	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
-	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
+//	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
+//	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}
 
-	printf("Old LastPatch %d\n", LastPatch);
+//	printd(LogDebug,"Old LastPatch %d\n", LastPatch);
 	LastPatch = MidiIn;
 
 	/*
@@ -1484,23 +1526,6 @@ int GuitarMidiPreset(void) {
 
 	// MyOSCJackVol(NewValue);
 	MyOSCJackMute(1, 0);
-#if 0
-	/* Set Audio Volume to zero
-	 */
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider1].OutPort,
-	         gMyInfo.MyPatchInfo[Slider1].Channel,
-	         gMyInfo.MyPatchInfo[Slider1].Patch,
-	         0);
-
-	/* Set Midi Volume to zero
-	 */
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider2].OutPort,
-	         gMyInfo.MyPatchInfo[Slider2].Channel,
-	         gMyInfo.MyPatchInfo[Slider2].Patch,
-	         0);
-#endif
 	WaitingforMidi = 1;
 
 	return (0);
@@ -1518,23 +1543,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
 	MyOSCJackMute(0, 0);
-#if 0
-	/* Set Audio Volume back`
-	 */
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider1].OutPort,
-	         gMyInfo.MyPatchInfo[Slider1].Channel,
-	         gMyInfo.MyPatchInfo[Slider1].Patch,
-	         gMyInfo.AnalogVolume);
 
-	/* Set Midi Volume back
-	 */
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         gMyInfo.MyPatchInfo[Slider2].OutPort,
-	         gMyInfo.MyPatchInfo[Slider2].Channel,
-	         gMyInfo.MyPatchInfo[Slider2].Patch,
-	         gMyInfo.MidiVolume);
-#endif
 	PatchChange = MidiNote - gMyInfo.MidiBaseNote;
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
 		LayoutSwitchPatch(PatchChange, TRUE);
@@ -1542,7 +1551,9 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
 	       PatchChange);
-	WaitingforMidi = 0;
+
+	if (WaitingforMidiHold == 0)
+		WaitingforMidi = 0;
 
 	return (0);
 }

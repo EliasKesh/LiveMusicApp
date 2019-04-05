@@ -69,7 +69,7 @@ void MyTimerInit(void) {
 #endif
 	gMyInfo.TempoTimerID = 0;
 	SetTempo(120);
-	CountInActive = 0;
+	CountInActiveState = cntStateWaitingIdle;
 	LoopRecBeats = 0;
 
 }
@@ -167,36 +167,71 @@ void ToggleTempo(void) {
 		if (++TempoCount > gMyInfo.BeatsPerMeasure)
 			TempoCount = 1;
 
-//		Count = (TempoState / TimerTicksPerQuater) + 1;
+		/* Make sure the buttons are all up after being pressed.
+		*/
 		ClearMainButtons();
 
-		// printf("*** ToggleTempo  gMyInfo.MetronomeOn %d CountInActive %d LoopRecBeats %d\n",
-		//        gMyInfo.MetronomeOn, CountInActive, LoopRecBeats);
+		/* Hitting record a second time stops the recording.
+		*/
+		if (CountInActiveState == cntStateRecording && LoopRecBeats > 0) {
 
-		if (CountInActive == 0 && LoopRecBeats > 0) {
 			if (--LoopRecBeats == 0) {
-				printf("*&*&*& 1\n");
-				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+				CountInActiveState = cntStateWaitingIdle;
+				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
+				         0, 0);
+				OSCCommand(OSCStartRecord, 0);
+				OSCCommand(OSCSyncSource, 1);
+
+//			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				printf("Loop Off\n\n");
+//				OSCCommand(OSCSyncOn, 0);
+
 			}
+//			else {
+//				OSCCommand(OSCSyncOff, 0);
+//			}
 		}
 
-		/* CountInActive is set from the patch cmdCountIn	*/
-		if (CountInActive == 1) {
-			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-			CountInActive = 0;
+#if 0
+		/* CountInActiveState is set from the patch cmdCountIn	*/
+		if (CountInActiveState == 1) {
+//			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+			SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
+			         0, 0);
+			OSCCommand(OSCStartRecord, 0);
+			printf("Loop CountInActiveState 1\n\n");
+			CountInActiveState = 0;
 			gMyInfo.MetronomeOn = FALSE;
 		}
-
-		if (CountInActive == 2) {
+#endif
+		/* If We just started turn on the metronome.
+		*/
+		if (CountInActiveState == cntStateWaitingforCount) {
 			gMyInfo.MetronomeOn = TRUE;
 
+			/* If count in is zero turn off metronome and start recording.
+			*/
 			if ( CountInCount-- == 0) {
-				CountInActive = 0;
-				DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+				CountInActiveState = cntStateRecording;
+
+//							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+				// Send a start to the transport port.
+				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
+				         0, 0);
+				// Send a start record over OSC
+
+
+				OSCCommand(OSCSyncSource, -3);
+				OSCCommand(OSCStartRecord, 0);
+				gMyInfo.MetronomeOn = FALSE;
+				printf("Loop Start 1\n\n");
+
 			}
 		}
 
+//			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+//			         DrumMidiChannel, 04, (int) 2);
+#if 0
 		if (TempoCount != 1) {
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
@@ -204,15 +239,17 @@ void ToggleTempo(void) {
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 		}
-
-
+#endif
+		// Send the tap tempo to sooperlooper.
 		MyOSCTap(TempoState);
+		// Send a PC of 99, hydrogen is configured for tap.
+		// should change to OSC for compatibility.
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
+		         1, 99, 0);
 
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {
-
-
 			if (TempoCount != 1) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);

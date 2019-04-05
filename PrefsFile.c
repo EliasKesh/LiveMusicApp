@@ -85,7 +85,9 @@ InitPref (void) {
 	gMyInfo.MidiPassLevel = 110;
 
 	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
-	strcpy (gMyInfo.OSCPortNum, "9951");
+	strcpy (gMyInfo.OSCPortNumLooper, "9951");
+	strcpy (gMyInfo.OSCPortNumJackVol, "9952");
+	strcpy (gMyInfo.OSCPortNumHydrogen, "9000");
 
 //    ReadPrefs();
 	PrintDataStructure(&gMyInfo, DefinePrefsFile);

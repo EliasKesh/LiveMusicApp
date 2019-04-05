@@ -33,7 +33,7 @@
 #define LogWarn 3
 #define LogInfo 4
 #define LogDebug 5
-#define MyLogLevel	LogWarn
+#define MyLogLevel	LogDebug
 
 #define PatchNameSize 60
 
@@ -150,7 +150,9 @@ typedef struct {
 	LayoutType LayoutPresets[Max_Layouts];
 
 	char 		OSCIPAddress[20];
-	char 		OSCPortNum[6];
+	char 		OSCPortNumLooper[6];
+	char 		OSCPortNumJackVol[6];
+	char 		OSCPortNumHydrogen[6];
 
 	// Generated Beyond this point.
 	snd_seq_t *SeqPort[MaxOutPorts];
@@ -309,6 +311,8 @@ enum {
  * Place Static variables here.
  */
 
+enum { cntStateWaitingIdle = 0, cntStateRecording = 1, cntStateWaitingforCount = 2};
+
 #ifdef GTKMidiUI_c
 //PatchInfo  *MyPatchInfo;
 GTKMidiInfo gMyInfo;
@@ -375,10 +379,11 @@ char *SoundFontBankNames[] = {
 
 //int		preModeSwitch[Max_Patches];
 int WaitingforMidi;
+int WaitingforMidiHold;
 GtkBuilder *gxml;
 unsigned int CountInCount;
 unsigned int LoopRecBeats;
-char CountInActive;
+char CountInActiveState;
 char	SysCallString[200];
 GdkPixbuf *MainButtonOnImage;
 GdkPixbuf *MainButtonOffImage;
@@ -396,6 +401,9 @@ int 		FishmanSwitch;
 int 		FishmanSelSwitch;
 int 		LastPatch;
 int 		LastAbsPatch;
+int 		PreviousTab;
+snd_seq_event_t AlsaEvent;
+
 #else
 extern int LastPortUsed;
 //extern LayoutType LayoutPresets[];
@@ -413,10 +421,11 @@ extern int preModeLooper[];
 extern int preModePerformance[];
 extern int preModeRehearsal[];
 extern int WaitingforMidi;
+extern int WaitingforMidiHold;
 extern GtkBuilder *gxml;
 extern unsigned int CountInCount;
 extern unsigned int LoopRecBeats;
-extern char CountInActive;
+extern char CountInActiveState;
 extern char	SysCallString[200];
 extern GdkPixbuf *MainButtonOnImage;
 extern GdkPixbuf *MainButtonOffImage;
@@ -434,6 +443,8 @@ extern int 		FishmanSwitch;
 extern int 		FishmanSelSwitch;
 extern int 		LastPatch;
 extern int 		LastAbsPatch;
+extern int 		PreviousTab;
+extern snd_seq_event_t AlsaEvent;
 #endif
 
 void NextDesktop(void);

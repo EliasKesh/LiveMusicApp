@@ -23,7 +23,7 @@ LDFLAGS += $(shell pkg-config --cflags --libs liblo)
    
 SOURCES = AlsaUtils.c  Connections.c HTML.c Player.c PrefsGui.c 
 SOURCES += Timers.c Chorder.c GTKMidiUI.c MyWidgets.c PrefsFile.c RightMenuClick.c wmctrl.c
-SOURCES += transport.c SooperOSC.c
+SOURCES += transport.c SooperOSC.c HIDGrab.c
 
 INCLUDES = aconfig.h DefPrefs.h HTML.h PrefsFile.h Timers.h
 INCLUDES += AlsaUtils.h GenPrefs.h MyWidgets.h PrefsGui.h

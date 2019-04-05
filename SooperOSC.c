@@ -38,8 +38,11 @@
 /*
  * Place Static variables here
  */
-static lo_address OSCaddr;
+static lo_address SLOSCaddr;
+static lo_address JackVoladdr;
+static lo_address Hydrogenaddr;
 static lo_server osc_server = 0;
+static lo_server osc_server1 = 0;
 static char our_url[100];
 static char CurrentLoop;
 
@@ -67,39 +70,72 @@ int OSCCommand(int Command, char Option) {
 	case  OSCRec:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCRec %s\n", NewCommand);
-		lo_send(OSCaddr, NewCommand, "s", "record");
+		lo_send(SLOSCaddr, NewCommand, "s", "record");
 		break;
 
 	case  OSCPause:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCPause %s\n", NewCommand);
-		lo_send(OSCaddr, NewCommand, "s", "pause");
+		lo_send(SLOSCaddr, NewCommand, "s", "pause");
 		break;
 
 	case  OSCTrig:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCTrig %s\n", NewCommand);
-		lo_send(OSCaddr, NewCommand, "s", "trigger");
+		lo_send(SLOSCaddr, NewCommand, "s", "trigger");
 		break;
 
 	case  OSCUndo:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCUndo %s\n", NewCommand);
-		lo_send(OSCaddr, NewCommand, "s", "undo");
+		lo_send(SLOSCaddr, NewCommand, "s", "undo");
 		break;
 
 	case OSCAddLoop:
-		printf("OSC Add\n");
-		lo_send(OSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
+		printd(LogDebug, "OSC Add\n");
+		lo_send(SLOSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
 		break;
 
 	case OSCMute:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCMute %s\n", NewCommand);
-		lo_send(OSCaddr, NewCommand, "s", "mute");
+		lo_send(SLOSCaddr, NewCommand, "s", "mute");
 		break;
 
-// lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
+	case OSCStartRecord:
+		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "s", "record");
+		break;
+
+	case OSCStopRecord:
+		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+		printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "s", "record");
+		break;
+
+	case OSCSyncOn:
+		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
+		break;
+
+	case OSCSyncOff:
+		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 0.0);
+		break;
+
+	case OSCSyncSource:
+//		sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
+		printd(LogDebug, "OSCSyncSource %d\n", Option);
+//		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
+		break;
+
+//oscsend localhost 9951 / set si "sync_source" - 1
+
+// lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
 	}
 
 }
@@ -114,7 +150,7 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 //	params_val_map[ctrl] = val;
 
 //	updated = true;
-	printd(LogDebug, "ctrl_handler %s %s\n", argv[1], argv[2]);
+//	printd(LogDebug, "ctrl_handler %s %s\n", argv[1], argv[2]);
 	return 0;
 }
 
@@ -141,20 +177,38 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
  *---------------------------------------------------------------------*/
 void MyOSCInit(void) {
 
-	printd(LogDebug, "MyOSCInit: %s  %s\n",
+	printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
 	       gMyInfo.OSCIPAddress,
-	       gMyInfo.OSCPortNum );
+	       gMyInfo.OSCPortNumLooper,
+	       gMyInfo.OSCPortNumJackVol,
+	       gMyInfo.OSCPortNumHydrogen );
 
-	OSCaddr = lo_address_new(
-	              gMyInfo.OSCIPAddress,
-	              gMyInfo.OSCPortNum );
+	SLOSCaddr = lo_address_new(
+	                gMyInfo.OSCIPAddress,
+	                gMyInfo.OSCPortNumLooper );
+
+	JackVoladdr = lo_address_new(
+	                  gMyInfo.OSCIPAddress,
+	                  gMyInfo.OSCPortNumJackVol );
+
+	Hydrogenaddr = lo_address_new(
+	                   gMyInfo.OSCIPAddress,
+	                   gMyInfo.OSCPortNumHydrogen );
+
+	printd(LogDebug, "Init Second OSC \n");
 
 	osc_server = lo_server_new(NULL, NULL);
 	strcpy(our_url, lo_server_get_url (osc_server) );
 	printd(LogDebug, "MyOSCInit Leave %s  %d\n",
 	       our_url,
 	       osc_server );
-
+#if 0
+	osc_server1 = lo_server_new(NULL, NULL);
+	strcpy(our_url, lo_server_get_url (osc_server1) );
+	printd(LogDebug, "MyOSCInit Leave %s  %d\n",
+	       our_url,
+	       osc_server );
+#endif
 	lo_server_add_method(osc_server,
 	                     "/ctrl", "isf", ctrl_handler, NULL);
 
@@ -173,11 +227,9 @@ void MyOSCInit(void) {
  *---------------------------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
 
-	lo_server_recv_noblock (osc_server, 2);
-//    lo_send(OSCaddr, "/ping", "ss", our_url, "/pingack");
-	lo_send(OSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
-// lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
-
+	lo_server_recv_noblock(osc_server, 2);
+//    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
+	lo_send(SLOSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
 }
 
 /*--------------------------------------------------------------------
@@ -188,7 +240,8 @@ void MyOSCPoll(char DownBeat) {
  *---------------------------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
 
-	lo_send(OSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
+	// http://essej.net/sooperlooper/doc_osc.html
+	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 
 }
 
@@ -203,7 +256,7 @@ void MyOSCClose(void) {
 
 	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
 
-	lo_address_free (OSCaddr);
+	lo_address_free (SLOSCaddr);
 
 	lo_server_free (osc_server);
 
@@ -219,11 +272,11 @@ void MyOSCSetSync(char Type) {
 	char NewCommand[100];
 
 	// sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
-	// printd(LogDebug, "OSCRec %s\n",NewCommand);
+	printd(LogDebug, "MyOSCSetSync %d\n", Type);
 
 	/* Sync Internal	*/
-	lo_send(OSCaddr, "/set", "si", "sync_source", "-3");
-	lo_send(OSCaddr, "/sl/-1/set", "sf", "sync_source", "1.0");
+	lo_send(SLOSCaddr, "/set", "si", "sync_source", "-3");
+	lo_send(SLOSCaddr, "/sl/-1/set", "sf", "sync_source", "1.0");
 }
 
 /*--------------------------------------------------------------------
@@ -235,7 +288,7 @@ void MyOSCSetSync(char Type) {
 void MyOSCLoadFile(char *FileName) {
 
 	/* Load the file and send the results back to the SL GUI */
-	lo_send(OSCaddr, "/load_session", "sss", FileName,
+	lo_send(SLOSCaddr, "/load_session", "sss", FileName,
 	        "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
 }
 
@@ -247,7 +300,8 @@ void MyOSCLoadFile(char *FileName) {
  * 		Values 0 - 127
  *---------------------------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
-	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume / 127);
+
+	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume / 127);
 }
 
 /*--------------------------------------------------------------------
@@ -257,7 +311,7 @@ void MyOSCJackVol(int Volume, int channel) {
  * 		Values 0 - 127
  *---------------------------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel) {
-	lo_send(OSCaddr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
 }
 
 //	oscsend localhost 9951 /net/mhcloud/volume/jack-volume/master f  1.0

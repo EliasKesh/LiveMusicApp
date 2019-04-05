@@ -619,7 +619,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 			PageIndex += 6;
 			PageNumber = atoi(PageIndex);
 		}
-		printf("PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
+		printd(LogDebug,"PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
 
 		sprintf(string, "/usr/bin/okular \"%s\" --page=%d &", theURI, PageNumber);
 		system(string);

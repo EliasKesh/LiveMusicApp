@@ -317,10 +317,9 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 //	printd(LogInfo, "** SendMidi SND_SEQ_EVENT_NOTEON %x\n", Type);
 		ev.type = SND_SEQ_EVENT_NOTEON;
 		ev.data.note.note = Value;
-		ev.data.note.velocity = 100;
+		ev.data.note.velocity = gMyInfo.MidiVolume;
 		ev.data.note.duration = 300;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEOFF) {
@@ -328,42 +327,36 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 		ev.type = SND_SEQ_EVENT_NOTEOFF;
 		ev.data.note.note = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_START) {
 		printd(LogInfo, "** SendMidi SND_SEQ_EVENT_START %x\n", Type);
 		ev.type = SND_SEQ_EVENT_START;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_STOP) {
 		printd(LogInfo, "** SendMidi SND_SEQ_EVENT_STOP %x\n", Type);
 		ev.type = SND_SEQ_EVENT_STOP;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_CONTINUE) {
 		printd(LogInfo, "** SendMidi SND_SEQ_EVENT_CONTINUE %x\n", Type);
 		ev.type = SND_SEQ_EVENT_CONTINUE;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_SETPOS_TICK) {
 		printd(LogInfo, "** SendMidi SND_SEQ_EVENT_SETPOS_TICK %x\n", Type);
 		ev.type = SND_SEQ_EVENT_SETPOS_TICK;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 
 	if (Type == SND_SEQ_EVENT_SETPOS_TIME) {
 		printd(LogInfo, "** SendMidi SND_SEQ_EVENT_SETPOS_TIME %x\n", Type);
 		ev.type = SND_SEQ_EVENT_SETPOS_TIME;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-
 	}
 #if 0
 	Since there are 24 MIDI Clocks in every quarter note, the length of a MIDI Clock
@@ -537,14 +530,11 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case Controller:
-#if 1
 		printd(LogInfo, "Controller \n");
 
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 		         thePatch->Channel,
 		         thePatch->BankSelect, thePatch->Patch);
-#endif
-
 		break;
 
 //   case ToLooperApp:
@@ -589,9 +579,8 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	case cmdCountIn:
 		printd(LogInfo, "Setting Count Active\n");
 		CountInCount = gMyInfo.CountInBeats;
-		CountInActive = 2;
+		CountInActiveState = cntStateWaitingforCount;
 		LoopRecBeats = gMyInfo.LoopRecBeats;
-
 		break;
 
 	case cmdVolume:
@@ -605,7 +594,6 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case cmdLnTransPort:
-
 		switch (thePatch->Patch) {
 		case cmdLnTSetA:
 			plSetA() ;
@@ -631,7 +619,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 			plNextSeg();
 			break;
 
-		case	cmdLnTPrev:
+		case cmdLnTPrev:
 			plPrevSeg();
 			break;
 
@@ -667,7 +655,6 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 		         thePatch->Channel,
 		         thePatch->Patch, (thePatch->BankSelect >> 7) & 0x7f);
-
 		break;
 
 	/* Set the number expr # for the pedal
@@ -675,7 +662,6 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	case cmdSetExpr:
 		gMyInfo.ExpreP1Slider = LastAbsPatch;
 		printd(LogInfo, "cmdSetExpr %d %d", thePatch->Patch, LastAbsPatch);
-
 		break;
 
 // SND_SEQ_EVENT_SETPOS_TIME
@@ -726,7 +712,7 @@ void *alsa_midi_thread(void * context_ptr) {
 	int AlsaValue;
 
 	while (snd_seq_event_input(SeqPort1In, &event_ptr) >= 0) {
-		printf("Event Type %d %d %d %d\n", event_ptr->type,
+		printd(LogInfo, "Event Type %d %d %d %d\n", event_ptr->type,
 		       event_ptr->data.control.channel, event_ptr->data.control.param,
 		       event_ptr->data.control.value);
 
@@ -798,9 +784,9 @@ void *alsa_midi_thread(void * context_ptr) {
 					snd_seq_ev_set_controller(&ev, 0, SND_SEQ_EVENT_NOTEON, (int )event_ptr->data.note.note);
 					snd_seq_ev_set_direct(&ev);
 					ev.type = SND_SEQ_EVENT_NOTEON;
-					ev.data.note.velocity = gMyInfo.MidiPassLevel;
+					ev.data.note.velocity = gMyInfo.MidiVolume;
 					ev.data.note.note = event_ptr->data.note.note;
-					snd_seq_event_output_direct(gMyInfo.SeqPort[0], &ev);
+					snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
 				}
 			}
 			break;
@@ -812,13 +798,13 @@ void *alsa_midi_thread(void * context_ptr) {
 				        octave);
 				if (gMyInfo.MidiPassThru) {
 					snd_seq_ev_clear(&ev);
-					snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru -1);
+					snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru - 1);
 					snd_seq_ev_set_subs(&ev);
 					snd_seq_ev_set_controller(&ev, 0, SND_SEQ_EVENT_NOTEOFF, (int )event_ptr->data.note.note);
 					snd_seq_ev_set_direct(&ev);
 					ev.type = SND_SEQ_EVENT_NOTEOFF;
 					ev.data.note.note = event_ptr->data.note.note;
-					snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru], &ev);
+					snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
 				}
 			} else
 				continue;
@@ -870,19 +856,23 @@ void *alsa_midi_thread(void * context_ptr) {
 
 				switch (gMyInfo.ExpreP1Slider) {
 				case Slider1:
-					SetVolume1(event_ptr->data.control.value);
+					AlsaEvent = *event_ptr;
+//					SetVolume1(event_ptr->data.control.value);
 					break;
 
 				case Slider2:
-					SetVolume2(event_ptr->data.control.value);
+					AlsaEvent = *event_ptr;
+//					SetVolume2(event_ptr->data.control.value);
 					break;
 
 				case Slider3:
-					SetVolume3(event_ptr->data.control.value);
+					AlsaEvent = *event_ptr;
+//					SetVolume3(event_ptr->data.control.value);
 					break;
 
 				case Slider4:
-					SetVolume4(event_ptr->data.control.value);
+					AlsaEvent = *event_ptr;
+//					SetVolume4(event_ptr->data.control.value);
 					break;
 
 				default:
@@ -1139,16 +1129,16 @@ void *alsa_midi_thread(void * context_ptr) {
 
 			case 31:
 				FishmanDPad = event_ptr->data.control.value;
-				printf("Fishman Control %d\n", FishmanDPad);
+				printd(LogDebug,"Fishman Control %d\n", FishmanDPad);
 				break;
 
 			case 63:
 				AlsaValue = event_ptr->data.control.value;
-				printf("Fishman Value %d %d\n", AlsaValue, FishmanDPad);
+				printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
 
 				if (FishmanDPad == 12) {
 					if (AlsaValue == 0) {
-						printf("Fishman Value %d %d\n", AlsaValue, FishmanDPad);
+						printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
 						GuitarMidiPreset();
 					}
 				}
@@ -1159,7 +1149,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					case 2:
 						FishmanSwitch = FishmanUp;
 						if (LastPatch < Max_Patches) {
-							printf("Fishman Last Patch %d\n", LastPatch);
+							printd(LogDebug, "Fishman Last Patch %d\n", LastPatch);
 							PatchIndex = LayoutSwitchPatch(LastPatch + 1, true);
 						}
 						break;
@@ -1167,7 +1157,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					case 3:
 						FishmanSwitch = FishmanDown;
 						if (LastPatch > 2) {
-							printf("Fishman Last Patch %d\n", LastPatch);
+							printd(LogDebug, "Fishman Last Patch %d\n", LastPatch);
 							PatchIndex = LayoutSwitchPatch(LastPatch - 1, true);
 						}
 						break;
@@ -1188,18 +1178,21 @@ void *alsa_midi_thread(void * context_ptr) {
 					switch (AlsaValue) {
 					case 1:
 						FishmanSelSwitch = FishmanSwitch = FishmanGuitar;
+						gMyInfo.ExpreP1Slider = Slider1;
 						break;
 
 					case 2:
 						FishmanSelSwitch = FishmanSwitch = FishmanSynth;
+						gMyInfo.ExpreP1Slider = Slider2;
 						break;
 
 					case 3:
 						FishmanSelSwitch = FishmanSwitch = FishmanMix;
+						gMyInfo.ExpreP1Slider = Slider3;
 						break;
 					}
 
-				printf("FishmanSwitch %d\n", FishmanSwitch);
+				printd(LogDebug, "FishmanSwitch %d\n", FishmanSwitch);
 				break;
 			}
 
@@ -1748,14 +1741,14 @@ gboolean alsa_input_init(const char * name) {
 	struct sched_param param;
 
 
-/* initialized with default attributes */
-ret = pthread_attr_init (&tattr);
-/* safe to get existing scheduling param */
-ret = pthread_attr_getschedparam (&tattr, &param);
-/* set the priority; others are unchanged */
-param.sched_priority = 99;
-/* setting the new scheduling param */
-ret = pthread_attr_setschedparam (&tattr, &param);
+	/* initialized with default attributes */
+	ret = pthread_attr_init (&tattr);
+	/* safe to get existing scheduling param */
+	ret = pthread_attr_getschedparam (&tattr, &param);
+	/* set the priority; others are unchanged */
+	param.sched_priority = 99;
+	/* setting the new scheduling param */
+	ret = pthread_attr_setschedparam (&tattr, &param);
 
 	/* Open the port
 	*/
