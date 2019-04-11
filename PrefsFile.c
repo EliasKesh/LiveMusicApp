@@ -127,7 +127,9 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 		fprintf (PrefsFile, "GTKMidiInfo GlobalInfo = {\n \t{\n");
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
-
+		if ((Loop % 10) == 0 && PrefsFile)
+			fprintf (PrefsFile, "/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ \n");
+			   
 		if (myInfo->MyPatchInfo[Loop].CustomCommand == NoCustom) {
 			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
 				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);

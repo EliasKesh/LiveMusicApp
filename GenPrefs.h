@@ -1,5 +1,6 @@
 GTKMidiInfo GlobalInfo = {
  	{
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*   0 */ {"Base",            NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   1 */ {"CleanBass",       NoBank         ,   3, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   2 */ {"Base",            NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
@@ -10,6 +11,7 @@ GTKMidiInfo GlobalInfo = {
 /*   7 */ {"BaseDist",        NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Dist Tog" },
 /*   8 */ {"Wah Tog",         NoBank         ,  10, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*   9 */ {"Dist Tog",        NoBank         ,  11, GuitarixPort   ,   1, cmdSendCC , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  10 */ {"Chorus",          NoBank         ,  12, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*  11 */ {"Mel Tog",         NoBank         ,  13, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*  12 */ {"Expr Vol",        NoBank         ,   7, GuitarixPort   ,   1, cmdSetExpr, "None" },
@@ -20,6 +22,7 @@ GTKMidiInfo GlobalInfo = {
 /*  17 */ {"TransCont",       NoBank         ,   0, TransportPort  ,   1, TransCont , "None" },
 /*  18 */ {"TransStop",       NoBank         ,   0, TransportPort  ,   1, TransStop , "None" },
 /*  19 */ {"TransBack",       NoBank         ,   0, TransportPort  ,   1, TransStart, "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  20 */ {"TransPos",        NoBank         ,   0, TransportPort  ,   1, TransStart, "None" },
 /*  21 */ {"Tap",             NoBank         , 121, InternalPort   ,   1, Controller, "None" },
 /*  22 */ {"Midi Tog",        NoBank         , 122, FluidPort      ,   1, Controller, "None" },
@@ -30,6 +33,7 @@ GTKMidiInfo GlobalInfo = {
 /*  27 */ {"LP Undo",         NoBank         ,   5, InternalPort   ,   1, cmdOSC    , "None" },
 /*  28 */ {"LP 1",            0x01           ,   1, InternalPort   ,   1, cmdOSC    , "None" },
 /*  29 */ {"LP 2",            0x02           ,   1, InternalPort   ,   1, cmdOSC    , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  30 */ {"LP 3",            0x03           ,   1, InternalPort   ,   1, cmdOSC    , "None" },
 /*  31 */ {"LP 4",            0x04           ,   1, InternalPort   ,   1, cmdOSC    , "None" },
 /*  32 */ {"LP Rec",          NoBank         ,   2, InternalPort   ,   1, cmdOSC    , "None" },
@@ -40,6 +44,7 @@ GTKMidiInfo GlobalInfo = {
 /*  37 */ {"App ***",         NoBank         ,   0, InternalPort   ,   1, RaiseApp  , "None" },
 /*  38 */ {"Loop Toggle",     NoBank         ,   3, InternalPort   ,   1, cmdLnTransPort, "None" },
 /*  39 */ {"LayoutSwitch",    NoBank         ,   0, InternalPort   ,   1, cmdBankSelect, "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  40 */ {"AnalogApp",       NoBank         ,   0, InternalPort   ,   1, RaiseApp  , "None" },
 /*  41 */ {"MidiSoundApp",    NoBank         ,   1, InternalPort   ,   1, RaiseApp  , "None" },
 /*  42 */ {"LiveApp",         NoBank         ,   4, InternalPort   ,   1, RaiseApp  , "None" },
@@ -50,6 +55,7 @@ GTKMidiInfo GlobalInfo = {
 /*  47 */ {"ScoreTab",        NoBank         ,   1, InternalPort   ,   1, SwitchTab , "LiveApp" },
 /*  48 */ {"TransportApp",    NoBank         ,   3, InternalPort   ,   1, RaiseApp  , "None" },
 /*  49 */ {"RepeatA",         NoBank         ,   0, InternalPort   ,   1, cmdLnTransPort, "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  50 */ {"RepeatB",         NoBank         ,   1, InternalPort   ,   1, cmdLnTransPort, "None" },
 /*  51 */ {"NextSeq",         NoBank         ,   4, InternalPort   ,   1, cmdLnTransPort, "None" },
 /*  52 */ {"PrevSeg",         NoBank         ,   5, InternalPort   ,   1, cmdLnTransPort, "None" },
@@ -60,6 +66,7 @@ GTKMidiInfo GlobalInfo = {
 /*  57 */ {"Scroll",          NoBank         ,   0, InternalPort   ,   1, cmdScroll , "None" },
 /*  58 */ {"Global ****",     NoBank         ,   0, InternalPort   ,   1, RaiseApp  , "None" },
 /*  59 */ {"Switch0",         NoBank         ,   0, InternalPort   ,   1, ToDesktop , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  60 */ {"Switch1",         NoBank         ,   1, InternalPort   ,   1, ToDesktop , "None" },
 /*  61 */ {"Switch2",         NoBank         ,   2, InternalPort   ,   1, ToDesktop , "None" },
 /*  62 */ {"Switch3",         NoBank         ,   3, InternalPort   ,   1, ToDesktop , "None" },
@@ -70,6 +77,7 @@ GTKMidiInfo GlobalInfo = {
 /*  67 */ {"PlPlay",          NoBank         ,   2, InternalPort   ,   1, cmdLnTransPort, "None" },
 /*  68 */ {"Seek Fw",         NoBank         ,   8, InternalPort   ,   1, cmdLnTransPort, "None" },
 /*  69 */ {"Seek Bk",         NoBank         ,   9, InternalPort   ,   1, cmdLnTransPort, "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  70 */ {"LP All",          NoBank         ,   1, InternalPort   ,   1, cmdOSC    , "None" },
 /*  71 */ {"LP Mute",         NoBank         ,   7, InternalPort   ,   1, cmdOSC    , "None" },
 /*  72 */ {"Preset1",         NoBank         ,   1, InternalPort   ,   1, cmdPreset , "None" },
@@ -80,6 +88,7 @@ GTKMidiInfo GlobalInfo = {
 /*  77 */ {"Preset6",         NoBank         ,   6, InternalPort   ,   1, cmdPreset , "None" },
 /*  78 */ {"MIDI***",         NoBank         ,   0, InternalPort   ,   1, RaiseApp  , "None" },
 /*  79 */ {"Mid0",            NoBank         ,   0, FluidPort      ,   1, NoCustom  , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  80 */ {"Mid-24",          NoBank         ,   2, FluidPort      ,   1, NoCustom  , "None" },
 /*  81 */ {"Inst M Sel",      NoBank         ,   0, InternalPort   ,   1, cmdMidiSelect, "None" },
 /*  82 */ {"Piano",           SFDSF          ,  63, FluidPort      ,   1, NoCustom  , "None" },
@@ -90,6 +99,7 @@ GTKMidiInfo GlobalInfo = {
 /*  87 */ {"SynthLead",       SFDSF          ,  43, FluidPort      ,   1, NoCustom  , "None" },
 /*  88 */ {"Strings",         SFDSF          ,  85, FluidPort      ,   1, NoCustom  , "None" },
 /*  89 */ {"Steel Drums",     SFFluidGM      , 114, FluidPort      ,   1, NoCustom  , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*  90 */ {"Walky",           SFDSF          ,   3, FluidPort      ,   1, NoCustom  , "None" },
 /*  91 */ {"Drums",           NoBank         ,   1, FluidPort      ,   1, NoCustom  , "None" },
 /*  92 */ {"Slap Bass",       SFDSF          ,  24, FluidPort      ,   1, NoCustom  , "None" },
@@ -100,6 +110,7 @@ GTKMidiInfo GlobalInfo = {
 /*  97 */ {"NiceAhh",         SFDSF          ,  90, FluidPort      ,   1, NoCustom  , "None" },
 /*  98 */ {"BetAhh",          SFVintage      ,  63, FluidPort      ,   1, NoCustom  , "None" },
 /*  99 */ {"ToLate",          SFVintage      , 108, FluidPort      ,   1, NoCustom  , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 100 */ {"BellsComp",       SFDX7          ,  10, FluidPort      ,   1, NoCustom  , "None" },
 /* 101 */ {"Sax",             SFSonidoGM     ,  66, FluidPort      ,   1, NoCustom  , "None" },
 /* 102 */ {"Vibra",           SFVintage      ,  93, FluidPort      ,   1, NoCustom  , "None" },
@@ -110,6 +121,7 @@ GTKMidiInfo GlobalInfo = {
 /* 107 */ {"KStatB",          SFElias        ,   2, FluidPort      ,   1, NoCustom  , "None" },
 /* 108 */ {"MS20Bass",        SFElias        ,   3, FluidPort      ,   1, NoCustom  , "None" },
 /* 109 */ {"Juno",            SFElias        ,   4, FluidPort      ,   1, NoCustom  , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 110 */ {"Moog1",           SFElias        ,   9, FluidPort      ,   1, NoCustom  , "None" },
 /* 111 */ {"Moog2",           SFElias        ,  10, FluidPort      ,   1, NoCustom  , "None" },
 /* 112 */ {"BassSlap",        SFElias        ,  13, FluidPort      ,   1, NoCustom  , "None" },
@@ -120,6 +132,7 @@ GTKMidiInfo GlobalInfo = {
 /* 117 */ {"BasBiy",          SFElias        ,  45, FluidPort      ,   1, NoCustom  , "None" },
 /* 118 */ {"CZOrgan",         SFElias        ,  51, FluidPort      ,   1, NoCustom  , "None" },
 /* 119 */ {"MoogLead1",       SFElias        ,  53, FluidPort      ,   1, NoCustom  , "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 120 */ {"CZBrass4",        SFElias        ,  64, FluidPort      ,   1, NoCustom  , "None" },
 /* 121 */ {"SinSymph",        SFElias        ,  90, FluidPort      ,   1, NoCustom  , "None" },
 /* 122 */ {"",                NoBank         ,   0, FluidPort      ,   1, NoCustom  , "None" },
@@ -130,6 +143,7 @@ GTKMidiInfo GlobalInfo = {
 /* 127 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 128 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 129 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 130 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 131 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 132 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -140,6 +154,7 @@ GTKMidiInfo GlobalInfo = {
 /* 137 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 138 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 139 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 140 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 141 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 142 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -150,6 +165,7 @@ GTKMidiInfo GlobalInfo = {
 /* 147 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 148 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 149 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 150 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 151 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 152 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -160,6 +176,7 @@ GTKMidiInfo GlobalInfo = {
 /* 157 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 158 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 159 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 160 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 161 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 162 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -170,6 +187,7 @@ GTKMidiInfo GlobalInfo = {
 /* 167 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 168 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 169 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 170 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 171 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 172 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -180,6 +198,7 @@ GTKMidiInfo GlobalInfo = {
 /* 177 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 178 */ {"Guitar V",        NoBank         ,   7, GuitarixPort   ,   1, cmdSetExpr, "None" },
 /* 179 */ {"Midi V",          NoBank         ,   7, FluidPort      ,   1, cmdSetExpr, "None" },
+/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 180 */ {"Master V",        NoBank         ,   7, InternalPort   ,   1, cmdSetExpr, "None" },
 /* 181 */ {"Wah P",           NoBank         ,   2, GuitarixPort   ,   1, cmdSetExpr, "None" },
 },

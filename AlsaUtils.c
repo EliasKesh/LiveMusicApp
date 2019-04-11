@@ -251,7 +251,7 @@ void SetupAlsaTimer(int Count) {
 snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 	int SeqStatus;
 
-	snd_seq_set_client_name(Seq, "LiveMusic");
+	snd_seq_set_client_name(Seq, "LiveMusic Output");
 	SeqStatus = snd_seq_create_simple_port(Seq, Name,
 	                                       SND_SEQ_PORT_CAP_READ |
 	                                       SND_SEQ_PORT_CAP_SUBS_READ,
@@ -310,7 +310,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 //		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
 		ev.data.control.value = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-		printd(LogInfo, "** SendMidi expression %d %d Type %d\n", Port, err, Type);
+//		printd(LogInfo, "** SendMidi expression %d %d Type %d\n", Port, err, Type);
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
@@ -661,7 +661,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	*/
 	case cmdSetExpr:
 		gMyInfo.ExpreP1Slider = LastAbsPatch;
-		printd(LogInfo, "cmdSetExpr %d %d", thePatch->Patch, LastAbsPatch);
+		printd(LogInfo, "cmdSetExpr %d %d\n", thePatch->Patch, LastAbsPatch);
 		break;
 
 // SND_SEQ_EVENT_SETPOS_TIME
@@ -873,28 +873,19 @@ void *alsa_midi_thread(void * context_ptr) {
 				case Slider4:
 					AlsaEvent = *event_ptr;
 //					SetVolume4(event_ptr->data.control.value);
-					break;
+//					break;
 
 				default:
-
-					SendMidi(SND_SEQ_EVENT_CONTROLLER,
-					         gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
-					         1,
-					         gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].OutPort,
-					         event_ptr->data.control.value);
+					AlsaEvent = *event_ptr;
+//					gMyInfo.ExpreP1Slider = Slider4;
+					printd(LogInfo, "Send Midi MSB Volume Default %d %d %d %d\n",
+					       gMyInfo.ExpreP1Slider,
+					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
+					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].OutPort,
+					       event_ptr->data.control.value);
 					break;
 				}
 
-#if 0
-				/* If we are in Guitar mode.
-				*/
-				if ( (FishmanSelSwitch != FishmanGuitar)) {
-					SetVolume1(event_ptr->data.control.value);
-				} else {
-					SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, 1, TestProgram,
-					         event_ptr->data.control.value);
-				}
-#endif
 				break;
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
@@ -960,7 +951,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_MAIN_VOLUME:
 				cc_name = "LSB Main volume";
-				SetVolume2(event_ptr->data.control.value);
+				SetVolume2(event_ptr->data.control.value / 1.28);
 				break;
 			case MIDI_CTL_LSB_BALANCE:
 				cc_name = "Balance";
@@ -1129,7 +1120,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 			case 31:
 				FishmanDPad = event_ptr->data.control.value;
-				printd(LogDebug,"Fishman Control %d\n", FishmanDPad);
+				printd(LogDebug, "Fishman Control %d\n", FishmanDPad);
 				break;
 
 			case 63:
@@ -1762,7 +1753,7 @@ gboolean alsa_input_init(const char * name) {
 
 	/* Name the port.
 	*/
-	snd_seq_set_client_name(SeqPort1In, name);
+	snd_seq_set_client_name(SeqPort1In, "LiveMusic Input");
 
 #ifdef HAVE_LASH_1_0
 	lash_alsa_client_id(g_lashc, snd_seq_client_id(SeqPort1In));
@@ -1778,7 +1769,7 @@ gboolean alsa_input_init(const char * name) {
 	snd_seq_port_info_set_midi_channels(port_info, 16);
 	snd_seq_port_info_set_port_specified(port_info, 1);
 
-	snd_seq_port_info_set_name(port_info, "input");
+	snd_seq_port_info_set_name(port_info, "LiveMusic input");
 	snd_seq_port_info_set_port(port_info, 0);
 
 	ret = snd_seq_create_port(SeqPort1In, port_info);

@@ -38,6 +38,8 @@ theDATE=$(date +"%d%H%M%S")
 	sleep 3
 	./GuitarEffects -c
 fi
+#    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
+#    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 
 sleep 5
 done

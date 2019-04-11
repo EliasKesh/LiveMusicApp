@@ -13,7 +13,8 @@ CFLAGS += $(shell pkg-config --cflags gladeui-2.0)
 CFLAGS += $(shell pkg-config --cflags jack)
 # CFLAGS += -g -ggdb
 
-LDFLAGS =-lusb-1.0 -lrt -lX11 -lXmu -lxmltok
+LDFLAGS =-lusb-1.0 -lrt -lm
+LDFLAGS += -lX11 -lXmu -lxmltok
 LDFLAGS += $(shell pkg-config --cflags --libs gtk+-3.0)
 LDFLAGS += $(shell pkg-config --cflags --libs alsa)
 LDFLAGS += $(shell pkg-config --cflags --libs gladeui-2.0)

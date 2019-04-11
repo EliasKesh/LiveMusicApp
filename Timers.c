@@ -47,6 +47,7 @@ static gboolean tempo_handler(GtkWidget *widget);
 /* Used to Toggle the Tempo GUI display.
  */
 int TempoState;
+int SubBeats;
 extern theImageButtons TempoDraw;
 extern PangoFontDescription *Tempofont_desc;
 extern char TempStrBuf[10];
@@ -71,6 +72,7 @@ void MyTimerInit(void) {
 	SetTempo(120);
 	CountInActiveState = cntStateWaitingIdle;
 	LoopRecBeats = 0;
+	SubBeats = 0;
 
 }
 
@@ -113,10 +115,11 @@ void SetTempo(unsigned int NewTempo) {
 	/*
 	 * This gives us TimerTicksPerQuater ticks per quarter.
 	 */
-	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
+	gMyInfo.TempoReload = (30000 / (NewTempo * TimerTicksPerQuater));
 	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
+	printf( " ****   New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
-	/* Start the new timer 1000 is one second.
+	/* Start the new timer.
 	 */
 	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,
 	                                     (GSourceFunc) tempo_handler, (gpointer) gxml);
@@ -141,6 +144,25 @@ static gboolean time_handler(GtkWidget *widget) {
 #endif
 
 static char		TempoCount = 0;
+#define PedalLEDAllOn		0
+#define PedalLEDAllOff		1
+#define PedalLED1On		2
+#define PedalLED1Off	3
+#define PedalLED2On		4
+#define PedalLED2Off	5
+#define PedalLED3On		6
+#define PedalLED3Off	7
+#define PedalLED4On		8
+#define PedalLED4Off	9
+#define PedalLED5On		10
+#define PedalLED6Off	11
+#define PedalLED7On		12
+#define PedalLED7Off	13
+#define PedalLED7On		14
+#define PedalLED7Off	15
+#define PedalLED8On		17
+#define PedalLED8Off	117
+
 /*--------------------------------------------------------------------
  * Function:		ToggleTempo
  *
@@ -159,6 +181,7 @@ void ToggleTempo(void) {
 	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater / 2))) {
 		TempoState = 0;
 	}
+
 
 	/* This is the tempo in BPM		*/
 	if (!(TempoState % TimerTicksPerQuater)) {
@@ -229,13 +252,15 @@ void ToggleTempo(void) {
 			}
 		}
 
-//			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-//			         DrumMidiChannel, 04, (int) 2);
-#if 0
+#if 1
 		if (TempoCount != 1) {
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED4On );
 		} else {
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED3On);
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 		}
@@ -301,11 +326,22 @@ static gboolean tempo_handler(GtkWidget *widget) {
 	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
 #endif
 
-	PlayerPoll(TRUE);
+	if (++SubBeats > 1) {
+		SubBeats = 0;
 
-	/*  Tempo Midi
-	 */
-	ToggleTempo();
+		PlayerPoll(TRUE);
+
+		/*  Tempo Midi
+		 */
+		ToggleTempo();
+	} else {
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED3Off );
+
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED4Off );
+	}
+
 
 	return TRUE;
 }

@@ -31,6 +31,7 @@
 #include "Timers.h"
 #include "Player.h"
 #include "SooperOSC.h"
+#include "math.h"
 
 //#define UsingNewButtons	1
 
@@ -41,6 +42,7 @@
 #endif
 #define Icon_FILE ResourceDirectory"LiveIcon.png"
 #define MaxTabs	5
+#define UsingImageButtons
 
 /*
  * Place Global variables here
@@ -336,22 +338,23 @@ int GTKIdel_cb(gpointer data) {
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 		switch (gMyInfo.ExpreP1Slider) {
 		case Slider1:
-			SetVolume1(AlsaEvent.data.control.value);
+			SetVolume1(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider2:
-			SetVolume2(AlsaEvent.data.control.value);
+			SetVolume2(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider3:
-			SetVolume3(AlsaEvent.data.control.value);
+			SetVolume3(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider4:
-			SetVolume4(AlsaEvent.data.control.value);
-			break;
+		//		break;
 
 		default:
+			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
+			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
 		}
 		AlsaEvent.data.control.param = 0;
@@ -728,8 +731,8 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
-	SetAlsaMasterVolume(90);
-	SetAlsaCaptureVolume(90);
+	// SetAlsaMasterVolume(90);
+	// SetAlsaCaptureVolume(90);
 	MyOSCInit();
 
 	/* Call the Jackd
@@ -854,7 +857,7 @@ void UpdateStatus(char *String) {
 	gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
 
 }
-#define UsingImageButtons
+
 gboolean click_handler(GtkWidget *widget,
                        GdkEvent *event,
                        gpointer user_data) {
@@ -1068,6 +1071,7 @@ void CreateMainButtons(void) {
  * Function:		VScale1_Changed
  *
  * Description:		Volume Sliders changed.
+ * 				All values from 0-100
  *
  *---------------------------------------------------------------------*/
 void VScale1_Changed(GtkAdjustment *adj) {
@@ -1078,11 +1082,11 @@ void VScale1_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment1);
-	printd(LogInfo, "\nVscale 1 %d\n", NewValue);
+	printd(LogInfo, "Vscale 1 %d\n", NewValue);
 	ThisPatchNum = Slider1;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+
 
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(NewValue, 0);
@@ -1091,7 +1095,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
 		         ThisPatch->OutPort,
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
-		         (char) NewValue);
+		         (char) NewValue * 1.27);
 }
 
 /*--------------------------------------------------------------------
@@ -1104,11 +1108,12 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
 	unsigned int NewValue;
+	unsigned int LogValue;
 
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment2);
-	printd(LogInfo, "\nVscale 2 %d\n", NewValue);
+	printd(LogInfo, "Vscale 2 %d\n", NewValue);
 	ThisPatchNum = Slider2;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 	gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
@@ -1117,12 +1122,14 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(NewValue, 0);
 	else
-		SendMidi(SND_SEQ_EVENT_CONTROLLER,
-		         ThisPatch->OutPort,
-		         ThisPatch->Channel,
-		         ThisPatch->Patch,
-		         (char) NewValue);
 #endif
+		LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+
+	SendMidi(SND_SEQ_EVENT_CONTROLLER,
+	         ThisPatch->OutPort,
+	         ThisPatch->Channel,
+	         ThisPatch->Patch,
+	         (char) LogValue);
 }
 
 /*--------------------------------------------------------------------
@@ -1135,24 +1142,35 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
 	unsigned int NewValue;
+	unsigned int LogValue;
 
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment3);
-	printd(LogInfo, "\nVscale 3 %d\n", NewValue);
+//	printd(LogInfo, "Vscale 3 %d\n", NewValue);
 	ThisPatchNum = Slider3;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
+	// Your ears are not linear.
+	// if (NewValue < 3)
+	// 	LogValue = NewValue;
+	// else
+//		LogValue = (int)( pow(NewValue, 0.75)*3.3);
+	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+//		LogValue = (int)( logf((float)NewValue) * 21.8);
+//		LogValue = (int)( log2f((float)NewValue) * 50);
+
+//	printf( "%d, %d\n", NewValue, LogValue);
 
 	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(NewValue, 0);
+		MyOSCJackVol(LogValue, 0);
 	else
 		SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		         ThisPatch->OutPort,
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
-		         (char) NewValue);
+		         (char) LogValue * 1.27);
 }
 /*--------------------------------------------------------------------
  * Function:		VScale4_Changed
@@ -1168,9 +1186,10 @@ void VScale4_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment4);
-	printd(LogInfo, "\nVscale 4 %d\n", NewValue);
-	ThisPatchNum = Slider4;
+	ThisPatchNum = gMyInfo.ExpreP1Slider;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+	printd(LogInfo, "Vscale 4 %d P=%d\n",
+	       NewValue, ThisPatch->Channel);
 
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 
@@ -1181,7 +1200,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
 		         ThisPatch->OutPort,
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
-		         (char) NewValue);
+		         (char) NewValue * 1.27);
 }
 
 
@@ -1206,7 +1225,7 @@ int SetVolume1(int Value) {
  *---------------------------------------------------------------------*/
 int SetVolume2(int Value) {
 	gtk_adjustment_set_value(Adjustment2, Value);
-	gMyInfo.MidiVolume = (Value * 1.25);
+	gMyInfo.MidiVolume = (Value * 1.27);
 	gtk_range_set_adjustment(VScale2, Adjustment2);
 	return (Value);
 }
