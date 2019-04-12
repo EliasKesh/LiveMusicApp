@@ -227,6 +227,20 @@ GTKMidiInfo GlobalInfo = {
  37, /* Drum down beat, midi code  */
  44, /* Drum Other beats  */
  45, /* Base Midi Note for switching  */
+ 120, /* Tempo   */
+ 4, /* CountInBeats   */
+ 16, /* LoopRecBeats   */
+ 1, /* MidiPassThru   */
+ 110, /* MidiPassLevel   */
+ 4, /* BeatsPerMeasure   */
+ 100, /* AnalogVolume   */
+ 80, /* MidiVolume   */
+ 0xffffe0, /* StatusTextColor   */
+ 0xffe0e0, /* ButtonTextColor   */
+ "127.0.0.1", /* OSCIPAddress   */
+ "9951", /* OSCPortNumLooper   */
+ "9952", /* OSCPortNumJackVol   */
+ "9000", /* OSCPortNumHydrogen   */
 { 
  	{
  "Guitar", 

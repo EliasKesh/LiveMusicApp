@@ -147,45 +147,53 @@ typedef struct {
 	char	Drum1;
 	char	DrumRest;
 	tPatchIndex MidiBaseNote;
-	LayoutType LayoutPresets[Max_Layouts];
+	unsigned char Tempo;
+	unsigned char CountInBeats;
+	unsigned char LoopRecBeats;
+	unsigned int MidiPassThru;
+	unsigned int MidiPassLevel;
+	unsigned int BeatsPerMeasure;
+	unsigned int AnalogVolume;
+	unsigned int MidiVolume;
+	/*
+	 * Colors
+	*/
+	unsigned long	StatusTextColor;
+	unsigned long	ButtonTextColor;
 
 	char 		OSCIPAddress[20];
 	char 		OSCPortNumLooper[6];
 	char 		OSCPortNumJackVol[6];
 	char 		OSCPortNumHydrogen[6];
 
+	LayoutType LayoutPresets[Max_Layouts];
+
+
 	// Generated Beyond this point.
+	//-------------------------------------
+
 	snd_seq_t *SeqPort[MaxOutPorts];
 	//	int			SeqQueue[MaxOutPorts];
+
+	/* Web paged preset are load here when the
+	HTML page is loaded. 
+	*/
 	WebLoadPresets WebPresets;
 	char LoopFileName[100];
 	//	unsigned int	Timer1Count;	/* Not used	*/
-	unsigned char Tempo;
-	unsigned char CountInBeats;
-	unsigned char LoopRecBeats;
 	unsigned long TempoReload;
 	unsigned long TimerCount;
 	unsigned int TempoTimerID;
-	unsigned int MidiPassThru;
-	unsigned int MidiPassLevel;
 
 	snd_timer_t *AlsaTimerHandle;
 	snd_timer_params_t *AlsaTimerParams;
 	snd_timer_id_t *AlsaTimerid;
 	snd_timer_info_t *AlsaTimerinfo;
-	unsigned int AnalogVolume;
-	unsigned int MidiVolume;
-	unsigned int BeatsPerMeasure;
 	unsigned int ExpreP1Out;
 	unsigned int ExpreP1Port;
 	unsigned int ExpreP1Slider;
 
 
-	/*
-	 * Colors
-	 */
-	unsigned long	StatusTextColor;
-	unsigned long	ButtonTextColor;
 
 } GTKMidiInfo;
 

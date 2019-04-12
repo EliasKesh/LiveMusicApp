@@ -41,6 +41,11 @@
 #define MaxTabs	5
 #define UsingImageButtons
 
+/* Max number of history messages.
+*/
+#define MaxStatusHold 8
+#define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
+
 /*
  * Place Global variables here
  */
@@ -65,6 +70,8 @@ GdkPixbuf *NoteBButtonOffImage;
 // The Area we display the tempo
 GtkWidget *TempoChild;
 
+/* The entire pane we keep the tabs in.
+*/
 GtkWidget *NoteBookPane;
 
 // The button size my change based on the screen size.
@@ -73,7 +80,18 @@ int ButtonSize;
 // Foot switch layout.
 int KeyLayout = 1;
 
+/* Printf Level.
+*/
 int RunLogLevel = LogDebug;
+
+/* Array to hold the recent status messages.
+*/
+char HoldStatus[MaxStatusHold][50];
+int HoldStatusIndex;
+
+/* Boolean, send internal metronome to midi.
+*/
+int MainButtonCountOn;
 
 /*
  * Place Local prototypes here
@@ -98,11 +116,6 @@ void VScale2_Changed(GtkAdjustment *adj);
 void VScale3_Changed(GtkAdjustment *adj);
 void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
-
-#define MaxStatusHold 8
-char HoldStatus[MaxStatusHold][50];
-int HoldStatusIndex;
-int MainButtonCountOn;
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -235,22 +248,6 @@ void on_About_clicked(GtkButton *button, gpointer user_data) {
 	gtk_widget_show(window);
 }
 
-#if 0
-/*--------------------------------------------------------------------
- * Function:		on_hscale1_value_changed
- *
- * Description:		When the sliders are changed on the main screen.
- *
- *---------------------------------------------------------------------*/
-void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
-	gdouble val;
-
-	val = gtk_range_get_value(GTK_RANGE(widget));
-	/* print to screen */
-	printd(LogInfo, "Range value: %d\n", (guint) val);
-	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
-}
-#endif
 /*--------------------------------------------------------------------
  * Function:		on_window1_destroy
  *
@@ -260,7 +257,7 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
 void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 	/* break gtk_main() loop */
 //	printd(LogInfo, "In Destroy\n");
-//	WritePrefs();
+	WritePrefs();
 	gtk_main_quit();
 }
 
@@ -360,21 +357,6 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
-
-#if 0
-	if (gUpdateTempo) {
-		MyImageButtonSetText(&TempoDraw, TempStrBuf);
-//		gtk_label_set_text((TempoChild), TempStrBuf);
-		gUpdateTempo = 0;
-	}
-
-	if (SysCallString[0]) {
-		system(SysCallString);
-
-		SysCallString[0] = 0;
-		printd(LogInfo, "IN Idle\n");
-	}
-#endif
 	return (true);
 }
 
@@ -520,6 +502,7 @@ int main(int argc, char *argv[]) {
 	KeyLayout = 1;
 
 	parse_cmdline(argc, argv);
+
 	/* Handle any HID pedals,
 	Must be called before gtk_init
 	*/
@@ -527,13 +510,16 @@ int main(int argc, char *argv[]) {
 
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
-//	gtk_rc_parse( MAINPREFS_FILE);
+
+
 	myScreen = gdk_screen_get_default();
 	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 	ScreenSize = 0;
 	ButtonSize = 95;
 	strcpy(JackName, "default");
 
+	/* Based on the sreen, size the buttons.
+	*/
 	if (gdk_screen_get_width(myScreen) > 1400) {
 		ScreenSize = 1;
 		ButtonSize = 115;
@@ -579,18 +565,21 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 #endif
+
 	/*
 	 * Initialize the XML reader/writer and set some basic values here.
 	 */
 	InitPref();
+
 	/*
 	 create an instance of the GladeXML object and build widgets within
 	 the window1 root node.
 	 */
 	gxml = gtk_builder_new();
 
+	/* Choose the glad file based on the layout we are using.
+	*/
 	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
-
 	if (!gtk_builder_add_from_file(gxml, TempStrBuf, &error)) {
 		g_warning("Couldn't load builder file: %s", error->message);
 		g_error_free(error);
@@ -601,7 +590,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	main_window = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
 
-#if 1
 	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
 	provider = gtk_css_provider_new();
 	display = gdk_display_get_default();
@@ -610,23 +598,13 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	gtk_style_context_add_provider_for_screen(screen,
 	        GTK_STYLE_PROVIDER(provider),
 	        GTK_STYLE_PROVIDER_PRIORITY_USER);
-#if 0
-	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
-	                                " GtkWindow {\n"
-	                                "   background-image: url('./LiveMusicRes/WindowBackground.png');\n"
-	                                "}\n", -1, NULL);
-#else
-// #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
-#define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
 
 	printd(LogInfo, "ejk About to load\n");
 	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
-//	   printd(LogInfo, "ejk After load error %s\n", err->message);
-#endif
+
 	g_object_unref(provider);
 
 	/*----------------------------------------------------------------------------------------------------------------------*/
-#endif
 
 	g_signal_connect(G_OBJECT (main_window), "destroy",
 	                 G_CALLBACK (on_window1_destroy), NULL);
@@ -1660,3 +1638,19 @@ int FindString(int StringList, char *String) {
 	return (0);
 }
 
+#if 0
+/*--------------------------------------------------------------------
+ * Function:		on_hscale1_value_changed
+ *
+ * Description:		When the sliders are changed on the main screen.
+ *
+ *---------------------------------------------------------------------*/
+void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
+	gdouble val;
+
+	val = gtk_range_get_value(GTK_RANGE(widget));
+	/* print to screen */
+	printd(LogInfo, "Range value: %d\n", (guint) val);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
+}
+#endif

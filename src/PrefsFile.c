@@ -28,7 +28,7 @@
  */
 
 #define PREFSFILENAME "LiveMusicRes/LiveMusic.xml"
-#define DefinePrefsFile "GenPrefs.h"
+#define DefinePrefsFile "./src/GenPrefs.h"
 
 /*
  * Place Local prototypes here
@@ -60,8 +60,9 @@ InitPref (void) {
 
 #if 0
 	WritePrefs ();
-#else
-//	ReadPrefs ();
+	ReadPrefs ();
+	PrintDataStructure(&gMyInfo, DefinePrefsFile);
+	exit(0);
 
 #endif
 #if 1
@@ -70,13 +71,14 @@ InitPref (void) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
-	gMyInfo.MidiBaseNote = 45;
 #endif
 	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;
 
+#if 0 // Loaded from file.
+	gMyInfo.MidiBaseNote = 45;
 	gMyInfo.BeatsPerMeasure = 4;
 	gMyInfo.LoopRecBeats = 16;
 	gMyInfo.CountInBeats = 4;
@@ -88,7 +90,7 @@ InitPref (void) {
 	strcpy (gMyInfo.OSCPortNumLooper, "9951");
 	strcpy (gMyInfo.OSCPortNumJackVol, "9952");
 	strcpy (gMyInfo.OSCPortNumHydrogen, "9000");
-
+#endif
 //    ReadPrefs();
 	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
@@ -129,7 +131,7 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
 		if ((Loop % 10) == 0 && PrefsFile)
 			fprintf (PrefsFile, "/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ \n");
-			   
+
 		if (myInfo->MyPatchInfo[Loop].CustomCommand == NoCustom) {
 			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
 				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
@@ -201,6 +203,23 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 		fprintf (PrefsFile, " %d, /* Drum down beat, midi code  */\n", myInfo->Drum1);
 		fprintf (PrefsFile, " %d, /* Drum Other beats  */\n", myInfo->DrumRest);
 		fprintf (PrefsFile, " %d, /* Base Midi Note for switching  */\n", myInfo->MidiBaseNote);
+		fprintf (PrefsFile, " %d, /* Tempo   */\n", myInfo->Tempo);
+		fprintf (PrefsFile, " %d, /* CountInBeats   */\n", myInfo->CountInBeats);
+		fprintf (PrefsFile, " %d, /* LoopRecBeats   */\n", myInfo->LoopRecBeats);
+		fprintf (PrefsFile, " %d, /* MidiPassThru   */\n", myInfo->MidiPassThru);
+		fprintf (PrefsFile, " %d, /* MidiPassLevel   */\n", myInfo->MidiPassLevel);
+		fprintf (PrefsFile, " %d, /* BeatsPerMeasure   */\n", myInfo->BeatsPerMeasure);
+
+		fprintf (PrefsFile, " %d, /* AnalogVolume   */\n", myInfo->AnalogVolume);
+		fprintf (PrefsFile, " %d, /* MidiVolume   */\n", myInfo->MidiVolume);
+		fprintf (PrefsFile, " 0x%x, /* StatusTextColor   */\n", myInfo->StatusTextColor);
+		fprintf (PrefsFile, " 0x%x, /* ButtonTextColor   */\n", myInfo->ButtonTextColor);
+
+		fprintf (PrefsFile, " \"%s\", /* OSCIPAddress   */\n", myInfo->OSCIPAddress);
+		fprintf (PrefsFile, " \"%s\", /* OSCPortNumLooper   */\n", myInfo->OSCPortNumLooper);
+		fprintf (PrefsFile, " \"%s\", /* OSCPortNumJackVol   */\n", myInfo->OSCPortNumJackVol);
+		fprintf (PrefsFile, " \"%s\", /* OSCPortNumHydrogen   */\n", myInfo->OSCPortNumHydrogen);
+
 	}
 
 	printd (LogInfo, "BaseName %s\n", myInfo->BasePath);
@@ -296,8 +315,20 @@ WritePrefs (void) {
 	xmlNewChild (root_node, NULL, BAD_CAST "SongPath",
 	             BAD_CAST gMyInfo.BasePath);
 
+
 	/*
-	 * Write out the Buttons
+	 * Write out the Output Ports.
+	 */
+	node1 = xmlNewChild (root_node, NULL, BAD_CAST "OutPorts", NULL);
+	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
+		sprintf (buff, "Port%03d", Loop);
+		node = xmlNewChild (node1, NULL, buff, NULL);
+		xmlSetProp (node, "Name", gMyInfo.OutPortName[Loop]);
+	}
+
+
+	/*
+	 * Write out the Patches
 	 */
 	node1 = xmlNewChild (root_node, NULL, BAD_CAST "MainButtons", NULL);
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
@@ -322,15 +353,64 @@ WritePrefs (void) {
 	sprintf (buff, "%03d", gMyInfo.NumOutPorts);
 	xmlNewChild (root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
 
-	/*
-	 * Write out the Output Ports.
-	 */
-	node1 = xmlNewChild (root_node, NULL, BAD_CAST "OutPorts", NULL);
-	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
-		sprintf (buff, "Port%03d", Loop);
-		node = xmlNewChild (node1, NULL, buff, NULL);
-		xmlSetProp (node, "Name", gMyInfo.OutPortName[Loop]);
-	}
+
+
+	sprintf (buff, "%03d", gMyInfo.TempoMax);
+	xmlNewChild (root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.MetronomeOn);
+	xmlNewChild (root_node, NULL, BAD_CAST "MetroOn", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.Drum1);
+	xmlNewChild (root_node, NULL, BAD_CAST "Click1", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.DrumRest);
+	xmlNewChild (root_node, NULL, BAD_CAST "ClickRest", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.MidiBaseNote);
+	xmlNewChild (root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.Tempo);
+	xmlNewChild (root_node, NULL, BAD_CAST "Tempo", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.CountInBeats);
+	xmlNewChild (root_node, NULL, BAD_CAST "CountInBeats", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.LoopRecBeats);
+	xmlNewChild (root_node, NULL, BAD_CAST "LoopRecBeats", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.MidiPassThru);
+	xmlNewChild (root_node, NULL, BAD_CAST "MidiPassThru", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.MidiPassLevel);
+	xmlNewChild (root_node, NULL, BAD_CAST "MidiPassLevel", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.BeatsPerMeasure);
+	xmlNewChild (root_node, NULL, BAD_CAST "BeatsPerMeasure", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.AnalogVolume);
+	xmlNewChild (root_node, NULL, BAD_CAST "AnalogVolume", BAD_CAST buff);
+
+	sprintf (buff, "%03d", gMyInfo.MidiVolume);
+	xmlNewChild (root_node, NULL, BAD_CAST "MidiVolume", BAD_CAST buff);
+
+	sprintf (buff, "0x%x", gMyInfo.StatusTextColor);
+	xmlNewChild (root_node, NULL, BAD_CAST "StatusTextColor", BAD_CAST buff);
+
+	sprintf (buff, "0x%x", gMyInfo.ButtonTextColor);
+	xmlNewChild (root_node, NULL, BAD_CAST "ButtonTextColor", BAD_CAST buff);
+
+	sprintf (buff, "%s", gMyInfo.OSCIPAddress);
+	xmlNewChild (root_node, NULL, BAD_CAST "OSCIPAddress", BAD_CAST buff);
+
+	sprintf (buff, "%s", gMyInfo.OSCPortNumLooper);
+	xmlNewChild (root_node, NULL, BAD_CAST "OSCPortNumLooper", BAD_CAST buff);
+
+	sprintf (buff, "%s", gMyInfo.OSCPortNumJackVol);
+	xmlNewChild (root_node, NULL, BAD_CAST "OSCPortNumJackVol", BAD_CAST buff);
+
+	sprintf (buff, "%s", gMyInfo.OSCPortNumHydrogen);
+	xmlNewChild (root_node, NULL, BAD_CAST "OSCPortNumHydrogen", BAD_CAST buff);
 
 	node1 = xmlNewChild (root_node, NULL, BAD_CAST "AppNames", NULL);
 	for (Loop = 0; Loop < MaxApps; Loop++) {
@@ -340,21 +420,6 @@ WritePrefs (void) {
 		sprintf (buff, "%03d", gMyInfo.Apps[Loop].PortID);
 		xmlSetProp (node, "PortID", buff);
 	}
-
-	sprintf (buff, "%03d", gMyInfo.TempoMax);
-	xmlNewChild (root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
-
-	sprintf (buff, "%03d", gMyInfo.MetronomeOn);
-	xmlNewChild (root_node, NULL, BAD_CAST "MetroOn", BAD_CAST buff);
-
-	sprintf (buff, "%03d", gMyInfo.MidiBaseNote);
-	xmlNewChild (root_node, NULL, BAD_CAST "MidiBaseNote", BAD_CAST buff);
-
-	sprintf (buff, "%03d", gMyInfo.Drum1);
-	xmlNewChild (root_node, NULL, BAD_CAST "Click1", BAD_CAST buff);
-
-	sprintf (buff, "%03d", gMyInfo.DrumRest);
-	xmlNewChild (root_node, NULL, BAD_CAST "ClickRest", BAD_CAST buff);
 
 	/*
 	 * Dump the layouts to the XML File.
@@ -421,18 +486,16 @@ WritePrefs (void) {
 // XML_ELEMENT_NODE
 //
 //
-#define dTopLevelNone 0
-#define dTopLevelMainButtons 1
-#define dTopLevelNumOutPorts 2
-#define dTopLevelOutPorts 3
-#define dTopLevelSongPath 4
-#define dTopLevelAppName 5
-#define dTopLevelMetronome 6
-#define dTopLevelMetronomeOn 7
-#define dTopLevelMidiBase 8
-#define dTopLevelClick1	9
-#define dTopLevelClickRest 10
-#define dTopLevelLayouts 11
+enum { dTopLevelNone = 0,dTopLevelMainButtons,dTopLevelNumOutPorts,
+dTopLevelOutPorts, dTopLevelSongPath, dTopLevelAppName,
+dTopLevelMetronome, dTopLevelMetronomeOn, dTopLevelMidiBase,
+dTopLevelClick1, dTopLevelClickRest, dTopLevelLayouts,
+dTopLevelTempo, dTopLevelCountInBeats, dTopLevelLoopRecBeats, dTopLevelBeatsPerMeasure,
+dTopLevelAnalogVolume,  dTopLevelMidiVolume, dTopLevelStatusTextColor, dTopLevelButtonTextColor,
+dTopLevelOSCIPAddress, dTopLevelOSCPortNumLooper,
+dTopLevelOSCPortNumJackVol, dTopLevelOSCPortNumHydrogen,
+dTopMidiPassThru,dTopMidiPassLevel
+ };
 
 int TopLevelParse;
 int ParseCountL4;
@@ -532,6 +595,62 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		if (!strcmp ("Layouts", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelLayouts;
 			printd (LogInfo, "Found Layouts\n");
+		}
+
+
+		if (!strcmp ("Tempo", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelTempo;
+		}
+
+		if (!strcmp ("MidiPassThru", name) && NodeType == 1) {
+			TopLevelParse = dTopMidiPassThru;
+		}
+
+		if (!strcmp ("MidiPassLevel", name) && NodeType == 1) {
+			TopLevelParse = dTopMidiPassLevel;
+		}
+
+		if (!strcmp ("CountInBeats", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelCountInBeats;
+		}
+
+		if (!strcmp ("LoopRecBeats", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelLoopRecBeats;
+		}
+		if (!strcmp ("BeatsPerMeasure", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelBeatsPerMeasure;
+		}
+
+		if (!strcmp ("AnalogVolume", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelAnalogVolume;
+		}
+
+		if (!strcmp ("MidiVolume", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelMidiVolume;
+		}
+
+		if (!strcmp ("StatusTextColor", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelStatusTextColor;
+		}
+
+		if (!strcmp ("ButtonTextColor", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelButtonTextColor;
+		}
+
+		if (!strcmp ("OSCIPAddress", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelOSCIPAddress;
+		}
+
+		if (!strcmp ("OSCPortNumLooper", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelOSCPortNumLooper;
+		}
+
+		if (!strcmp ("OSCPortNumJackVol", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelOSCPortNumJackVol;
+		}
+
+		if (!strcmp ("OSCPortNumHydrogen", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelOSCPortNumHydrogen;
 		}
 	}
 
@@ -684,6 +803,77 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		if (TopLevelParse == dTopLevelClickRest) {
 			printd (LogInfo, "dTopLevelClickRest %s\n", value);
 			gMyInfo.DrumRest = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelTempo) {
+			printd (LogInfo, "dTopLevelTempo %s\n", value);
+			gMyInfo.Tempo = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelCountInBeats) {
+			printd (LogInfo, "dTopLevelCountInBeats %s\n", value);
+			gMyInfo.CountInBeats = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelLoopRecBeats) {
+			printd (LogInfo, "dTopLevelLoopRecBeats %s\n", value);
+			gMyInfo.LoopRecBeats = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelBeatsPerMeasure) {
+			printd (LogInfo, "dTopLevelBeatsPerMeasure %s\n", value);
+			gMyInfo.BeatsPerMeasure = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelAnalogVolume) {
+			printd (LogInfo, "dTopLevelAnalogVolume %s\n", value);
+			gMyInfo.AnalogVolume = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelMidiVolume) {
+			printd (LogInfo, "dTopLevelMidiVolume %s\n", value);
+			gMyInfo.MidiVolume = atoi (value);
+		}
+
+		if (TopLevelParse == dTopMidiPassLevel) {
+			printd (LogInfo, "dTopMidiPassLevel %s\n", value);
+			gMyInfo.MidiPassLevel = atoi (value);
+		}
+
+		if (TopLevelParse == dTopMidiPassThru) {
+			printd (LogInfo, "dTopMidiPassThru %s\n", value);
+			gMyInfo.MidiPassThru = atoi (value);
+		}
+
+		if (TopLevelParse == dTopLevelOSCIPAddress) {
+			printd (LogInfo, "dTopLevelOSCIPAddress %s\n", value);
+			strncpy (gMyInfo.OSCIPAddress, value, 255);
+		}
+
+		if (TopLevelParse == dTopLevelOSCPortNumJackVol) {
+			printd (LogInfo, "dTopLevelOSCPortNumJackVol %s\n", value);
+			strncpy (gMyInfo.OSCPortNumJackVol, value, 255);
+		}
+
+		if (TopLevelParse == dTopLevelOSCPortNumLooper) {
+			printd (LogInfo, "dTopLevelOSCPortNumLooper %s\n", value);
+			strncpy (gMyInfo.OSCPortNumLooper, value, 255);
+		}
+
+		if (TopLevelParse == dTopLevelOSCPortNumHydrogen) {
+			printd (LogInfo, "dTopLevelOSCPortNumHydrogen %s\n", value);
+			strncpy (gMyInfo.OSCPortNumHydrogen, value, 255);
+		}
+
+		if (TopLevelParse == dTopLevelStatusTextColor) {
+			printd (LogInfo, "dTopLevelStatusTextColor %s\n", value);
+			sscanf(value, "%x", &gMyInfo.StatusTextColor);
+		}
+
+
+		if (TopLevelParse == dTopLevelButtonTextColor) {
+			printd (LogInfo, "dTopLevelButtonTextColor %s\n", value);
+			sscanf(value, "%x", &gMyInfo.ButtonTextColor);
 		}
 
 	}				/* Depth == 2 && NodeType == 3        */
