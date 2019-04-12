@@ -18,7 +18,6 @@
  * Place Includes Here
  */
 #include <gtk/gtk.h>
-
 #include "GTKMidiUI.h"
 
 /*
@@ -44,11 +43,11 @@ void view_popup_menu_onDoSomething(GtkWidget *menuitem, gpointer userdata) {
 	g_print("Do something! %d\n", (int)userdata);
 
 	switch ((int) userdata) {
-		case 1:
-			break;
+	case 1:
+		break;
 
-		case 2:
-			break;
+	case 2:
+		break;
 	}
 }
 
@@ -58,7 +57,7 @@ void view_popup_menu_onDoSomething(GtkWidget *menuitem, gpointer userdata) {
  *
  *---------------------------------------------------------------------*/
 void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
-	gpointer userdata) {
+                     gpointer userdata) {
 	GtkWidget *menu, *menuitem;
 
 	menu = gtk_menu_new();
@@ -66,12 +65,12 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
 	menuitem = gtk_menu_item_new_with_label("Do something");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	g_signal_connect(menuitem, "activate",
-		(GCallback ) view_popup_menu_onDoSomething, 1);
+	                 (GCallback ) view_popup_menu_onDoSomething, 1);
 
 	menuitem = gtk_menu_item_new_with_label("or something");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	g_signal_connect(menuitem, "activate",
-		(GCallback ) view_popup_menu_onDoSomething, 2);
+	                 (GCallback ) view_popup_menu_onDoSomething, 2);
 
 //	g_signal_connect(menuitem, "activate",
 //		(GCallback ) view_popup_menu_onDoSomething, treeview);
@@ -81,8 +80,8 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
 	/* Note: event can be NULL here when called from view_onPopupMenu;
 	 *  gdk_event_get_time() accepts a NULL argument */
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-		(event != NULL) ? event->button : 0,
-		gdk_event_get_time((GdkEvent*) event));
+	               (event != NULL) ? event->button : 0,
+	               gdk_event_get_time((GdkEvent*) event));
 }
 
 /*--------------------------------------------------------------------
@@ -91,7 +90,7 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
  *
  *---------------------------------------------------------------------*/
 gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
-	gpointer userdata) {
+                              gpointer userdata) {
 	printd(LogInfo, "On Butting Pressed CB\n");
 
 	/* single click with the right mouse button? */
@@ -114,9 +113,9 @@ gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
 
 				/* Get tree path for row that was clicked */
 				if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
-						(gint) event->x,
-						(gint) event->y,
-						&path, NULL, NULL, NULL)) {
+				                                  (gint) event->x,
+				                                  (gint) event->y,
+				                                  &path, NULL, NULL, NULL)) {
 					gtk_tree_selection_unselect_all(selection);
 					gtk_tree_selection_select_path(selection, path);
 					gtk_tree_path_free(path);
@@ -150,7 +149,7 @@ void create_Popup_view(GtkWidget *view) {
 //	view = gtk_tree_view_new();
 
 	g_signal_connect(view, "button-press-event",
-		(GCallback ) view_onButtonPressed, NULL);
+	                 (GCallback ) view_onButtonPressed, NULL);
 	g_signal_connect(view, "popup-menu", (GCallback ) view_onPopupMenu, NULL);
 	printd(LogInfo, "After TreeView\n");
 }
@@ -179,11 +178,11 @@ void CreatePatchPopupMenu(void) {
 	int	Loop;
 	PatchPopupMenu = gtk_menu_new();
 
-	for (Loop = 0; Loop< Max_Patches; Loop++) {
+	for (Loop = 0; Loop < Max_Patches; Loop++) {
 		menuitem = gtk_menu_item_new_with_label(gMyInfo.MyPatchInfo[Loop].Name);
 		gtk_menu_shell_append(GTK_MENU_SHELL(PatchPopupMenu), menuitem);
 		g_signal_connect(menuitem, "activate",
-			(GCallback ) Patch_Popup_CB, Loop);
+		                 (GCallback ) Patch_Popup_CB, Loop);
 	}
 }
 
@@ -201,7 +200,7 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 	/* single click with the right mouse button? */
 	printf("view_onButtonPressed");
 //	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
-		if (1 ) {
+	if (1 ) {
 		g_print("Single right click on the tree view.\n");
 #if 0
 		/* optional: select row if no row is selected or only
@@ -220,9 +219,9 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 
 				/* Get tree path for row that was clicked */
 				if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
-						(gint) event->x,
-						(gint) event->y,
-						&path, NULL, NULL, NULL)) {
+				                                  (gint) event->x,
+				                                  (gint) event->y,
+				                                  &path, NULL, NULL, NULL)) {
 					gtk_tree_selection_unselect_all(selection);
 					gtk_tree_selection_select_path(selection, path);
 					gtk_tree_path_free(path);
@@ -235,7 +234,7 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 		/* Note: event can be NULL here when called from view_onPopupMenu;
 		 *  gdk_event_get_time() accepts a NULL argument */
 		gtk_menu_popup(GTK_MENU(PatchPopupMenu), NULL, NULL, NULL, NULL,
-			0, 0);
+		               0, 0);
 
 		return TRUE; /* we handled this */
 	}

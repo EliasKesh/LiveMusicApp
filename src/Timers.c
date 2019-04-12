@@ -28,7 +28,6 @@
  * Place defines and Typedefs here
  */
 //#define AlsaTimer
-//#define TimerTicksPerQuater 	24
 #define TimerTicksPerQuater 	4
 
 
@@ -48,11 +47,6 @@ static gboolean tempo_handler(GtkWidget *widget);
  */
 int TempoState;
 int SubBeats;
-extern theImageButtons TempoDraw;
-extern PangoFontDescription *Tempofont_desc;
-extern char TempStrBuf[10];
-
-
 
 /*--------------------------------------------------------------------
  * Function:		MyTimerInit
@@ -335,11 +329,11 @@ static gboolean tempo_handler(GtkWidget *widget) {
 		 */
 		ToggleTempo();
 	} else {
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED3Off );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3Off );
 
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED4Off );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED4Off );
 	}
 
 

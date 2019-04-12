@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------
  *      Revision Date:   2012/01/15 22:52:40
  *
- *      Contains:       Main code for te Live Music Application
+ *      Contains:       Main code for the Live Music Application
  *
  *      Written by:     Elias Keshishoglou
  *
@@ -15,8 +15,6 @@
 
 #define GTKMidiUI_c
 
-#include <gtk/gtk.h>
-// #include "/usr/include/gtk-3.0/gtk/gtkcssprovider.h"
 #include "GTKMidiUI.h"
 
 #include "stdlib.h"
@@ -26,7 +24,6 @@
 #include "HTML.h"
 #include "PrefsFile.h"
 #include "Connections.h"
-// #include <gdk/gdkkeysyms.h>
 #include "getopt.h"
 #include "Timers.h"
 #include "Player.h"
@@ -56,7 +53,6 @@ guint MainStatusid;
 theImageButtons LayoutButton;
 theImageButtons MainButtons[Max_Main_Buttons];
 theImageButtons TabButtons[MaxTabs];
-theImageButtons TempoDraw;
 
 // The Scale widgets.
 GtkWidget *VScale1, *VScale2, *VScale3, *VScale4;
@@ -68,12 +64,6 @@ GdkPixbuf *NoteBButtonOffImage;
 
 // The Area we display the tempo
 GtkWidget *TempoChild;
-
-// Standard font description we use across the program
-PangoFontDescription *Tempofont_desc;
-
-// Hold the tempo string so we do not draw at inturrupt time.
-char TempStrBuf[100];
 
 GtkWidget *NoteBookPane;
 
@@ -133,6 +123,12 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	return NULL;
 }
 
+/*--------------------------------------------------------------------
+ * Function:            create_pixbuf
+ *
+ * Description:		Load an icon file for the application
+ *
+ *---------------------------------------------------------------------*/
 GdkPixbuf *create_pixbuf(const gchar * filename) {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
@@ -239,6 +235,7 @@ void on_About_clicked(GtkButton *button, gpointer user_data) {
 	gtk_widget_show(window);
 }
 
+#if 0
 /*--------------------------------------------------------------------
  * Function:		on_hscale1_value_changed
  *
@@ -253,7 +250,7 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
 	printd(LogInfo, "Range value: %d\n", (guint) val);
 	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
 }
-
+#endif
 /*--------------------------------------------------------------------
  * Function:		on_window1_destroy
  *
@@ -357,6 +354,9 @@ int GTKIdel_cb(gpointer data) {
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
 		}
+
+		/* Clear it until next message set 
+		*/
 		AlsaEvent.data.control.param = 0;
 	}
 
@@ -387,6 +387,7 @@ void parse_cmdline(int argc, char *argv[]) {
 	int c;
 	int digit_optind = 0;
 
+	printf("Arg 0 %s\n", argv[0]);
 	while (1)  {
 		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;

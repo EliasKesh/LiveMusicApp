@@ -13,7 +13,7 @@ CFLAGS += $(shell pkg-config --cflags gladeui-2.0)
 CFLAGS += $(shell pkg-config --cflags jack)
 # CFLAGS += -g -ggdb
 
-LDFLAGS =-lusb-1.0 -lrt -lm
+LDFLAGS = -lusb-1.0 -lrt -lm
 LDFLAGS += -lX11 -lXmu -lxmltok
 LDFLAGS += $(shell pkg-config --cflags --libs gtk+-3.0)
 LDFLAGS += $(shell pkg-config --cflags --libs alsa)
@@ -22,13 +22,21 @@ LDFLAGS += $(shell pkg-config --cflags --libs webkit2gtk-4.0)
 LDFLAGS += $(shell pkg-config --cflags --libs jack)
 LDFLAGS += $(shell pkg-config --cflags --libs liblo)
    
-SOURCES = AlsaUtils.c  Connections.c HTML.c Player.c PrefsGui.c 
-SOURCES += Timers.c Chorder.c GTKMidiUI.c MyWidgets.c PrefsFile.c RightMenuClick.c wmctrl.c
-SOURCES += transport.c SooperOSC.c HIDGrab.c
+SOURCES = ./src/AlsaUtils.c  ./src/Connections.c ./src/HTML.c 
+SOURCES += ./src/Player.c ./src/PrefsGui.c ./src/Timers.c 
 
-INCLUDES = aconfig.h DefPrefs.h HTML.h PrefsFile.h Timers.h
-INCLUDES += AlsaUtils.h GenPrefs.h MyWidgets.h PrefsGui.h
-INCLUDES += Connections.h GTKMidiUI.h Player.h SooperOSC.h
+
+
+SOURCES += ./src/Chorder.c ./src/GTKMidiUI.c ./src/MyWidgets.c 
+SOURCES += ./src/PrefsFile.c ./src/RightMenuClick.c ./src/wmctrl.c
+SOURCES += ./src/transport.c ./src/SooperOSC.c ./src/HIDGrab.c
+
+INCLUDES = ./src/aconfig.h ./src/DefPrefs.h ./src/HTML.h 
+INCLUDES += ./src/PrefsFile.h ./src/Timers.h
+INCLUDES += ./src/AlsaUtils.h ./src/GenPrefs.h 
+INCLUDES += ./src/MyWidgets.h ./src/PrefsGui.h
+INCLUDES += ./src/Connections.h ./src/GTKMidiUI.h 
+INCLUDES += ./src/Player.h ./src/SooperOSC.h
 
 OBJECTS=$(SOURCES:.cxx=.o)
 # OBJECTS+=$(SOURCES:.c=.o)

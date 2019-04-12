@@ -101,8 +101,8 @@ typedef struct {
 #define Max_Main_Buttons 70
 #define Max_Patches	 182
 #define Max_Layouts	 10
-#define FileNameMaxLength	40
-#define Max_Layouts		10
+#define FileNameMaxLength	250
+
 typedef struct {
 	char Name[PatchNameSize];
 	char Presets[Max_Patches][PatchNameSize];
@@ -314,24 +314,18 @@ enum {
 enum { cntStateWaitingIdle = 0, cntStateRecording = 1, cntStateWaitingforCount = 2};
 
 #ifdef GTKMidiUI_c
-//PatchInfo  *MyPatchInfo;
-GTKMidiInfo gMyInfo;
-//LayoutType LayoutPresets[Max_Layouts];
-int LastPortUsed;
-
+#define EXTERN /* */
 char *CustomPorts[] = {
 	"FluidPort",
 	"GuitarixPort",
 	"LooperPort",
 	"TransportPort",
-	"TempoPort", 
-	"ClickPort", 
+	"TempoPort",
+	"ClickPort",
 	"PedalPort",
 	"InternalPort"
 };
 
-PortsInfo theInPorts;
-PortsInfo theOutPorts;
 char *CustomCommands[] = {
 	"NoCustom",
 	"ToNextDesktop",
@@ -361,91 +355,68 @@ char *CustomCommands[] = {
 };
 
 char *SoundFontBankNames[] = {
-"SFFluidGM",
-"SFElias",
-"SFSonidoGM",
-"SFSynthGM",
-"SFVintage",
-"SFDX7",
-"SFDSF",
-"SFRolandTenor",
-"SFAltoSax",
-"SFFlute",
-"SFDrums",
-"SFDrumsElias"
+	"SFFluidGM",
+	"SFElias",
+	"SFSonidoGM",
+	"SFSynthGM",
+	"SFVintage",
+	"SFDX7",
+	"SFDSF",
+	"SFRolandTenor",
+	"SFAltoSax",
+	"SFFlute",
+	"SFDrums",
+	"SFDrumsElias"
 };
+#else
+#define EXTERN extern
+extern char *CustomPorts[];
+extern char *CustomCommands[];
+extern char *SoundFontBankNames[];
+#endif
+
+//PatchInfo  *MyPatchInfo;
+EXTERN GTKMidiInfo gMyInfo;
+//LayoutType LayoutPresets[Max_Layouts];
+EXTERN int LastPortUsed;
+
+
+EXTERN PortsInfo theInPorts;
+EXTERN PortsInfo theOutPorts;
 
 //int		ModeArray[ModeLastItem][Max_Patches];
 
 //int		preModeSwitch[Max_Patches];
-int WaitingforMidi;
-int WaitingforMidiHold;
-GtkBuilder *gxml;
-unsigned int CountInCount;
-unsigned int LoopRecBeats;
-char CountInActiveState;
-char	SysCallString[200];
-GdkPixbuf *MainButtonOnImage;
-GdkPixbuf *MainButtonOffImage;
-GdkPixbuf *PatchButtonOnImage;
-GdkPixbuf *PatchButtonOffImage;
-char gUpdateTempo;
-int		CurrentSetListSong;
-unsigned int CurrentLayout;
-unsigned int CurrentPreset;
-GtkWidget *PatchPopupMenu;
-char		ScreenSize;
-int verbose_flag;
-char		JackName[MaxStringPortName];
-int 		FishmanSwitch;
-int 		FishmanSelSwitch;
-int 		LastPatch;
-int 		LastAbsPatch;
-int 		PreviousTab;
-snd_seq_event_t AlsaEvent;
-
-#else
-extern int LastPortUsed;
-//extern LayoutType LayoutPresets[];
-
-//extern PatchInfo  *MyPatchInfo;
-extern GTKMidiInfo gMyInfo;
-extern char *CustomCommands[];
-extern char *CustomPorts[];
-extern char *SoundFontBankNames[];
-extern PortsInfo theInPorts;
-extern PortsInfo theOutPorts;
-extern char *theModes[];
-extern int preModePractice[];
-extern int preModeLooper[];
-extern int preModePerformance[];
-extern int preModeRehearsal[];
-extern int WaitingforMidi;
-extern int WaitingforMidiHold;
-extern GtkBuilder *gxml;
-extern unsigned int CountInCount;
-extern unsigned int LoopRecBeats;
-extern char CountInActiveState;
-extern char	SysCallString[200];
-extern GdkPixbuf *MainButtonOnImage;
-extern GdkPixbuf *MainButtonOffImage;
-extern GdkPixbuf *PatchButtonOnImage;
-extern GdkPixbuf *PatchButtonOffImage;
-extern char gUpdateTempo;
-extern int		CurrentSetListSong;
-extern unsigned int CurrentLayout;
-extern unsigned int CurrentPreset;
-extern GtkWidget *PatchPopupMenu;
-extern char		ScreenSize;
-extern int verbose_flag;
-extern char		JackName[MaxStringPortName];
-extern int 		FishmanSwitch;
-extern int 		FishmanSelSwitch;
-extern int 		LastPatch;
-extern int 		LastAbsPatch;
-extern int 		PreviousTab;
-extern snd_seq_event_t AlsaEvent;
-#endif
+EXTERN int WaitingforMidi;
+EXTERN int WaitingforMidiHold;
+EXTERN GtkBuilder *gxml;
+EXTERN unsigned int CountInCount;
+EXTERN unsigned int LoopRecBeats;
+EXTERN char CountInActiveState;
+EXTERN char	SysCallString[200];
+EXTERN GdkPixbuf *MainButtonOnImage;
+EXTERN GdkPixbuf *MainButtonOffImage;
+EXTERN GdkPixbuf *PatchButtonOnImage;
+EXTERN GdkPixbuf *PatchButtonOffImage;
+EXTERN char gUpdateTempo;
+EXTERN int		CurrentSetListSong;
+EXTERN unsigned int CurrentLayout;
+EXTERN unsigned int CurrentPreset;
+EXTERN GtkWidget *PatchPopupMenu;
+EXTERN char		ScreenSize;
+EXTERN int verbose_flag;
+EXTERN char		JackName[MaxStringPortName];
+EXTERN int 		FishmanSwitch;
+EXTERN int 		FishmanSelSwitch;
+EXTERN int 		LastPatch;
+EXTERN int 		LastAbsPatch;
+EXTERN int 		PreviousTab;
+EXTERN snd_seq_event_t AlsaEvent;
+EXTERN theImageButtons TempoDraw;
+// Standard font description we use across the program
+EXTERN PangoFontDescription *Tempofont_desc;
+// Hold the tempo string so we do not draw at inturrupt time.
+EXTERN char TempStrBuf[100];
 
 void NextDesktop(void);
 void PrevDesktop(void);

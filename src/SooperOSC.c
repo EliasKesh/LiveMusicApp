@@ -20,9 +20,7 @@
 
 #include "GTKMidiUI.h"
 #include "SooperOSC.h"
-// #include <netinet/in.h>
 #include <lo/lo.h>
-
 
 /*
  * Place defines and Typedefs here

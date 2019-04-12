@@ -27,6 +27,9 @@
 /*
  * Place defines and Typedefs here
  */
+#define InPipeName "/tmp/LiveMusicIn"
+#define OutPipeName "/tmp/LiveMusicOut"
+#define RestartPlayerValue		7
 
 /*
  * Place Local prototypes here
@@ -60,8 +63,6 @@ static FILE *SavedLoop;
 static FILE *OutPipe;
 int InPipeFD;
 int PlayPauseState = 1;
-#define InPipeName "/tmp/LiveMusicIn"
-#define OutPipeName "/tmp/LiveMusicOut"
 GtkAdjustment *PositionAdjustment;
 GtkAdjustment *StartAdjustment;
 GtkAdjustment *EndAdjustment;
@@ -100,7 +101,6 @@ char RestartPlayer;
 char PlayerString[400];
 char PlayerAsk = 0;
 
-#define RestartPlayerValue		7
 /*--------------------------------------------------------------------
  * Function:		LivePlayerInit
  *

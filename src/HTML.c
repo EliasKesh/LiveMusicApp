@@ -1,3 +1,23 @@
+/*---------------------------------------------------------------------
+|
+|	File: 	MyWidgets
+|
+|	Contains:
+|
+|
+|	Written By: 	Elias Keshishoglou 
+|
+|	Copyright �: 	2014 Elias Keshishoglou all rights reserved.
+|
+|
+|---------------------------------------------------------------------*/
+
+#define HTML_c
+
+/*
+ * Place Includes Here
+ */
+
 #include <gtk/gtk.h>
 
 #define WebKit2 1
@@ -13,11 +33,28 @@
 #define _GNU_SOURCE
 #include <string.h>
 
+
+/*
+ * Place defines and Typedefs here
+ */
+
+#define ParseValue "Preset"
+#define MAXLINE 250
+
+/*
+ * Place Local prototypes here
+ */
+
 int Search_in_File(const char *fname, WebLoadPresets *thePresets);
 int ScalePage(void);
 tPatchIndex AssignPreset(int PresetNum, char *String);
 void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value);
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+
+/*
+ * Place Static variables here
+ */
+
 
 static WebKitWebView* web_view;
 theImageButtons PresetButtons[MaxPresetButtons];
@@ -29,11 +66,8 @@ theImageButtons SetListButton;
 theImageButtons PlayPauseButton;
 
 GtkWidget *scrolled_window;
-// char		SetListFileName[FileNameMaxLength];
-char SetListFileName[250];
+char		SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
-#define ParseValue "Preset"
-#define MAXLINE 250
 
 // ~/.config/mimeapps.list
 

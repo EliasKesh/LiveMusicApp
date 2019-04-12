@@ -1,3 +1,25 @@
+/*---------------------------------------------------------------------
+|
+| File:   HIDGrab
+|
+| Contains: Routines to get a HID device detach
+    it from the kernel so it can be used to control
+    Midi and OSC .
+|
+|
+| Written By:   Elias Keshishoglou 
+|
+| Copyright �:  2019 Elias Keshishoglou all rights reserved.
+|
+|
+|---------------------------------------------------------------------*/
+
+#define HIDGrab_c
+
+/*
+ * Place Includes Here
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +36,11 @@
 #include <signal.h>
 #include "GTKMidiUI.h"
 
+/*
+ * Place defines and Typedefs here
+ */
+
+
 //#define VENDORID  0x05d5
 //#define PRODUCTID 0x6782
 
@@ -21,17 +48,21 @@
 #define VENDORID  0x0c45
 #define PRODUCTID 0x7403
 #define SCN_BCD_SZ 1000
+/*
+ * Place Local prototypes here
+ */
+
+int HIDPoll(void);
+int CloseHIDGrab(void);
+int setNonblocking(int fd);
+int InitHIDGrab(void);
+
+/*
+ * Place Static variables here
+ */
+
 int theHID_fd = -1;
 gint theOldPane;
-// GtkWidget *NoteBookPaneS;
-
-#if 0
-int main(int argc, char* argv[]) {
-  InitHIDGrab();
-  while (1)
-    HIDPoll();
-}
-#endif
 
 /*--------------------------------------------------------------------
  * Function:            HIDPoll

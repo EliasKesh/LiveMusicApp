@@ -329,18 +329,6 @@ static gboolean draw_fretboard_background(GtkWidget *area,
         GdkEventExpose *event);
 void SetChord(char Root, thePreChord *myPreChord);
 
-/*--------------------------------------------------------------------
- * Function:		hello
- *
- * Description:		This is a callback function. The data arguments are ignored
- * in this example. More on callbacks below
- *
- *---------------------------------------------------------------------*/
-static void hello(GtkWidget *widget, gpointer data) {
-//   g_print ("Hello World\n");
-//	SetupFretBoard();
-//	PrintBoard();
-}
 
 /*--------------------------------------------------------------------
  * Function:		SetChordCallBack
@@ -762,20 +750,20 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 
 	/* Sets the border width of the window. */
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-
+#if 0
 	/* Creates a new button with the label "Hello World". */
 	button = gtk_button_new_with_label("Quit");
 	/* When the button receives the "clicked" signal, it will call the
 	 * function hello() passing it NULL as its argument.  The hello()
 	 * function is defined above. */
 	g_signal_connect(button, "clicked", G_CALLBACK (hello), NULL);
-
 	/* This will cause the window to be destroyed by calling
 	 * gtk_widget_destroy(window) when "clicked".  Again, the destroy
 	 * signal could come from here, or the window manager. */
 	g_signal_connect_swapped(button, "clicked", G_CALLBACK (gtk_widget_destroy),
 	                         window);
 
+#endif
 	event_box = gtk_event_box_new();
 	rootBox = gtk_hbox_new(TRUE, 5);
 //   rootBox1 = gtk_hbox_new(TRUE, 5);
@@ -1208,18 +1196,19 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	/* Sets the border width of the window. */
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 
+#if 0
 	/* Creates a new button with the label "Hello World". */
 	button = gtk_button_new_with_label("Quit");
 	/* When the button receives the "clicked" signal, it will call the
 	 * function hello() passing it NULL as its argument.  The hello()
 	 * function is defined above. */
 	g_signal_connect(button, "clicked", G_CALLBACK (hello), NULL);
-
 	/* This will cause the window to be destroyed by calling
 	 * gtk_widget_destroy(window) when "clicked".  Again, the destroy
 	 * signal could come from here, or the window manager. */
 	g_signal_connect_swapped(button, "clicked", G_CALLBACK (gtk_widget_destroy),
 	                         window);
+#endif
 
 	rootBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
 	chdBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
@@ -1478,5 +1467,21 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 	}
 	return TRUE;
 }
+
+#if 0
+/*--------------------------------------------------------------------
+ * Function:		hello
+ *
+ * Description:		This is a callback function. The data arguments are ignored
+ * in this example. More on callbacks below
+ *
+ *---------------------------------------------------------------------*/
+static void hello(GtkWidget *widget, gpointer data) {
+//   g_print ("Hello World\n");
+//	SetupFretBoard();
+//	PrintBoard();
+}
+#endif
+
 
 #endif

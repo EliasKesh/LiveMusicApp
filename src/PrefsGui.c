@@ -60,7 +60,7 @@ enum {
  *---------------------------------------------------------------------*/
 void on_BasePath_changed(GtkButton *button, gpointer user_data) {
 //	DoPatch(&gMyInfo.MyPatchInfo[(char )user_data - 1]);
-	printd(LogDebug,"Base string %s\n", gtk_entry_get_text(button));
+	printd(LogDebug, "Base string %s\n", gtk_entry_get_text(button));
 	strcpy(&gMyInfo.BasePath, gtk_entry_get_text(button));
 }
 
@@ -500,7 +500,7 @@ void cell_edited_callback (GtkCellRendererText *cell,
 	int Loop;
 
 	Loop = atoi(path_string);
-	printd(LogDebug,"cell_edited_callback %x, %d [%s] %d %s\n", cell, Loop, new_text, (int)user_data, path_string );
+	printd(LogDebug, "cell_edited_callback %x, %d [%s] %d %s\n", cell, Loop, new_text, (int)user_data, path_string );
 #if 0
 	guint column, row;
 	GtkTreeIter iter;
@@ -552,7 +552,7 @@ g_object_set( renderer, "activatable", TRUE, NULL);
 void cell_toggled_callback (GtkCellRendererToggle *cell,
                             gchar *path_string,
                             gpointer user_data) {
-	printd(LogDebug,"cell_toggled_callback %x, %s %x\n", cell, path_string, user_data);
+	printd(LogDebug, "cell_toggled_callback %x, %s %x\n", cell, path_string, user_data);
 }
 void labour_cell_edited (GtkCellRendererText *cell,
                          gchar *path_string,
@@ -561,7 +561,7 @@ void labour_cell_edited (GtkCellRendererText *cell,
 	int Loop;
 
 	Loop = atoi(path_string);
-	printd(LogDebug,"labour_cell_edited\n");
+	printd(LogDebug, "labour_cell_edited\n");
 
 	if (!model) {
 		g_error("Unable to get model from cell renderer");
@@ -762,7 +762,7 @@ int	ShowPatchListSelect(GtkWidget *view, int	Starting) {
 	                 G_CALLBACK(OnPatchSelected), Starting);
 
 	gtk_widget_show_all(window);
-	printd(LogDebug,"Selected %d\n", selection);
+	printd(LogDebug, "Selected %d\n", selection);
 	return (selection);
 }
 

@@ -17,8 +17,7 @@
 /*
  * Place Includes here.
  */
-#include "GTKMidiUI.h"
-
+#include <gtk/gtk.h>
 
 /*
  * Place Global prototypes here.
@@ -32,6 +31,8 @@ typedef struct {
 	GdkPixbuf 	*ButtonDownImage;
 	char			State;
 } theImageButtons;
+
+#include "GTKMidiUI.h"
 
 int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf *On, GdkPixbuf *Off);
 int	MyImageButtonSetText( theImageButtons *theButton, char *String);

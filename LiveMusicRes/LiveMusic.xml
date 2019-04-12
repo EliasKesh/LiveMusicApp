@@ -1,0 +1,951 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MidiControlBase>
+  <SongPath>/home/Dropbox/FusionBlue/index.html</SongPath>
+  <MainButtons>
+    <Preset000 Name="Base" Channel="001" Controller="255" OutPort="001" Patch="000" Custom="000" Chain="None"/>
+    <Preset001 Name="CleanBass" Channel="001" Controller="255" OutPort="001" Patch="003" Custom="000" Chain="None"/>
+    <Preset002 Name="Base" Channel="001" Controller="255" OutPort="001" Patch="007" Custom="000" Chain="None"/>
+    <Preset003 Name="EBell" Channel="001" Controller="255" OutPort="001" Patch="008" Custom="000" Chain="None"/>
+    <Preset004 Name="BaseChorus" Channel="001" Controller="255" OutPort="001" Patch="000" Custom="000" Chain="Chorus"/>
+    <Preset005 Name="BaseMel" Channel="001" Controller="255" OutPort="001" Patch="000" Custom="000" Chain="Mel Tog"/>
+    <Preset006 Name="BaseWah" Channel="001" Controller="255" OutPort="001" Patch="000" Custom="000" Chain="Wah Tog"/>
+    <Preset007 Name="BaseDist" Channel="001" Controller="255" OutPort="001" Patch="000" Custom="000" Chain="Dist Tog"/>
+    <Preset008 Name="Wah Tog" Channel="001" Controller="255" OutPort="001" Patch="010" Custom="021" Chain="None"/>
+    <Preset009 Name="Dist Tog" Channel="001" Controller="255" OutPort="001" Patch="011" Custom="021" Chain="None"/>
+    <Preset010 Name="Chorus" Channel="001" Controller="255" OutPort="001" Patch="012" Custom="021" Chain="None"/>
+    <Preset011 Name="Mel Tog" Channel="001" Controller="255" OutPort="001" Patch="013" Custom="021" Chain="None"/>
+    <Preset012 Name="Expr Vol" Channel="001" Controller="255" OutPort="001" Patch="007" Custom="022" Chain="None"/>
+    <Preset013 Name="Expr Wah" Channel="001" Controller="255" OutPort="001" Patch="011" Custom="022" Chain="None"/>
+    <Preset014 Name="Expr Dist" Channel="001" Controller="255" OutPort="001" Patch="002" Custom="022" Chain="None"/>
+    <Preset015 Name="Transport ****" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset016 Name="TransStart" Channel="001" Controller="255" OutPort="003" Patch="000" Custom="007" Chain="None"/>
+    <Preset017 Name="TransCont" Channel="001" Controller="255" OutPort="003" Patch="000" Custom="008" Chain="None"/>
+    <Preset018 Name="TransStop" Channel="001" Controller="255" OutPort="003" Patch="000" Custom="009" Chain="None"/>
+    <Preset019 Name="TransBack" Channel="001" Controller="255" OutPort="003" Patch="000" Custom="007" Chain="None"/>
+    <Preset020 Name="TransPos" Channel="001" Controller="255" OutPort="003" Patch="000" Custom="007" Chain="None"/>
+    <Preset021 Name="Tap" Channel="001" Controller="255" OutPort="007" Patch="121" Custom="004" Chain="None"/>
+    <Preset022 Name="Midi Tog" Channel="001" Controller="255" OutPort="000" Patch="122" Custom="004" Chain="None"/>
+    <Preset023 Name="Tuner" Channel="001" Controller="255" OutPort="000" Patch="123" Custom="004" Chain="None"/>
+    <Preset024 Name="AnaOnOff" Channel="001" Controller="255" OutPort="000" Patch="124" Custom="004" Chain="None"/>
+    <Preset025 Name="Loop***" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset026 Name="TrigCountIn" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="015" Chain="LooperApp"/>
+    <Preset027 Name="LP Undo" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="020" Chain="None"/>
+    <Preset028 Name="LP 1" Channel="001" Controller="001" OutPort="007" Patch="001" Custom="020" Chain="None"/>
+    <Preset029 Name="LP 2" Channel="001" Controller="002" OutPort="007" Patch="001" Custom="020" Chain="None"/>
+    <Preset030 Name="LP 3" Channel="001" Controller="003" OutPort="007" Patch="001" Custom="020" Chain="None"/>
+    <Preset031 Name="LP 4" Channel="001" Controller="004" OutPort="007" Patch="001" Custom="020" Chain="None"/>
+    <Preset032 Name="LP Rec" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="020" Chain="None"/>
+    <Preset033 Name="LP Pause" Channel="001" Controller="255" OutPort="007" Patch="003" Custom="020" Chain="None"/>
+    <Preset034 Name="LP Trig" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="020" Chain="None"/>
+    <Preset035 Name="LP Tap" Channel="001" Controller="255" OutPort="007" Patch="077" Custom="020" Chain="None"/>
+    <Preset036 Name="LP Add" Channel="001" Controller="255" OutPort="007" Patch="006" Custom="020" Chain="None"/>
+    <Preset037 Name="App ***" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset038 Name="Loop Toggle" Channel="001" Controller="255" OutPort="007" Patch="003" Custom="017" Chain="None"/>
+    <Preset039 Name="LayoutSwitch" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="013" Chain="None"/>
+    <Preset040 Name="AnalogApp" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset041 Name="MidiSoundApp" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="006" Chain="None"/>
+    <Preset042 Name="LiveApp" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="006" Chain="None"/>
+    <Preset043 Name="LooperApp" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="006" Chain="None"/>
+    <Preset044 Name="MP3Player" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="006" Chain="None"/>
+    <Preset045 Name="TabPlayer" Channel="001" Controller="255" OutPort="007" Patch="006" Custom="006" Chain="None"/>
+    <Preset046 Name="PreTab" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="005" Chain="LiveApp"/>
+    <Preset047 Name="ScoreTab" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="005" Chain="LiveApp"/>
+    <Preset048 Name="TransportApp" Channel="001" Controller="255" OutPort="007" Patch="003" Custom="006" Chain="None"/>
+    <Preset049 Name="RepeatA" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="017" Chain="None"/>
+    <Preset050 Name="RepeatB" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="017" Chain="None"/>
+    <Preset051 Name="NextSeq" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="017" Chain="None"/>
+    <Preset052 Name="PrevSeg" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="017" Chain="None"/>
+    <Preset053 Name="SpeeedUp" Channel="001" Controller="255" OutPort="007" Patch="006" Custom="017" Chain="None"/>
+    <Preset054 Name="SlowDown" Channel="001" Controller="255" OutPort="007" Patch="007" Custom="017" Chain="None"/>
+    <Preset055 Name="NextSong" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="018" Chain="None"/>
+    <Preset056 Name="PrevSong" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="018" Chain="None"/>
+    <Preset057 Name="Scroll" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="019" Chain="None"/>
+    <Preset058 Name="Global ****" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset059 Name="Switch0" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="003" Chain="None"/>
+    <Preset060 Name="Switch1" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="003" Chain="None"/>
+    <Preset061 Name="Switch2" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="003" Chain="None"/>
+    <Preset062 Name="Switch3" Channel="001" Controller="255" OutPort="007" Patch="003" Custom="003" Chain="None"/>
+    <Preset063 Name="Switch4" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="003" Chain="None"/>
+    <Preset064 Name="Switch5" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="003" Chain="None"/>
+    <Preset065 Name="VolUp" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="016" Chain="None"/>
+    <Preset066 Name="VolDown" Channel="001" Controller="255" OutPort="007" Patch="-05" Custom="016" Chain="None"/>
+    <Preset067 Name="PlPlay" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="017" Chain="None"/>
+    <Preset068 Name="Seek Fw" Channel="001" Controller="255" OutPort="007" Patch="008" Custom="017" Chain="None"/>
+    <Preset069 Name="Seek Bk" Channel="001" Controller="255" OutPort="007" Patch="009" Custom="017" Chain="None"/>
+    <Preset070 Name="LP All" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="020" Chain="None"/>
+    <Preset071 Name="LP Mute" Channel="001" Controller="255" OutPort="007" Patch="007" Custom="020" Chain="None"/>
+    <Preset072 Name="Preset1" Channel="001" Controller="255" OutPort="007" Patch="001" Custom="012" Chain="None"/>
+    <Preset073 Name="Preset2" Channel="001" Controller="255" OutPort="007" Patch="002" Custom="012" Chain="None"/>
+    <Preset074 Name="Preset3" Channel="001" Controller="255" OutPort="007" Patch="003" Custom="012" Chain="None"/>
+    <Preset075 Name="Preset4" Channel="001" Controller="255" OutPort="007" Patch="004" Custom="012" Chain="None"/>
+    <Preset076 Name="Preset5" Channel="001" Controller="255" OutPort="007" Patch="005" Custom="012" Chain="None"/>
+    <Preset077 Name="Preset6" Channel="001" Controller="255" OutPort="007" Patch="006" Custom="012" Chain="None"/>
+    <Preset078 Name="MIDI***" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="006" Chain="None"/>
+    <Preset079 Name="Mid0" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="000" Chain="None"/>
+    <Preset080 Name="Mid-24" Channel="001" Controller="255" OutPort="000" Patch="002" Custom="000" Chain="None"/>
+    <Preset081 Name="Inst M Sel" Channel="001" Controller="255" OutPort="007" Patch="000" Custom="014" Chain="None"/>
+    <Preset082 Name="Piano" Channel="001" Controller="006" OutPort="000" Patch="063" Custom="000" Chain="None"/>
+    <Preset083 Name="Honky" Channel="001" Controller="000" OutPort="000" Patch="003" Custom="000" Chain="None"/>
+    <Preset084 Name="Breath" Channel="001" Controller="000" OutPort="000" Patch="053" Custom="000" Chain="None"/>
+    <Preset085 Name="Organ" Channel="001" Controller="000" OutPort="000" Patch="016" Custom="000" Chain="None"/>
+    <Preset086 Name="Flute" Channel="001" Controller="009" OutPort="000" Patch="073" Custom="000" Chain="None"/>
+    <Preset087 Name="SynthLead" Channel="001" Controller="006" OutPort="000" Patch="043" Custom="000" Chain="None"/>
+    <Preset088 Name="Strings" Channel="001" Controller="006" OutPort="000" Patch="085" Custom="000" Chain="None"/>
+    <Preset089 Name="Steel Drums" Channel="001" Controller="000" OutPort="000" Patch="114" Custom="000" Chain="None"/>
+    <Preset090 Name="Walky" Channel="001" Controller="006" OutPort="000" Patch="003" Custom="000" Chain="None"/>
+    <Preset091 Name="Drums" Channel="001" Controller="255" OutPort="000" Patch="001" Custom="000" Chain="None"/>
+    <Preset092 Name="Slap Bass" Channel="001" Controller="006" OutPort="000" Patch="024" Custom="000" Chain="None"/>
+    <Preset093 Name="Synth Hard" Channel="001" Controller="006" OutPort="000" Patch="060" Custom="000" Chain="None"/>
+    <Preset094 Name="Marimba" Channel="001" Controller="006" OutPort="000" Patch="012" Custom="000" Chain="None"/>
+    <Preset095 Name="Breath1" Channel="001" Controller="006" OutPort="000" Patch="048" Custom="000" Chain="None"/>
+    <Preset096 Name="Low Synth" Channel="001" Controller="006" OutPort="000" Patch="045" Custom="000" Chain="None"/>
+    <Preset097 Name="NiceAhh" Channel="001" Controller="006" OutPort="000" Patch="090" Custom="000" Chain="None"/>
+    <Preset098 Name="BetAhh" Channel="001" Controller="004" OutPort="000" Patch="063" Custom="000" Chain="None"/>
+    <Preset099 Name="ToLate" Channel="001" Controller="004" OutPort="000" Patch="108" Custom="000" Chain="None"/>
+    <Preset100 Name="BellsComp" Channel="001" Controller="005" OutPort="000" Patch="010" Custom="000" Chain="None"/>
+    <Preset101 Name="Sax" Channel="001" Controller="002" OutPort="000" Patch="066" Custom="000" Chain="None"/>
+    <Preset102 Name="Vibra" Channel="001" Controller="004" OutPort="000" Patch="093" Custom="000" Chain="None"/>
+    <Preset103 Name="Mariba1" Channel="001" Controller="005" OutPort="000" Patch="091" Custom="000" Chain="None"/>
+    <Preset104 Name="Tenor" Channel="001" Controller="007" OutPort="000" Patch="001" Custom="000" Chain="None"/>
+    <Preset105 Name="EBuzz" Channel="001" Controller="001" OutPort="000" Patch="000" Custom="000" Chain="None"/>
+    <Preset106 Name="SynthB11" Channel="001" Controller="001" OutPort="000" Patch="001" Custom="000" Chain="None"/>
+    <Preset107 Name="KStatB" Channel="001" Controller="001" OutPort="000" Patch="002" Custom="000" Chain="None"/>
+    <Preset108 Name="MS20Bass" Channel="001" Controller="001" OutPort="000" Patch="003" Custom="000" Chain="None"/>
+    <Preset109 Name="Juno" Channel="001" Controller="001" OutPort="000" Patch="004" Custom="000" Chain="None"/>
+    <Preset110 Name="Moog1" Channel="001" Controller="001" OutPort="000" Patch="009" Custom="000" Chain="None"/>
+    <Preset111 Name="Moog2" Channel="001" Controller="001" OutPort="000" Patch="010" Custom="000" Chain="None"/>
+    <Preset112 Name="BassSlap" Channel="001" Controller="001" OutPort="000" Patch="013" Custom="000" Chain="None"/>
+    <Preset113 Name="Taurus2" Channel="001" Controller="001" OutPort="000" Patch="026" Custom="000" Chain="None"/>
+    <Preset114 Name="Ultimate2a" Channel="001" Controller="001" OutPort="000" Patch="033" Custom="000" Chain="None"/>
+    <Preset115 Name="SynthB1" Channel="001" Controller="001" OutPort="000" Patch="038" Custom="000" Chain="None"/>
+    <Preset116 Name="FilterBass" Channel="001" Controller="001" OutPort="000" Patch="039" Custom="000" Chain="None"/>
+    <Preset117 Name="BasBiy" Channel="001" Controller="001" OutPort="000" Patch="045" Custom="000" Chain="None"/>
+    <Preset118 Name="CZOrgan" Channel="001" Controller="001" OutPort="000" Patch="051" Custom="000" Chain="None"/>
+    <Preset119 Name="MoogLead1" Channel="001" Controller="001" OutPort="000" Patch="053" Custom="000" Chain="None"/>
+    <Preset120 Name="CZBrass4" Channel="001" Controller="001" OutPort="000" Patch="064" Custom="000" Chain="None"/>
+    <Preset121 Name="SinSymph" Channel="001" Controller="001" OutPort="000" Patch="090" Custom="000" Chain="None"/>
+    <Preset122 Name="" Channel="001" Controller="255" OutPort="000" Patch="000" Custom="000" Chain="None"/>
+    <Preset123 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset124 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset125 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset126 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset127 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset128 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset129 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset130 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset131 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset132 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset133 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset134 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset135 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset136 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset137 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset138 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset139 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset140 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset141 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset142 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset143 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset144 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset145 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset146 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset147 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset148 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset149 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset150 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset151 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset152 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset153 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset154 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset155 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset156 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset157 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset158 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset159 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset160 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset161 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset162 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset163 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset164 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset165 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset166 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset167 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset168 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset169 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset170 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset171 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset172 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset173 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset174 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset175 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset176 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset177 Name="" Channel="000" Controller="255" OutPort="000" Patch="000" Custom="000" Chain=""/>
+    <Preset178 Name="Guitar V" Channel="001" Controller="255" OutPort="001" Patch="007" Custom="022" Chain="None"/>
+    <Preset179 Name="Midi V" Channel="001" Controller="255" OutPort="000" Patch="007" Custom="022" Chain="None"/>
+    <Preset180 Name="Master V" Channel="001" Controller="255" OutPort="007" Patch="007" Custom="022" Chain="None"/>
+    <Preset181 Name="Wah P" Channel="001" Controller="255" OutPort="001" Patch="002" Custom="022" Chain="None"/>
+  </MainButtons>
+  <NumOutPorts>006</NumOutPorts>
+  <OutPorts>
+    <Port000 Name="Fluid"/>
+    <Port001 Name="Guitarix"/>
+    <Port002 Name="Looper"/>
+    <Port003 Name="Transport"/>
+    <Port004 Name="Tempo"/>
+    <Port005 Name="Click"/>
+    <Port006 Name="Pedal"/>
+    <Port007 Name=""/>
+  </OutPorts>
+  <AppNames>
+    <App000 Name="guitarix" PortID="000"/>
+    <App001 Name="qsynth" PortID="000"/>
+    <App002 Name="SooperLooper" PortID="000"/>
+    <App003 Name="audacity" PortID="000"/>
+    <App004 Name="LiveMusicApp" PortID="000"/>
+    <App005 Name="clementine" PortID="000"/>
+    <App006 Name="Tux" PortID="000"/>
+  </AppNames>
+  <TempoMax>008</TempoMax>
+  <MetroOn>000</MetroOn>
+  <MidiBaseNote>045</MidiBaseNote>
+  <Click1>037</Click1>
+  <ClickRest>044</ClickRest>
+  <Layouts>
+    <Layout000 LayoutName="Guitar">
+      <Patch000 PatchName="Preset1"/>
+      <Patch001 PatchName="Preset2"/>
+      <Patch002 PatchName="Preset3"/>
+      <Patch003 PatchName="Base"/>
+      <Patch004 PatchName="BaseChorus"/>
+      <Patch005 PatchName="BaseMel"/>
+      <Patch006 PatchName="BaseWah"/>
+      <Patch007 PatchName="BaseDist"/>
+      <Patch008 PatchName="ScoreTab"/>
+      <Patch009 PatchName="PreTab"/>
+      <Patch010 PatchName="AnalogApp"/>
+      <Patch011 PatchName="PrevSong"/>
+      <Patch012 PatchName="NextSong"/>
+      <Patch013 PatchName="Wah Tog"/>
+      <Patch014 PatchName="Dist Tog"/>
+      <Patch015 PatchName="Mel Tog"/>
+      <Patch016 PatchName="AnalogApp"/>
+      <Patch017 PatchName="LiveApp"/>
+      <Patch018 PatchName="ToLate"/>
+      <Patch019 PatchName="MedDist"/>
+      <Patch020 PatchName="BaseMel"/>
+      <Patch021 PatchName="LayoutSwitch"/>
+      <Patch022 PatchName="Inst M Sel"/>
+      <Patch023 PatchName="Expr Vol"/>
+      <Patch024 PatchName="Expr Wah"/>
+      <Patch025 PatchName="Expr Dist"/>
+      <Patch026 PatchName="Guitar V"/>
+      <Patch027 PatchName="Midi V"/>
+      <Patch028 PatchName="Master V"/>
+      <Patch029 PatchName="Wah P"/>
+      <Patch030 PatchName="Piano"/>
+      <Patch031 PatchName="Honky"/>
+      <Patch032 PatchName="Breath"/>
+      <Patch033 PatchName="Organ"/>
+      <Patch034 PatchName="Flute"/>
+      <Patch035 PatchName="SynthLead"/>
+      <Patch036 PatchName="Trumpet"/>
+      <Patch037 PatchName="Steel Drums"/>
+      <Patch038 PatchName="Walky"/>
+      <Patch039 PatchName="Drums"/>
+      <Patch040 PatchName="Slap Bass"/>
+      <Patch041 PatchName="Synth Hard"/>
+      <Patch042 PatchName="Marimba"/>
+      <Patch043 PatchName="Breath1"/>
+      <Patch044 PatchName="Low Synth"/>
+      <Patch045 PatchName="EBuzz"/>
+      <Patch046 PatchName="SynthB11"/>
+      <Patch047 PatchName="KStatB"/>
+      <Patch048 PatchName="MS20Bass"/>
+      <Patch049 PatchName="Juno"/>
+      <Patch050 PatchName="Moog1"/>
+      <Patch051 PatchName="Moog2"/>
+      <Patch052 PatchName=""/>
+      <Patch053 PatchName=""/>
+      <Patch054 PatchName=""/>
+      <Patch055 PatchName=""/>
+      <Patch056 PatchName=""/>
+      <Patch057 PatchName=""/>
+      <Patch058 PatchName=""/>
+      <Patch059 PatchName=""/>
+      <Patch060 PatchName=""/>
+      <Patch061 PatchName=""/>
+      <Patch062 PatchName=""/>
+      <Patch063 PatchName=""/>
+      <Patch064 PatchName=""/>
+      <Patch065 PatchName=""/>
+      <Patch066 PatchName=""/>
+      <Patch067 PatchName=""/>
+      <Patch068 PatchName=""/>
+      <Patch069 PatchName=""/>
+      <Patch070 PatchName=""/>
+      <Patch071 PatchName=""/>
+      <Patch072 PatchName=""/>
+      <Patch073 PatchName=""/>
+      <Patch074 PatchName=""/>
+      <Patch075 PatchName=""/>
+      <Patch076 PatchName=""/>
+      <Patch077 PatchName=""/>
+      <Patch078 PatchName=""/>
+      <Patch079 PatchName=""/>
+      <Patch080 PatchName=""/>
+      <Patch081 PatchName=""/>
+      <Patch082 PatchName=""/>
+      <Patch083 PatchName=""/>
+      <Patch084 PatchName=""/>
+      <Patch085 PatchName=""/>
+      <Patch086 PatchName=""/>
+      <Patch087 PatchName=""/>
+      <Patch088 PatchName=""/>
+      <Patch089 PatchName=""/>
+      <Patch090 PatchName=""/>
+      <Patch091 PatchName=""/>
+      <Patch092 PatchName=""/>
+      <Patch093 PatchName=""/>
+      <Patch094 PatchName=""/>
+      <Patch095 PatchName=""/>
+      <Patch096 PatchName=""/>
+      <Patch097 PatchName=""/>
+      <Patch098 PatchName=""/>
+      <Patch099 PatchName=""/>
+      <Patch100 PatchName=""/>
+      <Patch101 PatchName=""/>
+      <Patch102 PatchName=""/>
+      <Patch103 PatchName=""/>
+      <Patch104 PatchName=""/>
+      <Patch105 PatchName=""/>
+      <Patch106 PatchName=""/>
+      <Patch107 PatchName=""/>
+      <Patch108 PatchName=""/>
+      <Patch109 PatchName=""/>
+      <Patch110 PatchName=""/>
+      <Patch111 PatchName=""/>
+      <Patch112 PatchName=""/>
+      <Patch113 PatchName=""/>
+      <Patch114 PatchName=""/>
+      <Patch115 PatchName=""/>
+      <Patch116 PatchName=""/>
+      <Patch117 PatchName=""/>
+      <Patch118 PatchName=""/>
+      <Patch119 PatchName=""/>
+      <Patch120 PatchName=""/>
+      <Patch121 PatchName=""/>
+      <Patch122 PatchName=""/>
+      <Patch123 PatchName=""/>
+      <Patch124 PatchName=""/>
+      <Patch125 PatchName=""/>
+      <Patch126 PatchName=""/>
+      <Patch127 PatchName=""/>
+      <Patch128 PatchName=""/>
+      <Patch129 PatchName=""/>
+      <Patch130 PatchName=""/>
+      <Patch131 PatchName=""/>
+      <Patch132 PatchName=""/>
+      <Patch133 PatchName=""/>
+      <Patch134 PatchName=""/>
+      <Patch135 PatchName=""/>
+      <Patch136 PatchName=""/>
+      <Patch137 PatchName=""/>
+      <Patch138 PatchName=""/>
+      <Patch139 PatchName=""/>
+      <Patch140 PatchName=""/>
+      <Patch141 PatchName=""/>
+      <Patch142 PatchName=""/>
+      <Patch143 PatchName=""/>
+      <Patch144 PatchName=""/>
+      <Patch145 PatchName=""/>
+      <Patch146 PatchName=""/>
+      <Patch147 PatchName=""/>
+      <Patch148 PatchName=""/>
+      <Patch149 PatchName=""/>
+      <Patch150 PatchName=""/>
+      <Patch151 PatchName=""/>
+      <Patch152 PatchName=""/>
+      <Patch153 PatchName=""/>
+      <Patch154 PatchName=""/>
+      <Patch155 PatchName=""/>
+      <Patch156 PatchName=""/>
+      <Patch157 PatchName=""/>
+      <Patch158 PatchName=""/>
+      <Patch159 PatchName=""/>
+      <Patch160 PatchName=""/>
+      <Patch161 PatchName=""/>
+      <Patch162 PatchName=""/>
+      <Patch163 PatchName=""/>
+      <Patch164 PatchName=""/>
+      <Patch165 PatchName=""/>
+      <Patch166 PatchName=""/>
+      <Patch167 PatchName=""/>
+      <Patch168 PatchName=""/>
+      <Patch169 PatchName=""/>
+      <Patch170 PatchName=""/>
+      <Patch171 PatchName=""/>
+      <Patch172 PatchName=""/>
+      <Patch173 PatchName=""/>
+      <Patch174 PatchName=""/>
+      <Patch175 PatchName=""/>
+      <Patch176 PatchName=""/>
+      <Patch177 PatchName=""/>
+      <Patch178 PatchName=""/>
+      <Patch179 PatchName=""/>
+      <Patch180 PatchName=""/>
+      <Patch181 PatchName=""/>
+    </Layout000>
+    <Layout001 LayoutName="Midi">
+      <Patch000 PatchName="Piano"/>
+      <Patch001 PatchName="Honky"/>
+      <Patch002 PatchName="Breath"/>
+      <Patch003 PatchName="Organ"/>
+      <Patch004 PatchName="Flute"/>
+      <Patch005 PatchName="SynthLead"/>
+      <Patch006 PatchName="Trumpet"/>
+      <Patch007 PatchName="Steel Drums"/>
+      <Patch008 PatchName="Walky"/>
+      <Patch009 PatchName="Drums"/>
+      <Patch010 PatchName="Slap Bass"/>
+      <Patch011 PatchName="Synth Hard"/>
+      <Patch012 PatchName="Marimba"/>
+      <Patch013 PatchName="Breath1"/>
+      <Patch014 PatchName="Low Synth"/>
+      <Patch015 PatchName="EBuzz"/>
+      <Patch016 PatchName="SynthB11"/>
+      <Patch017 PatchName="KStatB"/>
+      <Patch018 PatchName="MS20Bass"/>
+      <Patch019 PatchName="Juno"/>
+      <Patch020 PatchName="BaseChorus"/>
+      <Patch021 PatchName="HardDist"/>
+      <Patch022 PatchName="CleanBass"/>
+      <Patch023 PatchName="MedDist"/>
+      <Patch024 PatchName="BaseMel"/>
+      <Patch025 PatchName="Moog1"/>
+      <Patch026 PatchName="Moog2"/>
+      <Patch027 PatchName="Preset1"/>
+      <Patch028 PatchName="Preset2"/>
+      <Patch029 PatchName="LayoutSwitch"/>
+      <Patch030 PatchName="Piano"/>
+      <Patch031 PatchName="Honky"/>
+      <Patch032 PatchName="BassSlap"/>
+      <Patch033 PatchName="Taurus2"/>
+      <Patch034 PatchName="Ultimate2a"/>
+      <Patch035 PatchName="SynthB1"/>
+      <Patch036 PatchName="FilterBass"/>
+      <Patch037 PatchName="BasBiy"/>
+      <Patch038 PatchName="CZOrgan"/>
+      <Patch039 PatchName="MoogLead1"/>
+      <Patch040 PatchName="CZBrass4"/>
+      <Patch041 PatchName="SinSymph"/>
+      <Patch042 PatchName="BetAhh"/>
+      <Patch043 PatchName="ToLate"/>
+      <Patch044 PatchName="BellsComp"/>
+      <Patch045 PatchName="Sax"/>
+      <Patch046 PatchName="Vibra"/>
+      <Patch047 PatchName="Mariba1"/>
+      <Patch048 PatchName="Tenor"/>
+      <Patch049 PatchName="Mid Screen"/>
+      <Patch050 PatchName="Rak Eff6"/>
+      <Patch051 PatchName="Rak Eff7"/>
+      <Patch052 PatchName="Rak Eff8"/>
+      <Patch053 PatchName="Rak Eff9"/>
+      <Patch054 PatchName="Rak Eff10"/>
+      <Patch055 PatchName="Rak Eff1"/>
+      <Patch056 PatchName="Rak Eff2"/>
+      <Patch057 PatchName="Rak Eff3"/>
+      <Patch058 PatchName="Rak Eff4"/>
+      <Patch059 PatchName="Rak Eff5"/>
+      <Patch060 PatchName=""/>
+      <Patch061 PatchName=""/>
+      <Patch062 PatchName=""/>
+      <Patch063 PatchName=""/>
+      <Patch064 PatchName=""/>
+      <Patch065 PatchName=""/>
+      <Patch066 PatchName=""/>
+      <Patch067 PatchName=""/>
+      <Patch068 PatchName=""/>
+      <Patch069 PatchName=""/>
+      <Patch070 PatchName=""/>
+      <Patch071 PatchName=""/>
+      <Patch072 PatchName=""/>
+      <Patch073 PatchName=""/>
+      <Patch074 PatchName=""/>
+      <Patch075 PatchName=""/>
+      <Patch076 PatchName=""/>
+      <Patch077 PatchName=""/>
+      <Patch078 PatchName=""/>
+      <Patch079 PatchName=""/>
+      <Patch080 PatchName=""/>
+      <Patch081 PatchName=""/>
+      <Patch082 PatchName=""/>
+      <Patch083 PatchName=""/>
+      <Patch084 PatchName=""/>
+      <Patch085 PatchName=""/>
+      <Patch086 PatchName=""/>
+      <Patch087 PatchName=""/>
+      <Patch088 PatchName=""/>
+      <Patch089 PatchName=""/>
+      <Patch090 PatchName=""/>
+      <Patch091 PatchName=""/>
+      <Patch092 PatchName=""/>
+      <Patch093 PatchName=""/>
+      <Patch094 PatchName=""/>
+      <Patch095 PatchName=""/>
+      <Patch096 PatchName=""/>
+      <Patch097 PatchName=""/>
+      <Patch098 PatchName=""/>
+      <Patch099 PatchName=""/>
+      <Patch100 PatchName=""/>
+      <Patch101 PatchName=""/>
+      <Patch102 PatchName=""/>
+      <Patch103 PatchName=""/>
+      <Patch104 PatchName=""/>
+      <Patch105 PatchName=""/>
+      <Patch106 PatchName=""/>
+      <Patch107 PatchName=""/>
+      <Patch108 PatchName=""/>
+      <Patch109 PatchName=""/>
+      <Patch110 PatchName=""/>
+      <Patch111 PatchName=""/>
+      <Patch112 PatchName=""/>
+      <Patch113 PatchName=""/>
+      <Patch114 PatchName=""/>
+      <Patch115 PatchName=""/>
+      <Patch116 PatchName=""/>
+      <Patch117 PatchName=""/>
+      <Patch118 PatchName=""/>
+      <Patch119 PatchName=""/>
+      <Patch120 PatchName=""/>
+      <Patch121 PatchName=""/>
+      <Patch122 PatchName=""/>
+      <Patch123 PatchName=""/>
+      <Patch124 PatchName=""/>
+      <Patch125 PatchName=""/>
+      <Patch126 PatchName=""/>
+      <Patch127 PatchName=""/>
+      <Patch128 PatchName=""/>
+      <Patch129 PatchName=""/>
+      <Patch130 PatchName=""/>
+      <Patch131 PatchName=""/>
+      <Patch132 PatchName=""/>
+      <Patch133 PatchName=""/>
+      <Patch134 PatchName=""/>
+      <Patch135 PatchName=""/>
+      <Patch136 PatchName=""/>
+      <Patch137 PatchName=""/>
+      <Patch138 PatchName=""/>
+      <Patch139 PatchName=""/>
+      <Patch140 PatchName=""/>
+      <Patch141 PatchName=""/>
+      <Patch142 PatchName=""/>
+      <Patch143 PatchName=""/>
+      <Patch144 PatchName=""/>
+      <Patch145 PatchName=""/>
+      <Patch146 PatchName=""/>
+      <Patch147 PatchName=""/>
+      <Patch148 PatchName=""/>
+      <Patch149 PatchName=""/>
+      <Patch150 PatchName=""/>
+      <Patch151 PatchName=""/>
+      <Patch152 PatchName=""/>
+      <Patch153 PatchName=""/>
+      <Patch154 PatchName=""/>
+      <Patch155 PatchName=""/>
+      <Patch156 PatchName=""/>
+      <Patch157 PatchName=""/>
+      <Patch158 PatchName=""/>
+      <Patch159 PatchName=""/>
+      <Patch160 PatchName=""/>
+      <Patch161 PatchName=""/>
+      <Patch162 PatchName=""/>
+      <Patch163 PatchName=""/>
+      <Patch164 PatchName=""/>
+      <Patch165 PatchName=""/>
+      <Patch166 PatchName=""/>
+      <Patch167 PatchName=""/>
+      <Patch168 PatchName=""/>
+      <Patch169 PatchName=""/>
+      <Patch170 PatchName=""/>
+      <Patch171 PatchName=""/>
+      <Patch172 PatchName=""/>
+      <Patch173 PatchName=""/>
+      <Patch174 PatchName=""/>
+      <Patch175 PatchName=""/>
+      <Patch176 PatchName=""/>
+      <Patch177 PatchName=""/>
+      <Patch178 PatchName=""/>
+      <Patch179 PatchName=""/>
+      <Patch180 PatchName=""/>
+      <Patch181 PatchName=""/>
+    </Layout001>
+    <Layout002 LayoutName="Looper">
+      <Patch000 PatchName="LP Rec"/>
+      <Patch001 PatchName="LP Trig"/>
+      <Patch002 PatchName="LP Pause"/>
+      <Patch003 PatchName="LP All"/>
+      <Patch004 PatchName="LP Pause All"/>
+      <Patch005 PatchName="LP Add"/>
+      <Patch006 PatchName="LooperApp"/>
+      <Patch007 PatchName="LiveApp"/>
+      <Patch008 PatchName="LP 1"/>
+      <Patch009 PatchName="LP 2"/>
+      <Patch010 PatchName="LP 3"/>
+      <Patch011 PatchName="LP 4"/>
+      <Patch012 PatchName="LP All"/>
+      <Patch013 PatchName="TrigCountIn"/>
+      <Patch014 PatchName="LP Undo"/>
+      <Patch015 PatchName="LP Tap"/>
+      <Patch016 PatchName="LP Mute"/>
+      <Patch017 PatchName="LP Undo"/>
+      <Patch018 PatchName="LP Rec"/>
+      <Patch019 PatchName="LP Pause"/>
+      <Patch020 PatchName="LP Mute"/>
+      <Patch021 PatchName="LayoutSwitch"/>
+      <Patch022 PatchName=""/>
+      <Patch023 PatchName=""/>
+      <Patch024 PatchName=""/>
+      <Patch025 PatchName=""/>
+      <Patch026 PatchName=""/>
+      <Patch027 PatchName=""/>
+      <Patch028 PatchName=""/>
+      <Patch029 PatchName=""/>
+      <Patch030 PatchName=""/>
+      <Patch031 PatchName=""/>
+      <Patch032 PatchName=""/>
+      <Patch033 PatchName=""/>
+      <Patch034 PatchName=""/>
+      <Patch035 PatchName=""/>
+      <Patch036 PatchName=""/>
+      <Patch037 PatchName=""/>
+      <Patch038 PatchName=""/>
+      <Patch039 PatchName=""/>
+      <Patch040 PatchName=""/>
+      <Patch041 PatchName=""/>
+      <Patch042 PatchName=""/>
+      <Patch043 PatchName=""/>
+      <Patch044 PatchName=""/>
+      <Patch045 PatchName=""/>
+      <Patch046 PatchName=""/>
+      <Patch047 PatchName=""/>
+      <Patch048 PatchName=""/>
+      <Patch049 PatchName=""/>
+      <Patch050 PatchName=""/>
+      <Patch051 PatchName=""/>
+      <Patch052 PatchName=""/>
+      <Patch053 PatchName=""/>
+      <Patch054 PatchName=""/>
+      <Patch055 PatchName=""/>
+      <Patch056 PatchName=""/>
+      <Patch057 PatchName=""/>
+      <Patch058 PatchName=""/>
+      <Patch059 PatchName=""/>
+      <Patch060 PatchName=""/>
+      <Patch061 PatchName=""/>
+      <Patch062 PatchName=""/>
+      <Patch063 PatchName=""/>
+      <Patch064 PatchName=""/>
+      <Patch065 PatchName=""/>
+      <Patch066 PatchName=""/>
+      <Patch067 PatchName=""/>
+      <Patch068 PatchName=""/>
+      <Patch069 PatchName=""/>
+      <Patch070 PatchName=""/>
+      <Patch071 PatchName=""/>
+      <Patch072 PatchName=""/>
+      <Patch073 PatchName=""/>
+      <Patch074 PatchName=""/>
+      <Patch075 PatchName=""/>
+      <Patch076 PatchName=""/>
+      <Patch077 PatchName=""/>
+      <Patch078 PatchName=""/>
+      <Patch079 PatchName=""/>
+      <Patch080 PatchName=""/>
+      <Patch081 PatchName=""/>
+      <Patch082 PatchName=""/>
+      <Patch083 PatchName=""/>
+      <Patch084 PatchName=""/>
+      <Patch085 PatchName=""/>
+      <Patch086 PatchName=""/>
+      <Patch087 PatchName=""/>
+      <Patch088 PatchName=""/>
+      <Patch089 PatchName=""/>
+      <Patch090 PatchName=""/>
+      <Patch091 PatchName=""/>
+      <Patch092 PatchName=""/>
+      <Patch093 PatchName=""/>
+      <Patch094 PatchName=""/>
+      <Patch095 PatchName=""/>
+      <Patch096 PatchName=""/>
+      <Patch097 PatchName=""/>
+      <Patch098 PatchName=""/>
+      <Patch099 PatchName=""/>
+      <Patch100 PatchName=""/>
+      <Patch101 PatchName=""/>
+      <Patch102 PatchName=""/>
+      <Patch103 PatchName=""/>
+      <Patch104 PatchName=""/>
+      <Patch105 PatchName=""/>
+      <Patch106 PatchName=""/>
+      <Patch107 PatchName=""/>
+      <Patch108 PatchName=""/>
+      <Patch109 PatchName=""/>
+      <Patch110 PatchName=""/>
+      <Patch111 PatchName=""/>
+      <Patch112 PatchName=""/>
+      <Patch113 PatchName=""/>
+      <Patch114 PatchName=""/>
+      <Patch115 PatchName=""/>
+      <Patch116 PatchName=""/>
+      <Patch117 PatchName=""/>
+      <Patch118 PatchName=""/>
+      <Patch119 PatchName=""/>
+      <Patch120 PatchName=""/>
+      <Patch121 PatchName=""/>
+      <Patch122 PatchName=""/>
+      <Patch123 PatchName=""/>
+      <Patch124 PatchName=""/>
+      <Patch125 PatchName=""/>
+      <Patch126 PatchName=""/>
+      <Patch127 PatchName=""/>
+      <Patch128 PatchName=""/>
+      <Patch129 PatchName=""/>
+      <Patch130 PatchName=""/>
+      <Patch131 PatchName=""/>
+      <Patch132 PatchName=""/>
+      <Patch133 PatchName=""/>
+      <Patch134 PatchName=""/>
+      <Patch135 PatchName=""/>
+      <Patch136 PatchName=""/>
+      <Patch137 PatchName=""/>
+      <Patch138 PatchName=""/>
+      <Patch139 PatchName=""/>
+      <Patch140 PatchName=""/>
+      <Patch141 PatchName=""/>
+      <Patch142 PatchName=""/>
+      <Patch143 PatchName=""/>
+      <Patch144 PatchName=""/>
+      <Patch145 PatchName=""/>
+      <Patch146 PatchName=""/>
+      <Patch147 PatchName=""/>
+      <Patch148 PatchName=""/>
+      <Patch149 PatchName=""/>
+      <Patch150 PatchName=""/>
+      <Patch151 PatchName=""/>
+      <Patch152 PatchName=""/>
+      <Patch153 PatchName=""/>
+      <Patch154 PatchName=""/>
+      <Patch155 PatchName=""/>
+      <Patch156 PatchName=""/>
+      <Patch157 PatchName=""/>
+      <Patch158 PatchName=""/>
+      <Patch159 PatchName=""/>
+      <Patch160 PatchName=""/>
+      <Patch161 PatchName=""/>
+      <Patch162 PatchName=""/>
+      <Patch163 PatchName=""/>
+      <Patch164 PatchName=""/>
+      <Patch165 PatchName=""/>
+      <Patch166 PatchName=""/>
+      <Patch167 PatchName=""/>
+      <Patch168 PatchName=""/>
+      <Patch169 PatchName=""/>
+      <Patch170 PatchName=""/>
+      <Patch171 PatchName=""/>
+      <Patch172 PatchName=""/>
+      <Patch173 PatchName=""/>
+      <Patch174 PatchName=""/>
+      <Patch175 PatchName=""/>
+      <Patch176 PatchName=""/>
+      <Patch177 PatchName=""/>
+      <Patch178 PatchName=""/>
+      <Patch179 PatchName=""/>
+      <Patch180 PatchName=""/>
+      <Patch181 PatchName=""/>
+    </Layout002>
+    <Layout003 LayoutName="Transcribe">
+      <Patch000 PatchName="Preset1"/>
+      <Patch001 PatchName="Preset2"/>
+      <Patch002 PatchName="Preset3"/>
+      <Patch003 PatchName="BaseChorus"/>
+      <Patch004 PatchName="NextSeq"/>
+      <Patch005 PatchName="PrevSeg"/>
+      <Patch006 PatchName="RepeatA"/>
+      <Patch007 PatchName="RepeatB"/>
+      <Patch008 PatchName="Loop Toggle"/>
+      <Patch009 PatchName="PlPlay"/>
+      <Patch010 PatchName="SpeeedUp"/>
+      <Patch011 PatchName="SlowDown"/>
+      <Patch012 PatchName="Seek Fw"/>
+      <Patch013 PatchName="Seek Bk"/>
+      <Patch014 PatchName="LP 3"/>
+      <Patch015 PatchName="LP Undo"/>
+      <Patch016 PatchName="LP Rec"/>
+      <Patch017 PatchName="LP Pause"/>
+      <Patch018 PatchName="Drums"/>
+      <Patch019 PatchName="Flute"/>
+      <Patch020 PatchName="BaseDist"/>
+      <Patch021 PatchName="MedDist"/>
+      <Patch022 PatchName="BaseMel"/>
+      <Patch023 PatchName="LayoutSwitch"/>
+      <Patch024 PatchName="Piano"/>
+      <Patch025 PatchName="Honky"/>
+      <Patch026 PatchName="Breath"/>
+      <Patch027 PatchName="Inst M Sel"/>
+      <Patch028 PatchName="Flute"/>
+      <Patch029 PatchName="Drums"/>
+      <Patch030 PatchName="Slap Bass"/>
+      <Patch031 PatchName="Marimba"/>
+      <Patch032 PatchName="Breath"/>
+      <Patch033 PatchName="Steel Drums"/>
+      <Patch034 PatchName="Low Synth"/>
+      <Patch035 PatchName="EBuzz"/>
+      <Patch036 PatchName="SynthB11"/>
+      <Patch037 PatchName="KStatB"/>
+      <Patch038 PatchName="MS20Bass"/>
+      <Patch039 PatchName="Juno"/>
+      <Patch040 PatchName="Moog1"/>
+      <Patch041 PatchName="Moog2"/>
+      <Patch042 PatchName="BassSlap"/>
+      <Patch043 PatchName="Taurus2"/>
+      <Patch044 PatchName="Ultimate2a"/>
+      <Patch045 PatchName="SynthB1"/>
+      <Patch046 PatchName="FilterBass"/>
+      <Patch047 PatchName="CZOrgan"/>
+      <Patch048 PatchName="MoogLead1"/>
+      <Patch049 PatchName="CZBrass4"/>
+      <Patch050 PatchName="SinSymph"/>
+      <Patch051 PatchName="Rak Eff1"/>
+      <Patch052 PatchName="Rak Eff2"/>
+      <Patch053 PatchName="Rak Eff3"/>
+      <Patch054 PatchName=""/>
+      <Patch055 PatchName=""/>
+      <Patch056 PatchName=""/>
+      <Patch057 PatchName=""/>
+      <Patch058 PatchName=""/>
+      <Patch059 PatchName=""/>
+      <Patch060 PatchName=""/>
+      <Patch061 PatchName=""/>
+      <Patch062 PatchName=""/>
+      <Patch063 PatchName=""/>
+      <Patch064 PatchName=""/>
+      <Patch065 PatchName=""/>
+      <Patch066 PatchName=""/>
+      <Patch067 PatchName=""/>
+      <Patch068 PatchName=""/>
+      <Patch069 PatchName=""/>
+      <Patch070 PatchName=""/>
+      <Patch071 PatchName=""/>
+      <Patch072 PatchName=""/>
+      <Patch073 PatchName=""/>
+      <Patch074 PatchName=""/>
+      <Patch075 PatchName=""/>
+      <Patch076 PatchName=""/>
+      <Patch077 PatchName=""/>
+      <Patch078 PatchName=""/>
+      <Patch079 PatchName=""/>
+      <Patch080 PatchName=""/>
+      <Patch081 PatchName=""/>
+      <Patch082 PatchName=""/>
+      <Patch083 PatchName=""/>
+      <Patch084 PatchName=""/>
+      <Patch085 PatchName=""/>
+      <Patch086 PatchName=""/>
+      <Patch087 PatchName=""/>
+      <Patch088 PatchName=""/>
+      <Patch089 PatchName=""/>
+      <Patch090 PatchName=""/>
+      <Patch091 PatchName=""/>
+      <Patch092 PatchName=""/>
+      <Patch093 PatchName=""/>
+      <Patch094 PatchName=""/>
+      <Patch095 PatchName=""/>
+      <Patch096 PatchName=""/>
+      <Patch097 PatchName=""/>
+      <Patch098 PatchName=""/>
+      <Patch099 PatchName=""/>
+      <Patch100 PatchName=""/>
+      <Patch101 PatchName=""/>
+      <Patch102 PatchName=""/>
+      <Patch103 PatchName=""/>
+      <Patch104 PatchName=""/>
+      <Patch105 PatchName=""/>
+      <Patch106 PatchName=""/>
+      <Patch107 PatchName=""/>
+      <Patch108 PatchName=""/>
+      <Patch109 PatchName=""/>
+      <Patch110 PatchName=""/>
+      <Patch111 PatchName=""/>
+      <Patch112 PatchName=""/>
+      <Patch113 PatchName=""/>
+      <Patch114 PatchName=""/>
+      <Patch115 PatchName=""/>
+      <Patch116 PatchName=""/>
+      <Patch117 PatchName=""/>
+      <Patch118 PatchName=""/>
+      <Patch119 PatchName=""/>
+      <Patch120 PatchName=""/>
+      <Patch121 PatchName=""/>
+      <Patch122 PatchName=""/>
+      <Patch123 PatchName=""/>
+      <Patch124 PatchName=""/>
+      <Patch125 PatchName=""/>
+      <Patch126 PatchName=""/>
+      <Patch127 PatchName=""/>
+      <Patch128 PatchName=""/>
+      <Patch129 PatchName=""/>
+      <Patch130 PatchName=""/>
+      <Patch131 PatchName=""/>
+      <Patch132 PatchName=""/>
+      <Patch133 PatchName=""/>
+      <Patch134 PatchName=""/>
+      <Patch135 PatchName=""/>
+      <Patch136 PatchName=""/>
+      <Patch137 PatchName=""/>
+      <Patch138 PatchName=""/>
+      <Patch139 PatchName=""/>
+      <Patch140 PatchName=""/>
+      <Patch141 PatchName=""/>
+      <Patch142 PatchName=""/>
+      <Patch143 PatchName=""/>
+      <Patch144 PatchName=""/>
+      <Patch145 PatchName=""/>
+      <Patch146 PatchName=""/>
+      <Patch147 PatchName=""/>
+      <Patch148 PatchName=""/>
+      <Patch149 PatchName=""/>
+      <Patch150 PatchName=""/>
+      <Patch151 PatchName=""/>
+      <Patch152 PatchName=""/>
+      <Patch153 PatchName=""/>
+      <Patch154 PatchName=""/>
+      <Patch155 PatchName=""/>
+      <Patch156 PatchName=""/>
+      <Patch157 PatchName=""/>
+      <Patch158 PatchName=""/>
+      <Patch159 PatchName=""/>
+      <Patch160 PatchName=""/>
+      <Patch161 PatchName=""/>
+      <Patch162 PatchName=""/>
+      <Patch163 PatchName=""/>
+      <Patch164 PatchName=""/>
+      <Patch165 PatchName=""/>
+      <Patch166 PatchName=""/>
+      <Patch167 PatchName=""/>
+      <Patch168 PatchName=""/>
+      <Patch169 PatchName=""/>
+      <Patch170 PatchName=""/>
+      <Patch171 PatchName=""/>
+      <Patch172 PatchName=""/>
+      <Patch173 PatchName=""/>
+      <Patch174 PatchName=""/>
+      <Patch175 PatchName=""/>
+      <Patch176 PatchName=""/>
+      <Patch177 PatchName=""/>
+      <Patch178 PatchName=""/>
+      <Patch179 PatchName=""/>
+      <Patch180 PatchName=""/>
+      <Patch181 PatchName=""/>
+    </Layout003>
+  </Layouts>
+</MidiControlBase>
