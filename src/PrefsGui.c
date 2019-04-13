@@ -338,6 +338,7 @@ static GtkWidget *CreatePatchViewModel(void) {
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "editable", TRUE, NULL);
 	g_object_set(renderer, "editable-set", TRUE, NULL);
+//	g_object_set(renderer, "width-chars", 400, NULL);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
 	        Name_COLUMN, "Name", renderer, "text", Name_COLUMN,
 	        NULL);

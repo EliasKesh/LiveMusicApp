@@ -72,12 +72,13 @@ InitPref (void) {
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
 #endif
+
+#if 0 // Loaded from file.
 	gMyInfo.AnalogVolume = 100;
 	gMyInfo.MidiVolume = 80;
 	gMyInfo.StatusTextColor = 0xffffe0;
 	gMyInfo.ButtonTextColor = 0xffe0e0;
 
-#if 0 // Loaded from file.
 	gMyInfo.MidiBaseNote = 45;
 	gMyInfo.BeatsPerMeasure = 4;
 	gMyInfo.LoopRecBeats = 16;
@@ -316,45 +317,6 @@ WritePrefs (void) {
 	             BAD_CAST gMyInfo.BasePath);
 
 
-	/*
-	 * Write out the Output Ports.
-	 */
-	node1 = xmlNewChild (root_node, NULL, BAD_CAST "OutPorts", NULL);
-	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
-		sprintf (buff, "Port%03d", Loop);
-		node = xmlNewChild (node1, NULL, buff, NULL);
-		xmlSetProp (node, "Name", gMyInfo.OutPortName[Loop]);
-	}
-
-
-	/*
-	 * Write out the Patches
-	 */
-	node1 = xmlNewChild (root_node, NULL, BAD_CAST "MainButtons", NULL);
-	for (Loop = 0; Loop < Max_Patches; Loop++) {
-//              doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
-		sprintf (buff, "Preset%03d", Loop);
-		node = xmlNewChild (node1, NULL, buff, NULL);
-		xmlSetProp (node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
-		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
-		xmlSetProp (node, "Channel", buff);
-		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].BankSelect);
-		xmlSetProp (node, "Controller", buff);
-		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].OutPort);
-		xmlSetProp (node, "OutPort", buff);
-		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].Patch);
-		xmlSetProp (node, "Patch", buff);
-		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].CustomCommand);
-		xmlSetProp (node, "Custom", buff);
-//              sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Chain);
-		xmlSetProp (node, "Chain", gMyInfo.MyPatchInfo[Loop].Chain);
-	}
-
-	sprintf (buff, "%03d", gMyInfo.NumOutPorts);
-	xmlNewChild (root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
-
-
-
 	sprintf (buff, "%03d", gMyInfo.TempoMax);
 	xmlNewChild (root_node, NULL, BAD_CAST "TempoMax", BAD_CAST buff);
 
@@ -411,6 +373,44 @@ WritePrefs (void) {
 
 	sprintf (buff, "%s", gMyInfo.OSCPortNumHydrogen);
 	xmlNewChild (root_node, NULL, BAD_CAST "OSCPortNumHydrogen", BAD_CAST buff);
+
+	/*
+	 * Write out the Output Ports.
+	 */
+	sprintf (buff, "%03d", gMyInfo.NumOutPorts);
+	xmlNewChild (root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
+
+	node1 = xmlNewChild (root_node, NULL, BAD_CAST "OutPorts", NULL);
+	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
+		sprintf (buff, "Port%03d", Loop);
+		node = xmlNewChild (node1, NULL, buff, NULL);
+		xmlSetProp (node, "Name", gMyInfo.OutPortName[Loop]);
+	}
+
+
+	/*
+	 * Write out the Patches
+	 */
+	node1 = xmlNewChild (root_node, NULL, BAD_CAST "MainButtons", NULL);
+	for (Loop = 0; Loop < Max_Patches; Loop++) {
+//              doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
+		sprintf (buff, "Preset%03d", Loop);
+		node = xmlNewChild (node1, NULL, buff, NULL);
+		xmlSetProp (node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
+		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
+		xmlSetProp (node, "Channel", buff);
+		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].BankSelect);
+		xmlSetProp (node, "Controller", buff);
+		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].OutPort);
+		xmlSetProp (node, "OutPort", buff);
+		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].Patch);
+		xmlSetProp (node, "Patch", buff);
+		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].CustomCommand);
+		xmlSetProp (node, "Custom", buff);
+//              sprintf(buff, "%03d", gMyInfo.MyPatchInfo[Loop].Chain);
+		xmlSetProp (node, "Chain", gMyInfo.MyPatchInfo[Loop].Chain);
+	}
+
 
 	node1 = xmlNewChild (root_node, NULL, BAD_CAST "AppNames", NULL);
 	for (Loop = 0; Loop < MaxApps; Loop++) {
