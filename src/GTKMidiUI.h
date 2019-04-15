@@ -319,7 +319,10 @@ enum {
  * Place Static variables here.
  */
 
-enum { cntStateWaitingIdle = 0, cntStateRecording = 1, cntStateWaitingforCount = 2};
+enum { cntStateWaitingIdle = 0, cntStateRecording = 1, cntStateWaitingforRecCount = 2, cntStateWaitingforCountIn = 3};
+
+
+
 
 #ifdef GTKMidiUI_c
 #define EXTERN /* */

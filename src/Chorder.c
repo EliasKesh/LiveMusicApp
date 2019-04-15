@@ -441,8 +441,8 @@ void SetOpenString(void) {
 	StringLayout[0][0] = NValueEb;
 #endif
 	StringLayout[8][0] = NValueE;
-	StringLayout[7][0] = NValueE;
-	StringLayout[6][0] = NValueA;
+	StringLayout[7][0] = NValueGb;
+	StringLayout[6][0] = NValueB;
 	StringLayout[5][0] = NValueE;
 	StringLayout[4][0] = NValueA;
 	StringLayout[3][0] = NValueD;

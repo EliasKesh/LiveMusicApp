@@ -109,7 +109,7 @@ void SetTempo(unsigned int NewTempo) {
 	/*
 	 * This gives us TimerTicksPerQuater ticks per quarter.
 	 */
-	gMyInfo.TempoReload = (30000 / (NewTempo * TimerTicksPerQuater));
+	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
 	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 	printf( " ****   New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
@@ -168,103 +168,105 @@ void ToggleTempo(void) {
 //	char Count;
 //	int	Loop;
 
-	/*
-	 * Needs to be sent 24 time per quarter.
-	 */
-// EJK Remove gMyInfo.TempoMax
-	if (++TempoState >= (gMyInfo.TempoMax * (TimerTicksPerQuater / 2))) {
-		TempoState = 0;
-	}
+//	printf("Tempo %d %d\n", TempoState,  TempoState);
 
-
-	/* This is the tempo in BPM		*/
-	if (!(TempoState % TimerTicksPerQuater)) {
+	/* This is the tempo in BPM
+		Currently we use 4 clocks per quarter.
+	*/
+	if (!(++TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
 
-		if (++TempoCount > gMyInfo.BeatsPerMeasure)
+		/* You need to set the the midi pref in hydrogen to
+		CC 99 Beatcounter not to tap.
+		*/
+		// should change to OSC for compatibility.
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
+		         1, 99, 0);
+
+		// Send the tap tempo to sooperlooper.
+		MyOSCTap(TempoState);
+
+		/* Check for a beat 1.
+		*/
+		if (++TempoCount > gMyInfo.BeatsPerMeasure) {
 			TempoCount = 1;
+			TempoState = 0;
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED3On);
+			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+		} else {
+			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED4On );
+		}
 
 		/* Make sure the buttons are all up after being pressed.
 		*/
 		ClearMainButtons();
 
-		/* Hitting record a second time stops the recording.
-		*/
-		if (CountInActiveState == cntStateRecording && LoopRecBeats > 0) {
 
+		/* Handle any recording for the looper.
+		*/
+		switch (CountInActiveState) {
+		case cntStateWaitingforCountIn:
+			printf("cntStateWaitingforRecCount %d\n", TempoCount);
+			/* Wait for the downbeat.
+			*/
+			if (TempoCount == 1)
+				CountInActiveState = cntStateWaitingforRecCount;
+
+			break;
+
+		case cntStateWaitingforRecCount:
+			printf("cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+			if (CountInCount-- == gMyInfo.CountInBeats) {
+				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
+				         0, 0);
+				printf("Start %d %d\n", CountInCount,  TempoState);
+
+			}
+
+			if ( CountInCount == 0) {
+				CountInActiveState = cntStateRecording;
+
+//							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+				// Send a start record over OSC
+				OSCCommand(OSCStartRecord, 0);
+//				gMyInfo.MetronomeOn = FALSE;
+				printf("Loop Start 1\n\n");
+
+			}
+
+			break;
+
+		/* If we are recording and still not done.
+		*/
+		case cntStateRecording:
+			printf("cntStateRecording %d\n", LoopRecBeats);
 			if (--LoopRecBeats == 0) {
 				CountInActiveState = cntStateWaitingIdle;
+
+				OSCCommand(OSCStopRecord, 0);
+//				OSCCommand(OSCSyncSource, 1);
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
-				OSCCommand(OSCStartRecord, 0);
-				OSCCommand(OSCSyncSource, 1);
 
-//			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				printf("Loop Off\n\n");
 //				OSCCommand(OSCSyncOn, 0);
 
 			}
-//			else {
-//				OSCCommand(OSCSyncOff, 0);
-//			}
-		}
 
-#if 0
-		/* CountInActiveState is set from the patch cmdCountIn	*/
-		if (CountInActiveState == 1) {
-//			DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-			SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
-			         0, 0);
-			OSCCommand(OSCStartRecord, 0);
-			printf("Loop CountInActiveState 1\n\n");
-			CountInActiveState = 0;
-			gMyInfo.MetronomeOn = FALSE;
-		}
-#endif
-		/* If We just started turn on the metronome.
+			break;
+
+		/* If we are not recording, but the CountIn has
+		been set let's start Drum machine.
 		*/
-		if (CountInActiveState == cntStateWaitingforCount) {
-			gMyInfo.MetronomeOn = TRUE;
+		case cntStateWaitingIdle:
 
-			/* If count in is zero turn off metronome and start recording.
-			*/
-			if ( CountInCount-- == 0) {
-				CountInActiveState = cntStateRecording;
-
-//							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-				// Send a start to the transport port.
-				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
-				         0, 0);
-				// Send a start record over OSC
-
-
-				OSCCommand(OSCSyncSource, -3);
-				OSCCommand(OSCStartRecord, 0);
-				gMyInfo.MetronomeOn = FALSE;
-				printf("Loop Start 1\n\n");
-
-			}
+			break;
 		}
-
-#if 1
-		if (TempoCount != 1) {
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED4On );
-		} else {
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED3On);
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
-		}
-#endif
-		// Send the tap tempo to sooperlooper.
-		MyOSCTap(TempoState);
-		// Send a PC of 99, hydrogen is configured for tap.
-		// should change to OSC for compatibility.
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
-		         1, 99, 0);
 
 		/* On the first beat play a different sound.
 		 */
@@ -283,8 +285,19 @@ void ToggleTempo(void) {
 
 		MyImageButtonSetText(&TempoDraw, TempStrBuf);
 		MyOSCPoll(FALSE);
+	} else {
+//		if (TempoState == 2) {
+			/*  Turn lights off
+			 */
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED3Off );
+
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED4Off );
+//		}
 	}
 }
+
 
 
 /*--------------------------------------------------------------------
@@ -319,23 +332,8 @@ static gboolean tempo_handler(GtkWidget *widget) {
 	err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &ev);
 	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
 #endif
-
-	if (++SubBeats > 1) {
-		SubBeats = 0;
-
-		PlayerPoll(TRUE);
-
-		/*  Tempo Midi
-		 */
-		ToggleTempo();
-	} else {
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3Off );
-
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED4Off );
-	}
-
+	ToggleTempo();
+	PlayerPoll(TRUE);
 
 	return TRUE;
 }

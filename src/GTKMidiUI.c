@@ -82,7 +82,7 @@ int KeyLayout = 1;
 
 /* Printf Level.
 */
-int RunLogLevel = LogDebug;
+int RunLogLevel = LogWarn;
 
 /* Array to hold the recent status messages.
 */

@@ -71,26 +71,26 @@ void on_BasePath_changed(GtkButton *button, gpointer user_data) {
  *
  *---------------------------------------------------------------------*/
 void InitGuiPrefs(void) {
-	GtkWidget *main_window;
+	GtkWidget *Patch_Pane;
 	GtkWidget *view;
 	GtkWidget *widget;
 
 	view = CreatePatchViewModel();
 
-	main_window = GTK_WIDGET(gtk_builder_get_object(gxml, "PatchScroller"));
-	printd(LogDebug, "Main Gui Scroll Window %x %x\n", main_window, view);
+	Patch_Pane = GTK_WIDGET(gtk_builder_get_object(gxml, "PatchScroller"));
+	printd(LogDebug, "Main Gui Scroll Window %x %x\n", Patch_Pane, view);
 #if 0
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (main_window),
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (Patch_Pane),
 	                                     GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_window),
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (Patch_Pane),
 	                                GTK_POLICY_AUTOMATIC,
 	                                TK_POLICY_AUTOMATIC);
 #endif
 
-//			g_signal_connect (G_OBJECT (main_window), "destroy",
+//			g_signal_connect (G_OBJECT (Patch_Pane), "destroy",
 //			G_CALLBACK (on_window1_destroy), NULL);
-	gtk_container_add(GTK_CONTAINER(main_window), view);
-	gtk_widget_show_all(main_window);
+	gtk_container_add(GTK_CONTAINER(Patch_Pane), view);
+	gtk_widget_show_all(Patch_Pane);
 
 	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "BasePath"));
 	g_signal_connect_data(G_OBJECT(widget), "changed",

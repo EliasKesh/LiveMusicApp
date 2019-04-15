@@ -24,3 +24,10 @@ cp /home/elias/workspace/MusicFiles/RegenerateCharts ${DestDir}
 cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
 cp /home/elias/workspace/MusicFiles/CreateChartFile ${DestDir}
 cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}
+cp /home/elias/workspace/MusicFiles/jack-plumbing ${DestDir}"/Prefs/"
+
+
+
+# ~/.hydrogen/hydrogen.conf
+# ~/.sooperlooper
+# ~/.config/guitarix
