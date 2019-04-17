@@ -41,8 +41,6 @@ char *printd(char LogLevel, const char *fmt, ...);
 
 #define ResourceDirectory	"./LiveMusicRes/"
 
-#define OutPortAnalog 	0
-#define OutPortMidi		1
 #define MaxStringPortName	32
 enum {
 	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
@@ -57,6 +55,9 @@ enum {
 
 typedef unsigned short tPatchIndex;
 
+/* These are used to hold connection information
+currently not implemented.
+*/
 typedef struct {
 	char Name[PatchNameSize];
 	char ID;
@@ -319,7 +320,11 @@ enum {
  * Place Static variables here.
  */
 
-enum { cntStateWaitingIdle = 0, cntStateRecording = 1, cntStateWaitingforRecCount = 2, cntStateWaitingforCountIn = 3};
+enum { cntStateWaitingIdle = 0, 
+		cntStateRecording = 1, 
+		cntStateWaitingforRecCount = 2, 
+		cntStateWaitingforCountIn = 3,
+		cntStatePostRecord = 4 };
 
 
 
@@ -427,7 +432,11 @@ EXTERN theImageButtons TempoDraw;
 // Standard font description we use across the program
 EXTERN PangoFontDescription *Tempofont_desc;
 // Hold the tempo string so we do not draw at inturrupt time.
+EXTERN char TempoUpdateString[100];
+EXTERN int 	BeatCount;
+EXTERN int 	UIUpdateFromTimer;
 EXTERN char TempStrBuf[100];
+EXTERN GtkWidget *theMainWindow;
 
 void NextDesktop(void);
 void PrevDesktop(void);

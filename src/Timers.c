@@ -28,7 +28,7 @@
  * Place defines and Typedefs here
  */
 //#define AlsaTimer
-#define TimerTicksPerQuater 	4
+#define TimerTicksPerQuater 	2
 
 
 /*
@@ -39,6 +39,7 @@
 static gboolean time_handler(GtkWidget *widget);
 #endif
 static gboolean tempo_handler(GtkWidget *widget);
+int GTKIdel_cb(gpointer data);
 
 /*
  * Place Static variables here
@@ -58,12 +59,12 @@ void MyTimerInit(void) {
 	/* Set up a timer for Tempo.
 	*/
 #ifdef AlsaTimer
-	SetupAlsaTimer(100);
+	SetupAlsaTimer(90);
 #else
-//	g_timeout_add(Timer1Ticks, (GSourceFunc) time_handler, (gpointer) gxml);
-#endif
 	gMyInfo.TempoTimerID = 0;
+#endif
 	SetTempo(120);
+
 	CountInActiveState = cntStateWaitingIdle;
 	LoopRecBeats = 0;
 	SubBeats = 0;
@@ -82,20 +83,16 @@ void SetTempo(unsigned int NewTempo) {
 		return;
 
 	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
-
+	gMyInfo.Tempo = NewTempo;
+//	gMyInfo.TempoReload = 40;
 //	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
 //	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
 #ifdef AlsaTimer
 	/* Send out a message our tempo is changing.
 	 */
-	SendMidi(SND_SEQ_EVENT_TEMPO, TempoPort, DefaultMidiChannel, 0,
-	         (int) NewTempo);
-//      NewDivider = 100000;
-//      gMyInfo.TempoReload = 25000/NewTempo;
+	setTimerFreq(15000 / NewTempo);
 
-	gMyInfo.TempoReload = 24900 / NewTempo;
-	gMyInfo.TimerCount = 0;
 #else
 	/* Tell the timer to stop.
 	 */
@@ -137,7 +134,6 @@ static gboolean time_handler(GtkWidget *widget) {
 }
 #endif
 
-static char		TempoCount = 0;
 #define PedalLEDAllOn		0
 #define PedalLEDAllOff		1
 #define PedalLED1On		2
@@ -176,20 +172,11 @@ void ToggleTempo(void) {
 	if (!(++TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
 
-		/* You need to set the the midi pref in hydrogen to
-		CC 99 Beatcounter not to tap.
-		*/
-		// should change to OSC for compatibility.
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
-		         1, 99, 0);
-
-		// Send the tap tempo to sooperlooper.
-		MyOSCTap(TempoState);
 
 		/* Check for a beat 1.
 		*/
-		if (++TempoCount > gMyInfo.BeatsPerMeasure) {
-			TempoCount = 1;
+		if (++BeatCount > gMyInfo.BeatsPerMeasure) {
+			BeatCount = 1;
 			TempoState = 0;
 			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 			         DrumMidiChannel, 04, (int) PedalLED3On);
@@ -211,10 +198,10 @@ void ToggleTempo(void) {
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
-			printf("cntStateWaitingforRecCount %d\n", TempoCount);
+			printf("cntStateWaitingforRecCount %d\n", BeatCount);
 			/* Wait for the downbeat.
 			*/
-			if (TempoCount == 1)
+			if (BeatCount == 1)
 				CountInActiveState = cntStateWaitingforRecCount;
 
 			break;
@@ -225,6 +212,9 @@ void ToggleTempo(void) {
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
 				printf("Start %d %d\n", CountInCount,  TempoState);
+				/* Set sync source to Internal
+				*/
+				OSCCommand(OSCSyncSource, -3);
 
 			}
 
@@ -236,7 +226,6 @@ void ToggleTempo(void) {
 				OSCCommand(OSCStartRecord, 0);
 //				gMyInfo.MetronomeOn = FALSE;
 				printf("Loop Start 1\n\n");
-
 			}
 
 			break;
@@ -246,17 +235,22 @@ void ToggleTempo(void) {
 		case cntStateRecording:
 			printf("cntStateRecording %d\n", LoopRecBeats);
 			if (--LoopRecBeats == 0) {
-				CountInActiveState = cntStateWaitingIdle;
-
 				OSCCommand(OSCStopRecord, 0);
-//				OSCCommand(OSCSyncSource, 1);
+				CountInActiveState = cntStatePostRecord;
+				/* Set Sync to Loop for the remaining tracks.
+				*/
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
 				printf("Loop Off\n\n");
-//				OSCCommand(OSCSyncOn, 0);
-
 			}
+
+			break;
+
+		case cntStatePostRecord:
+			CountInActiveState = cntStateWaitingIdle;
+			OSCCommand(OSCSyncOn, 0);
+			OSCCommand(OSCSyncSource, 1);
 
 			break;
 
@@ -264,6 +258,15 @@ void ToggleTempo(void) {
 		been set let's start Drum machine.
 		*/
 		case cntStateWaitingIdle:
+			/* You need to set the the midi pref in hydrogen to
+			CC 99 Beatcounter not to tap.
+			*/
+			// should change to OSC for compatibility.
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
+			         1, 99, 0);
+
+			// Send the tap tempo to sooperlooper.
+			MyOSCTap(TempoState);
 
 			break;
 		}
@@ -271,7 +274,7 @@ void ToggleTempo(void) {
 		/* On the first beat play a different sound.
 		 */
 		if (gMyInfo.MetronomeOn) {
-			if (TempoCount != 1) {
+			if (BeatCount != 1) {
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			} else {
@@ -279,23 +282,23 @@ void ToggleTempo(void) {
 				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
-			sprintf(TempStrBuf, "On %d - %d", gMyInfo.Tempo, TempoCount);
+			sprintf(TempoUpdateString, "On %d - %d", gMyInfo.Tempo, BeatCount);
 		} else
-			sprintf(TempStrBuf, "Off %d - %d", gMyInfo.Tempo, TempoCount);
+			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
 
-		MyImageButtonSetText(&TempoDraw, TempStrBuf);
-		MyOSCPoll(FALSE);
+		UIUpdateFromTimer = TRUE;
 	} else {
 //		if (TempoState == 2) {
-			/*  Turn lights off
-			 */
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED3Off );
+		/*  Turn lights off
+		 */
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3Off );
 
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED4Off );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED4Off );
 //		}
 	}
+	g_idle_add(GTKIdel_cb, theMainWindow);
 }
 
 
@@ -307,33 +310,7 @@ void ToggleTempo(void) {
  *
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
-
-//	printd(LogInfo," IN tempo_handler\n");
-	/* Turn this off for now MTC	*/
-#if 0
-// #ifndef AlsaTimer
-	snd_seq_event_t ev;
-	int err;
-	unsigned long adjbpm;
-	snd_seq_queue_tempo_t *queue_tempo;
-	snd_seq_ev_clear(&ev);
-	snd_seq_ev_set_source(&ev, TempoPort);
-	snd_seq_ev_set_subs(&ev);
-
-	/* Channel, Controller, Value
-	 */
-	snd_seq_ev_set_controller(&ev, 0, 0, 0);
-
-	/* Send with out queueing.
-	 */
-	snd_seq_ev_set_direct(&ev);
-
-	ev.type = SND_SEQ_EVENT_CLOCK;
-	err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &ev);
-	snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
-#endif
 	ToggleTempo();
-	PlayerPoll(TRUE);
-
+//	PlayerPoll(TRUE);
 	return TRUE;
 }

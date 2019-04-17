@@ -82,7 +82,7 @@ int KeyLayout = 1;
 
 /* Printf Level.
 */
-int RunLogLevel = LogWarn;
+int RunLogLevel = LogDebug;
 
 /* Array to hold the recent status messages.
 */
@@ -323,7 +323,6 @@ void ClearMainButtons(void) {
  *---------------------------------------------------------------------*/
 int GTKIdel_cb(gpointer data) {
 
-	HIDPoll();
 
 	// Can't call this from the thread so the
 	// thread sets teh structure and then the action
@@ -357,7 +356,14 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
-	return (true);
+	if (UIUpdateFromTimer == TRUE) {
+		UIUpdateFromTimer = FALSE;
+		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
+		PlayerPoll(TRUE);
+		HIDPoll();
+		UIUpdateFromTimer = FALSE;
+	}
+	return (FALSE);
 }
 
 /*--------------------------------------------------------------------
@@ -589,6 +595,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * get the window widget from the glade XML file
 	 */
 	main_window = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
+	theMainWindow = main_window;
 
 	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
 	provider = gtk_css_provider_new();
@@ -655,6 +662,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "Tempo"));
+
 
 	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
 
@@ -764,7 +772,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	SetVolume2(gMyInfo.MidiVolume);
 //       create_Patch_Popup_view(main_window);
 	printd(LogInfo, "Entering gtk_main\n");
-
 
 	MyTimerInit();
 

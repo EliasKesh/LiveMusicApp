@@ -130,8 +130,7 @@ int OSCCommand(int Command, char Option) {
 //		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
 		lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
 		break;
-
-//oscsend localhost 9951 / set si "sync_source" - 1
+//oscsend localhost 9951 /set si "sync_source" -3
 
 // lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
 	}
