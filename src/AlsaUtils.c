@@ -138,7 +138,8 @@ static void async_callback(snd_async_handler_t *ahandler) {
 //	printf("Alsa Timer Call In\n");
 //		err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &MTCev);
 //		snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
-	ToggleTempo();
+	if (!JackRunning)
+		ToggleTempo();
 //	}
 }
 

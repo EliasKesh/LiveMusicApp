@@ -351,7 +351,7 @@ int GTKIdel_cb(gpointer data) {
 			break;
 		}
 
-		/* Clear it until next message set 
+		/* Clear it until next message set
 		*/
 		AlsaEvent.data.control.param = 0;
 	}
@@ -362,7 +362,16 @@ int GTKIdel_cb(gpointer data) {
 		PlayerPoll(TRUE);
 		HIDPoll();
 		UIUpdateFromTimer = FALSE;
+	/*  Turn lights off
+	*/
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+	         DrumMidiChannel, 04, (int) PedalLED3Off );
+
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+	         DrumMidiChannel, 04, (int) PedalLED4Off );
 	}
+
+
 	return (FALSE);
 }
 
@@ -721,6 +730,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	// SetAlsaMasterVolume(90);
 	// SetAlsaCaptureVolume(90);
 	MyOSCInit();
+	InitJackTransport();
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -802,6 +812,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	WritePrefs();
 	MyAlsaClose();
 	MyOSCClose();
+	CloseJackTransport();
 	LivePlayerClose();
 	printd(LogInfo, "Closing LiveApp\n");
 

@@ -228,7 +228,7 @@ GTKMidiInfo GlobalInfo = {
  44, /* Drum Other beats  */
  45, /* Base Midi Note for switching  */
  120, /* Tempo   */
- 4, /* CountInBeats   */
+ 8, /* CountInBeats   */
  16, /* LoopRecBeats   */
  1, /* MidiPassThru   */
  110, /* MidiPassLevel   */

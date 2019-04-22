@@ -43,7 +43,7 @@ static lo_server osc_server = 0;
 static lo_server osc_server1 = 0;
 static char our_url[100];
 static char CurrentLoop;
-
+// http://essej.net/sooperlooper/doc_osc.html
 /*--------------------------------------------------------------------
  * Function:		OSCCommand.
  *
@@ -114,13 +114,13 @@ int OSCCommand(int Command, char Option) {
 
 	case OSCSyncOn:
 		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		printd(LogDebug, "Sync On %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
 		break;
 
 	case OSCSyncOff:
 		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+		printd(LogDebug, "Sync Off %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 0.0);
 		break;
 
@@ -130,6 +130,13 @@ int OSCCommand(int Command, char Option) {
 //		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
 		lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
 		break;
+
+	case OSCRecThres:
+		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+		printd(LogDebug, "Sync Off %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option/127 );
+		break;
+
 //oscsend localhost 9951 /set si "sync_source" -3
 
 // lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
@@ -236,10 +243,7 @@ void MyOSCPoll(char DownBeat) {
  *
  *---------------------------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
-
-	// http://essej.net/sooperlooper/doc_osc.html
 	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
-
 }
 
 
@@ -297,7 +301,6 @@ void MyOSCLoadFile(char *FileName) {
  * 		Values 0 - 127
  *---------------------------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
-
 	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume / 127);
 }
 
@@ -316,6 +319,10 @@ void MyOSCJackMute(int Mute, int channel) {
 #if 0
 
 load_session s
+
+klick -o 9954  -T -L 120
+oscsend localhost 9954 /klick/simple/set_tempo f 90
+
 
 http://essej.net/sooperlooper/docs.html
 http://essej.net/sooperlooper/doc_osc.html

@@ -28,7 +28,7 @@
  * Place defines and Typedefs here
  */
 //#define AlsaTimer
-#define TimerTicksPerQuater 	2
+#define TimerTicksPerQuater 	1
 
 
 /*
@@ -81,6 +81,8 @@ void SetTempo(unsigned int NewTempo) {
 
 	if (NewTempo <= 0)
 		return;
+	
+	com_tempo(NewTempo);
 
 	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
 	gMyInfo.Tempo = NewTempo;
@@ -108,7 +110,6 @@ void SetTempo(unsigned int NewTempo) {
 	 */
 	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
 	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
-	printf( " ****   New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
 	/* Start the new timer.
 	 */
@@ -134,25 +135,6 @@ static gboolean time_handler(GtkWidget *widget) {
 }
 #endif
 
-#define PedalLEDAllOn		0
-#define PedalLEDAllOff		1
-#define PedalLED1On		2
-#define PedalLED1Off	3
-#define PedalLED2On		4
-#define PedalLED2Off	5
-#define PedalLED3On		6
-#define PedalLED3Off	7
-#define PedalLED4On		8
-#define PedalLED4Off	9
-#define PedalLED5On		10
-#define PedalLED6Off	11
-#define PedalLED7On		12
-#define PedalLED7Off	13
-#define PedalLED7On		14
-#define PedalLED7Off	15
-#define PedalLED8On		17
-#define PedalLED8Off	117
-
 /*--------------------------------------------------------------------
  * Function:		ToggleTempo
  *
@@ -163,8 +145,11 @@ static gboolean time_handler(GtkWidget *widget) {
 void ToggleTempo(void) {
 //	char Count;
 //	int	Loop;
+struct timeval Time0;
 
-//	printf("Tempo %d %d\n", TempoState,  TempoState);
+//	gettimeofday(&Time0, NULL);
+//	printd(LogDebug, ("%ld:%ld->",Time0.tv_sec, Time0.tv_usec);
+//	printd(LogDebug, ("Tempo %d %d\n", TempoState,  TempoState);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -192,13 +177,11 @@ void ToggleTempo(void) {
 		/* Make sure the buttons are all up after being pressed.
 		*/
 		ClearMainButtons();
-
-
 		/* Handle any recording for the looper.
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
-			printf("cntStateWaitingforRecCount %d\n", BeatCount);
+			printd(LogDebug, "cntStateWaitingforRecCount %d\n", BeatCount);
 			/* Wait for the downbeat.
 			*/
 			if (BeatCount == 1)
@@ -207,14 +190,17 @@ void ToggleTempo(void) {
 			break;
 
 		case cntStateWaitingforRecCount:
-			printf("cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+			printd(LogDebug, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 			if (CountInCount-- == gMyInfo.CountInBeats) {
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
-				printf("Start %d %d\n", CountInCount,  TempoState);
+				printd(LogDebug, "Start %d %d\n", CountInCount,  TempoState);
 				/* Set sync source to Internal
 				*/
-				OSCCommand(OSCSyncSource, -3);
+				OSCCommand(OSCSyncSource, typeSyncjack);
+
+				// In case there is no downbeat.
+				OSCCommand(OSCRecThres, 0);
 
 			}
 
@@ -223,9 +209,10 @@ void ToggleTempo(void) {
 
 //							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				// Send a start record over OSC
-				OSCCommand(OSCStartRecord, 0);
+				com_play();
+		//		OSCCommand(OSCStartRecord, 0);
 //				gMyInfo.MetronomeOn = FALSE;
-				printf("Loop Start 1\n\n");
+				printd(LogDebug, "Loop Start 1\n\n");
 			}
 
 			break;
@@ -233,17 +220,23 @@ void ToggleTempo(void) {
 		/* If we are recording and still not done.
 		*/
 		case cntStateRecording:
-			printf("cntStateRecording %d\n", LoopRecBeats);
-			if (--LoopRecBeats == 0) {
+			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
+			if (LoopRecBeats == gMyInfo.LoopRecBeats)
+				OSCCommand(OSCStartRecord, 0);
+		
+			if (--LoopRecBeats < 0) {
 				OSCCommand(OSCStopRecord, 0);
+				com_stop();
 				CountInActiveState = cntStatePostRecord;
+			
 				/* Set Sync to Loop for the remaining tracks.
 				*/
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
-				printf("Loop Off\n\n");
-			}
+				printd(LogDebug, "Loop Off\n\n");
+			} 
+
 
 			break;
 
@@ -287,7 +280,9 @@ void ToggleTempo(void) {
 			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
 
 		UIUpdateFromTimer = TRUE;
-	} else {
+	} 
+#if 0
+else {
 //		if (TempoState == 2) {
 		/*  Turn lights off
 		 */
@@ -298,7 +293,10 @@ void ToggleTempo(void) {
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
 //		}
 	}
+#endif
 	g_idle_add(GTKIdel_cb, theMainWindow);
+
+//	jack_poll();
 }
 
 
@@ -310,7 +308,9 @@ void ToggleTempo(void) {
  *
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
-	ToggleTempo();
+
+	if (!JackRunning)
+		ToggleTempo();
 //	PlayerPoll(TRUE);
 	return TRUE;
 }

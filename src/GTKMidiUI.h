@@ -327,6 +327,24 @@ enum { cntStateWaitingIdle = 0,
 		cntStatePostRecord = 4 };
 
 
+#define PedalLEDAllOn		0
+#define PedalLEDAllOff		1
+#define PedalLED1On		2
+#define PedalLED1Off	3
+#define PedalLED2On		4
+#define PedalLED2Off	5
+#define PedalLED3On		6
+#define PedalLED3Off	7
+#define PedalLED4On		8
+#define PedalLED4Off	9
+#define PedalLED5On		10
+#define PedalLED6Off	11
+#define PedalLED7On		12
+#define PedalLED7Off	13
+#define PedalLED7On		14
+#define PedalLED7Off	15
+#define PedalLED8On		17
+#define PedalLED8Off	117
 
 
 #ifdef GTKMidiUI_c
@@ -406,8 +424,8 @@ EXTERN PortsInfo theOutPorts;
 EXTERN int WaitingforMidi;
 EXTERN int WaitingforMidiHold;
 EXTERN GtkBuilder *gxml;
-EXTERN unsigned int CountInCount;
-EXTERN unsigned int LoopRecBeats;
+EXTERN int CountInCount;
+EXTERN int LoopRecBeats;
 EXTERN char CountInActiveState;
 EXTERN char	SysCallString[200];
 EXTERN GdkPixbuf *MainButtonOnImage;
@@ -437,6 +455,7 @@ EXTERN int 	BeatCount;
 EXTERN int 	UIUpdateFromTimer;
 EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
+EXTERN char 	JackRunning;
 
 void NextDesktop(void);
 void PrevDesktop(void);

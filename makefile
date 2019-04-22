@@ -37,6 +37,7 @@ INCLUDES += ./src/AlsaUtils.h ./src/GenPrefs.h
 INCLUDES += ./src/MyWidgets.h ./src/PrefsGui.h
 INCLUDES += ./src/Connections.h ./src/GTKMidiUI.h 
 INCLUDES += ./src/Player.h ./src/SooperOSC.h
+INCLUDES += ./src/transport.c
 
 OBJECTS=$(SOURCES:.cxx=.o)
 # OBJECTS+=$(SOURCES:.c=.o)

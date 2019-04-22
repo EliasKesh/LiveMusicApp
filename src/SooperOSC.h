@@ -51,8 +51,12 @@ enum {
 	OSCSyncOn,
 	OSCSyncOff,
 	OSCSyncSource,
+	OSCRecThres,
 	MaxOSCCommands
 };
+
+// http://essej.net/sooperlooper/doc_osc.html
+enum { typeSyncInternal=-3, typeSyncmidi=-2, typeSyncjack=-1, typeSyncnone=0 };
 
 
 #endif
