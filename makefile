@@ -27,7 +27,7 @@ SOURCES += ./src/Player.c ./src/PrefsGui.c ./src/Timers.c
 
 
 
-SOURCES += ./src/Chorder.c ./src/GTKMidiUI.c ./src/MyWidgets.c 
+SOURCES += ./src/Chorder.c ./src/LiveMusicApp.c ./src/MyWidgets.c 
 SOURCES += ./src/PrefsFile.c ./src/RightMenuClick.c ./src/wmctrl.c
 SOURCES += ./src/transport.c ./src/SooperOSC.c ./src/HIDGrab.c
 
@@ -35,7 +35,7 @@ INCLUDES = ./src/aconfig.h ./src/DefPrefs.h ./src/HTML.h
 INCLUDES += ./src/PrefsFile.h ./src/Timers.h
 INCLUDES += ./src/AlsaUtils.h ./src/GenPrefs.h 
 INCLUDES += ./src/MyWidgets.h ./src/PrefsGui.h
-INCLUDES += ./src/Connections.h ./src/GTKMidiUI.h 
+INCLUDES += ./src/Connections.h ./src/LiveMusicApp.h 
 INCLUDES += ./src/Player.h ./src/SooperOSC.h
 INCLUDES += ./src/transport.c
 

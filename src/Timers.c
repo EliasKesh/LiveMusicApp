@@ -20,7 +20,7 @@
 
 #include "Timers.h"
 #include <gtk/gtk.h>
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "SooperOSC.h"
 
 

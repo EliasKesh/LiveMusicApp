@@ -15,7 +15,7 @@
 /*
  * Place Includes Here
  */
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "PrefsFile.h"
 #include <stdio.h>
 #include <libxml/parser.h>
@@ -55,8 +55,8 @@ void
 InitPref (void) {
 	int Count;
 
-	memset (&gMyInfo, 0, sizeof (GTKMidiInfo));
-	memcpy (&gMyInfo, &GlobalInfo, sizeof (GTKMidiInfo));
+	memset (&gMyInfo, 0, sizeof (LiveMusicInfo));
+	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 
 #if 0
 	WritePrefs ();
@@ -110,7 +110,7 @@ InitPref (void) {
  *
  *---------------------------------------------------------------------*/
 void
-PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
+PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 	int Loop;
 	int Loop1;
 	PortsInfo *thePorts;
@@ -127,7 +127,7 @@ PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef) {
 	}
 
 	if (PrefsFile)
-		fprintf (PrefsFile, "GTKMidiInfo GlobalInfo = {\n \t{\n");
+		fprintf (PrefsFile, "LiveMusicInfo GlobalInfo = {\n \t{\n");
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
 		if ((Loop % 10) == 0 && PrefsFile)

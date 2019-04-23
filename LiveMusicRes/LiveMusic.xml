@@ -6,9 +6,9 @@
   <Click1>037</Click1>
   <ClickRest>044</ClickRest>
   <MidiBaseNote>045</MidiBaseNote>
-  <Tempo>120</Tempo>
+  <Tempo>050</Tempo>
   <CountInBeats>004</CountInBeats>
-  <LoopRecBeats>016</LoopRecBeats>
+  <LoopRecBeats>008</LoopRecBeats>
   <MidiPassThru>001</MidiPassThru>
   <MidiPassLevel>110</MidiPassLevel>
   <BeatsPerMeasure>004</BeatsPerMeasure>

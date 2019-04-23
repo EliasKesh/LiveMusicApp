@@ -23,23 +23,13 @@
 #include "stdlib.h"
 #include <string.h>
 #include "stdbool.h"
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "PrefsGui.h"
 
 /*
  * Place defines and Typedefs here
  */
 
-extern GtkBuilder *gxml;
-
-/*
- * Place Local prototypes here
- */
-static GtkWidget *CreatePatchViewModel(void);
-
-/*
- * Place Static variables here
- */
 enum {
 	Button_COLUMN = 0,
 	Name_COLUMN,
@@ -51,6 +41,33 @@ enum {
 	Chain_COLUMN,
 	NumCOLUMN
 };
+
+extern GtkBuilder *gxml;
+
+/*
+ * Place Local prototypes here
+ */
+static GtkWidget *CreatePatchViewModel(void);
+
+/*
+ * Place Static variables here
+ */
+
+	GtkWidget *Analog_Volume;
+	GtkWidget *Midi_Volume;
+	GtkWidget *Record_Beats;
+	GtkWidget *Count_Beats;
+	GtkWidget *Beats_Measure;
+	GtkWidget *Tempo_pref;
+	GtkWidget *Midi_Base;
+	GtkWidget *OSC_Address;
+	GtkWidget *OSCLoopPort;
+	GtkWidget *OSCVolumePort;
+	GtkWidget *OSCHydrogenPort;
+	GtkWidget *About_Close;
+
+//	GtkWidget *Prefs_OK;
+//	GtkWidget *About_Close;
 
 /*--------------------------------------------------------------------
  * Function:		on_BasePath_changed
@@ -65,19 +82,209 @@ void on_BasePath_changed(GtkButton *button, gpointer user_data) {
 }
 
 /*--------------------------------------------------------------------
+ * Function:		Prefs_click_spin_handler
+ *
+ * Description:		Get data from number spin boxes.
+ *
+ *---------------------------------------------------------------------*/
+gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
+                            gpointer user_data) {
+//	theImageButtons *theButton;
+
+//	theButton = (theImageButtons *) user_data;
+   	gint value = gtk_spin_button_get_value_as_int (widget);
+   	if (widget == Analog_Volume) {
+   		gMyInfo.AnalogVolume = value;
+		printd(LogInfo, "Analog_Volume  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Midi_Volume) {
+   		gMyInfo.MidiVolume = value;
+		printd(LogInfo, "Midi_Volume  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Record_Beats) {
+   		gMyInfo.LoopRecBeats = value;
+		printd(LogInfo, "Record_Beats  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Count_Beats) {
+   		gMyInfo.CountInBeats = value;
+		printd(LogInfo, "Count_Beats  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Beats_Measure) {
+   		gMyInfo.BeatsPerMeasure = value;
+		printd(LogInfo, "Beats_Measure  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Tempo_pref) {
+   		SetTempo(value);
+//   		gMyInfo.Tempo = value;
+		printd(LogInfo, "Tempo_pref  %x %d\n", widget, value);
+   	}
+
+   	if (widget == Midi_Base) {
+   		gMyInfo.MidiBaseNote = value;
+		printd(LogInfo, "Midi_Base  %x %d\n", widget, value);
+   	}
+
+
+	return TRUE; /* stop event propagation */
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Prefs_click_text_handler
+ *
+ * Description:		Get data from text boxes.
+ *
+ *---------------------------------------------------------------------*/
+gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
+                            gpointer user_data) {
+
+	const gchar *theString = gtk_entry_get_text (widget);
+
+   	if (widget == OSC_Address) {
+		strncpy(gMyInfo.OSCIPAddress, theString, 20);
+		printd(LogInfo, "OSC_Address  %x %s\n", widget, theString);
+   	}
+
+   	if (widget == OSCLoopPort) {
+		strncpy(gMyInfo.OSCPortNumLooper, theString, 6);
+		printd(LogInfo, "OSCLoopPort  %x %s\n", widget, theString);
+   	}
+
+   	if (widget == OSCHydrogenPort) {
+		strncpy(gMyInfo.OSCPortNumHydrogen, theString, 6);
+		printd(LogInfo, "OSCHydrogenPort  %x %s\n", widget, theString);
+   	}
+
+   	if (widget == OSCVolumePort) {
+		strncpy(gMyInfo.OSCPortNumJackVol, theString, 6);
+		printd(LogInfo, "OSCVolumePort  %x %s\n", widget, theString);
+   	}
+
+	return TRUE; /* stop event propagation */
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Prefs_about_close_handler
+ *
+ * Description:		Handle the close button.
+ *
+ *---------------------------------------------------------------------*/
+gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
+                            gpointer user_data) {
+
+	printf("Prefs_about_close_handler\n");
+	gtk_widget_destroy(user_data);
+
+}
+
+/*--------------------------------------------------------------------
  * Function:		InitGuiPrefs
  *
- * Description:		<Description/Comments>
+ * Description:		Load the widgets from glade for the 
+ * preferences user interface.
  *
  *---------------------------------------------------------------------*/
 void InitGuiPrefs(void) {
 	GtkWidget *Patch_Pane;
 	GtkWidget *view;
 	GtkWidget *widget;
+	GtkWidget *About_Box;
 
 	view = CreatePatchViewModel();
-
 	Patch_Pane = GTK_WIDGET(gtk_builder_get_object(gxml, "PatchScroller"));
+	About_Box = GTK_WIDGET(gtk_builder_get_object(gxml, "dialog-vbox1"));
+
+	Analog_Volume = GTK_WIDGET(gtk_builder_get_object(gxml, "Analog_Volume"));
+	g_signal_connect(G_OBJECT(Analog_Volume),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Analog_Volume);
+	gtk_spin_button_set_value(Analog_Volume, gMyInfo.AnalogVolume);
+
+	Midi_Volume = GTK_WIDGET(gtk_builder_get_object(gxml, "Midi_Volume"));
+	g_signal_connect(G_OBJECT(Midi_Volume),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Midi_Volume);
+	gtk_spin_button_set_value(Midi_Volume, gMyInfo.MidiVolume);
+
+	Record_Beats = GTK_WIDGET(gtk_builder_get_object(gxml, "Record_Beats"));
+	g_signal_connect(G_OBJECT(Record_Beats),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Record_Beats);
+	gtk_spin_button_set_value(Record_Beats, gMyInfo.LoopRecBeats);
+
+	Count_Beats = GTK_WIDGET(gtk_builder_get_object(gxml, "Count_Beats"));
+	g_signal_connect(G_OBJECT(Count_Beats),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Count_Beats);
+	gtk_spin_button_set_value(Count_Beats, gMyInfo.CountInBeats);
+
+	Beats_Measure = GTK_WIDGET(gtk_builder_get_object(gxml, "Beats_Measure"));
+	g_signal_connect(G_OBJECT(Beats_Measure),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Beats_Measure);
+	gtk_spin_button_set_value(Beats_Measure, gMyInfo.BeatsPerMeasure);
+
+	Tempo_pref = GTK_WIDGET(gtk_builder_get_object(gxml, "Tempo_pref"));
+	g_signal_connect(G_OBJECT(Tempo_pref),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Tempo_pref);
+	gtk_spin_button_set_value(Tempo_pref, gMyInfo.Tempo);
+
+	Midi_Base = GTK_WIDGET(gtk_builder_get_object(gxml, "Midi_Base"));
+	g_signal_connect(G_OBJECT(Midi_Base),
+	                 "value-changed",
+	                 G_CALLBACK(Prefs_click_spin_handler),
+	                 &Midi_Base);
+	gtk_spin_button_set_value(Midi_Base, gMyInfo.MidiBaseNote);
+
+
+
+	OSC_Address = GTK_WIDGET(gtk_builder_get_object(gxml, "OSC_Address"));
+	g_signal_connect(G_OBJECT(OSC_Address),
+	                 "changed",
+	                 G_CALLBACK(Prefs_click_text_handler),
+	                 &OSC_Address);
+	gtk_entry_set_text(OSC_Address, gMyInfo.OSCIPAddress);
+
+	OSCLoopPort = GTK_WIDGET(gtk_builder_get_object(gxml, "OSCLoopPort"));
+	g_signal_connect(G_OBJECT(OSCLoopPort),
+	                 "changed",
+	                 G_CALLBACK(Prefs_click_text_handler),
+	                 &OSCLoopPort);
+	gtk_entry_set_text(OSCLoopPort, gMyInfo.OSCPortNumLooper);
+
+	OSCVolumePort = GTK_WIDGET(gtk_builder_get_object(gxml, "OSCVolumePort"));
+	g_signal_connect(G_OBJECT(OSCVolumePort),
+	                 "changed",
+	                 G_CALLBACK(Prefs_click_text_handler),
+	                 &OSCVolumePort);
+	gtk_entry_set_text(OSCVolumePort, gMyInfo.OSCPortNumJackVol);
+
+	OSCHydrogenPort = GTK_WIDGET(gtk_builder_get_object(gxml, "OSCHydrogenPort"));
+	g_signal_connect(G_OBJECT(OSCHydrogenPort),
+	                 "changed",
+	                 G_CALLBACK(Prefs_click_text_handler),
+	                 &OSCHydrogenPort);
+	gtk_entry_set_text(OSCHydrogenPort, gMyInfo.OSCPortNumHydrogen);
+
+	About_Close = GTK_WIDGET(gtk_builder_get_object(gxml, "About_Close"));
+	g_signal_connect(G_OBJECT(About_Close),
+	                 "button-press-event",
+	                 G_CALLBACK(Prefs_about_close_handler),
+	                 About_Box);
+//	Prefs_OK = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_OK"));
+//	About_Close = GTK_WIDGET(gtk_builder_get_object(gxml, "About_Close"));
+
 	printd(LogDebug, "Main Gui Scroll Window %x %x\n", Patch_Pane, view);
 #if 0
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (Patch_Pane),
@@ -99,8 +306,9 @@ void InitGuiPrefs(void) {
 
 }
 
+
 /*--------------------------------------------------------------------
- * Function:		<Function name>
+ * Function:		CreatePatchModel
  *
  * Description:		<Description/Comments>
  *

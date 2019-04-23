@@ -7,7 +7,7 @@
 #include "stdlib.h"
 #include <string.h>
 #include "stdbool.h"
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "AlsaUtils.h"
 #include <glib.h>
 #include "alsa/timer.h"

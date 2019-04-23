@@ -19,7 +19,7 @@
  */
 
 #include "Connections.h"
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 #include <stdio.h>
 #include <ctype.h>

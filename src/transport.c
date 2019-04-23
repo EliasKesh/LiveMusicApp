@@ -26,7 +26,7 @@
 #include <string.h>
 #include <jack/jack.h>
 #include <jack/transport.h>
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 char *package = "LiveMusicTrans";				/* program name */
 int done = 0;

@@ -1,4 +1,4 @@
-GTKMidiInfo GlobalInfo = {
+LiveMusicInfo GlobalInfo = {
  	{
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /*   0 */ {"Base",            NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },

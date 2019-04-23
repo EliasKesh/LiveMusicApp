@@ -18,7 +18,7 @@
  * Place Includes Here
  */
 
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "SooperOSC.h"
 #include <lo/lo.h>
 

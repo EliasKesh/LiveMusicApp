@@ -13,9 +13,9 @@
  *
  *---------------------------------------------------------------------*/
 
-#define GTKMidiUI_c
+#define LiveMusicApp_c
 
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 #include "stdlib.h"
 #include <string.h>
@@ -33,7 +33,7 @@
 //#define UsingNewButtons	1
 
 #ifdef UsingNewButtons
-#define GLADE_FILE ResourceDirectory"GTKMidiUI.glade.Buttons"
+#define GLADE_FILE ResourceDirectory"LiveMusicApp.glade.Buttons"
 #else
 #define GLADE_FILE ResourceDirectory"LiveMusicApp.glade"
 #endif
@@ -101,9 +101,9 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 void CreateTabButtons(void);
 void CreateMainButtons(void);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);
-//void PrintDataStructure(GTKMidiInfo *myInfo);
-void CheckConnectionData(GTKMidiInfo *myInfo);
-void CreateHTMLGuide(GTKMidiInfo *myInfo);
+//void PrintDataStructure(LiveMusicInfo *myInfo);
+void CheckConnectionData(LiveMusicInfo *myInfo);
+void CreateHTMLGuide(LiveMusicInfo *myInfo);
 void apply_font_to_widget(GtkWidget *widget, gchar *fload);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void ToggleTempo(void);
@@ -1337,7 +1337,7 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-void CheckConnectionData(GTKMidiInfo *myInfo) {
+void CheckConnectionData(LiveMusicInfo *myInfo) {
 
 }
 
@@ -1359,7 +1359,7 @@ entry1 = GTK_WIDGET (gtk_builder_get_object (xml, "entry1") );
  * Description:		Writes and HTML file for the presets.
  *
  *---------------------------------------------------------------------*/
-void CreateHTMLGuide(GTKMidiInfo *myInfo) {
+void CreateHTMLGuide(LiveMusicInfo *myInfo) {
 	FILE *MyFile;
 	char FileName[255];
 	int Loop;

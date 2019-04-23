@@ -1,4 +1,4 @@
-GTKMidiInfo GlobalInfo = {
+LiveMusicInfo GlobalInfo = {
 	{
 
 #if 0

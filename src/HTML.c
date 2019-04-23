@@ -28,7 +28,7 @@
 #include <webkit/webkitwebview.h>
 #endif
 
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 #include "MyWidgets.h"
 #define _GNU_SOURCE
 #include <string.h>

@@ -19,7 +19,7 @@
  */
 
 #include <gtk/gtk.h>
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 #include "stdio.h"
 #include "Player.h"

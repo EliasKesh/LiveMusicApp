@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------
  |
- |	File: 	GTKMidiUI
+ |	File: 	LiveMusicApp
  |
  |	Contains:
  |
@@ -12,8 +12,8 @@
  |
  |---------------------------------------------------------------------*/
 
-#ifndef GTKMidiUI_h
-#define GTKMidiUI_h
+#ifndef LiveMusicApp_h
+#define LiveMusicApp_h
 
 /*
  * Place Includes here.
@@ -196,7 +196,7 @@ typedef struct {
 
 
 
-} GTKMidiInfo;
+} LiveMusicInfo;
 
 #define MaxSoundFonts 12
 
@@ -347,7 +347,7 @@ enum { cntStateWaitingIdle = 0,
 #define PedalLED8Off	117
 
 
-#ifdef GTKMidiUI_c
+#ifdef LiveMusicApp_c
 #define EXTERN /* */
 char *CustomPorts[] = {
 	"FluidPort",
@@ -410,7 +410,7 @@ extern char *SoundFontBankNames[];
 #endif
 
 //PatchInfo  *MyPatchInfo;
-EXTERN GTKMidiInfo gMyInfo;
+EXTERN LiveMusicInfo gMyInfo;
 //LayoutType LayoutPresets[Max_Layouts];
 EXTERN int LastPortUsed;
 
@@ -468,7 +468,7 @@ void CreatePatchPopupMenu(void);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 
-void PrintDataStructure (GTKMidiInfo * myInfo, char *PrefsRef);
+void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef);
 
 int GuitarMidiPresetComplete(tPatchIndex MidiNote);
 int GuitarMidiPreset(void);

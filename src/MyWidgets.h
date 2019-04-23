@@ -32,7 +32,7 @@ typedef struct {
 	char			State;
 } theImageButtons;
 
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf *On, GdkPixbuf *Off);
 int	MyImageButtonSetText( theImageButtons *theButton, char *String);

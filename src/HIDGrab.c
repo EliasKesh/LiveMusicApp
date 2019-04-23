@@ -34,7 +34,7 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <signal.h>
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 /*
  * Place defines and Typedefs here

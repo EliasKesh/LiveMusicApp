@@ -18,7 +18,7 @@
  * Place Includes Here
  */
 #include <gtk/gtk.h>
-#include "GTKMidiUI.h"
+#include "LiveMusicApp.h"
 
 /*
  * Place defines and Typedefs here
