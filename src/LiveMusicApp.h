@@ -184,7 +184,7 @@ typedef struct {
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned long TempoReload;
 	unsigned long TimerCount;
-	unsigned int TempoTimerID;
+	timer_t TempoTimerID;
 
 	snd_timer_t *AlsaTimerHandle;
 	snd_timer_params_t *AlsaTimerParams;

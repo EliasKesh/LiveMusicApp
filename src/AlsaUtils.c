@@ -124,6 +124,7 @@ bool MyAlsaInit() {
 	return true;
 }
 
+#ifdef AlsaTimer
 /*--------------------------------------------------------------------
  * Function:            async_callback
  *
@@ -142,6 +143,7 @@ static void async_callback(snd_async_handler_t *ahandler) {
 		ToggleTempo();
 //	}
 }
+#endif
 
 /*--------------------------------------------------------------------
  * Function:            SetupAlsaTimer
@@ -210,6 +212,7 @@ void SetupAlsaTimer(int Count) {
 	}
 	show_status(gMyInfo.AlsaTimerHandle);
 
+#ifdef AlsaTimer
 	err = snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
 	                                  async_callback, &acount);
 	if (err < 0) {
@@ -221,7 +224,7 @@ void SetupAlsaTimer(int Count) {
 		printd(LogInfo, "timer start %i (%s)\n", err, snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-
+#endif
 #if 0
 	/*
 	* Set up the structure for the interrupt event .

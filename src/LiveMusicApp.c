@@ -707,11 +707,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 //		PrintDataStructure(&gMyInfo);
 	/*
-	 * Set up the GUI for making changes to the preferences.
-	 */
-	InitGuiPrefs();
-
-	/*
 	 * Create the HTML page from our preferences.
 	 */
 	CreateHTMLGuide(&gMyInfo);
@@ -730,7 +725,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	// SetAlsaMasterVolume(90);
 	// SetAlsaCaptureVolume(90);
 	MyOSCInit();
-	InitJackTransport();
+//	InitJackTransport();
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -794,6 +789,11 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	LivePlayerInit(main_window, PlayerWidget);
 
 	WaitingforMidi = WaitingforMidiHold = 0;
+
+	/*
+	 * Set up the GUI for making changes to the preferences.
+	 */
+	InitGuiPrefs();
 
 	/*
 	 * Show the main window and let the show begin.

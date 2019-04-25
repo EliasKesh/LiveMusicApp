@@ -22,23 +22,26 @@
 #include <gtk/gtk.h>
 #include "LiveMusicApp.h"
 #include "SooperOSC.h"
+#include <time.h>
+#include <stdio.h>
+#include <signal.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <errno.h>
 
 
 /*
  * Place defines and Typedefs here
  */
-//#define AlsaTimer
 #define TimerTicksPerQuater 	1
-
 
 /*
  * Place Local prototypes here
  */
-
-#ifndef AlsaTimer
 static gboolean time_handler(GtkWidget *widget);
-#endif
 static gboolean tempo_handler(GtkWidget *widget);
+static void time_handlerRT (union sigval val);
+
 int GTKIdel_cb(gpointer data);
 
 /*
@@ -49,6 +52,7 @@ int GTKIdel_cb(gpointer data);
 int TempoState;
 int SubBeats;
 
+#ifdef GTKTimer
 /*--------------------------------------------------------------------
  * Function:		MyTimerInit
  * Description:		Setup the timers used to Tempo and MTC
@@ -56,19 +60,15 @@ int SubBeats;
  *---------------------------------------------------------------------*/
 void MyTimerInit(void) {
 
-	/* Set up a timer for Tempo.
-	*/
-#ifdef AlsaTimer
-	SetupAlsaTimer(90);
-#else
-	gMyInfo.TempoTimerID = 0;
-#endif
-	SetTempo(120);
-
 	CountInActiveState = cntStateWaitingIdle;
 	LoopRecBeats = 0;
 	SubBeats = 0;
 
+	/* Set up a timer for Tempo.
+	*/
+	gMyInfo.TempoTimerID = 0;
+
+	SetTempo(120);
 }
 
 /*--------------------------------------------------------------------
@@ -81,7 +81,9 @@ void SetTempo(unsigned int NewTempo) {
 
 	if (NewTempo <= 0)
 		return;
-	
+
+	/* Set the jack transport for timers.
+	*/
 	com_tempo(NewTempo);
 
 	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
@@ -90,16 +92,12 @@ void SetTempo(unsigned int NewTempo) {
 //	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
 //	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
-#ifdef AlsaTimer
-	/* Send out a message our tempo is changing.
-	 */
-	setTimerFreq(15000 / NewTempo);
-
-#else
 	/* Tell the timer to stop.
 	 */
-	if (gMyInfo.TempoTimerID)
+	if (gMyInfo.TempoTimerID) {
 		g_source_remove(gMyInfo.TempoTimerID);
+		printf("********TIMER REMOVED*****\n");
+	}
 
 	/* Store the tempo information.
 	 */
@@ -117,11 +115,8 @@ void SetTempo(unsigned int NewTempo) {
 	                                     (GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
-#endif
 }
 
-
-#ifndef AlsaTimer
 /*--------------------------------------------------------------------
  * Function:		Timer Callback
  *
@@ -131,9 +126,184 @@ void SetTempo(unsigned int NewTempo) {
 static gboolean time_handler(GtkWidget *widget) {
 
 	printd(LogInfo, " IN time_handler\n");
+	ToggleTempo();
+	return TRUE;
+}
+
+#endif
+
+
+#ifdef AlsaTimer
+/*--------------------------------------------------------------------
+ * Function:		MyTimerInit
+ * Description:		Setup the timers used to Tempo and MTC
+ *
+ *---------------------------------------------------------------------*/
+void MyTimerInit(void) {
+
+	CountInActiveState = cntStateWaitingIdle;
+	LoopRecBeats = 0;
+	SubBeats = 0;
+
+	/* Set up a timer for Tempo.
+	*/
+	SetupAlsaTimer(90);
+	SetTempo(120);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Set the tempo
+ * Description:		Set the tempo to a new value. Re-setup the timer
+ * 	interrupts to handle double the tempo.
+ *
+ *---------------------------------------------------------------------*/
+void SetTempo(unsigned int NewTempo) {
+
+	if (NewTempo <= 30)
+		return;
+
+	/* Set the jack transport for timers.
+	*/
+	com_tempo(NewTempo);
+
+	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
+	gMyInfo.Tempo = NewTempo;
+//	gMyInfo.TempoReload = 40;
+//	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
+//	gtk_widget_override_font((TempoChild), Tempofont_desc);
+
+	/* Send out a message our tempo is changing.
+	 */
+	setTimerFreq(15000 / NewTempo);
+//printf("Set Alsa Timer\n");
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Tempo callback.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+static gboolean tempo_handler(GtkWidget *widget) {
+
+	if (!JackRunning)
+		ToggleTempo();
+
+//printf("Call Toggle from tempo\n");
+//	PlayerPoll(TRUE);
+	return TRUE;
+}
+
+#endif
+
+#ifdef RTTimer
+/*--------------------------------------------------------------------
+ * Function:		MyTimerInit
+ * Description:		Setup the timers used to Tempo and MTC
+ *
+ *---------------------------------------------------------------------*/
+void MyTimerInit(void) {
+
+	CountInActiveState = cntStateWaitingIdle;
+	LoopRecBeats = 0;
+	SubBeats = 0;
+
+	/* Set up a timer for Tempo.
+	*/
+	gMyInfo.TempoTimerID = 0;
+
+	SetTempo(120);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Set the tempo
+ * Description:		Set the tempo to a new value. Re-setup the timer
+ * 	interrupts to handle double the tempo.
+ *
+ *---------------------------------------------------------------------*/
+void SetTempo(unsigned int NewTempo) {
+	int Ret;
+	pthread_attr_t attr;
+	struct sched_param parm;
+	struct sigevent sig;
+	struct itimerspec in, out;
+	timer_t timerid;
+	long T_High;
+	long L_High;
+
+	if (NewTempo <= 30)
+		return;
+
+	/* Set the jack transport for timers.
+	*/
+	com_tempo(NewTempo);
+	gMyInfo.Tempo = NewTempo;
+
+	printf("***** RT Timer init ****\n");
+
+	if (gMyInfo.TempoTimerID) {
+		printf("***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
+//        memset((void*)&in, 0, sizeof(in));
+//		timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
+		timer_delete(gMyInfo.TempoTimerID);
+	}
+
+	pthread_attr_init( &attr );
+	parm.sched_priority = 255;
+	pthread_attr_setschedparam(&attr, &parm);
+
+	sig.sigev_notify = SIGEV_THREAD;
+	sig.sigev_notify_function = time_handlerRT;
+	// This get's passed to the handler.
+	sig.sigev_value.sival_int = 20;
+	sig.sigev_notify_attributes = &attr;
+
+	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
+	printf("***** RT Timer Create **** %d %d\n", Ret, timerid);
+	if (Ret == 0) {
+		// Can't be zero.
+		in.it_value.tv_sec = 1;
+		in.it_value.tv_nsec = 0;
+		in.it_interval.tv_sec = 0;
+
+		// Double the timer interval.
+		in.it_interval.tv_nsec = 30000000000 / NewTempo;
+
+		//issue the periodic timer request here.
+		Ret = timer_settime(timerid, 0, &in, &out);
+		printf("***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
+		if (Ret != 0) {
+			printf("timer_settime() failed with %d\n", errno);
+			//delete the timer.
+			timer_delete(timerid);
+			timerid = 0;
+		}
+	} else
+		printf("timer_create() failed with %d\n", errno);
+
+	gMyInfo.TempoTimerID = timerid;
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Timer Callback
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+static void time_handlerRT (union sigval val) {
+
+//	printd(LogInfo, " IN time_handler\n");
+
+	if (++SubBeats > 1) {
+		ToggleTempo();
+		SubBeats = 0;
+	}
+
 	return TRUE;
 }
 #endif
+
 
 /*--------------------------------------------------------------------
  * Function:		ToggleTempo
@@ -145,18 +315,17 @@ static gboolean time_handler(GtkWidget *widget) {
 void ToggleTempo(void) {
 //	char Count;
 //	int	Loop;
-struct timeval Time0;
+	struct timeval Time0;
 
-//	gettimeofday(&Time0, NULL);
-//	printd(LogDebug, ("%ld:%ld->",Time0.tv_sec, Time0.tv_usec);
-//	printd(LogDebug, ("Tempo %d %d\n", TempoState,  TempoState);
+	// gettimeofday(&Time0, NULL);
+	// printf("%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
+//	printd(LogDebug, "Tempo %d %d\n", TempoState,  TempoState);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
 	*/
 	if (!(++TempoState % TimerTicksPerQuater)) {
 		gUpdateTempo = 1;
-
 
 		/* Check for a beat 1.
 		*/
@@ -210,7 +379,7 @@ struct timeval Time0;
 //							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
 				// Send a start record over OSC
 				com_play();
-		//		OSCCommand(OSCStartRecord, 0);
+				//		OSCCommand(OSCStartRecord, 0);
 //				gMyInfo.MetronomeOn = FALSE;
 				printd(LogDebug, "Loop Start 1\n\n");
 			}
@@ -223,19 +392,19 @@ struct timeval Time0;
 			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
 			if (LoopRecBeats == gMyInfo.LoopRecBeats)
 				OSCCommand(OSCStartRecord, 0);
-		
+
 			if (--LoopRecBeats < 0) {
 				OSCCommand(OSCStopRecord, 0);
 				com_stop();
 				CountInActiveState = cntStatePostRecord;
-			
+
 				/* Set Sync to Loop for the remaining tracks.
 				*/
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
 				printd(LogDebug, "Loop Off\n\n");
-			} 
+			}
 
 
 			break;
@@ -280,9 +449,9 @@ struct timeval Time0;
 			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
 
 		UIUpdateFromTimer = TRUE;
-	} 
+	}
 #if 0
-else {
+	else {
 //		if (TempoState == 2) {
 		/*  Turn lights off
 		 */
@@ -299,18 +468,3 @@ else {
 //	jack_poll();
 }
 
-
-
-/*--------------------------------------------------------------------
- * Function:		Tempo callback.
- *
- * Description:		<Description/Comments>
- *
- *---------------------------------------------------------------------*/
-static gboolean tempo_handler(GtkWidget *widget) {
-
-	if (!JackRunning)
-		ToggleTempo();
-//	PlayerPoll(TRUE);
-	return TRUE;
-}
