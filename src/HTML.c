@@ -57,6 +57,7 @@ theImageButtons ForwardButton;
 theImageButtons BackButton;
 theImageButtons SetListButton;
 theImageButtons PlayPauseButton;
+theImageButtons TapTempoButton;
 
 GtkWidget *scrolled_window;
 char		SetListFileName[FileNameMaxLength];
@@ -172,6 +173,52 @@ void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
 	ScalePage();
 }
 
+unsigned int CurTapTempo;
+struct timeval Time0;
+/*--------------------------------------------------------------------
+ * Function:		Tap Tempo
+ *
+ * Description:	Tap Tempo
+ *
+ *---------------------------------------------------------------------*/
+gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+char String[20];
+struct timeval Time1;
+double elapsedTime;
+
+	// Get the new time
+	gettimeofday(&Time1, NULL);
+
+	// Subtract the old time.
+    elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
+    elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
+#if 0
+	printf("%ld:%ld->",Time0.tv_sec, Time0.tv_usec);
+	printf("%ld:%ld->\n",Time1.tv_sec, Time1.tv_usec);
+    printf("Elasped %lf\n", elapsedTime);
+ #endif
+
+    // Calculate BPM
+    if (elapsedTime != 0)
+		CurTapTempo = (60 * 1000)/elapsedTime;
+	else
+		CurTapTempo = 30;
+
+	// Make this time the old time
+	Time0 = Time1;
+
+	// Update the button.
+	sprintf(String, "%d", CurTapTempo);
+	MyImageButtonSetText(&TapTempoButton, String);
+//	webkit_web_view_set_editable(web_view, TRUE);
+
+	/*
+	 * Draw the button
+	 */
+	gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image),TapTempoButton.ButtonDownImage);
+
+}
+
 /*--------------------------------------------------------------------
  * Function:		Patch Selected
  *
@@ -222,6 +269,7 @@ gboolean on_patch__release_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
+#if 0
 /*--------------------------------------------------------------------
  * Function:		on_SaveWeb_clicked
  *
@@ -267,7 +315,33 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	fwrite(Buffer, strlen(Buffer), 1, fp);
 	fclose(fp);
 }
+#else
+/*--------------------------------------------------------------------
+ * Function:		on_SaveWeb_clicked
+ *
+ * Description:	Save the changes to the file
+ *
+ *---------------------------------------------------------------------*/
+void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
+	const gchar *CurrentURI;
+	char ExecuteString[200];
 
+	/*
+	 * Draw the button
+	 */
+	gtk_image_set_from_pixbuf(GTK_IMAGE(SaveWebButton.Image),SaveWebButton.ButtonDownImage);
+
+	// Get the current URI of the viewable file.
+	CurrentURI = webkit_web_view_get_uri(web_view);
+	// g_print("Save %s\n", CurrentURI);
+
+	// Call the text editor.
+	sprintf(ExecuteString, "%s/LiveEditor %s &\n", 
+		ResourceDirectory, CurrentURI);
+	printd(LogInfo, "Edit: %s\n", ExecuteString);
+	system(ExecuteString);
+}
+#endif
 /*--------------------------------------------------------------------
  * Function:		PageLoaded
  *
@@ -621,6 +695,14 @@ void InitHTML(GtkBuilder * gxml) {
 	                 G_CALLBACK(on_scalebutton_clicked), &ScaleButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler),
 	                 &ScaleButton);
+
+	EventBox = GTK_WIDGET(
+	               gtk_builder_get_object(gxml, "TapTempo"));
+	MyImageButtonInit(&TapTempoButton, EventBox, MainButtonOnImage, MainButtonOffImage);
+	MyImageButtonSetText(&TapTempoButton, "Tap");
+	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
+	                 G_CALLBACK(on_TapTempo_clicked), &TapTempoButton);
+	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &TapTempoButton);
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "SaveWeb"));

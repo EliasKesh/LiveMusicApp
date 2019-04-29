@@ -33,7 +33,11 @@
 /*
  * Place defines and Typedefs here
  */
+#ifdef RTTimer 
 #define TimerTicksPerQuater 	1
+#else
+#define TimerTicksPerQuater 	1
+#endif
 
 /*
  * Place Local prototypes here
@@ -111,8 +115,7 @@ void SetTempo(unsigned int NewTempo) {
 
 	/* Start the new timer.
 	 */
-	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,
-	                                     (GSourceFunc) tempo_handler, (gpointer) gxml);
+	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 }
@@ -127,6 +130,8 @@ static gboolean time_handler(GtkWidget *widget) {
 
 	printd(LogInfo, " IN time_handler\n");
 	ToggleTempo();
+	g_idle_add(GTKIdel_cb, theMainWindow);
+
 	return TRUE;
 }
 
@@ -189,6 +194,8 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 	if (!JackRunning)
 		ToggleTempo();
+
+	g_idle_add(GTKIdel_cb, theMainWindow);
 
 //printf("Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
@@ -299,6 +306,8 @@ static void time_handlerRT (union sigval val) {
 		ToggleTempo();
 		SubBeats = 0;
 	}
+
+	g_idle_add(GTKIdel_cb, theMainWindow);
 
 	return TRUE;
 }
@@ -463,7 +472,6 @@ void ToggleTempo(void) {
 //		}
 	}
 #endif
-	g_idle_add(GTKIdel_cb, theMainWindow);
 
 //	jack_poll();
 }

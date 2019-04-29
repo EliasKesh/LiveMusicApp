@@ -218,8 +218,7 @@ gboolean layout_click_handler(GtkWidget *widget,
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 	IncrementMode();
 	MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-	                          theButton->ButtonDownImage);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),theButton->ButtonDownImage);
 	return TRUE; /* stop event propagation */
 }
 
@@ -230,8 +229,7 @@ gboolean layout_release_handler(GtkWidget *widget,
 	theButton = (theImageButtons *) user_data;
 	//	PatchIndex = LayoutSwitchPatch(user_data, true);
 
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-	                          theButton->ButtonUpImage);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),theButton->ButtonUpImage);
 	return TRUE; /* stop event propagation */
 }
 
@@ -306,7 +304,8 @@ void ClearMainButtons(void) {
 	if (MainButtonCountOn == 1) {
 		for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 //			if (MainButtons[Loop].State) {
-			gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
+			gtk_image_set_from_pixbuf(GTK_IMAGE(
+			                              MainButtons[Loop].Image),
 			                          MainButtons[Loop].ButtonUpImage);
 			MainButtons[Loop].State = 0;
 			MainButtonCountOn = 0;
@@ -362,13 +361,13 @@ int GTKIdel_cb(gpointer data) {
 		PlayerPoll(TRUE);
 		HIDPoll();
 		UIUpdateFromTimer = FALSE;
-	/*  Turn lights off
-	*/
-	SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-	         DrumMidiChannel, 04, (int) PedalLED3Off );
+		/*  Turn lights off
+		*/
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3Off );
 
-	SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-	         DrumMidiChannel, 04, (int) PedalLED4Off );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED4Off );
 	}
 
 
@@ -622,8 +621,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 	/*----------------------------------------------------------------------------------------------------------------------*/
 
-	g_signal_connect(G_OBJECT (main_window), "destroy",
-	                 G_CALLBACK (on_window1_destroy), NULL);
+	g_signal_connect(G_OBJECT (main_window), "destroy",G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "LiveMusicApp");
 	gtk_window_set_icon(GTK_WINDOW(main_window), create_pixbuf(Icon_FILE));
 
@@ -651,7 +649,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Open the persistent main tab.
 	 */
 	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
-	                 (GCallback ) tab_focus_callback, gxml);
+		(GCallback ) tab_focus_callback, gxml);
 
 	/*
 	 * Setup and initialize our statusbar and Mode indicator
@@ -670,7 +668,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Get the metronome button loaded and displayed.
 	 */
 	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml, "Tempo"));
+		gtk_builder_get_object(gxml, "Tempo"));
 
 
 	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
@@ -678,11 +676,11 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	if (gMyInfo.MetronomeOn) {
 		MyImageButtonSetText(&TempoDraw, "On");
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonDownImage);
+			TempoDraw.ButtonDownImage);
 	} else {
 		MyImageButtonSetText(&TempoDraw, "Off");
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonUpImage);
+			TempoDraw.ButtonUpImage);
 	}
 	g_signal_connect(G_OBJECT(EventBox),
 	                 "button-press-event",
@@ -693,14 +691,16 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * The about window.
 	 */
 	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
-	g_signal_connect_data(G_OBJECT(widget), "clicked",
-	                      G_CALLBACK(on_About_clicked), NULL, NULL, 0);
+	g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
 	/*
 	 * The OK Button on the About Box
 	 */
-	g_signal_connect(G_OBJECT(main_window), "key_press_event",
-	                 G_CALLBACK(button_press_notify_cb), NULL);
+	g_signal_connect(G_OBJECT(main_window),
+	                 "key_press_event",
+	                 G_CALLBACK(
+	                     button_press_notify_cb),
+	                 NULL);
 
 	/*
 	 * Debug, this prints out the main internal data structure.
@@ -725,7 +725,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	// SetAlsaMasterVolume(90);
 	// SetAlsaCaptureVolume(90);
 	MyOSCInit();
-//	InitJackTransport();
+	InitJackTransport();
 
 	/* Call the Jackd
 	 * jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r44100 -p256 -n3
@@ -735,7 +735,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * Set up the buttons, text and patches.
 	 */
-
 	CreateMainButtons();
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 	CreateTabButtons();
@@ -743,19 +742,23 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/* Get the Mode switch button,
 	 */
 	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml, "LayoutEvent"));
+	               gtk_builder_get_object(gxml,
+	                                      "LayoutEvent"));
 	printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
 	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
-	                  MainButtonOffImage);
+		MainButtonOffImage);
+
 	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
 
 	g_signal_connect(G_OBJECT(EventBox),
 	                 "button-press-event",
-	                 G_CALLBACK(layout_click_handler),
+	                 G_CALLBACK(
+	                     layout_click_handler),
 	                 &LayoutButton);
 	g_signal_connect(G_OBJECT(EventBox),
 	                 "button-release-event",
-	                 G_CALLBACK(layout_release_handler),
+	                 G_CALLBACK(
+	                     layout_release_handler),
 	                 &LayoutButton);
 
 	/*
@@ -816,7 +819,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	LivePlayerClose();
 	printd(LogInfo, "Closing LiveApp\n");
 
-
 	return 0;
 }
 
@@ -836,16 +838,16 @@ void UpdateStatus(char *String) {
 		strcpy(HoldStatus[Loop], HoldStatus[Loop + 1]);
 //	printd(LogDebug,"String off %d %s\n", StringOff, HoldStatus[Loop]);
 		StringOff += sprintf((DisString + StringOff),
-		                     "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
-		                     gMyInfo.StatusTextColor,
-		                     (char*) &HoldStatus[Loop]);
+			"<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
+			gMyInfo.StatusTextColor,
+			(char*) &HoldStatus[Loop]);
 
 	}
 	strcpy(HoldStatus[MaxStatusHold - 1], String);
 	sprintf((DisString + StringOff),
-	        "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
-	        gMyInfo.StatusTextColor,
-	        (char*) String);
+		"<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
+		gMyInfo.StatusTextColor,
+		(char*) String);
 
 	/* Actually draw the text to the window.
 	 */
@@ -901,11 +903,11 @@ gboolean Notebook_click_handler(GtkWidget *widget,
 	int Loop;
 	for (Loop = 0; Loop < MaxTabs; Loop++) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
-		                          TabButtons[Loop].ButtonUpImage);
+			TabButtons[Loop].ButtonUpImage);
 	}
 	Loop = (int) user_data;
 	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
-	                          TabButtons[Loop].ButtonDownImage);
+		TabButtons[Loop].ButtonDownImage);
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
 
 	return TRUE; /* stop event propagation */
@@ -939,7 +941,7 @@ void CreateTabButtons(void) {
 	MyImageButtonSetText(&TabButtons[3], "Chords");
 	MyImageButtonSetText(&TabButtons[4], "Prefs");
 	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[0].Image),
-	                          TabButtons[0].ButtonDownImage);
+		TabButtons[0].ButtonDownImage);
 
 }
 
@@ -963,7 +965,7 @@ void CreateMainButtons(void) {
 //		gtk_widget_get_usize(EventBox);
 
 		MyImageButtonInit(&MainButtons[Loop], EventBox, PatchButtonOnImage,
-		                  PatchButtonOffImage);
+			PatchButtonOffImage);
 
 		g_signal_connect(G_OBJECT(EventBox),
 		                 "button-press-event",
@@ -1036,7 +1038,7 @@ void CreateMainButtons(void) {
 	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
 	Adjustment1 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment1"));
 	g_signal_connect(G_OBJECT (VScale1), "value_changed",
-	                 G_CALLBACK (VScale1_Changed), NULL);
+		G_CALLBACK (VScale1_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
 	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider1].Name);
 
@@ -1044,21 +1046,21 @@ void CreateMainButtons(void) {
 	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
 	Adjustment2 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment2"));
 	g_signal_connect(G_OBJECT (VScale2), "value_changed",
-	                 G_CALLBACK (VScale2_Changed), NULL);
+		G_CALLBACK (VScale2_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
 	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider2].Name);
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
 	Adjustment3 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment3"));
 	g_signal_connect(G_OBJECT (VScale3), "value_changed",
-	                 G_CALLBACK (VScale3_Changed), NULL);
+		G_CALLBACK (VScale3_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
 	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider3].Name);
 
 	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
 	Adjustment4 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adjustment4"));
 	g_signal_connect(G_OBJECT (VScale4), "value_changed",
-	                 G_CALLBACK (VScale4_Changed), NULL);
+		G_CALLBACK (VScale4_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
 	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider4].Name);
 
@@ -1199,7 +1201,6 @@ void VScale4_Changed(GtkAdjustment *adj) {
 		         ThisPatch->Patch,
 		         (char) NewValue * 1.27);
 }
-
 
 /*--------------------------------------------------------------------
  * Function:		SetVolume1
@@ -1428,7 +1429,7 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 	tPatchIndex NewValue;
 
 	NewValue = FindString(fsPatchNames,
-	                      gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
+		gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
 #if 0
 	switch (CurrentLayout) {
 	case ModeDefault:
@@ -1510,7 +1511,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	 */
 	if (DoAction) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[MidiIn].Image),
-		                          MainButtons[MidiIn].ButtonDownImage);
+			MainButtons[MidiIn].ButtonDownImage);
 		MainButtons[MidiIn].State = 1;
 		MainButtonCountOn = 2;
 	}
