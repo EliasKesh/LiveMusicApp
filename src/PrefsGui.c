@@ -42,6 +42,11 @@ enum {
 	NumCOLUMN
 };
 
+enum {
+	LIST_ITEM = 0,
+	N_COLUMNS
+};
+
 extern GtkBuilder *gxml;
 
 /*
@@ -53,18 +58,18 @@ static GtkWidget *CreatePatchViewModel(void);
  * Place Static variables here
  */
 
-	GtkWidget *Analog_Volume;
-	GtkWidget *Midi_Volume;
-	GtkWidget *Record_Beats;
-	GtkWidget *Count_Beats;
-	GtkWidget *Beats_Measure;
-	GtkWidget *Tempo_pref;
-	GtkWidget *Midi_Base;
-	GtkWidget *OSC_Address;
-	GtkWidget *OSCLoopPort;
-	GtkWidget *OSCVolumePort;
-	GtkWidget *OSCHydrogenPort;
-	GtkWidget *About_Close;
+GtkWidget *Analog_Volume;
+GtkWidget *Midi_Volume;
+GtkWidget *Record_Beats;
+GtkWidget *Count_Beats;
+GtkWidget *Beats_Measure;
+GtkWidget *Tempo_pref;
+GtkWidget *Midi_Base;
+GtkWidget *OSC_Address;
+GtkWidget *OSCLoopPort;
+GtkWidget *OSCVolumePort;
+GtkWidget *OSCHydrogenPort;
+GtkWidget *About_Close;
 
 //	GtkWidget *Prefs_OK;
 //	GtkWidget *About_Close;
@@ -88,46 +93,46 @@ void on_BasePath_changed(GtkButton *button, gpointer user_data) {
  *
  *---------------------------------------------------------------------*/
 gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
-                            gpointer user_data) {
+                                  gpointer user_data) {
 //	theImageButtons *theButton;
 
 //	theButton = (theImageButtons *) user_data;
-   	gint value = gtk_spin_button_get_value_as_int (widget);
-   	if (widget == Analog_Volume) {
-   		gMyInfo.AnalogVolume = value;
+	gint value = gtk_spin_button_get_value_as_int (widget);
+	if (widget == Analog_Volume) {
+		gMyInfo.AnalogVolume = value;
 		printd(LogInfo, "Analog_Volume  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Midi_Volume) {
-   		gMyInfo.MidiVolume = value;
+	if (widget == Midi_Volume) {
+		gMyInfo.MidiVolume = value;
 		printd(LogInfo, "Midi_Volume  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Record_Beats) {
-   		gMyInfo.LoopRecBeats = value;
+	if (widget == Record_Beats) {
+		gMyInfo.LoopRecBeats = value;
 		printd(LogInfo, "Record_Beats  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Count_Beats) {
-   		gMyInfo.CountInBeats = value;
+	if (widget == Count_Beats) {
+		gMyInfo.CountInBeats = value;
 		printd(LogInfo, "Count_Beats  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Beats_Measure) {
-   		gMyInfo.BeatsPerMeasure = value;
+	if (widget == Beats_Measure) {
+		gMyInfo.BeatsPerMeasure = value;
 		printd(LogInfo, "Beats_Measure  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Tempo_pref) {
-   		SetTempo(value);
+	if (widget == Tempo_pref) {
+		SetTempo(value);
 //   		gMyInfo.Tempo = value;
 		printd(LogInfo, "Tempo_pref  %x %d\n", widget, value);
-   	}
+	}
 
-   	if (widget == Midi_Base) {
-   		gMyInfo.MidiBaseNote = value;
+	if (widget == Midi_Base) {
+		gMyInfo.MidiBaseNote = value;
 		printd(LogInfo, "Midi_Base  %x %d\n", widget, value);
-   	}
+	}
 
 
 	return TRUE; /* stop event propagation */
@@ -140,29 +145,29 @@ gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
  *
  *---------------------------------------------------------------------*/
 gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
-                            gpointer user_data) {
+                                  gpointer user_data) {
 
 	const gchar *theString = gtk_entry_get_text (widget);
 
-   	if (widget == OSC_Address) {
+	if (widget == OSC_Address) {
 		strncpy(gMyInfo.OSCIPAddress, theString, 20);
 		printd(LogInfo, "OSC_Address  %x %s\n", widget, theString);
-   	}
+	}
 
-   	if (widget == OSCLoopPort) {
+	if (widget == OSCLoopPort) {
 		strncpy(gMyInfo.OSCPortNumLooper, theString, 6);
 		printd(LogInfo, "OSCLoopPort  %x %s\n", widget, theString);
-   	}
+	}
 
-   	if (widget == OSCHydrogenPort) {
+	if (widget == OSCHydrogenPort) {
 		strncpy(gMyInfo.OSCPortNumHydrogen, theString, 6);
 		printd(LogInfo, "OSCHydrogenPort  %x %s\n", widget, theString);
-   	}
+	}
 
-   	if (widget == OSCVolumePort) {
+	if (widget == OSCVolumePort) {
 		strncpy(gMyInfo.OSCPortNumJackVol, theString, 6);
 		printd(LogInfo, "OSCVolumePort  %x %s\n", widget, theString);
-   	}
+	}
 
 	return TRUE; /* stop event propagation */
 }
@@ -174,7 +179,7 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
  *
  *---------------------------------------------------------------------*/
 gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
-                            gpointer user_data) {
+                                   gpointer user_data) {
 
 	printf("Prefs_about_close_handler\n");
 	gtk_widget_destroy(user_data);
@@ -184,7 +189,7 @@ gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
 /*--------------------------------------------------------------------
  * Function:		InitGuiPrefs
  *
- * Description:		Load the widgets from glade for the 
+ * Description:		Load the widgets from glade for the
  * preferences user interface.
  *
  *---------------------------------------------------------------------*/
@@ -645,275 +650,6 @@ static GtkWidget *CreatePatchViewModel(void) {
 	return view;
 }
 
-#if 0
-----------------------------------------------------------------
-NOT USED
-----------------------------------------------------------------
-void cell_toggled_callback (GtkCellRendererToggle *cell,
-                            gchar *path_string,
-                            GtkTreeView *tree_view) {
-
-	GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
-	GtkTreeModelFilter *filter_model;
-	//g_print("CB(cell_toggled:tree_view %s\n",G_OBJECT_TYPE_NAME( model ) );
-	char *model_class = G_OBJECT_TYPE_NAME( model );
-	GtkTreeIter iter;
-	GtkTreePath *path, *filter_path;
-	gboolean column_value, new_column_value;
-
-	path = gtk_tree_path_new_from_string( path_string );
-
-	// get the real model, & path if model is a GtkTreeModelFilter
-	if ( !strcmp( "GtkTreeModelFilter", model_class ) ) {
-		filter_model = model;
-		model = gtk_tree_model_filter_get_model( GTK_TREE_MODEL_FILTER( model ) );
-		filter_path = path;
-
-		path = gtk_tree_model_filter_convert_path_to_child_path( filter_model,
-		        filter_path);
-	}
-
-	if ( !gtk_tree_model_get_iter( GTK_TREE_MODEL( model ), &iter, path ) ) {
-		g_warning ("%s: could not find path", G_STRLOC);
-		return;
-	}
-
-	gtk_tree_model_get (GTK_TREE_MODEL (model), &iter,
-	                    COL_NEED, &column_value, -1);
-
-	// toggle the column_value 0=>1; 1=>0;
-	new_column_value = column_value ? 0 : 1;
-
-	gtk_list_store_set( GTK_LIST_STORE( model ), &iter,
-	                    COL_NEED, new_column_value, -1);
-	//gtk_list_store_set_value( GTK_LIST_STORE( model ), &iter,
-	//          COL_NEED, new_column_value );
-
-	//gtk_tree_model_row_changed( model, path, &iter );
-	gtk_tree_path_free (path);
-
-	// get the real model, & path if model is a GtkTreeModelFilter
-	if ( !strcmp( "GtkTreeModelFilter", model_class ) ) {
-		gtk_tree_model_filter_refilter( filter_model );
-		gtk_tree_path_free (filter_path);
-
-	}
-
-	return;
-}
-
-void cell_edited_callback (GtkCellRendererText *cell,
-                           gchar *path_string,
-                           gchar *new_text,
-                           gpointer user_data) {
-	int Loop;
-
-	Loop = atoi(path_string);
-	printd(LogDebug, "cell_edited_callback %x, %d [%s] %d %s\n", cell, Loop, new_text, (int)user_data, path_string );
-#if 0
-	guint column, row;
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-
-	model = gtk_tree_view_get_model (treeview);
-	if (gtk_tree_model_get_iter_from_string (model, &iter, path_string))
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, column, new_text, -1);
-
-#endif
-//   gtk_label_set_text(GTK_LABEL(cell), new_text);
-
-	switch ((int) user_data) {
-	case Button_COLUMN:
-//		strcpy(gMyInfo.MyPatchInfo[Loop].Button, new_text);
-		break;
-
-	case Name_COLUMN:
-		strcpy(gMyInfo.MyPatchInfo[Loop].Name, new_text);
-		break;
-	case Bank_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].BankSelect = atoi(new_text);
-
-		break;
-	case Patch_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].Patch = atoi(new_text);
-
-		break;
-
-	case Output_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].OutPort = atoi(new_text);
-		break;
-	case Channel_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].Channel = atoi(new_text);
-
-		break;
-	case Command_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].CustomCommand = atoi(new_text);
-
-		break;
-	case Chain_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].Chain = atoi(new_text);
-		break;
-
-	}
-}
-g_object_set( renderer, "activatable", TRUE, NULL);
-
-void cell_toggled_callback (GtkCellRendererToggle *cell,
-                            gchar *path_string,
-                            gpointer user_data) {
-	printd(LogDebug, "cell_toggled_callback %x, %s %x\n", cell, path_string, user_data);
-}
-void labour_cell_edited (GtkCellRendererText *cell,
-                         gchar *path_string,
-                         gchar *new_text,
-                         gpointer model) {
-	int Loop;
-
-	Loop = atoi(path_string);
-	printd(LogDebug, "labour_cell_edited\n");
-
-	if (!model) {
-		g_error("Unable to get model from cell renderer");
-	}
-	GtkTreeIter row;
-	gtk_tree_model_get_iter_from_string(model, &row, path_string);
-	guint column_no = GPOINTER_TO_UINT(g_object_get_data(
-	                                       G_OBJECT(cell), "column_no"));
-	g_print("Column :%d, new text: \"%s\"\n", column_no, new_text);
-
-};
-
-#endif
-#if 0
-/*
- * ------------------------------------------------------------------------
- */
-
-void
-view_popup_menu_onDoSomething (GtkWidget *menuitem, gpointer userdata) {
-	/* we passed the view as userdata when we connected the signal */
-	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-
-	g_print ("Do something!\n");
-}
-
-
-void view_popup_menu (GtkWidget *treeview, GdkEventButton *event, gpointer userdata) {
-	GtkWidget *menu, *menuitem;
-
-	menu = gtk_menu_new();
-
-	menuitem = gtk_menu_item_new_with_label("Do something");
-
-	g_signal_connect(menuitem, "activate",
-	                 (GCallback) view_popup_menu_onDoSomething, treeview);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-
-	gtk_widget_show_all(menu);
-
-	/* Note: event can be NULL here when called from view_onPopupMenu;
-	 *  gdk_event_get_time() accepts a NULL argument */
-	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-	               (event != NULL) ? event->button : 0,
-	               gdk_event_get_time((GdkEvent*)event));
-}
-
-
-gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata) {
-	/* single click with the right mouse button? */
-	if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3) {
-		g_print ("Single right click on the tree view.\n");
-
-		/* optional: select row if no row is selected or only
-		 *  one other row is selected (will only do something
-		 *  if you set a tree selection mode as described later
-		 *  in the tutorial) */
-		if (1) {
-			GtkTreeSelection *selection;
-
-			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-
-			/* Note: gtk_tree_selection_count_selected_rows() does not
-			 *   exist in gtk+-2.0, only in gtk+ >= v2.2 ! */
-			if (gtk_tree_selection_count_selected_rows(selection)  <= 1) {
-				GtkTreePath *path;
-
-				/* Get tree path for row that was clicked */
-				if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
-				                                  (gint) event->x,
-				                                  (gint) event->y,
-				                                  &path, NULL, NULL, NULL)) {
-					gtk_tree_selection_unselect_all(selection);
-					gtk_tree_selection_select_path(selection, path);
-					gtk_tree_path_free(path);
-				}
-			}
-		} /* end of optional bit */
-
-		view_popup_menu(treeview, event, userdata);
-
-		return TRUE; /* we handled this */
-	}
-
-	return FALSE; /* we did not handle this */
-}
-
-
-gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata) {
-	view_popup_menu(treeview, NULL, userdata);
-
-	return TRUE; /* we handled this */
-}
-
-int	ShowPatchListSelect(int	Starting) {
-	GtkWidget *view;
-
-	view = gtk_tree_view_new();
-
-	g_signal_connect(view, "button-press-event", (GCallback) view_onButtonPressed, NULL);
-	g_signal_connect(view, "popup-menu", (GCallback) view_onPopupMenu, NULL);
-
-}
-#endif
-enum {
-	LIST_ITEM = 0,
-	N_COLUMNS
-};
-
-#if 0
-static void init_list(GtkWidget *list) {
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-	GtkListStore *store;
-
-	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("List Items",
-	         renderer, "text", LIST_ITEM, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
-
-	store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
-
-	gtk_tree_view_set_model(GTK_TREE_VIEW(list),
-	                        GTK_TREE_MODEL(store));
-
-	g_object_unref(store);
-}
-#endif
-
-#if 0
-static void add_to_list(GtkWidget *list, const gchar *str) {
-	GtkListStore *store;
-	GtkTreeIter iter;
-
-	store = GTK_LIST_STORE(gtk_tree_view_get_model
-	                       (GTK_TREE_VIEW(list)));
-
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, LIST_ITEM, str, -1);
-}
-#endif
-
 void  OnPatchSelected(GtkWidget *widget, int	Starting) {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -930,50 +666,5 @@ void  OnPatchSelected(GtkWidget *widget, int	Starting) {
 //    gtk_label_set_text(GTK_LABEL(label), value);
 		g_free(value);
 	}
-
-}
-#if 0
-int	ShowPatchListSelect(GtkWidget *view, int	Starting) {
-	GtkWidget *window;
-	GtkWidget *list;
-
-	GtkWidget *vbox;
-	GtkWidget *label;
-	GtkTreeSelection *selection;
-	int Loop;
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-	gtk_widget_set_size_request(window, 270, 250);
-	gtk_window_set_title(GTK_WINDOW(window), "List View");
-
-	list = gtk_tree_view_new();
-	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
-
-	vbox = gtk_vbox_new(FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), list, TRUE, TRUE, 5);
-
-	label = gtk_label_new("Select Patch");
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 5);
-
-	gtk_container_add(GTK_CONTAINER(window), vbox);
-
-	init_list(list);
-	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		add_to_list(list, gMyInfo.MyPatchInfo[Loop].Name);
-	}
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-	gtk_tree_view_set_activate_on_single_click (GTK_TREE_VIEW(list), TRUE);
-	g_signal_connect(selection, "changed",
-	                 G_CALLBACK(OnPatchSelected), Starting);
-
-	gtk_widget_show_all(window);
-	printd(LogDebug, "Selected %d\n", selection);
-	return (selection);
 }
 
-
-#endif
