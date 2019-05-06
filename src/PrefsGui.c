@@ -25,6 +25,7 @@
 #include "stdbool.h"
 #include "LiveMusicApp.h"
 #include "PrefsGui.h"
+#include "ChartFixer.h"
 
 /*
  * Place defines and Typedefs here
@@ -184,7 +185,8 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
 
 	printf("Prefs_Regenerate_handler\n");
 //	gtk_widget_destroy(user_data);
-
+	DoChartFix(gMyInfo.BasePath,
+			   1, 1, 1, 1);
 }
 
 /*--------------------------------------------------------------------

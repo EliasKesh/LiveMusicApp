@@ -45,6 +45,7 @@
 */
 #define MaxStatusHold 8
 #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
+#define HistoryFileName	"./LiveMusicRes/LiveMusicHistory"
 
 /*
  * Place Global variables here
@@ -93,6 +94,8 @@ int HoldStatusIndex;
 */
 int MainButtonCountOn;
 
+FILE 	*FileHistory;
+
 /*
  * Place Local prototypes here
  */
@@ -116,6 +119,8 @@ void VScale2_Changed(GtkAdjustment *adj);
 void VScale3_Changed(GtkAdjustment *adj);
 void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
+int CloseHistoryFile(void);
+int InitHistoryFile(void);
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -523,10 +528,7 @@ int main(int argc, char *argv[]) {
 
 	parse_cmdline(argc, argv);
 
-	FileHistory = fopen(HistoryFileName, "w+");
-	printf("File History %x\n", FileHistory);
-//	if (FileHistory)
-//		fseek(FileHistory, 0, SEEK_END);
+	InitHistoryFile();
 
 	/* Handle any HID pedals,
 	Must be called before gtk_init
@@ -824,8 +826,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * After we quit we should write back the changes.
 	 */
-	fsync(FileHistory);
-	fclose(FileHistory);
 	CloseHIDGrab();
 	WritePrefs();
 	MyAlsaClose();
@@ -1688,3 +1688,32 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
 	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
 }
 #endif
+
+/*--------------------------------------------------------------------
+ * Function:		on_hscale1_value_changed
+ *
+ * Description:		When the sliders are changed on the main screen.
+ *
+ *---------------------------------------------------------------------*/
+int InitHistoryFile(void) {
+
+	FileHistory = fopen(HistoryFileName, "w+");
+	printf("File History %x\n", FileHistory);
+	if (FileHistory)
+		fseek(FileHistory, 0, SEEK_END);
+}
+
+int WriteToHistory(char *str) {
+	if (FileHistory) {
+		fprintf(FileHistory, "%s\n", str);
+		fsync(FileHistory);
+	}
+
+
+}
+
+int CloseHistoryFile(void) {
+	fsync(FileHistory);
+	fclose(FileHistory);
+}
+

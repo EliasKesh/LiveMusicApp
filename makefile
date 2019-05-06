@@ -8,6 +8,7 @@ CFLAGS += -Wno-int-conversion
 CFLAGS += -Wno-implicit-function-declaration 
 CFLAGS += -Wno-pointer-to-int-cast
 CFLAGS += -Wno-format
+CFLAGS += -I./ChartFixer/
 CFLAGS += $(shell pkg-config --cflags gtk+-3.0)
 CFLAGS += $(shell pkg-config --cflags gladeui-2.0)
 CFLAGS += $(shell pkg-config --cflags jack)
@@ -24,12 +25,10 @@ LDFLAGS += $(shell pkg-config --cflags --libs liblo)
    
 SOURCES = ./src/AlsaUtils.c  ./src/Connections.c ./src/HTML.c 
 SOURCES += ./src/Player.c ./src/PrefsGui.c ./src/Timers.c 
-
-
-
 SOURCES += ./src/Chorder.c ./src/LiveMusicApp.c ./src/MyWidgets.c 
 SOURCES += ./src/PrefsFile.c ./src/RightMenuClick.c ./src/wmctrl.c
 SOURCES += ./src/transport.c ./src/SooperOSC.c ./src/HIDGrab.c
+SOURCES += ./ChartFixer/ChartFixer.c
 
 INCLUDES = ./src/aconfig.h ./src/DefPrefs.h ./src/HTML.h 
 INCLUDES += ./src/PrefsFile.h ./src/Timers.h
@@ -38,6 +37,7 @@ INCLUDES += ./src/MyWidgets.h ./src/PrefsGui.h
 INCLUDES += ./src/Connections.h ./src/LiveMusicApp.h 
 INCLUDES += ./src/Player.h ./src/SooperOSC.h
 INCLUDES += ./src/transport.c
+INCLUDES += ./ChartFixer/ChartFixer.h
 
 OBJECTS=$(SOURCES:.cxx=.o)
 # OBJECTS+=$(SOURCES:.c=.o)

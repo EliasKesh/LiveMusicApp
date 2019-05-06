@@ -355,21 +355,22 @@ void PageLoaded (WebKitWebView  *web_view,
 	gchar *CurrentURI;
 	char *Pointer;
 
+	/* Get the URL that was selected.
+	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	printd(LogInfo, "load_status_cb %s\n", CurrentURI);
 
-	if (FileHistory) {
-		fprintf(FileHistory, "%s\n", CurrentURI);
-		fsync(FileHistory);
-	}
+	/* Keep a record
+	*/
+	WriteToHistory(CurrentURI);
 
 	Pointer = strstr(CurrentURI, ".html");
-//	printd(LogInfo, "Pointer %x\n",(unsigned int)Pointer);
 
+	/* Let's check to see if this is an HTML file.
+	*/
 	if (strstr(CurrentURI, ".html"))
 		Search_in_File(CurrentURI, &gMyInfo.WebPresets);
 	else if (strstr(CurrentURI, ".mp3")) {
-
 		printd(LogInfo, "*** MP3 file.\n");
 		return;
 	} else {
