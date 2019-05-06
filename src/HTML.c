@@ -200,7 +200,7 @@ double elapsedTime;
 
     // Calculate BPM
     if (elapsedTime != 0)
-		CurTapTempo = (60 * 1000)/elapsedTime;
+		CurTapTempo = (.35* CurTapTempo) + (.65 * (60 * 1000)/elapsedTime);
 	else
 		CurTapTempo = 30;
 
@@ -208,7 +208,7 @@ double elapsedTime;
 	Time0 = Time1;
 
 	// Update the button.
-	sprintf(String, "%d", CurTapTempo);
+	sprintf(String, "Tap=%d", CurTapTempo);
 	MyImageButtonSetText(&TapTempoButton, String);
 //	webkit_web_view_set_editable(web_view, TRUE);
 
@@ -357,6 +357,11 @@ void PageLoaded (WebKitWebView  *web_view,
 
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	printd(LogInfo, "load_status_cb %s\n", CurrentURI);
+
+	if (FileHistory) {
+		fprintf(FileHistory, "%s\n", CurrentURI);
+		fsync(FileHistory);
+	}
 
 	Pointer = strstr(CurrentURI, ".html");
 //	printd(LogInfo, "Pointer %x\n",(unsigned int)Pointer);
@@ -727,8 +732,6 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(Play_click_handler), &PlayPauseButton);
 
-
-
 #if 0
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
 	                 G_CALLBACK(normal_release_handler), &PlayPauseButton);
@@ -779,11 +782,11 @@ void InitHTML(GtkBuilder * gxml) {
 		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
 	}
 
-	printd(LogInfo, "!!!!!!!!!!!!!!!!Settings for webkit\n");
+	printd(LogInfo, "Settings for webkit\n");
 	webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
-	webkit_web_view_set_editable(G_OBJECT(settings), TRUE);
+	webkit_web_view_set_editable(G_OBJECT(settings), FALSE);
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
 

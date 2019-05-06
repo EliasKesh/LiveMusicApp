@@ -13,7 +13,7 @@
   <MidiPassLevel>110</MidiPassLevel>
   <BeatsPerMeasure>004</BeatsPerMeasure>
   <AnalogVolume>100</AnalogVolume>
-  <MidiVolume>101</MidiVolume>
+  <MidiVolume>100</MidiVolume>
   <StatusTextColor>0xffffe0</StatusTextColor>
   <ButtonTextColor>0xffe0e0</ButtonTextColor>
   <OSCIPAddress>127.0.0.1</OSCIPAddress>

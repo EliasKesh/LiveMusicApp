@@ -71,7 +71,7 @@ GtkWidget *OSCVolumePort;
 GtkWidget *OSCHydrogenPort;
 GtkWidget *About_Close;
 
-//	GtkWidget *Prefs_OK;
+GtkWidget *Prefs_Regenerate;
 //	GtkWidget *About_Close;
 
 /*--------------------------------------------------------------------
@@ -82,7 +82,7 @@ GtkWidget *About_Close;
  *---------------------------------------------------------------------*/
 void on_BasePath_changed(GtkButton *button, gpointer user_data) {
 //	DoPatch(&gMyInfo.MyPatchInfo[(char )user_data - 1]);
-	printd(LogDebug, "Base string %s\n", gtk_entry_get_text(button));
+	printd(LogDebug, "Base string Changed%s\n", gtk_entry_get_text(button));
 	strcpy(&gMyInfo.BasePath, gtk_entry_get_text(button));
 }
 
@@ -170,6 +170,21 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
 	}
 
 	return TRUE; /* stop event propagation */
+}
+
+
+/*--------------------------------------------------------------------
+ * Function:		Prefs_Regenerate_handler
+ *
+ * Description:		Generate the Index File.
+ *
+ *---------------------------------------------------------------------*/
+gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
+                                   gpointer user_data) {
+
+	printf("Prefs_Regenerate_handler\n");
+//	gtk_widget_destroy(user_data);
+
 }
 
 /*--------------------------------------------------------------------
@@ -286,8 +301,14 @@ void InitGuiPrefs(void) {
 	g_signal_connect(G_OBJECT(About_Close),
 	                 "button-press-event",
 	                 G_CALLBACK(Prefs_about_close_handler),
-	                 About_Box);
-//	Prefs_OK = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_OK"));
+	                 &About_Box);
+
+	Prefs_Regenerate = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_Regenerate"));
+		g_signal_connect(G_OBJECT(Prefs_Regenerate),
+	                 "button-press-event",
+	                 G_CALLBACK(Prefs_Regenerate_handler),
+	                 &Prefs_Regenerate);
+
 //	About_Close = GTK_WIDGET(gtk_builder_get_object(gxml, "About_Close"));
 
 	printd(LogDebug, "Main Gui Scroll Window %x %x\n", Patch_Pane, view);

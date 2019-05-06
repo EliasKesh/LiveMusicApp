@@ -40,6 +40,7 @@
 char *printd(char LogLevel, const char *fmt, ...);
 
 #define ResourceDirectory	"./LiveMusicRes/"
+#define HistoryFileName	"/home/elias/.LiveMusicHistory"
 
 #define MaxStringPortName	32
 enum {
@@ -456,6 +457,7 @@ EXTERN int 	UIUpdateFromTimer;
 EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
+EXTERN FILE 	*FileHistory;
 
 void NextDesktop(void);
 void PrevDesktop(void);
