@@ -16,13 +16,10 @@
 DestDir="/home/Dropbox/LiveEffects/"
 
 cp LiveMusicApp  ${DestDir}
-cp ./KeepLiveMusicRunning.sh  ${DestDir}
+cp ./Scripts/KeepLiveMusicRunning.sh  ${DestDir}
 rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
-cp /home/elias/workspace/MusicFiles/GuitarEffects ${DestDir}
-cp /home/elias/workspace/MusicFiles/CreateChartIndex ${DestDir}
-cp /home/elias/workspace/MusicFiles/RegenerateCharts ${DestDir}
+cp ./Scripts/GuitarEffects ${DestDir}
 cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
-cp /home/elias/workspace/MusicFiles/CreateChartFile ${DestDir}
 cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}
 cp /home/elias/workspace/MusicFiles/jack-plumbing ${DestDir}"/Prefs/"
 
