@@ -1,7 +1,7 @@
 
 # autoscan
 # mv configure.scan configure.ac
-# libtoolize
+libtoolize
 aclocal 
 autoheader
 automake --add-missing 

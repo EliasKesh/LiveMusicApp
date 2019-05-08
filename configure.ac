@@ -2,10 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
-AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([src/Connections.h])
-# AC_CONFIG_HEADERS([config.h])
+AC_INIT([LiveMusicApp], [1.3.0], [elias@kesh.com])
+# AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
+AM_PROG_LIBTOOL
+
+# AC_CONFIG_SRCDIR([src/Connections.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -21,6 +24,14 @@ AC_CHECK_LIB([m], [main])
 AC_CHECK_LIB([rt], [main])
 # FIXME: Replace `main' with a function in `-lxmltok':
 AC_CHECK_LIB([xmltok], [main])
+AC_CHECK_LIB([pthread], [main])
+
+PKG_CHECK_MODULES(GTK3, [gtk+-3.0])
+PKG_CHECK_MODULES(ALSA, [alsa])
+PKG_CHECK_MODULES(GLADEUI, [gladeui-2.0])
+PKG_CHECK_MODULES(WEBKIT2GTK, [webkit2gtk-4.0])
+PKG_CHECK_MODULES(JACK, [jack])
+PKG_CHECK_MODULES(LIBLO, [liblo])
 
 # Checks for header files.
 AC_PATH_X
@@ -39,8 +50,10 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero gettimeofday memset mkfifo pow realpath setlocale strchr strerror strrchr strstr])
 
-AC_CONFIG_FILES([ChartFixer/Makefile
-                 Makefile
-                 makefile
-                 src/Makefile])
+# AC_CONFIG_FILES([ChartFixer/Makefile
+#                 Makefile
+#                 src/Makefile])
+
+AC_CONFIG_FILES([Makefile])
+
 AC_OUTPUT

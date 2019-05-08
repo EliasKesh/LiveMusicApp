@@ -1,7 +1,0 @@
-
-# autoscan
-# mv configure.scan configure.ac
-aclocal 
-automake --add-missing 
-autoconf
-./configure 
