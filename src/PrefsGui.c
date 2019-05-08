@@ -25,7 +25,7 @@
 #include "stdbool.h"
 #include "LiveMusicApp.h"
 #include "PrefsGui.h"
-#include "ChartFixer.h"
+#include "../ChartFixer/ChartFixer.h"
 
 /*
  * Place defines and Typedefs here

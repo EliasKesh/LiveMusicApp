@@ -340,12 +340,11 @@ enum { cntStateWaitingIdle = 0,
 #define PedalLED4Off	9
 #define PedalLED5On		10
 #define PedalLED6Off	11
-#define PedalLED7On		12
+#define PedalLED6On		12
 #define PedalLED7Off	13
 #define PedalLED7On		14
-#define PedalLED7Off	15
-#define PedalLED8On		17
-#define PedalLED8Off	117
+#define PedalLED8Off	15
+#define PedalLED8On		16
 
 
 #ifdef LiveMusicApp_c
