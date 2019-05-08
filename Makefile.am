@@ -33,8 +33,8 @@ src/SooperOSC.h \
 ChartFixer/ChartFixer.c \
 ChartFixer/ChartFixer.h
 
-
-LiveMusicApp_CPPFLAGS = $(GTK3_CFLAGS)
+LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result
+LiveMusicApp_CPPFLAGS += $(GTK3_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(ALSA_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(GLADEUI_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(WEBKIT2GTK_CFLAGS)
