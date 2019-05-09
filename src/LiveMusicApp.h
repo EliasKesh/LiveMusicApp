@@ -479,5 +479,7 @@ int SetVolume4(int Value);
 int FindString(int StringList, char *String);
 int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
 int InitConnections(void);
+void SwitchToTab(char Tab);
+void SetUpMainButtons(PatchInfo *MyPatchInfo);
 
 #endif

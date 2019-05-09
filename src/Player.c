@@ -23,6 +23,8 @@
 
 #include "stdio.h"
 #include "Player.h"
+#include <fcntl.h> 
+#include <unistd.h> 
 
 /*
  * Place defines and Typedefs here
@@ -55,6 +57,7 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
 gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void OpenSavedLoopFile(char *FileName);
+int PlayerWrite(char *String);
 
 /*
  * Place Static variables here
@@ -949,7 +952,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 
 	switch (result) {
 	case 0:
-		entry_line = gtk_entry_get_text(GTK_ENTRY(entry));
+		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
 		printd(LogInfo, "Entry Value %s\n", entry_line);
 		break;
 

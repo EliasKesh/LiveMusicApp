@@ -42,6 +42,8 @@ void plSpeedUp(void) ;
 void plSpeedDown(void) ;
 void plSeekFw(void) ;
 void plSeekBk(void) ;
+int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window);
+int LivePlayerClose(void);
 
 /*
  * Place Static variables here.

@@ -29,6 +29,8 @@
 #include "Player.h"
 #include "SooperOSC.h"
 #include "math.h"
+#include "PrefsGui.h"
+
 
 //#define UsingNewButtons	1
 
@@ -103,7 +105,6 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 int 	JackMaster;
 void CreateTabButtons(void);
 void CreateMainButtons(void);
-void SetUpMainButtons(PatchInfo *MyPatchInfo);
 //void PrintDataStructure(LiveMusicInfo *myInfo);
 void CheckConnectionData(LiveMusicInfo *myInfo);
 void CreateHTMLGuide(LiveMusicInfo *myInfo);
@@ -121,6 +122,10 @@ void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
 int CloseHistoryFile(void);
 int InitHistoryFile(void);
+
+
+int InitJackTransport(void);
+int CloseJackTransport(void);
 
 /*--------------------------------------------------------------------
  * Function:		printd
