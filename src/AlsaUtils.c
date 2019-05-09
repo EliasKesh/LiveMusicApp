@@ -4,6 +4,8 @@
 *  Created on: Dec 25, 2012
 *	  Author: elias
 */
+
+#include <stdio.h>
 #include "stdlib.h"
 #include <string.h>
 #include "stdbool.h"
@@ -14,6 +16,10 @@
 #include "SooperOSC.h"
 #include <pthread.h>
 #include <sched.h>
+#include "HTML.h"
+#include "Player.h"
+#include <error.h>
+#include <unistd.h>
 
 //snd_seq_t *SeqPort1;
 //snd_seq_t *SeqPort2;
@@ -42,7 +48,7 @@ void show_status(void *handle) {
 
 	snd_timer_status_alloca(&status);
 	if ((err = snd_timer_status(handle, status)) < 0) {
-		fprintf(stderr, "timer status %i (%s)\n", err, snd_strerror(err));
+		printd(LogError, "timer status %i\n", err);
 		return;
 	}
 	printd(LogInfo, "STATUS:\n");
@@ -70,7 +76,7 @@ bool MyAlsaClose(void) {
 
 	ret = snd_seq_close(SeqPort1In);
 	if (ret < 0) {
-		g_warning("Cannot close sequencer, %s\n", snd_strerror(ret));
+		g_warning("Cannot close sequencer\n");
 	}
 	snd_mixer_close(MixerHandle);
 	return (FALSE);
@@ -87,7 +93,7 @@ bool MyAlsaInit() {
 	snd_seq_t *Seq;
 
 	if (snd_seq_open(&Seq, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
-//   cerr<<"Could not open ALSA SeqPort1uencer: "<<snd_strerror(errno)<<endl;
+//   cerr<<"Could not open ALSA SeqPort1uencer: "<<snd_strprintd(LogError, errno)<<endl;
 		return false;
 	}
 	printd(LogInfo, "Init Ports  %d\n", gMyInfo.NumOutPorts);
@@ -169,13 +175,13 @@ void SetupAlsaTimer(int Count) {
 	printd(LogInfo, "Timer Name %s\n", timername);
 	if ((err = snd_timer_open(&gMyInfo.AlsaTimerHandle, timername,
 	                          SND_TIMER_OPEN_NONBLOCK)) < 0) {
-		printd(LogInfo, "timer open %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer open %i\n", err);
 		exit(EXIT_FAILURE);
 	}
 
 	if ((err = snd_timer_info(gMyInfo.AlsaTimerHandle, gMyInfo.AlsaTimerinfo))
 	        < 0) {
-		printd(LogInfo, "timer info %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer info %i\n", err);
 		exit(0);
 	}
 	printd(LogInfo, "Timer info:\n");
@@ -207,7 +213,7 @@ void SetupAlsaTimer(int Count) {
 
 	if ((err = snd_timer_params(gMyInfo.AlsaTimerHandle,
 	                            gMyInfo.AlsaTimerParams)) < 0) {
-		printd(LogInfo, "timer params %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer params %i\n", err);
 		exit(0);
 	}
 	show_status(gMyInfo.AlsaTimerHandle);
@@ -216,12 +222,12 @@ void SetupAlsaTimer(int Count) {
 	err = snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
 	                                  async_callback, &acount);
 	if (err < 0) {
-		printd(LogInfo, "unable to add async handler %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "unable to add async handler %i\n", err);
 		exit(EXIT_FAILURE);
 	}
 
 	if ((err = snd_timer_start(gMyInfo.AlsaTimerHandle)) < 0) {
-		printd(LogInfo, "timer start %i (%s)\n", err, snd_strerror(err));
+		printd(LogInfo, "timer start %i\n", err);
 		exit(EXIT_FAILURE);
 	}
 #endif
@@ -1645,8 +1651,8 @@ static void device_list(void) {
 
 	card = -1;
 	if (snd_card_next(&card) < 0 || card < 0) {
-		error(("no soundcards found..."));
-		return;
+		printd(LogError, "**** no soundcards found...\n");
+		       return;
 	}
 	printd(LogInfo, ("**** List of %s Hardware Devices ****\n"),
 	       snd_pcm_stream_name(stream));
@@ -1654,11 +1660,11 @@ static void device_list(void) {
 		char name[32];
 		sprintf(name, "hw:%d", card);
 		if ((err = snd_ctl_open(&handle, name, 0)) < 0) {
-			error("control open (%i): %s", card, snd_strerror(err));
+			printd(LogError, "control open (%i)", card);
 			goto next_card;
 		}
 		if ((err = snd_ctl_card_info(handle, info)) < 0) {
-			error("control hardware info (%i): %s", card, snd_strerror(err));
+			printd(LogError, "control hardware info (%i)", card);
 			snd_ctl_close(handle);
 			goto next_card;
 		}
@@ -1666,7 +1672,7 @@ static void device_list(void) {
 		while (1) {
 			unsigned int count;
 			if (snd_ctl_pcm_next_device(handle, &dev) < 0)
-				error("snd_ctl_pcm_next_device");
+				printd(LogError, "snd_ctl_pcm_next_device");
 			if (dev < 0)
 				break;
 			snd_pcm_info_set_device(pcminfo, dev);
@@ -1674,25 +1680,23 @@ static void device_list(void) {
 			snd_pcm_info_set_stream(pcminfo, stream);
 			if ((err = snd_ctl_pcm_info(handle, pcminfo)) < 0) {
 				if (err != -ENOENT)
-					error("control digital audio info (%i): %s", card,
-					      snd_strerror(err));
+					printd(LogError, "control digital audio info (%i)", card);
 				continue;
 			}
-			printd(LogInfo, ("card %i: %s [%s], device %i: %s [%s]\n"), card,
+			printd(LogInfo, "card %i: %s [%s], device %i: %s [%s]\n", card,
 			       snd_ctl_card_info_get_id(info),
 			       snd_ctl_card_info_get_name(info), dev,
 			       snd_pcm_info_get_id(pcminfo),
 			       snd_pcm_info_get_name(pcminfo));
 			count = snd_pcm_info_get_subdevices_count(pcminfo);
-			printd(LogInfo, ("  Subdevices: %i/%i\n"),
+			printd(LogInfo, "  Subdevices: %i/%i\n",
 			       snd_pcm_info_get_subdevices_avail(pcminfo), count);
 			for (idx = 0; idx < (int) count; idx++) {
 				snd_pcm_info_set_subdevice(pcminfo, idx);
 				if ((err = snd_ctl_pcm_info(handle, pcminfo)) < 0) {
-					error("control digital audio playback info (%i): %s", card,
-					      snd_strerror(err));
+					printd(LogError, "control digital audio playback info (%i):", card);
 				} else {
-					printd(LogInfo, ("  Subdevice #%i: %s\n"), idx,
+					printd(LogInfo, "  Subdevice #%i: %s\n", idx,
 					       snd_pcm_info_get_subdevice_name(pcminfo));
 				}
 			}
@@ -1700,7 +1704,7 @@ static void device_list(void) {
 		snd_ctl_close(handle);
 next_card:
 		if (snd_card_next(&card) < 0) {
-			error("snd_card_next");
+			printd(LogError, "snd_card_next");
 			break;
 		}
 	}
@@ -1807,7 +1811,7 @@ void SetAlsaCaptureVolume(long volume) {
 * Description:		Setup the Alsa input port.
 *
 *---------------------------------------------------------------------*/
-gboolean alsa_input_init(const char * name) {
+bool alsa_input_init(const char * name) {
 	int ret;
 	snd_seq_port_info_t * port_info = NULL;
 	pthread_attr_t tattr;
@@ -1829,7 +1833,7 @@ gboolean alsa_input_init(const char * name) {
 	                   SND_SEQ_OPEN_INPUT, 0);
 
 	if (ret < 0) {
-		g_warning("Cannot open sequncer, %s\n", snd_strerror(ret));
+		g_warning("Cannot open sequncer\n");
 		goto fail;
 	}
 
@@ -1856,8 +1860,7 @@ gboolean alsa_input_init(const char * name) {
 
 	ret = snd_seq_create_port(SeqPort1In, port_info);
 	if (ret < 0) {
-		g_warning("Error creating ALSA sequencer port, %s\n",
-		          snd_strerror(ret));
+		g_warning("Error creating ALSA sequencer port\n");
 		goto fail_close_seq;
 	}
 
@@ -1870,7 +1873,7 @@ gboolean alsa_input_init(const char * name) {
 fail_close_seq:
 	ret = snd_seq_close(SeqPort1In);
 	if (ret < 0) {
-		g_warning("Cannot close sequncer, %s\n", snd_strerror(ret));
+		g_warning("Cannot close sequncer\n");
 	}
 
 fail:

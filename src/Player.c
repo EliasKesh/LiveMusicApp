@@ -23,9 +23,11 @@
 
 #include "stdio.h"
 #include "Player.h"
-#include <fcntl.h> 
 #include <unistd.h> 
-
+#include <errno.h>
+#include <sys/errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 /*
  * Place defines and Typedefs here
  */

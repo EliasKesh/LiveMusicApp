@@ -26,6 +26,7 @@
 
 void MyTimerInit(void);
 void SetTempo(unsigned int NewTempo);
+void ToggleTempo(void);
 
 extern int TempoState;
 // #define AlsaTimer

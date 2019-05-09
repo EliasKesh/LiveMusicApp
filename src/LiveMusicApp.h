@@ -23,6 +23,7 @@
 #include <gtk/gtk.h>
 #include <gladeui/glade.h>
 #include "MyWidgets.h"
+#include <stdbool.h>
 
 /*
  * Place Global prototypes here.
@@ -481,5 +482,8 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
 int InitConnections(void);
 void SwitchToTab(char Tab);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);
+void IncrementMode(void);
+tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
+tPatchIndex DoPatch(PatchInfo *thePatch);
 
 #endif

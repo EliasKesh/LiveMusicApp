@@ -24,9 +24,13 @@
 #include <webkit2/webkit2.h>
 #include "LiveMusicApp.h"
 #include "MyWidgets.h"
+
 #define _GNU_SOURCE
 #include <string.h>
-
+#include "Player.h"
+#include <unistd.h>
+#include "SooperOSC.h"
+#include <sys/time.h>
 
 /*
  * Place defines and Typedefs here

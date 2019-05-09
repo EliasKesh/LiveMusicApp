@@ -37,10 +37,10 @@
  * Description:
  *
  *---------------------------------------------------------------------*/
-void view_popup_menu_onDoSomething(GtkWidget *menuitem, gpointer userdata) {
+void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata) {
 	/* we passed the view as userdata when we connected the signal */
 //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-	g_print("Do something! %d\n", (int)userdata);
+//	g_print("Do something! %d\n", (int)userdata);
 
 	switch ((int) userdata) {
 	case 1:
@@ -95,8 +95,8 @@ gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
 
 	/* single click with the right mouse button? */
 	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
-		g_print("Single right click on the tree view.\n");
 #if 0
+		g_print("Single right click on the tree view.\n");
 		/* optional: select row if no row is selected or only
 		 *  one other row is selected (will only do something
 		 *  if you set a tree selection mode as described later
@@ -163,7 +163,7 @@ void create_Popup_view(GtkWidget *view) {
 void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
 	/* we passed the view as userdata when we connected the signal */
 //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-	g_print("Do something! %d\n", (int)userdata);
+//	g_print("Do something! %d\n", (int)userdata);
 	strcpy(gMyInfo.LayoutPresets[CurrentLayout].Presets[CurrentPreset], gMyInfo.MyPatchInfo[(int)userdata].Name);
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 }
@@ -201,8 +201,8 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 	printf("view_onButtonPressed");
 //	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
 	if (1 ) {
-		g_print("Single right click on the tree view.\n");
 #if 0
+		g_print("Single right click on the tree view.\n");
 		/* optional: select row if no row is selected or only
 		 *  one other row is selected (will only do something
 		 *  if you set a tree selection mode as described later

@@ -18,6 +18,7 @@
 #include "LiveMusicApp.h"
 #include "PrefsFile.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <libxml/parser.h>
 #include "xmltok/xmlparse.h"
 #include "SooperOSC.h"

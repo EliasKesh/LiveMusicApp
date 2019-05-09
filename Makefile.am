@@ -1,6 +1,7 @@
 bin_PROGRAMS = LiveMusicApp
 #SUBDIRS = src ChartFixer
 # VPATH = src:ChartFixer
+ACLOCAL_AMFLAGS = -I m4
 
 LiveMusicApp_SOURCES = src/AlsaUtils.c \
 src/HTML.c \
@@ -42,7 +43,7 @@ LiveMusicApp_CPPFLAGS += $(JACK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(LIBLO_CFLAGS)
 
 LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/
-LiveMusicApp_LDFLAGS = -lxmltok -lxml2
+LiveMusicApp_LDFLAGS += -lxmltok -lxml2
 LiveMusicApp_LDFLAGS += $(GTK3_LIBS)
 LiveMusicApp_LDFLAGS += $(ALSA_LIBS)
 LiveMusicApp_LDFLAGS += $(GLADEUI_v)

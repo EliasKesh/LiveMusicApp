@@ -6,6 +6,7 @@ AC_INIT([LiveMusicApp], [1.3.0], [elias@kesh.com])
 # AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_PROG_LIBTOOL
+AC_CONFIG_MACRO_DIRS([m4])
 
 # AC_CONFIG_SRCDIR([src/Connections.h])
 AC_CONFIG_HEADERS([config.h])

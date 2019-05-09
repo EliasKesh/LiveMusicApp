@@ -30,7 +30,7 @@
 #include "SooperOSC.h"
 #include "math.h"
 #include "PrefsGui.h"
-
+#include <unistd.h>
 
 //#define UsingNewButtons	1
 
@@ -109,10 +109,8 @@ void CreateMainButtons(void);
 void CheckConnectionData(LiveMusicInfo *myInfo);
 void CreateHTMLGuide(LiveMusicInfo *myInfo);
 void apply_font_to_widget(GtkWidget *widget, gchar *fload);
-tPatchIndex DoPatch(PatchInfo *thePatch);
 void ToggleTempo(void);
 void UpdateStatus(char *String);
-void IncrementMode(void);
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
                             GtkWidget *widget);
 void VScale1_Changed(GtkAdjustment *adj);

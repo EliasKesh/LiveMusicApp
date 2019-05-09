@@ -22,13 +22,14 @@
 #include <gtk/gtk.h>
 #include "LiveMusicApp.h"
 #include "SooperOSC.h"
+#include "AlsaUtils.h"
 #include <time.h>
 #include <stdio.h>
 #include <signal.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
-
+#include <error.h>
 
 /*
  * Place defines and Typedefs here
@@ -45,6 +46,10 @@
 static gboolean time_handler(GtkWidget *widget);
 static gboolean tempo_handler(GtkWidget *widget);
 static void time_handlerRT (union sigval val);
+
+void com_stop(void);
+void com_play(void);
+void com_tempo(int NewTempo);
 
 int GTKIdel_cb(gpointer data);
 
