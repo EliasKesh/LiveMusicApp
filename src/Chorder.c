@@ -541,7 +541,7 @@ void SetChord(char Root, thePreChord *myPreChord) {
  * Description:	Clear the chord structure and fill in the notes we
  * 		want to display.
  *---------------------------------------------------------------------*/
-void SetScale(char Root, char Scale) {
+void SetScale(char Root, char *Scale) {
 	int Loop;
 	char NewNote;
 
