@@ -31,6 +31,7 @@
 #include "math.h"
 #include "PrefsGui.h"
 #include <unistd.h>
+#include "config.h"
 
 //#define UsingNewButtons	1
 
@@ -495,6 +496,9 @@ void parse_cmdline(int argc, char *argv[]) {
 	}
 }
 
+// extern long int __BUILD_DATE;
+// extern char __BUILD_NUMBER;
+
 /*--------------------------------------------------------------------
  * Function:            main
  *
@@ -531,6 +535,9 @@ int main(int argc, char *argv[]) {
 
 	parse_cmdline(argc, argv);
 
+    printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+    printf("Build Number %d\n", MY_BUILD_NUMBER);
+//    printf("Build Number1  : %d\n", BUILD_NUMBER1);
 	InitHistoryFile();
 
 	/* Handle any HID pedals,

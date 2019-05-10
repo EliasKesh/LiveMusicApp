@@ -19,7 +19,7 @@ cp LiveMusicApp  ${DestDir}
 cp ./Scripts/KeepLiveMusicRunning.sh  ${DestDir}
 rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
 cp ./Scripts/GuitarEffects ${DestDir}
-cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
+# cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
 cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}
 cp /home/elias/workspace/MusicFiles/jack-plumbing ${DestDir}"/Prefs/"
 

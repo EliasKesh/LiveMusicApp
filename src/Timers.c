@@ -314,7 +314,7 @@ static void time_handlerRT (union sigval val) {
 
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return TRUE;
+	return;
 }
 #endif
 

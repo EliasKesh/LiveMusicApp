@@ -41,6 +41,8 @@ LiveMusicApp_CPPFLAGS += $(GLADEUI_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(WEBKIT2GTK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(JACK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(LIBLO_CFLAGS)
+LiveMusicApp_CPPFLAGS += -DMY_BUILD_NUMBER=$$(cat ./Scripts/BuildNumber)
+#LiveMusicApp_CPPFLAGS += -DBUILD_NUMBER1=$(shell ./IncBuildNumber.sh)
 
 LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/
 LiveMusicApp_LDFLAGS += -lxmltok -lxml2
@@ -50,3 +52,5 @@ LiveMusicApp_LDFLAGS += $(GLADEUI_v)
 LiveMusicApp_LDFLAGS += $(WEBKIT2GTK_LIBS)
 LiveMusicApp_LDFLAGS += $(JACK_LIBS)
 LiveMusicApp_LDFLAGS += $(LIBLO_LIBS)
+LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __Bump_NUMBER=$$(./Scripts/IncBuildNumber.sh)
+# LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')

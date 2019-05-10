@@ -2,28 +2,36 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([LiveMusicApp], [1.3.0], [elias@kesh.com])
-# AM_INIT_AUTOMAKE
+AC_INIT([LiveMusicApp], [1.3.0],
+		[elias@kesh.com])
+
+AM_INIT_AUTOMAKE
+#		[m4_esyscmd([./version.sh])], 
+#        m4_esyscmd([./git-version-gen .tarball-version]),
+#        m4_esyscmd([./git-version-gen .tarball-version]),
+
+# AC_REVISION([m4_esyscmd([./configure.commit])])
+AC_REVISION([m4_esyscmd_s([git describe --always])])
+
+# AC_DEFINE_UNQUOTED([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
+AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
+
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIRS([m4])
 
 # AC_CONFIG_SRCDIR([src/Connections.h])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([src/config.h])
+# AC_CONFIG_FILES([src/version.h])
 
 # Checks for programs.
 AC_PROG_CC
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lX11':
 AC_CHECK_LIB([X11], [main])
-# FIXME: Replace `main' with a function in `-lXmu':
 AC_CHECK_LIB([Xmu], [main])
-# FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [main])
-# FIXME: Replace `main' with a function in `-lrt':
 AC_CHECK_LIB([rt], [main])
-# FIXME: Replace `main' with a function in `-lxmltok':
 AC_CHECK_LIB([xmltok], [main])
 AC_CHECK_LIB([pthread], [main])
 
@@ -51,9 +59,7 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero gettimeofday memset mkfifo pow realpath setlocale strchr strerror strrchr strstr])
 
-# AC_CONFIG_FILES([ChartFixer/Makefile
-#                 Makefile
-#                 src/Makefile])
+AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
 
 AC_CONFIG_FILES([Makefile])
 

@@ -1,0 +1,18 @@
+The fundamental reason for this application is convenience, speed and
+cost. Having a large pedal board full of effects is heavy and large.
+When there is a problem with a cable or battery it takes time to find
+it.  When you want to change the sound it usually means purchasing and
+learning a new pedal and finding as well as finding place for it.
+
+Basically the LiveMusicApp is a midi router and while is can be run
+standalone. The more convenient usage is to have it bundled with
+analog and sound font software on a boot-able USB stick. The allows
+virtually any PC with, or without,  a USB audio interface to be
+rebooted with the USB stick and used in place of a heavy pedal board.
+Before we get into the details here are a few screen shots of the
+current working model booted from a stick. The software currently uses
+an analog effects processor (rakarrack), midi font player
+(fluidsynth). multiple channel looper (sooperlooper), drum machine
+(hydrogen), MP3 player (clementine) and guitar tab editor (TuxGuitar).
+However all of these are configurable so that they can be changed
+based on the preferences of the user.

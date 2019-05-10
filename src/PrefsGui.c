@@ -26,7 +26,7 @@
 #include "LiveMusicApp.h"
 #include "PrefsGui.h"
 #include "../ChartFixer/ChartFixer.h"
-
+#include "config.h"
 /*
  * Place defines and Typedefs here
  */
@@ -215,10 +215,12 @@ void InitGuiPrefs(void) {
 	GtkWidget *view;
 	GtkWidget *widget;
 	GtkWidget *About_Box;
+	char 	VersionString[200];
 
 	view = CreatePatchViewModel();
 	Patch_Pane = GTK_WIDGET(gtk_builder_get_object(gxml, "PatchScroller"));
-	About_Box = GTK_WIDGET(gtk_builder_get_object(gxml, "dialog-vbox1"));
+//	About_Box = GTK_WIDGET(gtk_builder_get_object(gxml, "dialog-vbox1"));
+	About_Box = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutDialog"));
 
 	Analog_Volume = GTK_WIDGET(gtk_builder_get_object(gxml, "Analog_Volume"));
 	g_signal_connect(G_OBJECT(Analog_Volume),
@@ -321,6 +323,9 @@ void InitGuiPrefs(void) {
 	                                GTK_POLICY_AUTOMATIC,
 	                                TK_POLICY_AUTOMATIC);
 #endif
+
+    sprintf(VersionString, "V=%s B=%d D=%s %s",VERSION, MY_BUILD_NUMBER, __DATE__, __TIME__ );
+	gtk_about_dialog_set_version(About_Box,VersionString);
 
 //			g_signal_connect (G_OBJECT (Patch_Pane), "destroy",
 //			G_CALLBACK (on_window1_destroy), NULL);
