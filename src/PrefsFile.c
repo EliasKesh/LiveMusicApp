@@ -94,7 +94,7 @@ InitPref (void) {
 	strcpy (gMyInfo.OSCPortNumHydrogen, "9000");
 #endif
 //    ReadPrefs();
-	PrintDataStructure(&gMyInfo, DefinePrefsFile);
+//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //      WritePrefs();
 

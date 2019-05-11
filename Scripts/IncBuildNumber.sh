@@ -1,4 +1,4 @@
-oldnum=`cat ./BuildNumber`  
+oldnum=`cat ./Scripts/BuildNumber`  
 newnum=`expr $oldnum + 1`
-echo $newnum > BuildNumber  
+echo $newnum > ./Scripts/BuildNumber  
 echo $newnum 

@@ -359,10 +359,15 @@ void PageLoaded (WebKitWebView  *web_view,
 	gchar *CurrentURI;
 	char *Pointer;
 
+	/* We only care about the completed event.
+	*/
+	if (load_event != WEBKIT_LOAD_FINISHED)
+		return;
+
 	/* Get the URL that was selected.
 	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
-	printd(LogInfo, "load_status_cb %s\n", CurrentURI);
+	printd(LogInfo, "load_status_cb %s event %d \n", CurrentURI, load_event);
 
 	/* Keep a record
 	*/

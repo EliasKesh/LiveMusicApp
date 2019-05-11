@@ -537,7 +537,7 @@ int main(int argc, char *argv[]) {
 
     printf("Build date  : %s:%s\n", __DATE__, __TIME__);
     printf("Build Number %d\n", MY_BUILD_NUMBER);
-//    printf("Build Number1  : %d\n", BUILD_NUMBER1);
+
 	InitHistoryFile();
 
 	/* Handle any HID pedals,
@@ -1342,6 +1342,7 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 	int NextCommand = 1;
 
 	NextPatch = thePatch;
+	WriteToHistory(NextPatch->Name);
 
 	do {
 		SendMidiPatch(NextPatch);
@@ -1707,23 +1708,31 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-	FileHistory = fopen(HistoryFileName, "w+");
+	FileHistory = fopen(HistoryFileName, "a+");
 	printf("File History %x\n", FileHistory);
-	if (FileHistory)
+	if (FileHistory) {
 		fseek(FileHistory, 0, SEEK_END);
+		fprintf(FileHistory, "*****************\n");
+		fflush(FileHistory);
+	}
 }
 
 int WriteToHistory(char *str) {
+time_t t = time(NULL);
+struct tm tm = *localtime(&t);
+
+
+
+
 	if (FileHistory) {
+		fprintf(FileHistory, "%d-%d-%d %d:%d:%d->", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 		fprintf(FileHistory, "%s\n", str);
-		fsync(FileHistory);
+		fflush(FileHistory);
 	}
-
-
 }
 
 int CloseHistoryFile(void) {
-	fsync(FileHistory);
+	fflush(FileHistory);
 	fclose(FileHistory);
 }
 
