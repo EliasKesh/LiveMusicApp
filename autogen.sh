@@ -8,7 +8,7 @@ rm -rf LiveMusicApp config.log \
 	src/makefile stamp-h1 ltmain.sh
 rm ChartFixer/makefile
 rm .deps ./src/.deps ./ChartFixer/.deps -rf
-rm makefile
+rm makefile autom4te.cache -rf
 else
 # autoscan
 # mv configure.scan configure.ac

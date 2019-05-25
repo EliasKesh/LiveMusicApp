@@ -127,12 +127,12 @@ char scRomanianMin[] =
 // Offset    0,  2,  4,  5,  7,  9, 11
 
 char scByzantine[] =
-{ 0, 3, 5, 6, 8, 8, 11, EOfscl };
+{ 0, 1, 4, 5, 7, 8, 11, EOfscl };
 
 char scWholeNote[] =
 { 0, 2, 4, 6, 8, SN, 10, EOfscl };
 char scWholeHalf[] =
-{ 0, 2, 4, 6, 8, SN, 10, EOfscl };
+{ 0, 2, 3, 5, 6, 8, 9, 11, EOfscl };
 
 // Super Locrian
 typedef struct {

@@ -1086,7 +1086,8 @@ int StartPlayer(void) {
 #endif
 	if (WeAreLooping) {
 		sprintf(PlayerString,
-		        "mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  \"%s\" >/tmp/LiveMusicIn",
+//				"-use-filedir-conf=./Prefs/mplayer/
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  \"%s\" >/tmp/LiveMusicIn",
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
 		        100 - gtk_adjustment_get_value(VolumeAdjustment),
@@ -1096,7 +1097,7 @@ int StartPlayer(void) {
 
 	} else {
 		sprintf(PlayerString,
-		        "mplayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
 		        CurrentLength,
 		        100 - gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogInfo, "calling %s\n", PlayerString);

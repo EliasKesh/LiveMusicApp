@@ -1,0 +1,34 @@
+# ejk file.
+(disconnect "Clementine:out_jackaudiosink-.*" "system:playback_.*")
+(connect "Clementine:out_jackaudiosink-.*_1" "jack-volume:input_1")
+(connect "Clementine:out_jackaudiosink-.*_2" "jack-volume:input_2")
+
+# Connect Vol All V to Play 1
+(connect "jack-volume:output_1" "system:playback_1")
+(connect "jack-volume:output_2" "system:playback_1")
+(connect "jack-volume:output_3" "system:playback_1")
+
+# Connect Vol All V to Play 2
+(connect "jack-volume:output_1" "system:playback_2")
+(connect "jack-volume:output_2" "system:playback_2")
+(connect "jack-volume:output_3" "system:playback_2")
+
+(connect "sooperlooper:common_out_1" "jack-volume:input_1")
+(connect "sooperlooper:common_out_2" "jack-volume:input_1")
+
+(connect "qsynth:left" "playback_1")
+(connect "qsynth:right" "jack-volume:input_1")
+
+(connect "qsynth:left" "sooperlooper:common_in_1")
+(connect "qsynth:right" "sooperlooper:common_in_1")
+
+(connect "Hydrogen:out_L" "sooperlooper:common_in_1")
+(connect "Hydrogen:out_R" "sooperlooper:common_in_1")
+
+(connect "Hydrogen:out_L" "jack-volume:input_1")
+(connect "Hydrogen:out_R" "jack-volume:input_1")
+
+(disconnect "MPlayer*:out_L" "system:playback_.*")
+(disconnect "MPlayer*:out_R" "system:playback_.*")
+(connect "MPlayer*:out_L" "jack-volume:output_1")
+(connect "MPlayer*:out_R" "jack-volume:output_1")

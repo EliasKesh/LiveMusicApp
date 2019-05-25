@@ -14,7 +14,7 @@ AM_INIT_AUTOMAKE
 AC_REVISION([m4_esyscmd_s([git describe --always])])
 
 # AC_DEFINE_UNQUOTED([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
-AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
+#AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
 
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_PROG_LIBTOOL
@@ -59,7 +59,7 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero gettimeofday memset mkfifo pow realpath setlocale strchr strerror strrchr strstr])
 
-AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
+# AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
 
 AC_CONFIG_FILES([Makefile])
 
