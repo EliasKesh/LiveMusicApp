@@ -476,6 +476,23 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
+	if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+		sprintf(string, "/usr/bin/smplayer \"%s\" &", theURI);
+		system(string);
+		printd(LogInfo, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+
 	if (strstr(theURI, ".tg") || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
 		/*
 		 * Tell web kit not to o anything with it.

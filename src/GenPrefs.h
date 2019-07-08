@@ -1,18 +1,17 @@
 LiveMusicInfo GlobalInfo = {
  	{
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/*   0 */ {"Base",            NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   1 */ {"CleanBass",       NoBank         ,   3, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   2 */ {"Base",            NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   3 */ {"EBell",           NoBank         ,   8, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   4 */ {"BaseChorus",      NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Chorus" },
+/*   0 */ {"BaseChorus",            NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   1 */ {"SusDist",       NoBank         ,   1, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   2 */ {"ChorusUp",            NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   3 */ {"HardDist",           NoBank         ,  2, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   5 */ {"Juicy",           NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "Mel Tog" },
 /*   5 */ {"BaseMel",         NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Mel Tog" },
 /*   6 */ {"BaseWah",         NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Wah Tog" },
 /*   7 */ {"BaseDist",        NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Dist Tog" },
 /*   8 */ {"Wah Tog",         NoBank         ,  10, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*   9 */ {"Dist Tog",        NoBank         ,  11, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/*  10 */ {"Chorus",          NoBank         ,  12, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*  11 */ {"Mel Tog",         NoBank         ,  13, GuitarixPort   ,   1, cmdSendCC , "None" },
 /*  12 */ {"Expr Vol",        NoBank         ,   7, GuitarixPort   ,   1, cmdSetExpr, "None" },
 /*  13 */ {"Expr Wah",        NoBank         ,  11, GuitarixPort   ,   1, cmdSetExpr, "None" },
@@ -144,7 +143,6 @@ LiveMusicInfo GlobalInfo = {
 /* 128 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 129 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/* 130 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 131 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 132 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 133 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -323,7 +321,7 @@ LiveMusicInfo GlobalInfo = {
 /*  19 */  "Juno", 
 /*  20 */  "BaseChorus", 
 /*  21 */  "HardDist", 
-/*  22 */  "CleanBass", 
+/*  22 */  "SusDist", 
 /*  23 */  "MedDist", 
 /*  24 */  "BaseMel", 
 /*  25 */  "Moog1", 

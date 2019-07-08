@@ -390,7 +390,6 @@ function SetUpConnections {
     # ********************************
     # **** Alsa sound if no USB interface
     # ********************************
-    amixer sset 'Master' 90
     
     # Turn on Line input as source.
     #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
@@ -411,6 +410,8 @@ function SetUpConnections {
     # Max out the USB Device.
     amixer -c 1 sset 'PCM' 128
     
+    amixer sset 'Master' 100
+
     # Nux Interface
     # Record Volume
     # amixer -c 1 cset numid=10 2032
@@ -657,7 +658,6 @@ function SetUpConnections1 {
     # Set the speaker information. Mostly used to local playback and record.
     #   amixer sset 'Mux' 0
     
-    amixer sset 'Master' 90
     
     # Turn on Line input as source.
     #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
@@ -675,6 +675,8 @@ function SetUpConnections1 {
     #   amixer sset "Capture" 70
     amixer cset name='Capture Switch' 2
     
+    amixer sset 'Master' 100
+
     # Nux Interface
     # Record Volume
     # amixer -c 1 cset numid=10 2032
@@ -1572,12 +1574,6 @@ fi
 
 # StartJack
 
-#   Patchage takes a while to start so kick it off early.
-# Run the patch bay
-echo "***************** Starting Patch Bay"
-# patchage  > /dev/null 2>&1 &
-catia > $LogFile 2>&1 & 
-
 # If jackd is still not running then exit.
 if [ `ps -ew|grep -c jackd` == 0 ] ; then
     echo "Exiting, could not launch Sound System"  >> $LogFile
@@ -1594,8 +1590,16 @@ SetUpApplications
 Delay 1
 
 echo "***************** Starting SetUpConnections"
-# Set up the mier levels and the interconnection between devices.
+# Set up the mixer levels and the interconnection between devices.
 SetUpConnections
+
+
+#   Patchage takes a while to start so kick it off early.
+# Run the patch bay
+echo "***************** Starting Patch Bay"
+# patchage  > /dev/null 2>&1 &
+catia > $LogFile 2>&1 & 
+
 
 echo "***************** Starting SetPlacement"
 # Put apps in the right place/desktop

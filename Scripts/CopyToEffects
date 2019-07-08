@@ -23,6 +23,8 @@ cp ./Scripts/GuitarEffects ${DestDir}
 cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}
 cp /home/elias/workspace/MusicFiles/jack-plumbing ${DestDir}"/Prefs/"
 
+rsync -avrx ${DestDir}"/Prefs/" ./Prefs/
+
 
 
 # ~/.hydrogen/hydrogen.conf

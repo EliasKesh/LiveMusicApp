@@ -26,6 +26,7 @@ theDATE=$(date +"%d%H%M%S")
 	./LiveMusicApp & 
 	sleep 3
 	./GuitarEffects -c
+	./GuitarEffects -b
 fi
 
 
@@ -37,6 +38,7 @@ theDATE=$(date +"%d%H%M%S")
 	guitarix & 
 	sleep 3
 	./GuitarEffects -c
+	./GuitarEffects -b
 fi
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
