@@ -224,6 +224,7 @@ void MyTimerInit(void) {
 	/* Set up a timer for Tempo.
 	*/
 	gMyInfo.TempoTimerID = 0;
+	gMyInfo.TimerCount = 0;
 
 	SetTempo(120);
 }

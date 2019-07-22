@@ -628,11 +628,13 @@ int WriteChart (char *OutputFileName) {
 		ExtPtr = get_filename_ext(myChartData.Href[Loop]);
 //printf("In Loop %s %s\n", myChartData.Href[Loop], ExtPtr);
 		if (!strcmp(ExtPtr, "mp3")) {
-			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%s-%d]</a>  \n",
-			        myChartData.Href[Loop++], ExtPtr, Loop);
+//			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%s-%d]</a>  \n",
+//			        myChartData.Href[Loop++], ExtPtr, Loop);
+			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%10s]</a>  \n",
+			        myChartData.Href[Loop], myChartData.Href[Loop++]);
 		} else {
-			fprintf(OutFile, "<a style=\"color:yellow\" href=%s>[%s-%d]</a>  \n",
-			        myChartData.Href[Loop++], ExtPtr, Loop);
+			fprintf(OutFile, "<a style=\"color:yellow\" href=%s>[%10s]</a>  \n",
+			        myChartData.Href[Loop], myChartData.Href[Loop++]);
 		}
 	}
 	fprintf(OutFile, "<br>\n");
@@ -640,9 +642,9 @@ int WriteChart (char *OutputFileName) {
 	if (strlen(myChartData.LiveMusicData) < 10) {
 		fprintf(OutFile, "<LiveMusic><code>\n");
 		fprintf(OutFile, "<font color=#88ff00>Chords:  </font> <br>\n");
-		fprintf(OutFile, "<br>\n<br>\n<br>\n");
+		fprintf(OutFile, "<br>\n");
 		fprintf(OutFile, "<font color=#88ffff>Structure:  </font> <br>\n");
-		fprintf(OutFile, "<br>\n<br>\n<br>\n");
+		fprintf(OutFile, "<br>\n");
 		fprintf(OutFile, " %s \n</code></LiveMusic>\n<tr>\n",
 		        myChartData.LiveMusicData);
 	} else {
@@ -999,6 +1001,10 @@ int Get_dir_Files(char * path, char FileList[MaxDirName][MaxStringLength]) {
 #endif
 		}
 	}
+
+	/* Sort Them
+	*/
+	qsort(FileList, MaxDirName, MaxStringLength, myCompare);
 
 	closedir(d); // finally close the directory
 	return (Loop);

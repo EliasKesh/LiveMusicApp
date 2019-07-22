@@ -727,9 +727,9 @@ int SendMidiPatch(PatchInfo * thePatch) {
 			plSeekBk();
 			break;
 
-		case cmdSendCC:
-			plSeekBk();
-			break;
+//		case cmdSendCC:
+//			plSeekBk();
+//			break;
 
 		default:
 			printd(LogError, "cmdLnTransPort No case %d", thePatch->Patch);
@@ -740,6 +740,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case cmdSendCC:
+		printd(LogInfo, "cmdSendCC %d\n", thePatch->Patch);
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
 		         thePatch->Channel,
 		         thePatch->Patch, (thePatch->BankSelect >> 7) & 0x7f);
@@ -865,6 +866,7 @@ void *alsa_midi_thread(void * context_ptr) {
 						        note_name, octave, event_ptr->data.note.velocity);
 					}
 				}
+
 				if (gMyInfo.MidiPassThru) {
 					snd_seq_ev_clear(&ev);
 					snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru - 1);
@@ -898,9 +900,11 @@ void *alsa_midi_thread(void * context_ptr) {
 				continue;
 
 			break;
+
 		case SND_SEQ_EVENT_KEYPRESS:
 			sprintf(msg_str_ptr, "Key pressure change (aftertouch)");
 			break;
+
 		case SND_SEQ_EVENT_CONTROLLER:
 			cc_name = NULL;
 			switch (event_ptr->data.control.param) {

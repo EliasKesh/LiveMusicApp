@@ -1,0 +1,75 @@
+Chorus1
+Juicy
+SusDist
+Hard
+Chorus
+SatDist
+Funky
+ChorusUp
+Clean
+Pat Travers
+
+
+/mnt/Personal/home/Music/EMusic/2014-12-25/DemoTune.slsess
+
+Guitarix:
+pre12ax7/master 6v6
+Pre 9.3 Master -3.8
+Clean/Dist 58 
+Drive: .75
+Presence 4.6
+Reverb -0.69
+Master -5.9
+
+Tube Screamer:
+Drive: .96
+Level: -7.2
+Tone: 1000
+
+Compressor:
+Ratio: 15.2
+Threshold: -17.0
+Knee: 10.4
+Attack: 0.338
+Release: 3.05
+
+Multi-Band-Chorus:
+Band1:
+BPM: 62
+Delay: 0.02
+Depth: 0.72
+Level: 0.91
+High: 136.26
+Band2:
+BPM: 60
+Delay: 0.04
+Depth: 0.44
+Level: 0.65
+High: 210
+Low: 136.26
+Band3:
+BPM: 68
+Delay: 0.06
+Depth: 0.49
+Level: 0.49
+High: 1700
+Low: 210
+Band4:
+BPM: 120
+Delay: 0.08
+Depth: 0.46
+Level: 0.69
+High: 2685
+Low: 1700
+Band1:
+BPM: 150
+Delay: 0.10
+Depth: 0.40
+Level: 0.42
+Low: 2685
+
+FreeVerb:
+HF Damp: 0.5
+Room Size: 0.47
+Wet/Dry: 56
+

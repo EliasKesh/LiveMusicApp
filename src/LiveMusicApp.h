@@ -186,7 +186,12 @@ typedef struct {
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned long TempoReload;
 	unsigned long TimerCount;
+	unsigned long KeyTimer;
 	timer_t TempoTimerID;
+
+	int   KeyPatchValue;
+	char  KeyChar;
+	char  KeyIsValue;
 
 	snd_timer_t *AlsaTimerHandle;
 	snd_timer_params_t *AlsaTimerParams;
@@ -439,7 +444,7 @@ EXTERN unsigned int CurrentLayout;
 EXTERN unsigned int CurrentPreset;
 EXTERN GtkWidget *PatchPopupMenu;
 EXTERN char		ScreenSize;
-EXTERN int verbose_flag;
+EXTERN int      verbose_flag;
 EXTERN char		JackName[MaxStringPortName];
 EXTERN int 		FishmanSwitch;
 EXTERN int 		FishmanSelSwitch;

@@ -49,6 +49,7 @@
 #define MaxStatusHold 8
 #define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
 #define HistoryFileName	"./LiveMusicRes/LiveMusicHistory"
+#define MaxKeyTimeout	3
 
 /*
  * Place Global variables here
@@ -121,6 +122,7 @@ void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
 int CloseHistoryFile(void);
 int InitHistoryFile(void);
+gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data);
 
 
 int InitJackTransport(void);
@@ -379,6 +381,34 @@ int GTKIdel_cb(gpointer data) {
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
 	}
 
+#ifdef AcceptTimedKeyboard
+	gMyInfo.TimerCount++;
+
+	// If we have a key in the works.
+	if (gMyInfo.KeyPatchValue != 0 ) {
+		if (gMyInfo.KeyIsValue) {
+			printf("Idle %d\n", gMyInfo.KeyIsValue);
+			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) > MaxKeyTimeout ) {
+				gMyInfo.KeyIsValue = 0;
+				printf("Final Key %d\n", gMyInfo.KeyPatchValue);
+				if (gMyInfo.KeyPatchValue > 0 && gMyInfo.KeyPatchValue < LayoutSwitchPatch)
+					LayoutSwitchPatch(gMyInfo.KeyPatchValue - 1, true);
+
+				gMyInfo.KeyPatchValue = 0;
+			}
+		} else {
+			printf("We have letter %c\n", gMyInfo.KeyChar);
+			gMyInfo.KeyPatchValue = 0;
+
+			// Space will toggle player
+			if (gMyInfo.KeyPatchValue == ' ') {
+				plLoopToggle();
+			}
+
+		}
+	}
+#endif
+
 
 	return (FALSE);
 }
@@ -532,11 +562,12 @@ int main(int argc, char *argv[]) {
 	verbose_flag = 0;
 	KeyLayout = 1;
 	JackMaster = 1;
+	gMyInfo.TimerCount = 0;
 
 	parse_cmdline(argc, argv);
 
-    printf("Build date  : %s:%s\n", __DATE__, __TIME__);
-    printf("Build Number %d\n", MY_BUILD_NUMBER);
+	printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+	printf("Build Number %d\n", MY_BUILD_NUMBER);
 
 	InitHistoryFile();
 
@@ -547,7 +578,6 @@ int main(int argc, char *argv[]) {
 
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
-
 
 	myScreen = gdk_screen_get_default();
 	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
@@ -673,6 +703,9 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
 	                 (GCallback ) tab_focus_callback, gxml);
+
+	g_signal_connect(G_OBJECT(main_window), "key_press_event", G_CALLBACK(key_press_cb), main_window);
+	gMyInfo.KeyPatchValue = 0;
 
 	/*
 	 * Setup and initialize our statusbar and Mode indicator
@@ -1345,6 +1378,7 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 	WriteToHistory(NextPatch->Name);
 
 	do {
+		printd(LogInfo, "DoPatch: %s \n", NextPatch->Name);
 		SendMidiPatch(NextPatch);
 		UpdateStatus(NextPatch->Name);
 
@@ -1563,6 +1597,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 		if (RetVal >= 0 && RetVal < Max_Patches)
 			DoPatch(&gMyInfo.MyPatchInfo[(int) RetVal]);
 	}
+
 //	printd(LogInfo, "LayoutSwitchPatch M%d R%d D%d\n", MidiIn, RetVal,
 //		DoAction);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
@@ -1653,6 +1688,64 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 }
 
 /*--------------------------------------------------------------------
+ * Function:		key_press_cb
+ *
+ * Description:	Key input.
+ *---------------------------------------------------------------------*/
+gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data)  {
+	GtkWidget *btn = (GtkWidget *)data;
+#ifdef AcceptTimedKeyboard
+
+	if (kevent->type == GDK_KEY_PRESS)  {
+		gMyInfo.KeyChar = kevent->keyval;
+
+		// If it's a character.
+		if (gMyInfo.KeyChar >= '0' && gMyInfo.KeyChar <= '9') {
+			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) < MaxKeyTimeout || gMyInfo.KeyPatchValue == 0 ) {
+				gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
+				gMyInfo.KeyIsValue = 1;
+				printf("Key %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
+			}
+		} else
+			gMyInfo.KeyPatchValue = gMyInfo.KeyChar;
+	}
+
+	gMyInfo.KeyTimer = gMyInfo.TimerCount;
+
+	// void g_signal_emit_by_name(GObject *object, const gchar *name, ... );
+	// g_signal_emit_by_name(G_OBJECT(btn), "clicked", NULL);
+	// g_signal_emit_by_name(G_OBJECT(widget), "clicked", NULL);
+#endif
+	if (kevent->type == GDK_KEY_PRESS)  {
+		gMyInfo.KeyChar = kevent->keyval;
+
+		printf("Key %d\n", gMyInfo.KeyChar);
+		if (gMyInfo.KeyChar >= '0' && gMyInfo.KeyChar <= '9') {
+			gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
+		}
+
+		if (gMyInfo.KeyChar == ' ') {
+			plPausePlay();
+		}
+
+// NumLock 127
+// 81 /
+// 86 *
+// 83 -
+// 85 +
+// 08 Back
+// 82 . 
+// 
+		if (gMyInfo.KeyChar == 13) {
+			LayoutSwitchPatch(gMyInfo.KeyPatchValue - 1, true);
+			gMyInfo.KeyPatchValue = 0;
+		}
+	}
+
+	return TRUE;
+}
+
+/*--------------------------------------------------------------------
  * Function:		FindString
  *
  * Description:	Find the offset into a list of strings.
@@ -1718,8 +1811,8 @@ int InitHistoryFile(void) {
 }
 
 int WriteToHistory(char *str) {
-time_t t = time(NULL);
-struct tm tm = *localtime(&t);
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
 
 
 

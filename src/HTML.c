@@ -482,8 +482,9 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "/usr/bin/smplayer \"%s\" &", theURI);
+		sprintf(string, "/usr/bin/smplayer \"\'%s\'\" &", theURI);
 		system(string);
+		printf("**----** systemcall %s\n", string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
