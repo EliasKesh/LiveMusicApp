@@ -29,17 +29,20 @@
  * Place Global prototypes here.
  */
 
-#define LogError 1
-#define LogAlert 2
+#define LogDebug 6
+#define LogError 5
+#define LogAlert 4
 #define LogWarn 3
-#define LogInfo 4
-#define LogDebug 5
-#define MyLogLevel	LogDebug
+#define LogInfo 2
+#define LogNone 1
+#define MyLogLevel	LogNone
 
 #define PatchNameSize 60
 
 char *printd(char LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
+
+int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 
 #define ResourceDirectory	"./LiveMusicRes/"
 
@@ -444,7 +447,7 @@ EXTERN unsigned int CurrentLayout;
 EXTERN unsigned int CurrentPreset;
 EXTERN GtkWidget *PatchPopupMenu;
 EXTERN char		ScreenSize;
-EXTERN int      verbose_flag;
+EXTERN int      GenerateHFile;
 EXTERN char		JackName[MaxStringPortName];
 EXTERN int 		FishmanSwitch;
 EXTERN int 		FishmanSelSwitch;

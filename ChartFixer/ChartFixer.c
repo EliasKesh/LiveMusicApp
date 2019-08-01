@@ -30,8 +30,8 @@
 #include <libgen.h>
 
 #define MaxStringLength		10000
-#define MaxRefFiles			5
-#define MaxMetaData			15
+#define MaxRefFiles			20
+#define MaxMetaData			20
 #define MaxDirName			200
 #define MaxHTMLFiles		1000
 
@@ -335,6 +335,10 @@ int DoChartFix(char *InputFileName,
                char VerifyFlag,
                char RecursiveFlag,
                char UpdateIndexFlag) {
+#ifndef StandAlone
+	DebugString = 0;
+#endif
+
 	MyPrintf("Flags F%d V%d R%d U%d\n",
 	         FixFlag, VerifyFlag,
 	         RecursiveFlag, UpdateIndexFlag);
@@ -631,10 +635,12 @@ int WriteChart (char *OutputFileName) {
 //			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%s-%d]</a>  \n",
 //			        myChartData.Href[Loop++], ExtPtr, Loop);
 			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%10s]</a>  \n",
-			        myChartData.Href[Loop], myChartData.Href[Loop++]);
+			        myChartData.Href[Loop], myChartData.Href[Loop]);
+			Loop++;
 		} else {
 			fprintf(OutFile, "<a style=\"color:yellow\" href=%s>[%10s]</a>  \n",
-			        myChartData.Href[Loop], myChartData.Href[Loop++]);
+			        myChartData.Href[Loop], myChartData.Href[Loop]);
+			Loop++;
 		}
 	}
 	fprintf(OutFile, "<br>\n");

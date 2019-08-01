@@ -1011,8 +1011,7 @@ function FindUSB {
                 fi
             fi
         fi
-    done
-    
+    done   
 }
 
 #---------------------------------------------------------------------#
@@ -1028,7 +1027,7 @@ function SetUpApplications {
      if test "${SoundSynth}" = "true"; then
    # Launch the Soundfont player.
     echo "Starting qsynth"  >> $LogFile
-    nice -15    qsynth -g 1.0  -o  synth.midi-bank-select=mma >> $LogFile 2>&1 &
+    nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi 
 
     # Midi Router
@@ -1036,7 +1035,7 @@ function SetUpApplications {
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15    ./LiveMusicApp -P 1 -l $ButtonLayout -j "${AudioOutDevice}"  >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme ./LiveMusicApp -v 1 -l $ButtonLayout -j "${AudioOutDevice}"`  >> $LogFile 2>&1 &
     fi
     
     # This is the Guitar effects processor
@@ -1061,7 +1060,7 @@ function SetUpApplications {
     
     if test "${MP3Player}" = "true"; then
         # Set the first Desktop to use.
-        clementine &
+        `QT_STYLE_OVERRIDE=QtCurve clementine &`
     fi
     
     # External viewer, not used anymore
@@ -1110,7 +1109,7 @@ function SetUpApplications {
 #---------------------------------------------------------------------#
 function SetPlacement {
     
-     MaxOffSet=1368
+    MaxOffSet=1368
     ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
     xinput map-to-output $ExtID LVDS1
 

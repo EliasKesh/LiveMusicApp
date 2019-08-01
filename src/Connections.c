@@ -71,13 +71,13 @@ int InitConnections(void) {
 	thePorts = &theInPorts;
 	gDevices = 0;
 
-	printf("Search Inputs\n");
+	printd(LogDebug, "Search Inputs\n");
 	do_search_port(seq, LIST_INPUT, print_port_and_subs);
 
 	thePorts = &theOutPorts;
 	gDevices = 0;
 
-	printf("Search Outputs\n");
+	printd(LogDebug, "Search Outputs\n");
 	do_search_port(seq, LIST_OUTPUT, print_port_and_subs);
 	snd_seq_close(seq);
 	return (0);
@@ -145,15 +145,15 @@ static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs,
 	while (snd_seq_query_port_subscribers(seq, subs) >= 0) {
 		const snd_seq_addr_t *addr;
 		if (count++ == 0)
-			printf("\t%s: ", msg);
+			printd(LogDebug, "\t%s: ", msg);
 		else
-			printf(", ");
+			printd(LogDebug, ", ");
 		addr = snd_seq_query_subscribe_get_addr(subs);
-		printf("%d:%d", addr->client, addr->port);
+		printd(LogDebug, "%d:%d", addr->client, addr->port);
 		if (snd_seq_query_subscribe_get_exclusive(subs))
-			printf("[ex]");
+			printd(LogDebug, "[ex]");
 		if (snd_seq_query_subscribe_get_time_update(subs))
-			printf("[%s:%d]",
+			printd(LogDebug, "[%s:%d]",
 				(snd_seq_query_subscribe_get_time_real(subs) ?
 																"real" :
 																"tick"),
@@ -162,7 +162,7 @@ static void list_each_subs(snd_seq_t *seq, snd_seq_query_subscribe_t *subs,
 			snd_seq_query_subscribe_get_index(subs) + 1);
 	}
 	if (count > 0)
-		printf("\n");
+		printd(LogDebug, "\n");
 }
 
 /*
@@ -228,7 +228,7 @@ static void print_port(snd_seq_t *seq, snd_seq_client_info_t *cinfo,
 	thePorts->Devices[gDevices].Ports[gPorts].ID = snd_seq_port_info_get_port(
 		pinfo);
 #if 0
-	printf("  %3d '%-16s'\n",
+	printd(LogDebug, "  %3d '%-16s'\n",
 		snd_seq_port_info_get_port(pinfo),
 		snd_seq_port_info_get_name(pinfo));
 	printf("*** %d %d ***\n", gDevices, gPorts);

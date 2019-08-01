@@ -105,7 +105,7 @@ void SetTempo(unsigned int NewTempo) {
 	 */
 	if (gMyInfo.TempoTimerID) {
 		g_source_remove(gMyInfo.TempoTimerID);
-		printf("********TIMER REMOVED*****\n");
+		printd(LogInfo, "********TIMER REMOVED*****\n");
 	}
 
 	/* Store the tempo information.
@@ -133,7 +133,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean time_handler(GtkWidget *widget) {
 
-	printd(LogInfo, " IN time_handler\n");
+	printd(LogDebug, " IN time_handler\n");
 	ToggleTempo();
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
@@ -185,7 +185,7 @@ void SetTempo(unsigned int NewTempo) {
 	/* Send out a message our tempo is changing.
 	 */
 	setTimerFreq(15000 / NewTempo);
-//printf("Set Alsa Timer\n");
+//printd(LogDebug, "Set Alsa Timer\n");
 
 }
 
@@ -202,7 +202,7 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
-//printf("Call Toggle from tempo\n");
+//printd(LogDebug, "Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
 	return TRUE;
 }
@@ -253,10 +253,10 @@ void SetTempo(unsigned int NewTempo) {
 	com_tempo(NewTempo);
 	gMyInfo.Tempo = NewTempo;
 
-	printf("***** RT Timer init ****\n");
+	printd(LogDebug, "***** RT Timer init ****\n");
 
 	if (gMyInfo.TempoTimerID) {
-		printf("***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
+		printd(LogDebug, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
 //        memset((void*)&in, 0, sizeof(in));
 //		timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
 		timer_delete(gMyInfo.TempoTimerID);
@@ -273,7 +273,7 @@ void SetTempo(unsigned int NewTempo) {
 	sig.sigev_notify_attributes = &attr;
 
 	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
-	printf("***** RT Timer Create **** %d %d\n", Ret, timerid);
+	printd(LogDebug, "***** RT Timer Create **** %d %d\n", Ret, timerid);
 	if (Ret == 0) {
 		// Can't be zero.
 		in.it_value.tv_sec = 1;
@@ -285,15 +285,15 @@ void SetTempo(unsigned int NewTempo) {
 
 		//issue the periodic timer request here.
 		Ret = timer_settime(timerid, 0, &in, &out);
-		printf("***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
+		printd(LogDebug, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 		if (Ret != 0) {
-			printf("timer_settime() failed with %d\n", errno);
+			printd(LogDebug, "timer_settime() failed with %d\n", errno);
 			//delete the timer.
 			timer_delete(timerid);
 			timerid = 0;
 		}
 	} else
-		printf("timer_create() failed with %d\n", errno);
+		printd(LogDebug, "timer_create() failed with %d\n", errno);
 
 	gMyInfo.TempoTimerID = timerid;
 }
@@ -306,7 +306,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
 
-//	printd(LogInfo, " IN time_handler\n");
+//	printd(LogDebug, " IN time_handler\n");
 
 	if (++SubBeats > 1) {
 		ToggleTempo();
@@ -333,7 +333,7 @@ void ToggleTempo(void) {
 	struct timeval Time0;
 
 	// gettimeofday(&Time0, NULL);
-	// printf("%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
+	// printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
 //	printd(LogDebug, "Tempo %d %d\n", TempoState,  TempoState);
 
 	/* This is the tempo in BPM

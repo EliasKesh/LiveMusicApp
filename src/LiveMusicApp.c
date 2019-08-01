@@ -87,7 +87,7 @@ int KeyLayout = 1;
 
 /* Printf Level.
 */
-int RunLogLevel = LogDebug;
+int RunLogLevel = LogNone;
 
 /* Array to hold the recent status messages.
 */
@@ -333,30 +333,35 @@ void ClearMainButtons(void) {
  *---------------------------------------------------------------------*/
 int GTKIdel_cb(gpointer data) {
 
-
 	// Can't call this from the thread so the
-	// thread sets teh structure and then the action
+	// thread sets the structure and then the action
 	// gets performed here.
 	// Expression control of active GUI sliders.
+	printd(LogDebug, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 		switch (gMyInfo.ExpreP1Slider) {
 		case Slider1:
+			printd(LogDebug, "GTKIdel_cb Slider1 %d \n", Slider1);
 			SetVolume1(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider2:
+			printd(LogDebug, "GTKIdel_cb Slider2 %d \n", Slider2);
 			SetVolume2(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider3:
+			printd(LogDebug, "GTKIdel_cb Slider3 %d \n", Slider3);
 			SetVolume3(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider4:
+			printd(LogDebug, "GTKIdel_cb Slider4 %d \n", Slider4);
 		//		break;
 
 		default:
-			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
+//			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
+			printd(LogDebug, "GTKIdel_cb Default\n");
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
 		}
@@ -387,17 +392,17 @@ int GTKIdel_cb(gpointer data) {
 	// If we have a key in the works.
 	if (gMyInfo.KeyPatchValue != 0 ) {
 		if (gMyInfo.KeyIsValue) {
-			printf("Idle %d\n", gMyInfo.KeyIsValue);
+			printd(LogDebug, "Idle %d\n", gMyInfo.KeyIsValue);
 			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) > MaxKeyTimeout ) {
 				gMyInfo.KeyIsValue = 0;
-				printf("Final Key %d\n", gMyInfo.KeyPatchValue);
+				printd(LogDebug, "Final Key %d\n", gMyInfo.KeyPatchValue);
 				if (gMyInfo.KeyPatchValue > 0 && gMyInfo.KeyPatchValue < LayoutSwitchPatch)
 					LayoutSwitchPatch(gMyInfo.KeyPatchValue - 1, true);
 
 				gMyInfo.KeyPatchValue = 0;
 			}
 		} else {
-			printf("We have letter %c\n", gMyInfo.KeyChar);
+			printd(LogDebug, "We have letter %c\n", gMyInfo.KeyChar);
 			gMyInfo.KeyPatchValue = 0;
 
 			// Space will toggle player
@@ -427,59 +432,20 @@ void parse_cmdline(int argc, char *argv[]) {
 		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
 		static struct option long_options[] = {
-			{ "PrintLevel", required_argument, &verbose_flag, 1 },
-			{ "verbose", no_argument, &verbose_flag, 1 },
+			{ "verbose", no_argument, required_argument, 'v' },
 			{ "FontSize", required_argument, 0, 'f' },
 			{ "jack", required_argument, 0, 'j' },
-
-			/* Not Used	*/
-			{ "Layout", required_argument, 0, 'l' },
-			{ "size", required_argument, 0, 's' },
-			{ "append", no_argument, 0, 0 },
-			{ "delete", required_argument, 0, 0 },
-			{ "create", required_argument, 0, 'c' },
-			{ "file", required_argument, 0, 0 },
+			{ "layout", required_argument, 0, 'l' },
+			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "abcj:dsfP:l:012",
+		c = getopt_long(argc, argv, "?hv:f:j:l:",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
 
 		switch (c) {
-		case 0:
-			printd(LogInfo, "option %s", long_options[option_index].name);
-			if (optarg)
-				printd(LogInfo, " with arg %s", optarg);
-			printd(LogInfo, "\n");
-			break;
-
-		case '0':
-		case '1':
-		case '2':
-			if (digit_optind != 0 && digit_optind != this_option_optind)
-				printd(LogInfo, "digits occur in two different argv-elements.\n");
-			digit_optind = this_option_optind;
-			printd(LogInfo, "option %c\n", c);
-			break;
-
-		case 'a':
-			printd(LogInfo, "option a\n");
-			break;
-
-		case 'b':
-			printd(LogInfo, "option b\n");
-			break;
-
-		case 'c':
-			printd(LogInfo, "option c with value `%s'\n", optarg);
-			break;
-
-		case 'd':
-			printd(LogInfo, "option d with value `%s'\n", optarg);
-			break;
-
 		case 'f':
 			ButtonSize = atoi(optarg);
 			printd(LogInfo, "Font Size %d\n", ButtonSize);
@@ -495,25 +461,21 @@ void parse_cmdline(int argc, char *argv[]) {
 			printd(LogInfo, "Layout %d\n", KeyLayout);
 			break;
 
-		case 'm':
-			JackMaster = 0;
-			printd(LogInfo, "JackMaster %s\n", JackName);
-			break;
-
-		case 's':
-			printd(LogInfo, "size %s\n", optarg);
-			break;
-
-		case '?':
-			break;
-
-		case 'P':
+		case 'v':
 			RunLogLevel = atoi(optarg);
-			printd(LogInfo, "Layout %d\n", KeyLayout);
+			printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
 			break;
 
 		default:
-			printd(LogInfo, "?? getopt returned character code 0%o ??\n", c);
+		case 'h':
+			printf("Live Music CLI Usage\n");
+			printf(" v verbose - Debug output level\n");
+			printf(" f FontSize - Font Size for smaller screens.\n");
+			printf(" j jack - Jack master name.\n");
+			printf(" l Layout - Glade layout file.\n");
+			printf(" IncludeFile - Generate include file on exit.\n");
+
+			exit(0);
 			break;
 		}
 	}
@@ -524,6 +486,7 @@ void parse_cmdline(int argc, char *argv[]) {
 			printd(LogInfo, "%s ", argv[optind++]);
 		printd(LogInfo, "\n");
 	}
+
 }
 
 // extern long int __BUILD_DATE;
@@ -559,7 +522,7 @@ int main(int argc, char *argv[]) {
 	 */
 	CurrentLayout = 0;
 	WaitingforMidi = 0;
-	verbose_flag = 0;
+	GenerateHFile = 0;
 	KeyLayout = 1;
 	JackMaster = 1;
 	gMyInfo.TimerCount = 0;
@@ -839,8 +802,14 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 //       create_Patch_Popup_view(main_window);
 	printd(LogInfo, "Entering gtk_main\n");
 
+	/*
+	 * Start the timers
+	 */
 	MyTimerInit();
 
+	/*
+	 * Add and Idle for non interrupt based processing.
+	 */
 	g_idle_add(GTKIdel_cb, main_window);
 
 	/*
@@ -915,6 +884,10 @@ void UpdateStatus(char *String) {
 
 }
 
+/*--------------------------------------------------------------------
+ * Function:		Main Button Handler
+ *
+ *---------------------------------------------------------------------*/
 gboolean click_handler(GtkWidget *widget,
                        GdkEvent *event,
                        gpointer user_data) {
@@ -1704,7 +1677,7 @@ gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data)  {
 			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) < MaxKeyTimeout || gMyInfo.KeyPatchValue == 0 ) {
 				gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
 				gMyInfo.KeyIsValue = 1;
-				printf("Key %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
+				printd(LogDebug,"Key %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
 			}
 		} else
 			gMyInfo.KeyPatchValue = gMyInfo.KeyChar;
@@ -1719,7 +1692,7 @@ gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data)  {
 	if (kevent->type == GDK_KEY_PRESS)  {
 		gMyInfo.KeyChar = kevent->keyval;
 
-		printf("Key %d\n", gMyInfo.KeyChar);
+		printd(LogDebug,"Key %d\n", gMyInfo.KeyChar);
 		if (gMyInfo.KeyChar >= '0' && gMyInfo.KeyChar <= '9') {
 			gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
 		}
@@ -1801,11 +1774,10 @@ void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-	FileHistory = fopen(HistoryFileName, "a+");
-	printf("File History %x\n", FileHistory);
+	FileHistory = fopen(HistoryFileName, "a+");	printf("File History %x\n", FileHistory);
 	if (FileHistory) {
 		fseek(FileHistory, 0, SEEK_END);
-		fprintf(FileHistory, "*****************\n");
+		printd(LogDebug, FileHistory, "*****************\n");
 		fflush(FileHistory);
 	}
 }

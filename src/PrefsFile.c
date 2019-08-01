@@ -59,13 +59,15 @@ InitPref (void) {
 	memset (&gMyInfo, 0, sizeof (LiveMusicInfo));
 	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 
+
 #if 0
 	WritePrefs ();
 	ReadPrefs ();
-	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 	exit(0);
 
 #endif
+//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
+
 #if 1
 	gMyInfo.TempoMax = 8;
 
@@ -464,6 +466,9 @@ WritePrefs (void) {
 	xmlFreeDoc (doc);
 
 	xmlCleanupParser ();
+
+	if (GenerateHFile)
+		PrintDataStructure(&gMyInfo, DefinePrefsFile);
 }
 
 #include <libxml/xmlreader.h>
@@ -848,22 +853,22 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 		if (TopLevelParse == dTopLevelOSCIPAddress) {
 			printd (LogInfo, "dTopLevelOSCIPAddress %s\n", value);
-			strncpy (gMyInfo.OSCIPAddress, value, 255);
+			strncpy (gMyInfo.OSCIPAddress, value, sizeof (gMyInfo.OSCIPAddress));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumJackVol) {
 			printd (LogInfo, "dTopLevelOSCPortNumJackVol %s\n", value);
-			strncpy (gMyInfo.OSCPortNumJackVol, value, 255);
+			strncpy (gMyInfo.OSCPortNumJackVol, value, sizeof (gMyInfo.OSCPortNumJackVol));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumLooper) {
 			printd (LogInfo, "dTopLevelOSCPortNumLooper %s\n", value);
-			strncpy (gMyInfo.OSCPortNumLooper, value, 255);
+			strncpy (gMyInfo.OSCPortNumLooper, value, sizeof (gMyInfo.OSCPortNumLooper));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumHydrogen) {
 			printd (LogInfo, "dTopLevelOSCPortNumHydrogen %s\n", value);
-			strncpy (gMyInfo.OSCPortNumHydrogen, value, 255);
+			strncpy (gMyInfo.OSCPortNumHydrogen, value, sizeof (gMyInfo.OSCPortNumHydrogen));
 		}
 
 		if (TopLevelParse == dTopLevelStatusTextColor) {

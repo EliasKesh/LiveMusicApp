@@ -195,12 +195,10 @@ void SetupAlsaTimer(int Count) {
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 //	    	NewDivider = 2500000000/Count;
 
-
 	/*
 	* Let's not do anything until we get a tempo change call.
 	*/
 	gMyInfo.TempoReload = 1;
-	gMyInfo.TimerCount = 0;
 
 	if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
 		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 100);
@@ -939,7 +937,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_MAIN_VOLUME:
 				// ejk SEND
 				cc_name = "Main volume";
-				printd(LogInfo, "Send Midi MSB Volume main%d %d %d\n",
+				printd(LogInfo, "Send Midi MSB Volume main %d %d %d\n",
 				       event_ptr->data.control.value, Slider1, gMyInfo.ExpreP1Slider);
 
 				if (gMyInfo.ExpreP1Slider >= Max_Patches) {

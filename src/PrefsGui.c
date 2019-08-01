@@ -101,38 +101,38 @@ gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
 	gint value = gtk_spin_button_get_value_as_int (widget);
 	if (widget == Analog_Volume) {
 		gMyInfo.AnalogVolume = value;
-		printd(LogInfo, "Analog_Volume  %x %d\n", widget, value);
+		printd(LogDebug, "Analog_Volume  %x %d\n", widget, value);
 	}
 
 	if (widget == Midi_Volume) {
 		gMyInfo.MidiVolume = value;
-		printd(LogInfo, "Midi_Volume  %x %d\n", widget, value);
+		printd(LogDebug, "Midi_Volume  %x %d\n", widget, value);
 	}
 
 	if (widget == Record_Beats) {
 		gMyInfo.LoopRecBeats = value;
-		printd(LogInfo, "Record_Beats  %x %d\n", widget, value);
+		printd(LogDebug, "Record_Beats  %x %d\n", widget, value);
 	}
 
 	if (widget == Count_Beats) {
 		gMyInfo.CountInBeats = value;
-		printd(LogInfo, "Count_Beats  %x %d\n", widget, value);
+		printd(LogDebug, "Count_Beats  %x %d\n", widget, value);
 	}
 
 	if (widget == Beats_Measure) {
 		gMyInfo.BeatsPerMeasure = value;
-		printd(LogInfo, "Beats_Measure  %x %d\n", widget, value);
+		printd(LogDebug, "Beats_Measure  %x %d\n", widget, value);
 	}
 
 	if (widget == Tempo_pref) {
 		SetTempo(value);
 //   		gMyInfo.Tempo = value;
-		printd(LogInfo, "Tempo_pref  %x %d\n", widget, value);
+		printd(LogDebug, "Tempo_pref  %x %d\n", widget, value);
 	}
 
 	if (widget == Midi_Base) {
 		gMyInfo.MidiBaseNote = value;
-		printd(LogInfo, "Midi_Base  %x %d\n", widget, value);
+		printd(LogDebug, "Midi_Base  %x %d\n", widget, value);
 	}
 
 
@@ -152,22 +152,22 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
 
 	if (widget == OSC_Address) {
 		strncpy(gMyInfo.OSCIPAddress, theString, 20);
-		printd(LogInfo, "OSC_Address  %x %s\n", widget, theString);
+		printd(LogDebug, "OSC_Address  %x %s\n", widget, theString);
 	}
 
 	if (widget == OSCLoopPort) {
 		strncpy(gMyInfo.OSCPortNumLooper, theString, 6);
-		printd(LogInfo, "OSCLoopPort  %x %s\n", widget, theString);
+		printd(LogDebug, "OSCLoopPort  %x %s\n", widget, theString);
 	}
 
 	if (widget == OSCHydrogenPort) {
 		strncpy(gMyInfo.OSCPortNumHydrogen, theString, 6);
-		printd(LogInfo, "OSCHydrogenPort  %x %s\n", widget, theString);
+		printd(LogDebug, "OSCHydrogenPort  %x %s\n", widget, theString);
 	}
 
 	if (widget == OSCVolumePort) {
 		strncpy(gMyInfo.OSCPortNumJackVol, theString, 6);
-		printd(LogInfo, "OSCVolumePort  %x %s\n", widget, theString);
+		printd(LogDebug, "OSCVolumePort  %x %s\n", widget, theString);
 	}
 
 	return TRUE; /* stop event propagation */
