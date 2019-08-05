@@ -297,13 +297,14 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Playback volume slider
 	 */
-	VolumeAdjustment = gtk_adjustment_new(10, 0, 100, 1, 10, 0);
+	VolumeAdjustment = gtk_adjustment_new(90, 0, 100, 1, 10, 0);
 	VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
 	                           GTK_ADJUSTMENT(VolumeAdjustment));
 //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
 //	   gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
      gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
+      gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
 
 	g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
 	                 G_CALLBACK (VolumeSlider_Changed), NULL);
@@ -841,12 +842,10 @@ void SpeedSlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void VolumeSlider_Changed(GtkAdjustment *adj) {
-	printf("VolumeSlider_Changed %f\n",
-	       gtk_adjustment_get_value(VolumeAdjustment));
 	printd(LogDebug, "VolumeSlider_Changed %f\n",
 	       gtk_adjustment_get_value(VolumeAdjustment));
 	sprintf(PlayerString, "volume %f 1 \n",
-	        100 - gtk_adjustment_get_value(VolumeAdjustment));
+	        gtk_adjustment_get_value(VolumeAdjustment));
 	PlayerWrite(PlayerString);
 }
 
@@ -1097,7 +1096,7 @@ int StartPlayer(void) {
 		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  \"%s\" >/tmp/LiveMusicIn",
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
-		        100 - gtk_adjustment_get_value(VolumeAdjustment),
+		        gtk_adjustment_get_value(VolumeAdjustment),
 		        gtk_adjustment_get_value(SpeedAdjustment),
 		        CurrentFile);
 		printd(LogDebug, "calling  Loop %s\n", PlayerString);
@@ -1106,7 +1105,7 @@ int StartPlayer(void) {
 		sprintf(PlayerString,
 		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
 		        CurrentLength,
-		        100 - gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
+		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogDebug, "calling %s\n", PlayerString);
 	}
 

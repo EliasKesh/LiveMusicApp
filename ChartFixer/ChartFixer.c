@@ -83,6 +83,8 @@ char 	DebugString = 0;
 char 	theCurFileName[MaxDirName];
 char 	theCurDirectory[MaxDirName];
 char 	theCurPath[MaxDirName];
+char 	JustTheFileName[MaxDirName];
+
 char 	NewFile;
 char FixFlag = 0;
 char VerifyFlag = 0;
@@ -109,6 +111,7 @@ int ShouldWeAddHTML(char *thePath);
 int GetAllHTML(char *basePath);
 int Get_dir_content(char * path, char DirList[MaxDirName][MaxStringLength]);
 void show_dir_content(char * path);
+char *Strip_Ext(char *basePath);
 
 int UpdateIndexFile(char *Path);
 
@@ -122,6 +125,79 @@ int myCompare (const void * pa, const void * pb ) {
 	char *b = (char *)pb;
 	return (strcmp(a, b));
 }
+
+#ifdef StandAlone
+/*--------------------------------------------------------------------
+ * Function:		main
+ *
+ * Description:		Main for Chart Fixer
+ *
+ *---------------------------------------------------------------------*/
+int main (int argc, char *argv[]) {
+	int i = 0;
+	char *CPtr;
+	int  DirLoop;
+	int  FileLoop;
+	char *StrPtr;
+	char UpdateIndex = 0;
+
+	DebugString = 1;
+	if (argc < 2) {
+		MyPrintf("Usage: [options] {input file} {output file}\n\
+					-f Fix the file\n\
+					-v Verify \n\
+					-d Show Debug\n\
+					-r Recusrive\n\
+					-u Update Index\n\
+					ChartFixer -r -f /home/Dropbox/FusionBlue/ChartsHTML/\n\
+					-- \n");
+
+		return (1);
+	}
+	DebugString = 0;
+
+	// Parse the Arguments
+	for (i = 0; i < argc; i++) {
+		MyPrintf("Argument %s\n", argv[i]);
+
+		if (strcmp(argv[i], "-f") == 0) {
+			strcpy(InputFileName, argv[++i]);
+//			strcpy(OutputFileName, argv[++i]);
+			MyPrintf("File = %s\n", InputFileName);
+			FixFlag = 1;
+		} else if (strcmp(argv[i], "-v") == 0) {
+			strcpy(InputFileName, argv[++i]);
+			MyPrintf("File = %s\n", InputFileName);
+			VerifyFlag = 1;
+		} else if (strcmp(argv[i], "-h") == 0) {
+			ShowHelp();
+			exit(0);
+		} else if (strcmp(argv[i], "-d") == 0) {
+			DebugString = 1;
+			printf("Debug On\n");
+			MyPrintf("    argWord=TRUE\n");
+		} else if (strcmp(argv[i], "-u") == 0) {
+			UpdateIndex = 1;
+			printf("Update Index\n");
+		} else if (strcmp(argv[i], "-r") == 0) {
+			RecursiveFlag = 1;
+//			strcpy(InputFileName, argv[++i]);
+//            MyPrintf("    argChar=TRUE\n");
+		} else if (strcmp(argv[i], "--") == 0) {
+			if (i + 1 <= argc) {
+//                fileName1 = argv[++i];
+//                MyPrintf("    fileName1=%s\n",fileName1);
+			}
+			if (i + 1 <= argc) {
+//                fileName2 = argv[++i];
+//                MyPrintf("    fileName2=%s\n",fileName2);
+			}
+		}
+	}
+
+	DoChartFix(InputFileName,FixFlag, VerifyFlag, RecursiveFlag, UpdateIndex);
+}
+#endif
 
 /*--------------------------------------------------------------------
  * Function:		GetFileInfo
@@ -250,79 +326,6 @@ int GetFileInfo(char *FileInfo) {
 	}
 }
 
-#ifdef StandAlone
-/*--------------------------------------------------------------------
- * Function:		main
- *
- * Description:		Main for Chart Fixer
- *
- *---------------------------------------------------------------------*/
-int main (int argc, char *argv[]) {
-	int i = 0;
-	char *CPtr;
-	int  DirLoop;
-	int  FileLoop;
-	char *StrPtr;
-	char UpdateIndex = 0;
-
-	DebugString = 1;
-	if (argc < 2) {
-		MyPrintf("Usage: [options] {input file} {output file}\n\
-					-f Fix the file\n\
-					-v Verify \n\
-					-d Show Debug\n\
-					-r Recusrive\n\
-					-u Update Index\n\
-					ChartFixer -r -f /home/Dropbox/FusionBlue/ChartsHTML/\n\
-					-- \n");
-
-		return (1);
-	}
-	DebugString = 0;
-
-	// Parse the Arguments
-	for (i = 0; i < argc; i++) {
-		MyPrintf("Argument %s\n", argv[i]);
-
-		if (strcmp(argv[i], "-f") == 0) {
-			strcpy(InputFileName, argv[++i]);
-//			strcpy(OutputFileName, argv[++i]);
-			MyPrintf("File = %s\n", InputFileName);
-			FixFlag = 1;
-		} else if (strcmp(argv[i], "-v") == 0) {
-			strcpy(InputFileName, argv[++i]);
-			MyPrintf("File = %s\n", InputFileName);
-			VerifyFlag = 1;
-		} else if (strcmp(argv[i], "-h") == 0) {
-			ShowHelp();
-			exit(0);
-		} else if (strcmp(argv[i], "-d") == 0) {
-			DebugString = 1;
-			printf("Debug On\n");
-			MyPrintf("    argWord=TRUE\n");
-		} else if (strcmp(argv[i], "-u") == 0) {
-			UpdateIndex = 1;
-			printf("Update Index\n");
-		} else if (strcmp(argv[i], "-r") == 0) {
-			RecursiveFlag = 1;
-//			strcpy(InputFileName, argv[++i]);
-//            MyPrintf("    argChar=TRUE\n");
-		} else if (strcmp(argv[i], "--") == 0) {
-			if (i + 1 <= argc) {
-//                fileName1 = argv[++i];
-//                MyPrintf("    fileName1=%s\n",fileName1);
-			}
-			if (i + 1 <= argc) {
-//                fileName2 = argv[++i];
-//                MyPrintf("    fileName2=%s\n",fileName2);
-			}
-		}
-	}
-
-	DoChartFix(InputFileName,FixFlag, VerifyFlag, RecursiveFlag, UpdateIndex);
-}
-#endif
-
 /*--------------------------------------------------------------------
  * Function:		DoChartFix
  *
@@ -429,14 +432,14 @@ int VerifyChart (char *thePath) {
 	while (myChartData.Href[Loop][0] != 0) {
 		for (Loop1 = 0; Loop1 < MaxDirName; Loop1++) {
 //			MyPrintf("Comp %s %s\n",myChartData.Href[Loop], FileList[Loop1] );
-//printf("V: %d %s %s\n", Loop1, FileList[Loop1], myChartData.Href[Loop]);
+//printf("V: %d %d [%s] [%s]\n", MaxDirName, Loop1, FileList[Loop1], myChartData.Href[Loop]);
 			if (!strcmp(myChartData.Href[Loop], FileList[Loop1])) {
 				MatchCount++;
 				MyPrintf("Match %s %s\n", myChartData.Href[Loop], FileList[Loop1] );
 			}
 
-			if (FileList[Loop1][0] == 0)
-				break;
+//			if (FileList[Loop1][0] == 0)
+//				break;
 		}
 		Loop++;
 	}
@@ -477,10 +480,11 @@ int VerifyChart (char *thePath) {
 
 			if (!strcmp(myChartData.ChartSrc[Loop], FileList[Loop1])) {
 				MatchCount++;
-//				printf("Match %s %s\n", myChartData.ChartSrc[Loop], FileList[Loop1] );
+				printf("Match %s %s\n", myChartData.ChartSrc[Loop], FileList[Loop1] );
 			}
-			if (FileList[Loop1][0] == 0)
-				break;
+
+//			if (FileList[Loop1][0] == 0)
+//				break;
 		}
 		Loop++;
 	}
@@ -506,7 +510,7 @@ int VerifyChart (char *thePath) {
 //	}
 
 	if (Loop != MatchCount)
-		printf("** %s\n** Warning Chart (%d) and links don't match (%d)\n", thePath, Loop, MatchCount);
+		printf("** %s\n** Warning Chart (%d) and links (%d) don't match\n", thePath, Loop, MatchCount);
 
 	// Set the title of the chart.
 	if (myChartData.Title[0] == 0) {
@@ -635,11 +639,11 @@ int WriteChart (char *OutputFileName) {
 //			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%s-%d]</a>  \n",
 //			        myChartData.Href[Loop++], ExtPtr, Loop);
 			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%10s]</a>  \n",
-			        myChartData.Href[Loop], myChartData.Href[Loop]);
+			        myChartData.Href[Loop], Strip_Ext(myChartData.Href[Loop]) );
 			Loop++;
 		} else {
 			fprintf(OutFile, "<a style=\"color:yellow\" href=%s>[%10s]</a>  \n",
-			        myChartData.Href[Loop], myChartData.Href[Loop]);
+			        myChartData.Href[Loop], Strip_Ext(myChartData.Href[Loop]) );
 			Loop++;
 		}
 	}
@@ -1046,8 +1050,6 @@ int MyPrintf( const char *restrict format, ... ) {
 		va_end (arg);
 	}
 	return done;
-
-
 }
 
 /*--------------------------------------------------------------------
@@ -1258,4 +1260,25 @@ int GetAllHTML(char *basePath) {
 	}
 	closedir(dir);
 	return (0);
+}
+
+
+/*--------------------------------------------------------------------
+* Function:		Strip_Ext
+*
+* Description:		Remove the extension
+*
+*---------------------------------------------------------------------*/
+char *Strip_Ext(char *basePath) {
+int Loop;
+
+	strncpy(JustTheFileName, basePath, MaxDirName);
+	for (Loop = 0; Loop< 250; Loop++) {
+		if (JustTheFileName[Loop] == '.') {
+			JustTheFileName[Loop] = 0;
+			return(JustTheFileName);
+		}
+
+	}
+	return(JustTheFileName);
 }

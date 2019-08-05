@@ -40,5 +40,5 @@
   ["Darlings", "Darlings.gx", 1, 0, [1, 2], 1558891902],
   ["BroomTreble", "BroomTreble.gx", 1, 0, [1, 2], 1558891902],
   ["EliasBack", "EliasBack.gx", 1, 0, [1, 2], 1560141078],
-  ["EliasBank", "EliasBank.gx", 1, 0, [1, 2], 1564598324]
+  ["EliasBank", "EliasBank.gx", 1, 0, [1, 2], 1564892142]
 ]

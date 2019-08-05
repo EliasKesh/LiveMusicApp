@@ -141,7 +141,7 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	vsnprintf(p, 512, fmt, ap);
 	va_end(ap);
 
-	if (RunLogLevel >= LogLevel)
+	if (RunLogLevel >= LogLevel || (LogLevel == LogTest) )
 		printf( "L%d-%s", LogLevel, p);
 
 	return NULL;
@@ -337,31 +337,31 @@ int GTKIdel_cb(gpointer data) {
 	// thread sets the structure and then the action
 	// gets performed here.
 	// Expression control of active GUI sliders.
-	printd(LogDebug, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+	printd(LogTest, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 		switch (gMyInfo.ExpreP1Slider) {
 		case Slider1:
-			printd(LogDebug, "GTKIdel_cb Slider1 %d \n", Slider1);
+			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
 			SetVolume1(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider2:
-			printd(LogDebug, "GTKIdel_cb Slider2 %d \n", Slider2);
+			printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
 			SetVolume2(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider3:
-			printd(LogDebug, "GTKIdel_cb Slider3 %d \n", Slider3);
+			printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
 			SetVolume3(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider4:
-			printd(LogDebug, "GTKIdel_cb Slider4 %d \n", Slider4);
+			printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
 		//		break;
 
 		default:
 //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
-			printd(LogDebug, "GTKIdel_cb Default\n");
+			printd(LogTest, "GTKIdel_cb Default\n");
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
 		}
@@ -376,7 +376,6 @@ int GTKIdel_cb(gpointer data) {
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 		PlayerPoll(TRUE);
 		HIDPoll();
-		UIUpdateFromTimer = FALSE;
 		/*  Turn lights off
 		*/
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -413,8 +412,6 @@ int GTKIdel_cb(gpointer data) {
 		}
 	}
 #endif
-
-
 	return (FALSE);
 }
 
@@ -1101,7 +1098,7 @@ void CreateMainButtons(void) {
  * Function:		VScale1_Changed
  *
  * Description:		Volume Sliders changed.
- * 				All values from 0-100
+ * 				All values from 0-127
  *
  *---------------------------------------------------------------------*/
 void VScale1_Changed(GtkAdjustment *adj) {
@@ -1605,8 +1602,6 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
-	MyOSCJackMute(0, 0);
-
 	PatchChange = MidiNote - gMyInfo.MidiBaseNote;
 	if (PatchChange >= 0 && PatchChange < Max_Patches)
 		LayoutSwitchPatch(PatchChange, TRUE);
@@ -1615,8 +1610,10 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
 	       PatchChange);
 
-	if (WaitingforMidiHold == 0)
+	if (WaitingforMidiHold == 0) {
 		WaitingforMidi = 0;
+		MyOSCJackMute(0, 0);
+	}
 
 	return (0);
 }

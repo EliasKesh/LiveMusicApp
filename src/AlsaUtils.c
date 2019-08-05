@@ -799,7 +799,7 @@ void *alsa_midi_thread(void * context_ptr) {
 	int AlsaValue;
 
 	while (snd_seq_event_input(SeqPort1In, &event_ptr) >= 0) {
-		printd(LogInfo, "Event Type %d %d %d %d\n", event_ptr->type,
+		printd(LogDebug, "Event Type %d %d %d %d\n", event_ptr->type,
 		       event_ptr->data.control.channel, event_ptr->data.control.param,
 		       event_ptr->data.control.value);
 
@@ -905,6 +905,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 		case SND_SEQ_EVENT_CONTROLLER:
 			cc_name = NULL;
+			printd(LogDebug, "SND_SEQ_EVENT_CONTROLLER\n");
 			switch (event_ptr->data.control.param) {
 			case MIDI_CTL_MSB_BANK:
 				cc_name = "Bank selection";
@@ -977,6 +978,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				}
 
 				break;
+
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
 				break;
@@ -1023,13 +1025,30 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_BREATH:
 				cc_name = "Breath";
-				printd(LogInfo, "Send MIDI_CTL_LSB_BREATH expression %d\n",
-				       event_ptr->data.control.value);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
 				         event_ptr->data.control.value);
 				break;
 			/* Possible use of Custom Pedal messages here.
 			 */
+			case SND_SEQ_EVENT_CONTROL14:
+				sprintf(msg_str_ptr, "Midi Preset Selection, %d",
+				        (signed int) event_ptr->data.control.value);
+				if (event_ptr->data.control.value == 0) {
+					SwitchToTab(0);
+					GuitarMidiPreset();
+					WaitingforMidi = 1;
+					WaitingforMidiHold = 1;
+				}
+#if 1
+				if (event_ptr->data.control.value == 1) {
+					SwitchToTab(PreviousTab);
+					WaitingforMidi = 0;
+					WaitingforMidiHold = 0;
+					MyOSCJackMute(0, 0);
+				}
+#endif
+				break;
+
 			case MIDI_CTL_LSB_FOOT:
 				cc_name = "Foot";
 				break;
@@ -1041,7 +1060,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_MAIN_VOLUME:
 				cc_name = "LSB Main volume";
-				SetVolume2(event_ptr->data.control.value / 1.28);
+				SetVolume4(event_ptr->data.control.value / 1.28);
 				break;
 			case MIDI_CTL_LSB_BALANCE:
 				cc_name = "Balance";
@@ -1205,7 +1224,6 @@ void *alsa_midi_thread(void * context_ptr) {
 			Sel Synth ch: 8 D1: 63 D2: 02
 			Using D-Pad ch: 8 D1: 31 D2: 6
 			Using Sel ch: 8 D1: 31 D2: 5
-
 			*/
 
 			case 31:
@@ -1216,7 +1234,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case 63:
 				AlsaValue = event_ptr->data.control.value;
 				printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
-
+#if 0
 				if (FishmanDPad == 12) {
 					if (AlsaValue == 0) {
 						printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
@@ -1238,7 +1256,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					case 3:
 						FishmanSwitch = FishmanDown;
 						if (LastPatch > 2) {
-							printd(LogDebug, "Fishman Last Patch %d\n", LastPatch);
+							printd(LogDebug , "Fishman Last Patch %d\n", LastPatch);
 							PatchIndex = LayoutSwitchPatch(LastPatch - 1, true);
 						}
 						break;
@@ -1253,21 +1271,23 @@ void *alsa_midi_thread(void * context_ptr) {
 						break;
 
 					}
-
+#else
+				FishmanDPad = 5;
+#endif
 				/* Sel Switch is sending the data */
 				if (FishmanDPad == 5)
 					switch (AlsaValue) {
-					case 1:
+					case 1: // Guitar Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanGuitar;
 						gMyInfo.ExpreP1Slider = Slider1;
 						break;
 
-					case 2:
+					case 2: //  Midi Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanSynth;
 						gMyInfo.ExpreP1Slider = Slider2;
 						break;
 
-					case 3:
+					case 3: // Main Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanMix;
 						gMyInfo.ExpreP1Slider = Slider3;
 						break;
@@ -1314,7 +1334,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			        (signed int) event_ptr->data.control.value);
 			break;
 		case SND_SEQ_EVENT_CONTROL14:
-			sprintf(msg_str_ptr, "14 bit controller value");
+			sprintf(msg_str_ptr, "Midi Preset Selection, %d",
+			        (signed int) event_ptr->data.control.value);
 			break;
 		case SND_SEQ_EVENT_NONREGPARAM:
 			sprintf(msg_str_ptr, "NRPN");
@@ -1654,7 +1675,7 @@ static void device_list(void) {
 	card = -1;
 	if (snd_card_next(&card) < 0 || card < 0) {
 		printd(LogError, "**** no soundcards found...\n");
-		       return;
+		return;
 	}
 	printd(LogInfo, ("**** List of %s Hardware Devices ****\n"),
 	       snd_pcm_stream_name(stream));

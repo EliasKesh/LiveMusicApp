@@ -29,6 +29,8 @@
  * Place Global prototypes here.
  */
 
+#define LogTest 10
+
 #define LogDebug 6
 #define LogError 5
 #define LogAlert 4

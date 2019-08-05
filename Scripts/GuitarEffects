@@ -636,12 +636,8 @@ function SetUpConnections {
     echo "Guitarix "${LiveClickOut}" to Fluid "${LooperClickIn}
     jack_connect "${LiveClickOut}" "${LooperClickIn}"
     
-    jack_connect "TuxGuitar:GM Port" "${MidiSoundin}"
-    
-    
+    jack_connect "TuxGuitar:GM Port" "${MidiSoundin}" 
 }
-
-
 
 #---------------------------------------------------------------------#
 #
@@ -1060,7 +1056,7 @@ function SetUpApplications {
     
     if test "${MP3Player}" = "true"; then
         # Set the first Desktop to use.
-        `QT_STYLE_OVERRIDE=QtCurve clementine &`
+        QT_STYLE_OVERRIDE=QtCurve clementine &
     fi
     
     # External viewer, not used anymore
@@ -1611,5 +1607,25 @@ SetUpConnections
 # Put apps in the right place/desktop
 SetPlacement
 
+sleep 5
+
+# Set up the mier levels and the interconnection between devices.
+SetUpConnections
+# Put apps in the right place/desktop
+SetPlacement
+
+sleep 10
+
+# Set up the mier levels and the interconnection between devices.
+SetUpConnections
+# Put apps in the right place/desktop
+SetPlacement
+
+sleep 10
+
+# Set up the mier levels and the interconnection between devices.
+SetUpConnections
+# Put apps in the right place/desktop
+SetPlacement
 
 exit 0

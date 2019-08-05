@@ -1,5 +1,4 @@
 [
-  ["/usr/local/lib/ladspa/autotalent.so", 0, 4262, "autotalent"],
   ["/usr/local/lib/ladspa/chebstortion_1430.so", 0, 1430, "chebstortion"],
   ["/usr/local/lib/ladspa/comb_1190.so", 0, 1190, "comb"],
   ["/usr/local/lib/ladspa/crossover_dist_1404.so", 0, 1404, "crossoverDist"],
@@ -8,11 +7,9 @@
   ["/usr/local/lib/ladspa/dyson_compress_1403.so", 0, 1403, "dysonCompress"],
   ["/usr/local/lib/ladspa/foldover_1213.so", 0, 1213, "foldover"],
   ["/usr/local/lib/ladspa/formant_filter_4300.so", 0, 4300, "formant_vc"],
-  ["/usr/local/lib/ladspa/gong_1424.so", 0, 1424, "gong"],
   ["/usr/local/lib/ladspa/gsm_1215.so", 0, 1215, "gsm"],
   ["/usr/local/lib/ladspa/guitarix_IR.so", 0, 4065, "guitarix_IR"],
   ["http://guitarix.sourceforge.net/plugins/gxautowah#autowah", -1, 0, "GxAutoWah"],
-  ["http://guitarix.sourceforge.net/plugins/gx_bmp_#_bmp_", -1, 0, "GxBigMuffPi"],
   ["http://guitarix.sourceforge.net/plugins/gx_cstb_#_cstb_", -1, 0, "GxColorSound Tonebender"],
   ["http://guitarix.sourceforge.net/plugins/gx_compressor#_compressor", -1, 0, "GxCompressor"],
   ["http://guitarix.sourceforge.net/plugins/gx_duck_delay_#_duck_delay_", -1, 0, "Gxduck_delay"],
