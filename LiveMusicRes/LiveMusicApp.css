@@ -4,12 +4,9 @@ GtkWindow {
    
 }
 
-GtkScale.slider {
+GtkScale.slider,
+GtkScale.slider:hover  {
 	 background-image: url('./FaderControl.png');
-}
-
-GtkScale.slider:hover {
-		 background-image: url('./FaderControl.png');
 }
 
 /**********
@@ -158,14 +155,17 @@ GtkGrid {
  * Scrollbars *
  **************/
 
-.scrollbar {
+.scrollbar, scrollbar {
     background-image: none;
     border-style: solid;
     -GtkScrollbar-has-backward-stepper: false;
     -GtkScrollbar-has-forward-stepper: false;
-    -GtkRange-min-width: 30;
-    -GtkScrollbar-min-length: 42; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
-
+    -GtkRange-min-width: 200;
+    -GtkRange-slider-width: 200;
+    -GtkScrollbar-min-length: 200; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
+    -GtkScrollbar-min-width: 42; /* minimum size for the slider. sadly can't be in '.slider' where it belongs */
+    min-width: 200px;
+    min-height: 200px;
 }
 
 .scrollbars-junction, /* the small square between scrollbars!!! */
@@ -223,4 +223,16 @@ GtkGrid {
 .scrollbars-junction:backdrop,
 .scrollbar.trough:backdrop {
     background-color: shade(@scrollbar_trough, 0.8);
+}
+
+.scrollbar.vertical slider,
+scrollbar.vertical slider {
+    min-height: 40px;
+    min-width: 100px;
+}
+
+scrollbar slider {
+    /* Size of the slider */
+    min-width: 100px;
+    min-height: 15px;
 }

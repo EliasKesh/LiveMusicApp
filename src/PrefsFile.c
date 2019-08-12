@@ -36,6 +36,7 @@
  */
 
 void WritePrefs (void);
+int PostProcessPrefs(LiveMusicInfo *MyInfo);
 
 /*
  * Place Static variables here
@@ -100,10 +101,35 @@ InitPref (void) {
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
 //      WritePrefs();
 
+	if (GenerateHFile)
+		PrintDataStructure(&gMyInfo, DefinePrefsFile);
+
+	PostProcessPrefs(&gMyInfo);
+
 	/*
 	 * Create the popup Menu's now that we have the presets.
 	 */
 	CreatePatchPopupMenu ();
+}
+
+/*--------------------------------------------------------------------
+ * Function:		PostProcessPrefs
+ *
+ * Description:		Make any assignments
+ *
+ *---------------------------------------------------------------------*/
+int PostProcessPrefs(LiveMusicInfo *MyInfo) {
+int Index;
+
+	printf("Start PostProcessPrefs\n");
+	for (Index = 0; Index < Max_Patches; Index++) {
+		if (MyInfo->MyPatchInfo[Index].CustomCommand == cmdHardSlider)
+			if (MyInfo->MyPatchInfo[Index].Channel < MaxHardSliders) {
+				MyInfo->HardSlider[MyInfo->MyPatchInfo[Index].Channel] = Index;
+				printf("PostProcessPrefs %d %d\n", Index, MyInfo->MyPatchInfo[Index].Channel);
+			}
+	}
+
 }
 
 /*--------------------------------------------------------------------
@@ -159,7 +185,7 @@ PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 		        myInfo->MyPatchInfo[Loop].Chain);
 
 
-		/* Patch definiations.
+		/* Patch definitions.
 		*/
 		if (PrefsFile)
 			fprintf (PrefsFile, "/* %3d */ {\"%s\",%*.*s %-15s, %3d, %-15s, %3d, %-10s, \"%s\" },\n", Loop,

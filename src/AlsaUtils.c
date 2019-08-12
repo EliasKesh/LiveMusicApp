@@ -34,6 +34,7 @@ int g_midi_ignore;
 pthread_t g_alsa_midi_tid; /* alsa_midi_thread id */
 unsigned long MixerVolume;
 char FishmanDPad = 0;
+char FishmanBullSh = 0;
 
 snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name);
 void ProgramChange(unsigned int InputChange);
@@ -746,9 +747,12 @@ int SendMidiPatch(PatchInfo * thePatch) {
 
 	/* Set the number expr # for the pedal
 	*/
+	case cmdHardSlider:
 	case cmdSetExpr:
 		gMyInfo.ExpreP1Slider = LastAbsPatch;
-		printd(LogInfo, "cmdSetExpr %d %d\n", thePatch->Patch, LastAbsPatch);
+		gMyInfo.SliderUpdate = LastAbsPatch;
+
+		printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, LastAbsPatch);
 		break;
 
 // SND_SEQ_EVENT_SETPOS_TIME
@@ -814,7 +818,7 @@ void *alsa_midi_thread(void * context_ptr) {
 		        || event_ptr->type == SND_SEQ_EVENT_KEYPRESS) {
 			sprintf(channel_str_ptr, "%u",
 			        (unsigned int) event_ptr->data.note.channel + 1);
-			printd(LogInfo, "%s %s\n", time_str_ptr, channel_str_ptr);
+//			printd(LogInfo, "%s %s\n", time_str_ptr, channel_str_ptr);
 
 #if 0
 			if (event_ptr->data.note.channel + 1 == 10) {
@@ -938,8 +942,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_MAIN_VOLUME:
 				// ejk SEND
 				cc_name = "Main volume";
-				printd(LogInfo, "Send Midi MSB Volume main %d %d %d\n",
-				       event_ptr->data.control.value, Slider1, gMyInfo.ExpreP1Slider);
+//				printd(LogInfo, "Send Midi MSB Volume main %d %d %d\n",
+//				       event_ptr->data.control.value, Slider1, gMyInfo.ExpreP1Slider);
 
 				if (gMyInfo.ExpreP1Slider >= Max_Patches) {
 					gMyInfo.ExpreP1Slider = 0;
@@ -968,7 +972,6 @@ void *alsa_midi_thread(void * context_ptr) {
 
 				default:
 					AlsaEvent = *event_ptr;
-//					gMyInfo.ExpreP1Slider = Slider4;
 					printd(LogInfo, "Send Midi MSB Volume Default %d %d %d %d\n",
 					       gMyInfo.ExpreP1Slider,
 					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
@@ -1229,8 +1232,21 @@ void *alsa_midi_thread(void * context_ptr) {
 			case 31:
 				FishmanDPad = event_ptr->data.control.value;
 				printd(LogDebug, "Fishman Control %d\n", FishmanDPad);
-				break;
 
+				if (FishmanDPad == 12) {
+					FishmanBullSh = 1;
+				}
+
+				if (FishmanDPad == 85) {
+					FishmanBullSh = 0;
+					GuitarMidiPreset();
+
+				}
+
+				break;
+/* 12 start
+   85 End
+*/
 			case 63:
 				AlsaValue = event_ptr->data.control.value;
 				printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
@@ -1275,7 +1291,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				FishmanDPad = 5;
 #endif
 				/* Sel Switch is sending the data */
-				if (FishmanDPad == 5)
+				if (FishmanDPad == 5 && !FishmanBullSh)
 					switch (AlsaValue) {
 					case 1: // Guitar Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanGuitar;

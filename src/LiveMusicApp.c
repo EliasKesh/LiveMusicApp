@@ -337,9 +337,9 @@ int GTKIdel_cb(gpointer data) {
 	// thread sets the structure and then the action
 	// gets performed here.
 	// Expression control of active GUI sliders.
-	printd(LogTest, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+	printd(LogDebug, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
-		switch (gMyInfo.ExpreP1Slider) {
+		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
 			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
 			SetVolume1(AlsaEvent.data.control.value / 1.28);
@@ -357,11 +357,12 @@ int GTKIdel_cb(gpointer data) {
 
 		case Slider4:
 			printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
-		//		break;
-
+//			SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
+	
 		default:
 //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
 			printd(LogTest, "GTKIdel_cb Default\n");
+//			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
 		}
@@ -371,11 +372,17 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
+	if (gMyInfo.SliderUpdate) {
+		SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
+		gMyInfo.SliderUpdate = 0;
+	}
+
 	if (UIUpdateFromTimer == TRUE) {
 		UIUpdateFromTimer = FALSE;
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 		PlayerPoll(TRUE);
 		HIDPoll();
+
 		/*  Turn lights off
 		*/
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -429,20 +436,26 @@ void parse_cmdline(int argc, char *argv[]) {
 		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
 		static struct option long_options[] = {
-			{ "verbose", no_argument, required_argument, 'v' },
+			{ "verbose", no_argument, 0, 'v' },
 			{ "FontSize", required_argument, 0, 'f' },
 			{ "jack", required_argument, 0, 'j' },
 			{ "layout", required_argument, 0, 'l' },
-			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
+			{ "IncludeFile", no_argument, 0, 'i' },
+//			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "?hv:f:j:l:",
+		c = getopt_long(argc, argv, "?hiv:f:j:l:",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
 
 		switch (c) {
+		case 'i':
+			printf("IncludeFile \n");
+			GenerateHFile = 1;
+			break;
+
 		case 'f':
 			ButtonSize = atoi(optarg);
 			printd(LogInfo, "Font Size %d\n", ButtonSize);
@@ -1068,7 +1081,7 @@ void CreateMainButtons(void) {
 	g_signal_connect(G_OBJECT (VScale1), "value_changed",
 	                 G_CALLBACK (VScale1_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider1].Name);
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[0]].Name);
 
 
 	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
@@ -1076,22 +1089,36 @@ void CreateMainButtons(void) {
 	g_signal_connect(G_OBJECT (VScale2), "value_changed",
 	                 G_CALLBACK (VScale2_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider2].Name);
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[1]].Name);
 
 	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
 	Adjustment3 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Master"));
 	g_signal_connect(G_OBJECT (VScale3), "value_changed",
 	                 G_CALLBACK (VScale3_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider3].Name);
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[2]].Name);
 
 	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
 	Adjustment4 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Express"));
 	g_signal_connect(G_OBJECT (VScale4), "value_changed",
 	                 G_CALLBACK (VScale4_Changed), NULL);
 	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[Slider4].Name);
+	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[3]].Name);
 
+}
+
+/*--------------------------------------------------------------------
+ * Function:		SetScale4Label
+ *
+ * Description:		Volume 4 Label
+ *
+ *---------------------------------------------------------------------*/
+void SetScale4Label(char *String) {
+	GtkWidget *Label;
+
+	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
+	printd(LogDebug, "SetScale4Label %d %s\n", Label, String);
+	gtk_label_set_text((Label), (gchar *)String);
 }
 
 /*--------------------------------------------------------------------
@@ -1110,7 +1137,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment1);
 	printd(LogInfo, "Vscale 1 %d\n", NewValue);
-	ThisPatchNum = Slider1;
+	ThisPatchNum = gMyInfo.HardSlider[0];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 
@@ -1141,7 +1168,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment2);
 	printd(LogInfo, "Vscale 2 %d\n", NewValue);
-	ThisPatchNum = Slider2;
+	ThisPatchNum = gMyInfo.HardSlider[1];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 	gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
 
@@ -1150,7 +1177,8 @@ void VScale2_Changed(GtkAdjustment *adj) {
 		MyOSCJackVol(NewValue, 0);
 	else
 #endif
-		LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+
+	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
 
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 	         ThisPatch->OutPort,
@@ -1175,7 +1203,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment3);
 //	printd(LogInfo, "Vscale 3 %d\n", NewValue);
-	ThisPatchNum = Slider3;
+	ThisPatchNum = gMyInfo.HardSlider[2];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
@@ -1250,6 +1278,9 @@ int SetVolume1(int Value) {
  * Description:	Change the Volume Slider based on midi input.
  *---------------------------------------------------------------------*/
 int SetVolume2(int Value) {
+	printd(LogDebug, "Slider 2 %x %d\n",
+		Adjustment2, Value);
+
 	gtk_adjustment_set_value(Adjustment2, Value);
 	gMyInfo.MidiVolume = (Value * 1.27);
 	gtk_range_set_adjustment(VScale2, Adjustment2);

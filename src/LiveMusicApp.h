@@ -40,6 +40,7 @@
 #define MyLogLevel	LogNone
 
 #define PatchNameSize 60
+#define MaxHardSliders 5
 
 char *printd(char LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
@@ -116,10 +117,10 @@ typedef struct {
 	char Presets[Max_Patches][PatchNameSize];
 } LayoutType;
 
-#define Slider1		Max_Patches -4
-#define Slider2		Max_Patches -3
-#define Slider3		Max_Patches -2
-#define Slider4		Max_Patches -1
+#define Slider1		0
+#define Slider2		1
+#define Slider3		2
+#define Slider4		3
 
 typedef struct {
 	char Name[255];
@@ -205,6 +206,8 @@ typedef struct {
 	unsigned int ExpreP1Out;
 	unsigned int ExpreP1Port;
 	unsigned int ExpreP1Slider;
+	tPatchIndex HardSlider[MaxHardSliders];
+	tPatchIndex SliderUpdate;
 
 
 
@@ -236,6 +239,7 @@ enum {
 	cmdOSC,
 	cmdSendCC,
 	cmdSetExpr,
+	cmdHardSlider,
 	MaxCommands
 };
 
@@ -395,6 +399,7 @@ char *CustomCommands[] = {
 	"cmdOSC",
 	"cmdSendCC",
 	"cmdSetExpr",
+	"cmdHardSlider",
 	"MaxCommands",
 	"oops2"
 };
@@ -495,5 +500,6 @@ void SetUpMainButtons(PatchInfo *MyPatchInfo);
 void IncrementMode(void);
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
+void SetScale4Label(char *String);
 
 #endif
