@@ -98,7 +98,13 @@ int HoldStatusIndex;
 */
 int MainButtonCountOn;
 
+/* Open a history file, I forget what I did 
+at rehearsal.
+*/
 FILE 	*FileHistory;
+
+/* Update the Tabs in GTK context.
+*/
 
 /*
  * Place Local prototypes here
@@ -142,7 +148,7 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	va_end(ap);
 
 	if (RunLogLevel >= LogLevel || (LogLevel == LogTest) )
-		printf( "L%d-%s", LogLevel, p);
+		printf( "L%d %s", LogLevel, p);
 
 	return NULL;
 }
@@ -158,7 +164,7 @@ GdkPixbuf *create_pixbuf(const gchar * filename) {
 	GError *error = NULL;
 #if 0
 	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-	if (!pixbuf) {
+	if (!pixbuf) 
 		fprintf(stderr, "%s\n", error->message);
 		g_error_free(error);
 	}
@@ -193,9 +199,13 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
  *
  *---------------------------------------------------------------------*/
 void SwitchToTab(char Tab) {
+
+	if (Tab < 0 || Tab >= MaxApps)
+		return;
+
 	PreviousTab = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPane));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
-	printd(LogInfo, "Switch to Tab %d\n", Tab);
+	printd(LogTest, "Switch to Tab %d %d\n",PreviousTab, Tab);
 }
 
 /*--------------------------------------------------------------------
@@ -373,15 +383,18 @@ int GTKIdel_cb(gpointer data) {
 	}
 
 	if (gMyInfo.SliderUpdate) {
+	printd(LogDebug, "SliderUpdate \n");
 		SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
 		gMyInfo.SliderUpdate = 0;
 	}
 
 	if (UIUpdateFromTimer == TRUE) {
 		UIUpdateFromTimer = FALSE;
+		printd(LogDebug, "UIUpdateFromTimer 1\n");
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 		PlayerPoll(TRUE);
 		HIDPoll();
+		printd(LogDebug, "UIUpdateFromTimer 2\n");
 
 		/*  Turn lights off
 		*/
@@ -949,7 +962,9 @@ gboolean Notebook_click_handler(GtkWidget *widget,
 	Loop = (int) user_data;
 	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
 	                          TabButtons[Loop].ButtonDownImage);
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
+//	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
+	SwitchToTab(Loop);
+	PreviousTab = Loop;
 
 	return TRUE; /* stop event propagation */
 }
@@ -1491,6 +1506,12 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 
 	NewValue = FindString(fsPatchNames,
 	                      gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
+
+	printd(LogInfo,"GetModePreset %d %d %d\n",
+		Value,
+		NewValue,
+		CurrentLayout
+		);
 #if 0
 	switch (CurrentLayout) {
 	case ModeDefault:
@@ -1553,12 +1574,14 @@ void IncrementMode(void) {
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex Preset;
 	tPatchIndex RetVal;
+	tPatchIndex FinalRetVal;
 	int Loop;
 
 	LastPatch = MidiIn;
 	LastAbsPatch = GetModePreset(MidiIn);
-//	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
-//	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
+	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
+	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
+
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
@@ -1577,32 +1600,42 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 		MainButtonCountOn = 2;
 	}
 
-	RetVal = GetModePreset(MidiIn);
+//	RetVal = GetModePreset(MidiIn);
+	RetVal = LastAbsPatch;
 	if (RetVal >= Max_Patches) {
-//		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
+		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}
-	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
-//              printd(LogInfo, "LayoutSwitchPatch Preset M%d R%d D%d\n", MidiIn,
-//                      RetVal, DoAction);
 
+	FinalRetVal = RetVal;
+	/* If the command is a preset lookup the patch.
+	*/
+	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
+              printd(LogInfo, "LayoutSwitchPatch1 Preset M%d R%d D%d\n", MidiIn,
+                      RetVal, DoAction);
+
+        /* Walk thru the preset buttons.
+        */
 		for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
+
+            /* Find which button it is.
+            */
 			if (gMyInfo.MyPatchInfo[RetVal].Patch == (Loop + 1))
-				if (gMyInfo.WebPresets.thePreset[Loop] != -1)
-					RetVal = gMyInfo.WebPresets.thePreset[Loop];
+				if (gMyInfo.WebPresets.thePreset[Loop] != -1) {
+					FinalRetVal = gMyInfo.WebPresets.thePreset[Loop];
+				}
 		}
 	}
 
-//		DoPatch(&gMyInfo.MyPatchInfo[preModePractice[GetModePreset(MidiIn)]]);
+	/* If we should act on it then call for a change.
+	*/
 	if (DoAction) {
-		if (RetVal >= 0 && RetVal < Max_Patches)
-			DoPatch(&gMyInfo.MyPatchInfo[(int) RetVal]);
+		if (FinalRetVal >= 0 && FinalRetVal < Max_Patches)
+			DoPatch(&gMyInfo.MyPatchInfo[(int) FinalRetVal]);
 	}
 
-//	printd(LogInfo, "LayoutSwitchPatch M%d R%d D%d\n", MidiIn, RetVal,
-//		DoAction);
 // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
-	return (RetVal);
+	return (FinalRetVal);
 }
 
 /*--------------------------------------------------------------------
@@ -1611,13 +1644,24 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
  * Description:		Wait for a preset from the Midi Guitar.
  *
  *---------------------------------------------------------------------*/
-int GuitarMidiPreset(void) {
+int GuitarMidiPreset(char Wait) {
 
 	printd(LogInfo, "GuitarMidiPreset Start\n");
+	
+	/* Switch to the patch tab so we can see
+	what we want to select.
+	*/
+	SwitchToTab(0);
 
 	// MyOSCJackVol(NewValue);
 	MyOSCJackMute(1, 0);
 	WaitingforMidi = 1;
+
+	/* If we are wait for a specific release queue.
+	*/
+	if (Wait) {
+		WaitingforMidiHold = 1;
+	}
 
 	return (0);
 }
@@ -1633,17 +1677,29 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
-	PatchChange = MidiNote - gMyInfo.MidiBaseNote;
-	if (PatchChange >= 0 && PatchChange < Max_Patches)
-		LayoutSwitchPatch(PatchChange, TRUE);
+	if (MidiNote < Max_Patches) {
+		PatchChange = MidiNote - gMyInfo.MidiBaseNote;
+		if (PatchChange >= 0 && PatchChange < Max_Patches)
+			LayoutSwitchPatch(PatchChange, TRUE);
 //		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
+	}
 
-	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d\n", gMyInfo.MidiBaseNote,
-	       PatchChange);
+	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d %d\n", gMyInfo.MidiBaseNote,
+	       PreviousTab, PatchChange);
+
+	/* Switch back to what ever we were looking at.
+	*/
+	SwitchToTab(PreviousTab);
 
 	if (WaitingforMidiHold == 0) {
 		WaitingforMidi = 0;
 		MyOSCJackMute(0, 0);
+	}
+	else if (MidiNote >= Max_Patches) {
+		WaitingforMidi = 0;
+		MyOSCJackMute(0, 0);
+		WaitingforMidiHold = 0;
+
 	}
 
 	return (0);
@@ -1756,6 +1812,10 @@ int FindString(int StringList, char *String) {
 
 	if (StringList == fsPatchNames) {
 		for (Loop = 0; Loop < Max_Patches; Loop++) {
+//	printd(LogDebug,"FindString %d %s %s\n", 
+//			Loop, String, 
+//			gMyInfo.MyPatchInfo[Loop].Name);
+
 			if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String))
 				return (Loop);
 		}

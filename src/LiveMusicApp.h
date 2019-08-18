@@ -487,7 +487,7 @@ tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef);
 
 int GuitarMidiPresetComplete(tPatchIndex MidiNote);
-int GuitarMidiPreset(void);
+int GuitarMidiPreset(char Wait);
 int SetVolume1(int Value);
 int SetVolume2(int Value);
 int SetVolume3(int Value);

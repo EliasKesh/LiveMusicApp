@@ -592,7 +592,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 #endif
 	case cmdMidiSelect:
-		GuitarMidiPreset();
+		GuitarMidiPreset(FALSE);
 		break;
 
 	case cmdBankSelect:
@@ -624,7 +624,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 
 //   case ToLooperApp:
 
-//       break;
+//      GuitarMidiPreset break;
 
 	case SwitchTab:
 		SwitchToTab(thePatch->Patch);
@@ -1037,17 +1037,11 @@ void *alsa_midi_thread(void * context_ptr) {
 				sprintf(msg_str_ptr, "Midi Preset Selection, %d",
 				        (signed int) event_ptr->data.control.value);
 				if (event_ptr->data.control.value == 0) {
-					SwitchToTab(0);
-					GuitarMidiPreset();
-					WaitingforMidi = 1;
-					WaitingforMidiHold = 1;
+					GuitarMidiPreset(TRUE);
 				}
 #if 1
 				if (event_ptr->data.control.value == 1) {
-					SwitchToTab(PreviousTab);
-					WaitingforMidi = 0;
-					WaitingforMidiHold = 0;
-					MyOSCJackMute(0, 0);
+					GuitarMidiPresetComplete(Max_Patches);
 				}
 #endif
 				break;
@@ -1236,13 +1230,14 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (FishmanDPad == 12) {
 					FishmanBullSh = 1;
 				}
+#if 0
 
 				if (FishmanDPad == 85) {
 					FishmanBullSh = 0;
-					GuitarMidiPreset();
+					GuitarMidiPreset(FALSE);
 
 				}
-
+#endif
 				break;
 /* 12 start
    85 End
@@ -1312,6 +1307,12 @@ void *alsa_midi_thread(void * context_ptr) {
 				printd(LogDebug, "FishmanSwitch %d\n", FishmanSwitch);
 				break;
 			}
+
+				if (AlsaValue == 1) {
+					FishmanBullSh = 0;
+					GuitarMidiPreset(FALSE);
+
+				}
 
 #if 0
 			if (cc_name != NULL) {
