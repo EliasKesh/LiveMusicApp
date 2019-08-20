@@ -460,6 +460,7 @@ EXTERN int 		FishmanSwitch;
 EXTERN int 		FishmanSelSwitch;
 EXTERN int 		LastPatch;
 EXTERN int 		LastAbsPatch;
+EXTERN int 		CurrentTab;
 EXTERN int 		PreviousTab;
 EXTERN snd_seq_event_t AlsaEvent;
 EXTERN theImageButtons TempoDraw;
@@ -472,6 +473,14 @@ EXTERN int 	UIUpdateFromTimer;
 EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
+
+/* Semophore for UI in GTK not timers.
+*/
+#define NULLSwitch	250
+EXTERN unsigned int 	TabSwitch;
+EXTERN unsigned int 	RaiseSwitch;
+
+
 
 void NextDesktop(void);
 void PrevDesktop(void);

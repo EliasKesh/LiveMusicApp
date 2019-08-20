@@ -120,7 +120,7 @@ void SetTempo(unsigned int NewTempo) {
 
 	/* Start the new timer.
 	 */
-	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) tempo_handler, (gpointer) gxml);
+	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) time_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 }
@@ -133,7 +133,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean time_handler(GtkWidget *widget) {
 
-	printd(LogDebug, " IN time_handler\n");
+	printd(LogDebug, " IN time_handler GTK\n");
 	ToggleTempo();
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
@@ -200,7 +200,7 @@ static gboolean tempo_handler(GtkWidget *widget) {
 	if (!JackRunning)
 		ToggleTempo();
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
+//	g_idle_add(GTKIdel_cb, theMainWindow);
 
 //printd(LogDebug, "Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
@@ -311,9 +311,10 @@ static void time_handlerRT (union sigval val) {
 	if (++SubBeats > 1) {
 		ToggleTempo();
 		SubBeats = 0;
+//	printf(" IN time_handler\n");
+		g_idle_add(GTKIdel_cb, theMainWindow);
 	}
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
 
 	return;
 }
@@ -334,7 +335,7 @@ void ToggleTempo(void) {
 
 	// gettimeofday(&Time0, NULL);
 	// printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
-//	printd(LogDebug, "Tempo %d %d\n", TempoState,  TempoState);
+	printd(LogDebug, "Tempo %d %d\n", TempoState,  TempoState);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.

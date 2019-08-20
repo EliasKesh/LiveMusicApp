@@ -146,8 +146,10 @@ static void async_callback(snd_async_handler_t *ahandler) {
 //	printf("Alsa Timer Call In\n");
 //		err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &MTCev);
 //		snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
-	if (!JackRunning)
+	if (!JackRunning) {
 		ToggleTempo();
+		
+	}
 //	}
 }
 #endif
@@ -627,11 +629,11 @@ int SendMidiPatch(PatchInfo * thePatch) {
 //      GuitarMidiPreset break;
 
 	case SwitchTab:
-		SwitchToTab(thePatch->Patch);
+		TabSwitch = thePatch->Patch;
 		break;
 
 	case RaiseApp:
-		RaiseWindowsNum(thePatch->Patch);
+		RaiseSwitch = thePatch->Patch;
 		break;
 
 	case TransStart:

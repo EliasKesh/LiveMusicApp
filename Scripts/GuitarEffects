@@ -1032,6 +1032,7 @@ function SetUpApplications {
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
         nice -15 `GTK_THEME=LiveMusicTheme ./LiveMusicApp -v 1 -l $ButtonLayout -j "${AudioOutDevice}"`  >> $LogFile 2>&1 &
+#        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
     # This is the Guitar effects processor
@@ -1092,7 +1093,7 @@ function SetUpApplications {
     # This script check for a failed app
     # and will relaunch it
     if test "${BackroundChecker}" = "true"; then
-        /home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh &
+       /home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh &
     fi 
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }

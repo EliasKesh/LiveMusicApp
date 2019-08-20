@@ -13,10 +13,10 @@
 #
 #---------------------------------------------------------------------#
 
-sleep 4
+sleep 10
 
+cd /home/Dropbox/LiveEffects
 while true
-	cd /home/Dropbox/LiveEffects
 do
 pid=`pgrep LiveMusicApp`
 if [ -z $pid ]

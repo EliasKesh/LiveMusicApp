@@ -34,8 +34,8 @@ enum { tmrAlsa = 0, tmrGTK=1, tmrRT=2 };
 #define TimerToUse tmrRT
 
 //#define AlsaTimer 1
-//#define GTKTimer 1
-#define RTTimer 1
+#define GTKTimer 1
+//#define RTTimer 1
 
 /*
  * Place Static variables here.
