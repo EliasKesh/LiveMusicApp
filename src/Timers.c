@@ -120,7 +120,7 @@ void SetTempo(unsigned int NewTempo) {
 
 	/* Start the new timer.
 	 */
-	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) time_handler, (gpointer) gxml);
+	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 }
@@ -131,7 +131,7 @@ void SetTempo(unsigned int NewTempo) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-static gboolean time_handler(GtkWidget *widget) {
+static gboolean tempo_handler(GtkWidget *widget) {
 
 	printd(LogDebug, " IN time_handler GTK\n");
 	ToggleTempo();
@@ -157,8 +157,8 @@ void MyTimerInit(void) {
 
 	/* Set up a timer for Tempo.
 	*/
-	SetupAlsaTimer(90);
-	SetTempo(120);
+//	SetupAlsaTimer(90);
+	SetTempo(100);
 }
 
 /*--------------------------------------------------------------------
@@ -176,7 +176,7 @@ void SetTempo(unsigned int NewTempo) {
 	*/
 	com_tempo(NewTempo);
 
-	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
+//	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
 	gMyInfo.Tempo = NewTempo;
 //	gMyInfo.TempoReload = 40;
 //	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
@@ -184,7 +184,10 @@ void SetTempo(unsigned int NewTempo) {
 
 	/* Send out a message our tempo is changing.
 	 */
-	setTimerFreq(15000 / NewTempo);
+//	setTimerFreq(15000 / NewTempo);
+//	setTimerFreq(100);
+	SetupAlsaTimer(NewTempo);
+
 //printd(LogDebug, "Set Alsa Timer\n");
 
 }
@@ -197,10 +200,11 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
+	printd(LogDebug, " IN time_handler Alsa\n");
 	if (!JackRunning)
 		ToggleTempo();
 
-//	g_idle_add(GTKIdel_cb, theMainWindow);
+	g_idle_add(GTKIdel_cb, theMainWindow);
 
 //printd(LogDebug, "Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
@@ -225,7 +229,7 @@ void MyTimerInit(void) {
 	*/
 	gMyInfo.TempoTimerID = 0;
 	gMyInfo.TimerCount = 0;
-
+	gMyInfo.AlsaTimerHandle = 0;
 	SetTempo(120);
 }
 

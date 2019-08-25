@@ -20,6 +20,7 @@
 #include "Player.h"
 #include <error.h>
 #include <unistd.h>
+#include "Timers.h"
 
 //snd_seq_t *SeqPort1;
 //snd_seq_t *SeqPort2;
@@ -146,13 +147,16 @@ static void async_callback(snd_async_handler_t *ahandler) {
 //	printf("Alsa Timer Call In\n");
 //		err = snd_seq_event_output_direct(gMyInfo.SeqPort[TempoPort], &MTCev);
 //		snd_seq_drain_output(gMyInfo.SeqPort[TempoPort]);
+	printd(LogDebug, " IN time_handler async Alsa\n");
 	if (!JackRunning) {
 		ToggleTempo();
-		
+
 	}
-//	}
+	g_idle_add(GTKIdel_cb, theMainWindow);
+
 }
 #endif
+	snd_async_handler_t *ahandler;
 
 /*--------------------------------------------------------------------
  * Function:            SetupAlsaTimer
@@ -161,30 +165,38 @@ static void async_callback(snd_async_handler_t *ahandler) {
  *---------------------------------------------------------------------*/
 void SetupAlsaTimer(int Count) {
 	char timername[64];
-	snd_async_handler_t *ahandler;
 	int idx, err;
 	int acount = 0;
 	long NewDivider;
 
+
+	if (gMyInfo.AlsaTimerHandle)
+		snd_timer_close(gMyInfo.AlsaTimerHandle);
+
+
 	snd_timer_id_alloca(&gMyInfo.AlsaTimerid);
 	snd_timer_info_alloca(&gMyInfo.AlsaTimerinfo);
 	snd_timer_params_alloca(&gMyInfo.AlsaTimerParams);
+	printd(LogInfo, "Id %x Info %x\n",
+		gMyInfo.AlsaTimerid,
+		gMyInfo.AlsaTimerinfo);
 
 	printd(LogInfo, "**************\n Setting up timers.\n *********************\n");
 
 //	    	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", class, sclass, card, device, subdevice);
-	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", 1, -1,
-	        0, 0, 0);
+	sprintf(timername, "hw:CLASS=%i,SCLASS=%i,CARD=%i,DEV=%i,SUBDEV=%i", SND_TIMER_CLASS_GLOBAL, SND_TIMER_CLASS_NONE,
+	        0, SND_TIMER_GLOBAL_SYSTEM, 0);
 	printd(LogInfo, "Timer Name %s\n", timername);
+
 	if ((err = snd_timer_open(&gMyInfo.AlsaTimerHandle, timername,
 	                          SND_TIMER_OPEN_NONBLOCK)) < 0) {
-		printd(LogInfo, "timer open %i\n", err);
+		printd(LogError, "ERROR timer open %i\n", err);
 		exit(EXIT_FAILURE);
 	}
 
 	if ((err = snd_timer_info(gMyInfo.AlsaTimerHandle, gMyInfo.AlsaTimerinfo))
 	        < 0) {
-		printd(LogInfo, "timer info %i\n", err);
+		printd(LogError, "ERROR timer info %i\n", err);
 		exit(0);
 	}
 	printd(LogInfo, "Timer info:\n");
@@ -193,8 +205,9 @@ void SetupAlsaTimer(int Count) {
 	printd(LogInfo, "  card = %i\n", snd_timer_info_get_card(gMyInfo.AlsaTimerinfo));
 	printd(LogInfo, "  id = '%s'\n", snd_timer_info_get_id(gMyInfo.AlsaTimerinfo));
 	printd(LogInfo, "  name = '%s'\n", snd_timer_info_get_name(gMyInfo.AlsaTimerinfo));
-	printd(LogInfo, "  average resolution = %li\n",
-	       snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo));
+	gMyInfo.AlsaResolution = snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo);
+
+	printd(LogInfo, "  average resolution = %li\n",gMyInfo.AlsaResolution);
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 //	    	NewDivider = 2500000000/Count;
 
@@ -204,7 +217,7 @@ void SetupAlsaTimer(int Count) {
 	gMyInfo.TempoReload = 1;
 
 	if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
-		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 100);
+		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, (gMyInfo.AlsaResolution )/(35*Count));
 
 		printd(LogInfo, "Using %li tick(s)\n",
 		       snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams));
@@ -214,8 +227,8 @@ void SetupAlsaTimer(int Count) {
 
 	if ((err = snd_timer_params(gMyInfo.AlsaTimerHandle,
 	                            gMyInfo.AlsaTimerParams)) < 0) {
-		printd(LogInfo, "timer params %i\n", err);
-		exit(0);
+		printd(LogError, "ERROR timer params %i\n", err);
+		exit(EXIT_FAILURE);
 	}
 	show_status(gMyInfo.AlsaTimerHandle);
 
@@ -223,15 +236,20 @@ void SetupAlsaTimer(int Count) {
 	err = snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
 	                                  async_callback, &acount);
 	if (err < 0) {
-		printd(LogInfo, "unable to add async handler %i\n", err);
+//		printd(LogError, "ERROR unable to add async handler %i\n", err);
 		exit(EXIT_FAILURE);
 	}
 
+
 	if ((err = snd_timer_start(gMyInfo.AlsaTimerHandle)) < 0) {
-		printd(LogInfo, "timer start %i\n", err);
+//		printd(LogError, "ERROR timer start %i\n", err);
 		exit(EXIT_FAILURE);
 	}
+
+//	printd(LogInfo, "************** Done timers. *********************\n");
+
 #endif
+
 #if 0
 	/*
 	* Set up the structure for the interrupt event .
@@ -258,9 +276,42 @@ void SetupAlsaTimer(int Count) {
  *---------------------------------------------------------------------*/
 unsigned long setTimerFreq(unsigned long freq) {
 	signed int err;
+ 	long int cur_freq;
 
-	const long int res = snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo);
-	const long int adj_res = 1000000000L / res;
+ 	
+ 	printf("setTimerFreq %ld\n", freq);
+//	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
+
+//	if (snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams) < 1)
+//	snd_timer_stop(gMyInfo.AlsaTimerHandle);
+
+//	snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 150);
+//	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
+//	snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
+//	                                  async_callback, NULL);
+
+//	snd_timer_start(gMyInfo.AlsaTimerHandle);
+//	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
+
+}
+
+#if 0
+
+/*--------------------------------------------------------------------
+ * Function:            setTimerFreq
+ *
+ * Description:         Change the tempo (thanks muse)
+ *---------------------------------------------------------------------*/
+unsigned long setTimerFreq(unsigned long freq) {
+	signed int err;
+ 	long int cur_freq;
+
+//	const long int res = snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo);
+	const long int res = gMyInfo.AlsaResolution;
+	const long int adj_res = 1000000000L / gMyInfo.AlsaResolution;
+printf("setTimerFreq  Count %ld %ld %ld \n", freq, res, adj_res);
+
+
 	long int setTick = (adj_res / freq);
 
 	if (freq == 0)
@@ -268,6 +319,12 @@ unsigned long setTimerFreq(unsigned long freq) {
 
 	if (setTick <= 0)
 		setTick = 1;
+
+printf("setTimerFreq Tick Count %d %ld\n", setTick, freq);
+printf("setTimerFreq  %x %x \n", 
+	gMyInfo.AlsaTimerParams,
+	gMyInfo.AlsaTimerinfo);
+
 
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 	if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
@@ -281,6 +338,7 @@ unsigned long setTimerFreq(unsigned long freq) {
 		const int num_freqs = 10;
 		const unsigned int freqs[] = {32768, 16384, 8192, 4096, 2048, 1024, 1000, 500, 250, 100};
 		int found_idx = -1;
+
 		if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
 
 			for (int i = 0; i < num_freqs; ++i) {
@@ -299,9 +357,10 @@ unsigned long setTimerFreq(unsigned long freq) {
 					found_idx = i;
 					break;
 				}
+printf("snd_timer_params \n");
 			}
 			if (found_idx == -1) {
-				printd(LogError, "MusE: Cannot find a suitable ALSA timer frequency. Your system may need adjustment.\n");
+				printd(LogError, "Cannot find a suitable ALSA timer frequency. Your system may need adjustment.\n");
 				snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 1);
 				return 0;
 			}
@@ -316,7 +375,7 @@ unsigned long setTimerFreq(unsigned long freq) {
 	}
 
 	const long int ticks = snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams);
-	const long int cur_freq = adj_res / ticks;
+	cur_freq = adj_res / ticks;
 
 	if (setTick <= 0) {
 		// Return, print error if freq is below 500 (timing will suffer).
@@ -325,9 +384,9 @@ unsigned long setTimerFreq(unsigned long freq) {
 			printd(LogError, "  freq stays at %ld Hz\n", cur_freq);
 		}
 	}
-
 	return (unsigned long)cur_freq;
 }
+#endif
 
 /*--------------------------------------------------------------------
 * Function:		CreatePort
@@ -1241,9 +1300,9 @@ void *alsa_midi_thread(void * context_ptr) {
 				}
 #endif
 				break;
-/* 12 start
-   85 End
-*/
+			/* 12 start
+			   85 End
+			*/
 			case 63:
 				AlsaValue = event_ptr->data.control.value;
 				printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
@@ -1310,11 +1369,11 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			}
 
-				if (AlsaValue == 1) {
-					FishmanBullSh = 0;
-					GuitarMidiPreset(FALSE);
+			if (AlsaValue == 1) {
+				FishmanBullSh = 0;
+				GuitarMidiPreset(FALSE);
 
-				}
+			}
 
 #if 0
 			if (cc_name != NULL) {

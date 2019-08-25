@@ -234,7 +234,7 @@ LiveMusicInfo GlobalInfo = {
  110, /* MidiPassLevel   */
  4, /* BeatsPerMeasure   */
  100, /* AnalogVolume   */
- 100, /* MidiVolume   */
+ 0, /* MidiVolume   */
  0xffffe0, /* StatusTextColor   */
  0xffe0e0, /* ButtonTextColor   */
  "127.0.0.1", /* OSCIPAddress   */

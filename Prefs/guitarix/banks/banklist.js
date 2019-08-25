@@ -32,7 +32,7 @@
   ["Linuxmuso", "Linuxmuso.gx", 1, 0, [1, 2], 1558891902],
   ["journey", "journey.gx", 1, 0, [1, 2], 1558891902],
   ["cleansounds", "cleansounds.gx", 1, 0, [1, 2], 1558891902],
-  ["Scratchpad", "scratchpad.gx", 0, 0, [1, 2], 1558891902],
+  ["Scratchpad", "scratchpad.gx", 0, 0, [1, 2], 1566605338],
   ["kokoko3k", "kokoko3k.gx", 1, 0, [1, 2], 1558891902],
   ["StudioDave", "StudioDave.gx", 1, 0, [1, 2], 1558891902],
   ["ParadoxGuitarist", "ParadoxGuitarist.gx", 1, 0, [1, 2], 1558891902],
@@ -40,5 +40,5 @@
   ["Darlings", "Darlings.gx", 1, 0, [1, 2], 1558891902],
   ["BroomTreble", "BroomTreble.gx", 1, 0, [1, 2], 1558891902],
   ["EliasBack", "EliasBack.gx", 1, 0, [1, 2], 1566015990],
-  ["EliasBank", "EliasBank.gx", 1, 0, [1, 2], 1566081675]
+  ["EliasBank", "EliasBank.gx", 1, 0, [1, 2], 1566677088]
 ]

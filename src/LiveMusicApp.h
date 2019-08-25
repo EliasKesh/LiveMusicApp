@@ -203,6 +203,7 @@ typedef struct {
 	snd_timer_params_t *AlsaTimerParams;
 	snd_timer_id_t *AlsaTimerid;
 	snd_timer_info_t *AlsaTimerinfo;
+	unsigned long AlsaResolution;
 	unsigned int ExpreP1Out;
 	unsigned int ExpreP1Port;
 	unsigned int ExpreP1Slider;
@@ -510,5 +511,6 @@ void IncrementMode(void);
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void SetScale4Label(char *String);
+int GTKIdel_cb(gpointer data);
 
 #endif

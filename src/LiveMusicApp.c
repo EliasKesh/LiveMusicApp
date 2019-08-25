@@ -115,10 +115,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 int 	JackMaster;
 void CreateTabButtons(void);
 void CreateMainButtons(void);
-//void PrintDataStructure(LiveMusicInfo *myInfo);
-void CheckConnectionData(LiveMusicInfo *myInfo);
 void CreateHTMLGuide(LiveMusicInfo *myInfo);
-void apply_font_to_widget(GtkWidget *widget, gchar *fload);
 void ToggleTempo(void);
 void UpdateStatus(char *String);
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
@@ -140,12 +137,18 @@ gboolean layout_click_handler(GtkWidget *widget,
 gboolean layout_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data);
-int GTKIdel_cb(gpointer data);
 void on_window1_destroy(GtkWidget *widget, gpointer user_data);
 GdkPixbuf *create_pixbuf(const gchar * filename);
 
 int InitJackTransport(void);
 int CloseJackTransport(void);
+
+#if 0
+//void PrintDataStructure(LiveMusicInfo *myInfo);
+void CheckConnectionData(LiveMusicInfo *myInfo);
+void apply_font_to_widget(GtkWidget *widget, gchar *fload);
+void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data);
+#endif
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -203,6 +206,10 @@ int main(int argc, char *argv[]) {
 	TabSwitch = NULLSwitch;
 	RaiseSwitch = NULLSwitch;
 
+	/* Default name for the jack client.
+	*/
+	strcpy(JackName, "default");
+
 	parse_cmdline(argc, argv);
 
 	printf("Build date  : %s:%s\n", __DATE__, __TIME__);
@@ -222,7 +229,6 @@ int main(int argc, char *argv[]) {
 	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 	ScreenSize = 0;
 	ButtonSize = 95;
-	strcpy(JackName, "default");
 
 	/* Based on the sreen, size the buttons.
 	*/
@@ -310,12 +316,16 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 	g_object_unref(provider);
 
-	/*----------------------------------------------------------------------------------------------------------------------*/
 
+	/* Connect the close button.
+	*/
 	g_signal_connect(G_OBJECT (theMainWindow), "destroy", G_CALLBACK (on_window1_destroy), NULL);
 	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp");
 	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
 
+
+	/* Get the button sizes.
+	*/
 	BButtonX = ButtonSize;
 	BButtonY = (int) ((float) ButtonSize * 0.65);
 	MButtonX = (int) ((float) ButtonSize * 0.80);
@@ -346,11 +356,9 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	gMyInfo.KeyPatchValue = 0;
 
 	/*
-	 * Setup and initialize our statusbar and Mode indicator
+	 * Setup and initialize our status bar and Mode indicator
 	 */
 	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
-//	CurrentLayoutWid = GTK_WIDGET(
-//		gtk_builder_get_object(gxml, "CurrentLayout"));
 
 	/*
 	 * Clear the Status bar buffer.
@@ -365,8 +373,12 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	               gtk_builder_get_object(gxml, "Tempo"));
 
 
+	/* Set up my buttons.
+	*/
 	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
 
+	/* Update the metronome button.
+	*/
 	if (gMyInfo.MetronomeOn) {
 		MyImageButtonSetText(&TempoDraw, "On");
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
@@ -376,6 +388,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
 		                          TempoDraw.ButtonUpImage);
 	}
+
 	g_signal_connect(G_OBJECT(EventBox),
 	                 "button-press-event",
 	                 G_CALLBACK(on_Tempo_Button),
@@ -421,6 +434,8 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 	MyOSCInit();
 
+	/* If the options are for Jack Master.
+	*/
 	if (JackMaster)
 		InitJackTransport();
 
@@ -573,24 +588,31 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
-
+	/* Check to see if a TAB was switched.
+	*/
 	if (TabSwitch != NULLSwitch) {
 		SwitchToTab(TabSwitch);
 		TabSwitch = NULLSwitch;
 	}
 
+	/* Check to see if a Window was switched.
+	*/
 	if (RaiseSwitch != NULLSwitch) {
 		RaiseWindowsNum(RaiseSwitch);
 		RaiseSwitch = NULLSwitch;
 	}
 
 
+	/* If new information about the slider.
+	*/
 	if (gMyInfo.SliderUpdate) {
 		printd(LogDebug, "SliderUpdate \n");
 		SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
 		gMyInfo.SliderUpdate = 0;
 	}
 
+	/* If the timer went off, update the metronome.
+	*/
 	if (UIUpdateFromTimer == TRUE) {
 		UIUpdateFromTimer = FALSE;
 		printd(LogDebug, "UIUpdateFromTimer 1\n");
@@ -660,24 +682,6 @@ return pixbuf;
 return (NULL);
 }
 
-/*--------------------------------------------------------------------
- * Function:            apply_font_to_widget
- *
- * Description:		<Description/Comments>
- *
- *---------------------------------------------------------------------*/
-void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
-	PangoFontDescription *pfd;
-	pfd = pango_font_description_from_string(fload);
-
-	if (GTK_IS_LABEL(widget))
-		gtk_widget_override_font(widget, pfd);
-	else
-		gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
-		                         pfd);
-
-	pango_font_description_free(pfd);
-}
 
 /*--------------------------------------------------------------------
  * Function:		SwitchToTab
@@ -1453,15 +1457,6 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 	return (0);
 }
 
-/*--------------------------------------------------------------------
- * Function:		CheckConnectionData
- *
- * Description:		<Description/Comments>
- *
- *---------------------------------------------------------------------*/
-void CheckConnectionData(LiveMusicInfo *myInfo) {
-
-}
 
 #if 0
 G_OBJECT_set(G_OBJECT(button), "label", "goodbye", NULL);
@@ -1698,6 +1693,8 @@ int GuitarMidiPreset(char Wait) {
 	*/
 	SwitchToTab(0);
 
+	sleep(1);
+
 	// MyOSCJackVol(NewValue);
 	MyOSCJackMute(1, 0);
 	WaitingforMidi = 1;
@@ -1881,25 +1878,8 @@ int FindString(int StringList, char *String) {
 	return (0);
 }
 
-#if 0
 /*--------------------------------------------------------------------
- * Function:		on_hscale1_value_changed
- *
- * Description:		When the sliders are changed on the main screen.
- *
- *---------------------------------------------------------------------*/
-void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
-	gdouble val;
-
-	val = gtk_range_get_value(GTK_RANGE(widget));
-	/* print to screen */
-	printd(LogInfo, "Range value: %d\n", (guint) val);
-	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
-}
-#endif
-
-/*--------------------------------------------------------------------
- * Function:		on_hscale1_value_changed
+ * Function:		InitHistoryFile
  *
  * Description:		When the sliders are changed on the main screen.
  *
@@ -1933,3 +1913,48 @@ int CloseHistoryFile(void) {
 	fclose(FileHistory);
 }
 
+#if 0
+/*--------------------------------------------------------------------
+ * Function:		CheckConnectionData
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+void CheckConnectionData(LiveMusicInfo *myInfo) {
+
+}
+/*--------------------------------------------------------------------
+ * Function:            apply_font_to_widget
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
+	PangoFontDescription *pfd;
+	pfd = pango_font_description_from_string(fload);
+
+	if (GTK_IS_LABEL(widget))
+		gtk_widget_override_font(widget, pfd);
+	else
+		gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
+		                         pfd);
+
+	pango_font_description_free(pfd);
+}
+
+
+/*--------------------------------------------------------------------
+ * Function:		on_hscale1_value_changed
+ *
+ * Description:		When the sliders are changed on the main screen.
+ *
+ *---------------------------------------------------------------------*/
+void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
+	gdouble val;
+
+	val = gtk_range_get_value(GTK_RANGE(widget));
+	/* print to screen */
+	printd(LogInfo, "Range value: %d\n", (guint) val);
+	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
+}
+#endif
