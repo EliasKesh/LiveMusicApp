@@ -119,7 +119,7 @@ InitPref (void) {
  *
  *---------------------------------------------------------------------*/
 int PostProcessPrefs(LiveMusicInfo *MyInfo) {
-int Index;
+	int Index;
 
 	printf("Start PostProcessPrefs\n");
 	for (Index = 0; Index < Max_Patches; Index++) {
@@ -518,16 +518,16 @@ WritePrefs (void) {
 // XML_ELEMENT_NODE
 //
 //
-enum { dTopLevelNone = 0,dTopLevelMainButtons,dTopLevelNumOutPorts,
-dTopLevelOutPorts, dTopLevelSongPath, dTopLevelAppName,
-dTopLevelMetronome, dTopLevelMetronomeOn, dTopLevelMidiBase,
-dTopLevelClick1, dTopLevelClickRest, dTopLevelLayouts,
-dTopLevelTempo, dTopLevelCountInBeats, dTopLevelLoopRecBeats, dTopLevelBeatsPerMeasure,
-dTopLevelAnalogVolume,  dTopLevelMidiVolume, dTopLevelStatusTextColor, dTopLevelButtonTextColor,
-dTopLevelOSCIPAddress, dTopLevelOSCPortNumLooper,
-dTopLevelOSCPortNumJackVol, dTopLevelOSCPortNumHydrogen,
-dTopMidiPassThru,dTopMidiPassLevel
- };
+enum { dTopLevelNone = 0, dTopLevelMainButtons, dTopLevelNumOutPorts,
+       dTopLevelOutPorts, dTopLevelSongPath, dTopLevelAppName,
+       dTopLevelMetronome, dTopLevelMetronomeOn, dTopLevelMidiBase,
+       dTopLevelClick1, dTopLevelClickRest, dTopLevelLayouts,
+       dTopLevelTempo, dTopLevelCountInBeats, dTopLevelLoopRecBeats, dTopLevelBeatsPerMeasure,
+       dTopLevelAnalogVolume,  dTopLevelMidiVolume, dTopLevelStatusTextColor, dTopLevelButtonTextColor,
+       dTopLevelOSCIPAddress, dTopLevelOSCPortNumLooper,
+       dTopLevelOSCPortNumJackVol, dTopLevelOSCPortNumHydrogen,
+       dTopMidiPassThru, dTopMidiPassLevel
+     };
 
 int TopLevelParse;
 int ParseCountL4;

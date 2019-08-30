@@ -195,7 +195,7 @@ int main (int argc, char *argv[]) {
 		}
 	}
 
-	DoChartFix(InputFileName,FixFlag, VerifyFlag, RecursiveFlag, UpdateIndex);
+	DoChartFix(InputFileName, FixFlag, VerifyFlag, RecursiveFlag, UpdateIndex);
 }
 #endif
 
@@ -334,7 +334,7 @@ int GetFileInfo(char *FileInfo) {
  *
  *---------------------------------------------------------------------*/
 int DoChartFix(char *InputFileName,
-			   char FixFlag,
+               char FixFlag,
                char VerifyFlag,
                char RecursiveFlag,
                char UpdateIndexFlag) {
@@ -1273,12 +1273,12 @@ char *Strip_Ext(char *basePath) {
 int Loop;
 
 	strncpy(JustTheFileName, basePath, MaxDirName);
-	for (Loop = 0; Loop< 250; Loop++) {
+	for (Loop = 0; Loop < 250; Loop++) {
 		if (JustTheFileName[Loop] == '.') {
 			JustTheFileName[Loop] = 0;
-			return(JustTheFileName);
+			return (JustTheFileName);
 		}
 
 	}
-	return(JustTheFileName);
+	return (JustTheFileName);
 }

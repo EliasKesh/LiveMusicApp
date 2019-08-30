@@ -23,7 +23,7 @@
 
 #include "stdio.h"
 #include "Player.h"
-#include <unistd.h> 
+#include <unistd.h>
 #include <errno.h>
 #include <sys/errno.h>
 #include <fcntl.h>
@@ -303,8 +303,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
 //	   gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
-     gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
-      gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
+	gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
+	gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
 
 	g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
 	                 G_CALLBACK (VolumeSlider_Changed), NULL);

@@ -2,7 +2,7 @@
 |
 |	File: 	MyWidgets
 |
-|	Contains: 	
+|	Contains:
 |
 |
 |	Written By: 	Elias Keshishoglou on Tue Feb 10 15:53:15 PST 2015
@@ -34,7 +34,7 @@ typedef struct {
 
 #include "LiveMusicApp.h"
 
-int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox,GdkPixbuf *On, GdkPixbuf *Off);
+int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off);
 int	MyImageButtonSetText( theImageButtons *theButton, char *String);
 gboolean normal_release_handler(GtkWidget *widget,	GdkEvent *event, gpointer user_data);
 

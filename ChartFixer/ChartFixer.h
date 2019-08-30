@@ -2,7 +2,7 @@
 |
 |	File: 	ChartFixer
 |
-|	Contains: 	
+|	Contains:
 |
 |
 |	Written By: 	Elias Keshishoglou on Wed Oct 18 15:02:43 PDT 2017
@@ -24,7 +24,7 @@
  * Place Global prototypes here.
  */
 int DoChartFix(char *InputFileName,
-			   char FixFlag,
+               char FixFlag,
                char VerifyFlag,
                char RecursiveFlag,
                char UpdateIndexFlag);
@@ -34,4 +34,4 @@ int DoChartFix(char *InputFileName,
  */
 
 
-#endif 
+#endif

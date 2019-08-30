@@ -113,9 +113,9 @@ int OSCCommand(int Command, char Option) {
 		break;
 
 	case OSCSyncOn:
+		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
 		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
 		printd(LogDebug, "Sync On %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
 		break;
 
 	case OSCSyncOff:
@@ -134,7 +134,7 @@ int OSCCommand(int Command, char Option) {
 	case OSCRecThres:
 		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
 		printd(LogDebug, "Sync Off %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option/127 );
+		lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option / 127 );
 		break;
 
 //oscsend localhost 9951 /set si "sync_source" -3
@@ -320,8 +320,8 @@ void MyOSCJackMute(int Mute, int channel) {
 
 load_session s
 
-klick -o 9954  -T -L 120
-oscsend localhost 9954 /klick/simple/set_tempo f 90
+klick - o 9954  - T - L 120
+oscsend localhost 9954 / klick / simple / set_tempo f 90
 
 
 http://essej.net/sooperlooper/docs.html

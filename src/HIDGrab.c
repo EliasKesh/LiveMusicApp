@@ -7,7 +7,7 @@
     Midi and OSC .
 |
 |
-| Written By:   Elias Keshishoglou 
+| Written By:   Elias Keshishoglou
 |
 | Copyright �:  2019 Elias Keshishoglou all rights reserved.
 |
@@ -99,7 +99,7 @@ int HIDPoll() {
           KeyCode = ev[i].code;
           switch (ev[i].value) {
           case 0:
-            printd(LogDebug,"Key Code: %d released\n", ev[i].code);
+            printd(LogDebug, "Key Code: %d released\n", ev[i].code);
             if (KeyCode == 48) {
 //              theOldPane = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPaneS));
 //              gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPaneS), 1);
@@ -111,7 +111,7 @@ int HIDPoll() {
 
             break;
           case 1:
-            printd(LogDebug,"Key Code: %d pressed\n", ev[i].code);
+            printd(LogDebug, "Key Code: %d pressed\n", ev[i].code);
 
             if (KeyCode == 48) {
               SwitchToTab(0);
@@ -128,7 +128,7 @@ int HIDPoll() {
             break;
 
           default:
-            printd(LogDebug,"UnKnown value: type %d, code %d, value %d\n",
+            printd(LogDebug, "UnKnown value: type %d, code %d, value %d\n",
                    ev[i].type,
                    ev[i].code,
                    ev[i].value);
@@ -195,15 +195,15 @@ int InitHIDGrab() {
   while ( count >= 0 ) {
     if ( scan_fd == -1 && strncmp(files[count]->d_name, "event", 5) == 0 ) {
       sprintf(path, "/dev/input/%s", files[count]->d_name);
-      printd(LogDebug,"/dev/input/%s ", files[count]->d_name);
+      printd(LogDebug, "/dev/input/%s ", files[count]->d_name);
       scan_fd = open(path, O_RDONLY);
       if ( scan_fd >= 0 ) {
         if ( ioctl(scan_fd, EVIOCGID, (void *)&id) < 0 )
           perror("ioctl EVIOCGID");
         else {
-          printd(LogDebug,"V=%x D=%x\n", id.vendor, id.product);
+          printd(LogDebug, "V=%x D=%x\n", id.vendor, id.product);
           if ( id.vendor == VENDORID && id.product == PRODUCTID )
-            printd(LogDebug,"scanner attached to %s\n", path);
+            printd(LogDebug, "scanner attached to %s\n", path);
           else {
             close(scan_fd);
             scan_fd = -1;
@@ -221,20 +221,20 @@ int InitHIDGrab() {
   if ( scan_fd >= 0 )
     ioctl(scan_fd, EVIOCGRAB);
   else {
-    printd(LogDebug,"scanner not found or couldn't be opened\n");
+    printd(LogDebug, "scanner not found or couldn't be opened\n");
     return 0;
   }
 
   theHID_fd = open(path, O_RDONLY);
   if (theHID_fd == -1) {
-    printd(LogDebug,"Failed to open event device.\n");
+    printd(LogDebug, "Failed to open event device.\n");
   }
 
   result = ioctl(theHID_fd, EVIOCGNAME(sizeof(name)), name);
-  printd(LogDebug,"Reading From : %s (%s) %d\n", path, name, theHID_fd);
+  printd(LogDebug, "Reading From : %s (%s) %d\n", path, name, theHID_fd);
   setNonblocking(theHID_fd);
   result = ioctl(theHID_fd, EVIOCGRAB, 1);
-  printd(LogDebug,"Getting exclusive access: %d\n", result);
+  printd(LogDebug, "Getting exclusive access: %d\n", result);
 }
 
 //  NoteBookPaneS = (GtkWidget *)GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));

@@ -185,7 +185,7 @@ typedef struct {
 	//	int			SeqQueue[MaxOutPorts];
 
 	/* Web paged preset are load here when the
-	HTML page is loaded. 
+	HTML page is loaded.
 	*/
 	WebLoadPresets WebPresets;
 	char LoopFileName[100];
@@ -337,11 +337,12 @@ enum {
  * Place Static variables here.
  */
 
-enum { cntStateWaitingIdle = 0, 
-		cntStateRecording = 1, 
-		cntStateWaitingforRecCount = 2, 
-		cntStateWaitingforCountIn = 3,
-		cntStatePostRecord = 4 };
+enum { cntStateWaitingIdle = 0,
+       cntStateRecording = 1,
+       cntStateWaitingforRecCount = 2,
+       cntStateWaitingforCountIn = 3,
+       cntStatePostRecord = 4
+     };
 
 
 #define PedalLEDAllOn		0

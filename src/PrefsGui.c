@@ -181,12 +181,12 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
  *
  *---------------------------------------------------------------------*/
 gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
-                                   gpointer user_data) {
+                                  gpointer user_data) {
 
 	printf("Prefs_Regenerate_handler\n");
 //	gtk_widget_destroy(user_data);
 	DoChartFix(gMyInfo.BasePath,
-			   1, 1, 1, 1);
+	           1, 1, 1, 1);
 }
 
 /*--------------------------------------------------------------------
@@ -308,7 +308,7 @@ void InitGuiPrefs(void) {
 	                 &About_Box);
 
 	Prefs_Regenerate = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_Regenerate"));
-		g_signal_connect(G_OBJECT(Prefs_Regenerate),
+	g_signal_connect(G_OBJECT(Prefs_Regenerate),
 	                 "button-press-event",
 	                 G_CALLBACK(Prefs_Regenerate_handler),
 	                 &Prefs_Regenerate);
@@ -324,8 +324,8 @@ void InitGuiPrefs(void) {
 	                                TK_POLICY_AUTOMATIC);
 #endif
 
-    sprintf(VersionString, "V=%s B=%d D=%s %s",VERSION, MY_BUILD_NUMBER, __DATE__, __TIME__ );
-	gtk_about_dialog_set_version(About_Box,VersionString);
+	sprintf(VersionString, "V=%s B=%d D=%s %s", VERSION, MY_BUILD_NUMBER, __DATE__, __TIME__ );
+	gtk_about_dialog_set_version(About_Box, VersionString);
 
 //			g_signal_connect (G_OBJECT (Patch_Pane), "destroy",
 //			G_CALLBACK (on_window1_destroy), NULL);

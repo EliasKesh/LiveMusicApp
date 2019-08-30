@@ -278,7 +278,6 @@ LiveMusicInfo GlobalInfo = {
 /*  30 */  "Midi Tog", 
 /*  31 */  "Tuner", 
 /*  32 */  "AnaOnOff", 
-/*  33 */  "Loop***", 
 /*  34 */  "TrigCountIn", 
 /*  35 */  "LP Undo", 
 /*  36 */  "LP 1", 

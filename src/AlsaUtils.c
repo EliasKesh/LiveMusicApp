@@ -156,7 +156,7 @@ static void async_callback(snd_async_handler_t *ahandler) {
 
 }
 #endif
-	snd_async_handler_t *ahandler;
+snd_async_handler_t *ahandler;
 
 /*--------------------------------------------------------------------
  * Function:            SetupAlsaTimer
@@ -178,8 +178,8 @@ void SetupAlsaTimer(int Count) {
 	snd_timer_info_alloca(&gMyInfo.AlsaTimerinfo);
 	snd_timer_params_alloca(&gMyInfo.AlsaTimerParams);
 	printd(LogInfo, "Id %x Info %x\n",
-		gMyInfo.AlsaTimerid,
-		gMyInfo.AlsaTimerinfo);
+	       gMyInfo.AlsaTimerid,
+	       gMyInfo.AlsaTimerinfo);
 
 	printd(LogInfo, "**************\n Setting up timers.\n *********************\n");
 
@@ -207,7 +207,7 @@ void SetupAlsaTimer(int Count) {
 	printd(LogInfo, "  name = '%s'\n", snd_timer_info_get_name(gMyInfo.AlsaTimerinfo));
 	gMyInfo.AlsaResolution = snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo);
 
-	printd(LogInfo, "  average resolution = %li\n",gMyInfo.AlsaResolution);
+	printd(LogInfo, "  average resolution = %li\n", gMyInfo.AlsaResolution);
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 //	    	NewDivider = 2500000000/Count;
 
@@ -217,7 +217,7 @@ void SetupAlsaTimer(int Count) {
 	gMyInfo.TempoReload = 1;
 
 	if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
-		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, (gMyInfo.AlsaResolution )/(35*Count));
+		snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, (gMyInfo.AlsaResolution ) / (35 * Count));
 
 		printd(LogInfo, "Using %li tick(s)\n",
 		       snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams));
@@ -276,10 +276,10 @@ void SetupAlsaTimer(int Count) {
  *---------------------------------------------------------------------*/
 unsigned long setTimerFreq(unsigned long freq) {
 	signed int err;
- 	long int cur_freq;
+	long int cur_freq;
 
- 	
- 	printf("setTimerFreq %ld\n", freq);
+
+	printf("setTimerFreq %ld\n", freq);
 //	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
 
 //	if (snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams) < 1)
@@ -304,12 +304,12 @@ unsigned long setTimerFreq(unsigned long freq) {
  *---------------------------------------------------------------------*/
 unsigned long setTimerFreq(unsigned long freq) {
 	signed int err;
- 	long int cur_freq;
+	long int cur_freq;
 
 //	const long int res = snd_timer_info_get_resolution(gMyInfo.AlsaTimerinfo);
 	const long int res = gMyInfo.AlsaResolution;
 	const long int adj_res = 1000000000L / gMyInfo.AlsaResolution;
-printf("setTimerFreq  Count %ld %ld %ld \n", freq, res, adj_res);
+	printf("setTimerFreq  Count %ld %ld %ld \n", freq, res, adj_res);
 
 
 	long int setTick = (adj_res / freq);
@@ -320,10 +320,10 @@ printf("setTimerFreq  Count %ld %ld %ld \n", freq, res, adj_res);
 	if (setTick <= 0)
 		setTick = 1;
 
-printf("setTimerFreq Tick Count %d %ld\n", setTick, freq);
-printf("setTimerFreq  %x %x \n", 
-	gMyInfo.AlsaTimerParams,
-	gMyInfo.AlsaTimerinfo);
+	printf("setTimerFreq Tick Count %d %ld\n", setTick, freq);
+	printf("setTimerFreq  %x %x \n",
+	       gMyInfo.AlsaTimerParams,
+	       gMyInfo.AlsaTimerinfo);
 
 
 	snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
@@ -357,7 +357,7 @@ printf("setTimerFreq  %x %x \n",
 					found_idx = i;
 					break;
 				}
-printf("snd_timer_params \n");
+				printf("snd_timer_params \n");
 			}
 			if (found_idx == -1) {
 				printd(LogError, "Cannot find a suitable ALSA timer frequency. Your system may need adjustment.\n");

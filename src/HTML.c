@@ -186,25 +186,25 @@ struct timeval Time0;
  *
  *---------------------------------------------------------------------*/
 gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-char String[20];
-struct timeval Time1;
-double elapsedTime;
+	char String[20];
+	struct timeval Time1;
+	double elapsedTime;
 
 	// Get the new time
 	gettimeofday(&Time1, NULL);
 
 	// Subtract the old time.
-    elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
-    elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
+	elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
+	elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
 #if 0
-	printf("%ld:%ld->",Time0.tv_sec, Time0.tv_usec);
-	printf("%ld:%ld->\n",Time1.tv_sec, Time1.tv_usec);
-    printf("Elasped %lf\n", elapsedTime);
- #endif
+	printf("%ld:%ld->", Time0.tv_sec, Time0.tv_usec);
+	printf("%ld:%ld->\n", Time1.tv_sec, Time1.tv_usec);
+	printf("Elasped %lf\n", elapsedTime);
+#endif
 
-    // Calculate BPM
-    if (elapsedTime != 0)
-		CurTapTempo = (.35* CurTapTempo) + (.65 * (60 * 1000)/elapsedTime);
+	// Calculate BPM
+	if (elapsedTime != 0)
+		CurTapTempo = (.35 * CurTapTempo) + (.65 * (60 * 1000) / elapsedTime);
 	else
 		CurTapTempo = 30;
 
@@ -219,7 +219,7 @@ double elapsedTime;
 	/*
 	 * Draw the button
 	 */
-	gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image),TapTempoButton.ButtonDownImage);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image), TapTempoButton.ButtonDownImage);
 
 }
 
@@ -333,15 +333,15 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	/*
 	 * Draw the button
 	 */
-	gtk_image_set_from_pixbuf(GTK_IMAGE(SaveWebButton.Image),SaveWebButton.ButtonDownImage);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(SaveWebButton.Image), SaveWebButton.ButtonDownImage);
 
 	// Get the current URI of the viewable file.
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	// g_print("Save %s\n", CurrentURI);
 
 	// Call the text editor.
-	sprintf(ExecuteString, "%s/LiveEditor %s &\n", 
-		ResourceDirectory, CurrentURI);
+	sprintf(ExecuteString, "%s/LiveEditor %s &\n",
+	        ResourceDirectory, CurrentURI);
 	printd(LogDebug, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
@@ -514,14 +514,13 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		PageIndex = strstr(theURI, "#page=");
 		if (PageIndex) {
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+			webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 			*PageIndex = 0;
 			PageIndex += 6;
 			PageNumber = atoi(PageIndex);
-		sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
-		}
-		else {
-		return (false);
+			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
+		} else {
+			return (false);
 //		sprintf(string, "/usr/bin/okular \"%s\" &", theURI);
 		}
 
@@ -683,7 +682,7 @@ void InitHTML(GtkBuilder * gxml) {
 		                 Loop);
 
 	}
-	
+
 	scrolled_window = GTK_WIDGET(
 	                      gtk_builder_get_object(gxml, "scrolledwindow1"));
 
@@ -694,17 +693,17 @@ void InitHTML(GtkBuilder * gxml) {
 
 #if 1
 // Scroll bar fix to add GtkViewport
-  GtkWidget *viewport;
+	GtkWidget *viewport;
 
-      viewport =
-        gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
-                          gtk_scrolled_window_get_vadjustment (scrolled_window));
-      gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
-                                           gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
-      gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
-                                           gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+	viewport =
+	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
+	                      gtk_scrolled_window_get_vadjustment (scrolled_window));
+	gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
+	                                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+	gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
+	                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
 //      gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
-      gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
+	gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
 
 
 #endif
@@ -1036,7 +1035,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 	}
 
 
-#if 0
+#if 1
 	/*
 	 * Check to see if we have requested a new file for the drum or the looper.
 	 */
@@ -1047,7 +1046,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		if (DrumFile[0] == 0)
 			DrumFile[0] = 'A';
 
-		sprintf(Copy, "/home/Dropbox/LiveEffects/ReloadLivesFiles %s %s & ", DrumFile, LoopFile);
+		sprintf(Copy, "/home/Dropbox/LiveEffects/LoadDrumFile %s & ", DrumFile);
 		printd(LogDebug, "Calling System with %s\n", Copy);
 		system(Copy);
 	}

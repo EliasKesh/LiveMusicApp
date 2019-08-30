@@ -628,6 +628,7 @@ int GTKIdel_cb(gpointer data) {
 
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
+
 	}
 
 #ifdef AcceptTimedKeyboard

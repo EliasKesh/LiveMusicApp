@@ -1047,7 +1047,7 @@ function SetUpApplications {
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
         #        nice -15 sooperlooper -p 9951 -m ./Prefs/SLMidi.slb -L ./Prefs/EliasLooper.slsess &
-        slgui -L /home/Dropbox/LiveEffects/Looper/EliasLooper.slsess -P=9951 >> $LogFile 2>&1 &
+        slgui -L /home/Dropbox/LiveEffects/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
     if test "${Ardour}" = "true"; then
@@ -1609,20 +1609,6 @@ SetUpConnections
 SetPlacement
 
 sleep 5
-
-# Set up the mier levels and the interconnection between devices.
-SetUpConnections
-# Put apps in the right place/desktop
-SetPlacement
-
-sleep 10
-
-# Set up the mier levels and the interconnection between devices.
-SetUpConnections
-# Put apps in the right place/desktop
-SetPlacement
-
-sleep 10
 
 # Set up the mier levels and the interconnection between devices.
 SetUpConnections

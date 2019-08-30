@@ -34,7 +34,7 @@
 /*
  * Place defines and Typedefs here
  */
-#ifdef RTTimer 
+#ifdef RTTimer
 #define TimerTicksPerQuater 	1
 #else
 #define TimerTicksPerQuater 	1
@@ -120,7 +120,7 @@ void SetTempo(unsigned int NewTempo) {
 
 	/* Start the new timer.
 	 */
-	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload,(GSourceFunc) tempo_handler, (gpointer) gxml);
+	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload, (GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 }
@@ -249,8 +249,12 @@ void SetTempo(unsigned int NewTempo) {
 	long T_High;
 	long L_High;
 
+	/* If the tempo is not reasonable.
+	*/
 	if (NewTempo <= 30)
 		return;
+
+	timerid = 0;
 
 	/* Set the jack transport for timers.
 	*/
@@ -264,17 +268,20 @@ void SetTempo(unsigned int NewTempo) {
 //        memset((void*)&in, 0, sizeof(in));
 //		timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
 		timer_delete(gMyInfo.TempoTimerID);
+		gMyInfo.TempoTimerID = 0;
 	}
 
+#if 0
 	pthread_attr_init( &attr );
 	parm.sched_priority = 255;
 	pthread_attr_setschedparam(&attr, &parm);
+	sig.sigev_notify_attributes = &attr;
+#endif
 
 	sig.sigev_notify = SIGEV_THREAD;
 	sig.sigev_notify_function = time_handlerRT;
 	// This get's passed to the handler.
 	sig.sigev_value.sival_int = 20;
-	sig.sigev_notify_attributes = &attr;
 
 	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
 	printd(LogDebug, "***** RT Timer Create **** %d %d\n", Ret, timerid);
@@ -284,8 +291,9 @@ void SetTempo(unsigned int NewTempo) {
 		in.it_value.tv_nsec = 0;
 		in.it_interval.tv_sec = 0;
 
-		// Double the timer interval.
 		in.it_interval.tv_nsec = 30000000000 / NewTempo;
+		// Double the timer interval.
+//		in.it_interval.tv_nsec = 15000000000 / NewTempo;
 
 		//issue the periodic timer request here.
 		Ret = timer_settime(timerid, 0, &in, &out);
@@ -312,6 +320,7 @@ static void time_handlerRT (union sigval val) {
 
 //	printd(LogDebug, " IN time_handler\n");
 
+//	if (++SubBeats > 3) {
 	if (++SubBeats > 1) {
 		ToggleTempo();
 		SubBeats = 0;
@@ -363,9 +372,6 @@ void ToggleTempo(void) {
 			         DrumMidiChannel, 04, (int) PedalLED4On );
 		}
 
-		/* Make sure the buttons are all up after being pressed.
-		*/
-		ClearMainButtons();
 		/* Handle any recording for the looper.
 		*/
 		switch (CountInActiveState) {
@@ -381,6 +387,9 @@ void ToggleTempo(void) {
 		case cntStateWaitingforRecCount:
 			printd(LogDebug, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 			if (CountInCount-- == gMyInfo.CountInBeats) {
+
+				/* Tell Drums to start.
+				*/
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
 				printd(LogDebug, "Start %d %d\n", CountInCount,  TempoState);
@@ -412,11 +421,21 @@ void ToggleTempo(void) {
 			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
 			if (LoopRecBeats == gMyInfo.LoopRecBeats)
 				OSCCommand(OSCStartRecord, 0);
+				LoopRecBeats--;
 
-			if (--LoopRecBeats < 0) {
+#if 0
+
+			if (LoopRecBeats == 0) {
+
 				OSCCommand(OSCStopRecord, 0);
+			}
+#endif
+
+			if (LoopRecBeats < 0) {
+
+				OSCCommand(OSCStopRecord, 0);
+
 				com_stop();
-				CountInActiveState = cntStatePostRecord;
 
 				/* Set Sync to Loop for the remaining tracks.
 				*/
@@ -424,6 +443,8 @@ void ToggleTempo(void) {
 				         0, 0);
 
 				printd(LogDebug, "Loop Off\n\n");
+
+				CountInActiveState = cntStatePostRecord;
 			}
 
 
@@ -431,8 +452,8 @@ void ToggleTempo(void) {
 
 		case cntStatePostRecord:
 			CountInActiveState = cntStateWaitingIdle;
-			OSCCommand(OSCSyncOn, 0);
 			OSCCommand(OSCSyncSource, 1);
+			OSCCommand(OSCSyncOn, 0);
 
 			break;
 
@@ -468,7 +489,16 @@ void ToggleTempo(void) {
 		} else
 			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
 
+
+		/* Make sure the buttons are all up after being pressed.
+		*/
+		ClearMainButtons();
+
+		jack_poll();
+		MyOSCPoll(FALSE);
+
 		UIUpdateFromTimer = TRUE;
+
 	}
 #if 0
 	else {
@@ -484,6 +514,5 @@ void ToggleTempo(void) {
 	}
 #endif
 
-//	jack_poll();
 }
 
