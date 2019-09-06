@@ -94,7 +94,7 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 
 		while (pos->tick >= pos->ticks_per_beat) {
 			pos->tick -= pos->ticks_per_beat;
-			ToggleTempo();
+//			ToggleTempo();
 			printd(LogDebug, "Beat %ld\n", pos->beat);
 			if (++pos->beat > pos->beats_per_bar) {
 				pos->beat = 1;
@@ -115,7 +115,7 @@ void jack_poll(void) {
 
 	transport_state = jack_transport_query (client, &current);
 
-	printd(LogDebug, "Poll: %lf %d %d %d\n",
+	printd(LogDebug, "JackPoll: %lf %d %d %d\n",
 	       current.beats_per_minute,
 	       current.bar,
 	       current.beat,

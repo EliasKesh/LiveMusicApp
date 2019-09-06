@@ -14,6 +14,7 @@
 #---------------------------------------------------------------------#
 
 LiveMusicApp -v 6 > ./LiveText.txt &
+# LiveMusicApp  &
 sleep 3
 aconnect "VMPK Output" "LiveMusic Input"
 aconnect "LiveMusic Output":0 KMidimon

@@ -488,6 +488,23 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
+	if (strstr(theURI, ".mid") ) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+		sprintf(string, "/usr/bin/muse \'%s\' &", &theURI[7]);
+		system(string);
+		printf("**----** systemcall %s\n", string);
+		printd(LogDebug, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
 
 	if (strstr(theURI, ".tg") || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
 		/*
@@ -830,6 +847,21 @@ void InitHTML(GtkBuilder * gxml) {
 	webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
 //	webkit_web_view_set_editable(G_OBJECT(settings), FALSE);
+#if 0
+	webkit_settings_set_enable_accelerated_2d_canvas(G_OBJECT(settings), TRUE);
+	webkit_settings_set_draw_compositing_indicators(G_OBJECT(settings), FALSE);
+	g_object_set(settings,
+	             "enable-webgl", FALSE,
+	             "enable-java", FALSE,
+	             "enable-javascript", FALSE,
+	             "enable-mock-capture-devices", FALSE,
+	             "enable-offline-web-application-cache", FALSE,
+	             "enable-page-cache", FALSE,
+	             "enable-smooth-scrolling", FALSE,
+	             "hardware-acceleration-policy", WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS
+	            );
+#endif
+
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
 
@@ -871,7 +903,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 	LoopFile[0] = 0;
 	Count = 0;
 
-//printd(LogDebug, "Have file %x %s\n", fp, fname);
+	printd(LogDebug, "Have file %x %s\n", fp, fname);
 	while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
 		temp[MAXLINE] = 0;
 

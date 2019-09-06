@@ -19,7 +19,7 @@
  * Place Includes here.
  */
 
-#include <asoundlib.h>
+#include <alsa/asoundlib.h>
 #include <gtk/gtk.h>
 #include <gladeui/glade.h>
 #include "MyWidgets.h"
@@ -107,7 +107,7 @@ typedef struct {
 	char *location;
 } SongInfo;
 
-#define Max_Main_Buttons 70
+#define Max_Main_Buttons 80
 #define Max_Patches	 182
 #define Max_Layouts	 10
 #define FileNameMaxLength	250
@@ -209,10 +209,29 @@ typedef struct {
 	unsigned int ExpreP1Slider;
 	tPatchIndex HardSlider[MaxHardSliders];
 	tPatchIndex SliderUpdate;
-
-
+	float 	LoopPosition;
+	int   	LoopTempo;
+	float 	RecordStopLoop;
+	int 	GuitarMidiCall;
+	int 	GuitarMidiCallParam1;
+	int 	LayoutCall;
+	int 	LayoutCallParam1;
+	int 	LayoutCallParam2;
+//	int 	CurrentLoop;
+	unsigned int 	TabSwitch;
+	unsigned int 	RaiseSwitch;
+	unsigned int 	NextDeskSwitch;
+	unsigned int 	PrevDeskSwitch;
+	unsigned int 	GoToDeskSwitch;
+	unsigned int 	IncrementSwitch;
 
 } LiveMusicInfo;
+
+/* Semophore for UI in GTK not timers.
+*/
+#define NULLSwitch	250
+
+enum {GuitarMidiCallNo, GuitarMidiCallStart, GuitarMidiCallComplete };
 
 #define MaxSoundFonts 12
 
@@ -345,23 +364,30 @@ enum { cntStateWaitingIdle = 0,
      };
 
 
-#define PedalLEDAllOn		0
-#define PedalLEDAllOff		1
+#define PedalLEDAllOn	0
+#define PedalLEDAllOff	1
 #define PedalLED1On		2
 #define PedalLED1Off	3
 #define PedalLED2On		4
 #define PedalLED2Off	5
+
+// Tempo Leds
 #define PedalLED3On		6
 #define PedalLED3Off	7
 #define PedalLED4On		8
 #define PedalLED4Off	9
+
+//
 #define PedalLED5On		10
-#define PedalLED6Off	11
+#define PedalLED5Off	11
 #define PedalLED6On		12
-#define PedalLED7Off	13
+#define PedalLED6Off	13
 #define PedalLED7On		14
-#define PedalLED8Off	15
-#define PedalLED8On		16
+#define PedalLED7Off 	15
+
+// Mute Hold
+#define PedalLED8Off	16
+#define PedalLED8On		17
 
 
 #ifdef LiveMusicApp_c
@@ -476,11 +502,6 @@ EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
 
-/* Semophore for UI in GTK not timers.
-*/
-#define NULLSwitch	250
-EXTERN unsigned int 	TabSwitch;
-EXTERN unsigned int 	RaiseSwitch;
 
 
 

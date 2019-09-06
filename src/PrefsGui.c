@@ -83,7 +83,7 @@ GtkWidget *Prefs_Regenerate;
  *---------------------------------------------------------------------*/
 void on_BasePath_changed(GtkButton *button, gpointer user_data) {
 //	DoPatch(&gMyInfo.MyPatchInfo[(char )user_data - 1]);
-	printd(LogDebug, "Base string Changed%s\n", gtk_entry_get_text(button));
+	printd(LogDebug, "Base string Changed %s\n", gtk_entry_get_text(button));
 	strcpy(&gMyInfo.BasePath, gtk_entry_get_text(button));
 }
 

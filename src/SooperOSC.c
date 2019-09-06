@@ -54,10 +54,8 @@ int OSCCommand(int Command, char Option) {
 	char NewCommand[100];
 
 	printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
-
 	switch (Command) {
 	case  OSCSelect:
-
 		CurrentLoop = Option;
 
 		if (CurrentLoop >= 0)
@@ -69,6 +67,7 @@ int OSCCommand(int Command, char Option) {
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
 		printd(LogDebug, "OSCRec %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "s", "record");
+		gMyInfo.LoopTempo = gMyInfo.Tempo;
 		break;
 
 	case  OSCPause:
@@ -108,7 +107,7 @@ int OSCCommand(int Command, char Option) {
 
 	case OSCStopRecord:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
+		printd(LogTest, "OSCStopRecord %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "s", "record");
 		break;
 
@@ -127,7 +126,6 @@ int OSCCommand(int Command, char Option) {
 	case OSCSyncSource:
 //		sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
 		printd(LogDebug, "OSCSyncSource %d\n", Option);
-//		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
 		lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
 		break;
 
@@ -137,27 +135,53 @@ int OSCCommand(int Command, char Option) {
 		lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option / 127 );
 		break;
 
+	case OSCRecLoop:
+		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+		printd(LogTest, "OSCRecLP %s\n", NewCommand);
+		lo_send(SLOSCaddr, NewCommand, "s", "record");
+		gMyInfo.LoopTempo = gMyInfo.Tempo;
+		gMyInfo.RecordStopLoop = gMyInfo.LoopPosition;
+		break;
+
 //oscsend localhost 9951 /set si "sync_source" -3
 
 // lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
 	}
-
 }
 
+/*--------------------------------------------------------------------
+ * Function:		ctrl_handler.
+ *
+ * Description:		Return command from the one sent in
+ * 	the poll.
+ *
+ *---------------------------------------------------------------------*/
 static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int argc,
                         void *data, void *user_data) {
-	// 1st arg is instance, 2nd ctrl string, 3nd is float value
-	//int index = argv[0]->i;
-	char *arge1 = (char *)&argv[1];
-	float val  = atof((char *)argv[2]);
+	int index = argv[0]->i;
+	float val  = argv[2]->f;
 
-//	params_val_map[ctrl] = val;
+	printd(LogTest, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
+	gMyInfo.LoopPosition = val;
 
-//	updated = true;
-//	printd(LogDebug, "ctrl_handler %s %s\n", argv[1], argv[2]);
+	/* Check to see if we should send the
+	record off command.
+	*/
+	if (val > 0 && (gMyInfo.RecordStopLoop >= 0)) {
+		printd(LogTest, "ctrl_handler Stop Loop\n");
+		gMyInfo.RecordStopLoop = -1;
+		OSCCommand(OSCRec, 0);
+	}
+
 	return 0;
 }
 
+/*--------------------------------------------------------------------
+ * Function:		pingack_handler.
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
 static int pingack_handler(const char *path, const char *types, lo_arg **argv, int argc,
                            void *data, void *user_data) {
 	// pingack expects: s:engine_url s:version i:loopcount
@@ -166,8 +190,7 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
 	//string eurl(&argv[0]->s);
 	//string vers (&argv[1]->s);
 	//int loops = argv[2]->i;
-	printd(LogDebug, "pingack_handler %s %s\n", argv[1], argv[2]);
-
+	printd(LogDebug, "pingack_handler %d %s d=%f\n", argv[0], argv[1], argv[2]);
 //	_acked = TRUE;
 	return 0;
 }
@@ -186,6 +209,10 @@ void MyOSCInit(void) {
 	       gMyInfo.OSCPortNumLooper,
 	       gMyInfo.OSCPortNumJackVol,
 	       gMyInfo.OSCPortNumHydrogen );
+
+	/* Used as a trigger to stop recording.
+	*/
+	gMyInfo.RecordStopLoop = -1;
 
 	SLOSCaddr = lo_address_new(
 	                gMyInfo.OSCIPAddress,
@@ -214,11 +241,11 @@ void MyOSCInit(void) {
 	       osc_server );
 #endif
 	lo_server_add_method(osc_server,
-	                     "/ctrl", "isf", ctrl_handler, NULL);
+	                     NULL, NULL, ctrl_handler, NULL);
+//	                     "/ctrl", "isf", ctrl_handler, NULL);
 
 	lo_server_add_method(osc_server,
 	                     "/pingack", "ssi", pingack_handler, NULL);
-
 	CurrentLoop = 0;
 }
 
@@ -230,10 +257,12 @@ void MyOSCInit(void) {
  *
  *---------------------------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
+	char NewCommand[100];
 
 	lo_server_recv_noblock(osc_server, 2);
 //    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
-	lo_send(SLOSCaddr, "/sl/0/get", "sss", "loop_pos", our_url, "/ctrl");
+	sprintf(NewCommand, "/sl/%d/get", CurrentLoop);
+	lo_send(SLOSCaddr, NewCommand, "sss", "loop_pos", our_url, "/ctrl");
 }
 
 /*--------------------------------------------------------------------
@@ -246,7 +275,6 @@ void MyOSCTap(char DownBeat) {
 	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 }
 
-
 /*--------------------------------------------------------------------
  * Function:		MyOSCClose.
  *
@@ -256,11 +284,8 @@ void MyOSCTap(char DownBeat) {
 void MyOSCClose(void) {
 
 	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
-
 	lo_address_free (SLOSCaddr);
-
 	lo_server_free (osc_server);
-
 }
 
 /*--------------------------------------------------------------------
@@ -311,12 +336,24 @@ void MyOSCJackVol(int Volume, int channel) {
  * 		Values 0 - 127
  *---------------------------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel) {
+
+	if (Mute == 1) {
+		printd(LogTest, "MyOSCJackMute On\n");
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED7On );
+	} else {
+		printd(LogTest, "MyOSCJackMute Off\n");
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED7Off );
+	}
+
 	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+
 }
 
-//	oscsend localhost 9951 /net/mhcloud/volume/jack-volume/master f  1.0
 
 #if 0
+oscsend localhost 9951 / net / mhcloud / volume / jack - volume / master f  1.0
 
 load_session s
 

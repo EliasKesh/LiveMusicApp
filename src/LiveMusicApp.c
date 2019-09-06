@@ -108,6 +108,9 @@ FILE 	*FileHistory;
 /* Update the Tabs in GTK context.
 */
 
+#define MuteCountDelay  8;
+char  RemoveMuteCount;
+
 /*
  * Place Local prototypes here
  */
@@ -138,12 +141,12 @@ gboolean layout_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data);
 void on_window1_destroy(GtkWidget *widget, gpointer user_data);
-GdkPixbuf *create_pixbuf(const gchar * filename);
 
 int InitJackTransport(void);
 int CloseJackTransport(void);
 
 #if 0
+GdkPixbuf *create_pixbuf(const gchar * filename);
 //void PrintDataStructure(LiveMusicInfo *myInfo);
 void CheckConnectionData(LiveMusicInfo *myInfo);
 void apply_font_to_widget(GtkWidget *widget, gchar *fload);
@@ -202,9 +205,13 @@ int main(int argc, char *argv[]) {
 	GenerateHFile = 0;
 	KeyLayout = 1;
 	JackMaster = 1;
+	RemoveMuteCount = 0;
 	gMyInfo.TimerCount = 0;
-	TabSwitch = NULLSwitch;
-	RaiseSwitch = NULLSwitch;
+	gMyInfo.TabSwitch = NULLSwitch;
+	gMyInfo.RaiseSwitch = NULLSwitch;
+	gMyInfo.NextDeskSwitch = NULLSwitch;
+	gMyInfo.PrevDeskSwitch = NULLSwitch;
+	gMyInfo.GoToDeskSwitch = Max_Patches;
 
 	/* Default name for the jack client.
 	*/
@@ -220,7 +227,7 @@ int main(int argc, char *argv[]) {
 	/* Handle any HID pedals,
 	Must be called before gtk_init
 	*/
-	InitHIDGrab();
+//	InitHIDGrab();
 
 	/* initialize the GTK+ library */
 	gtk_init(&argc, &argv);
@@ -320,8 +327,9 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/* Connect the close button.
 	*/
 	g_signal_connect(G_OBJECT (theMainWindow), "destroy", G_CALLBACK (on_window1_destroy), NULL);
-	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp");
-	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
+	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
+//	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
+	gtk_window_set_icon(GTK_WINDOW(theMainWindow), NULL);
 
 
 	/* Get the button sizes.
@@ -551,33 +559,32 @@ int GTKIdel_cb(gpointer data) {
 	// thread sets the structure and then the action
 	// gets performed here.
 	// Expression control of active GUI sliders.
-	printd(LogTest, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
-//	return (FALSE);
+//	printd(LogDebug, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
-			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
+			printd(LogDebug, "GTKIdel_cb Slider1 %d \n", Slider1);
 			SetVolume1(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider2:
-			printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
+			printd(LogDebug, "GTKIdel_cb Slider2 %d \n", Slider2);
 			SetVolume2(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider3:
-			printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
+			printd(LogDebug, "GTKIdel_cb Slider3 %d \n", Slider3);
 			SetVolume3(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider4:
-			printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
+			printd(LogDebug, "GTKIdel_cb Slider4 %d \n", Slider4);
 //			SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
 
 		default:
 //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
-			printd(LogTest, "GTKIdel_cb Default\n");
+			printd(LogDebug, "GTKIdel_cb Default\n");
 //			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
@@ -588,26 +595,79 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
+
 	/* Check to see if a TAB was switched.
 	*/
-	if (TabSwitch != NULLSwitch) {
-		SwitchToTab(TabSwitch);
-		TabSwitch = NULLSwitch;
+	if (gMyInfo.TabSwitch != NULLSwitch) {
+		printd(LogTest, "TabSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+		SwitchToTab(gMyInfo.TabSwitch);
+		printd(LogTest, "TabSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+		gMyInfo.TabSwitch = NULLSwitch;
 	}
 
 	/* Check to see if a Window was switched.
 	*/
-	if (RaiseSwitch != NULLSwitch) {
-		RaiseWindowsNum(RaiseSwitch);
-		RaiseSwitch = NULLSwitch;
+	if (gMyInfo.RaiseSwitch != NULLSwitch) {
+		printd(LogTest, "RaiseSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+		RaiseWindowsNum(gMyInfo.RaiseSwitch);
+		printd(LogTest, "RaiseSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+		gMyInfo.RaiseSwitch = NULLSwitch;
 	}
 
+	/* Can't call this in the alsa thread.
+	*/
+	if (gMyInfo.GuitarMidiCall == GuitarMidiCallStart) {
+		printd(LogDebug, "GuitarMidiCallStart %d\n", gMyInfo.GuitarMidiCallParam1);
+		GuitarMidiPreset(gMyInfo.GuitarMidiCallParam1);
+		gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
+	}
+
+	if (gMyInfo.GuitarMidiCall == GuitarMidiCallComplete) {
+		printd(LogDebug, "GuitarMidiCallComplete %d\n", gMyInfo.GuitarMidiCallParam1);
+		GuitarMidiPresetComplete(gMyInfo.GuitarMidiCallParam1);
+		gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
+	}
+
+	if (gMyInfo.LayoutCall) {
+		LayoutSwitchPatch(gMyInfo.LayoutCallParam1, gMyInfo.LayoutCallParam2);
+		gMyInfo.LayoutCall = FALSE;
+	}
+
+
+	if (gMyInfo.NextDeskSwitch) {
+		NextDesktop();
+		gMyInfo.NextDeskSwitch = FALSE;
+	}
+
+	if (gMyInfo.PrevDeskSwitch) {
+		PrevDesktop();
+		gMyInfo.PrevDeskSwitch = FALSE;
+	}
+
+	if (gMyInfo.GoToDeskSwitch) {
+		GoToDesktop(gMyInfo.GoToDeskSwitch);
+		gMyInfo.GoToDeskSwitch = Max_Patches;
+	}
+
+	if (gMyInfo.IncrementSwitch) {
+		IncrementMode();
+		gMyInfo.IncrementSwitch = NULL;
+	}
+
+	if (RemoveMuteCount) {
+		if (RemoveMuteCount-- == 1 ) {
+			MyOSCJackMute(0, 0);
+			RemoveMuteCount = 0;
+		}
+	}
 
 	/* If new information about the slider.
 	*/
 	if (gMyInfo.SliderUpdate) {
-		printd(LogDebug, "SliderUpdate \n");
-		SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
+		if (gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].CustomCommand == cmdSetExpr) {
+			printd(LogDebug, "SliderUpdate \n");
+			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
+		}
 		gMyInfo.SliderUpdate = 0;
 	}
 
@@ -617,11 +677,23 @@ int GTKIdel_cb(gpointer data) {
 		UIUpdateFromTimer = FALSE;
 		printd(LogDebug, "UIUpdateFromTimer 1\n");
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
+
+		/* Make sure the buttons are all up after being pressed.
+		*/
+		ClearMainButtons();
+		/* With these off doesn't
+		seem to lock up.
+		*/
+		if (JackMaster)
+			jack_poll();
+
+		MyOSCPoll(FALSE);
 		PlayerPoll(TRUE);
-		HIDPoll();
+//		HIDPoll();
+
 //		printd(LogDebug, "UIUpdateFromTimer 2\n");
 
-		/*  Turn lights off
+		/*  Turn Pedal lights off
 		*/
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED3Off );
@@ -658,31 +730,9 @@ int GTKIdel_cb(gpointer data) {
 		}
 	}
 #endif
-//	printd(LogTest, "GTKIdel_cb out\n");
+//	printd(LogDebug, "GTKIdel_cb out\n");
 	return (FALSE);
 }
-
-
-/*--------------------------------------------------------------------
- * Function:            create_pixbuf
- *
- * Description:		Load an icon file for the application
- *
- *---------------------------------------------------------------------*/
-GdkPixbuf *create_pixbuf(const gchar * filename) {
-	GdkPixbuf *pixbuf;
-	GError *error = NULL;
-#if 0
-	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-	if (!pixbuf)
-		fprintf(stderr, "%s\n", error->message);
-	g_error_free(error);
-}
-return pixbuf;
-#endif
-return (NULL);
-}
-
 
 /*--------------------------------------------------------------------
  * Function:		SwitchToTab
@@ -706,7 +756,7 @@ void SwitchToTab(char Tab) {
 
 //	PreviousTab = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPane));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
-	printd(LogTest, "Switch to Tab %x %d %d\n", NoteBookPane, PreviousTab, Tab);
+	printd(LogDebug, "Switch to Tab %x %d %d\n", NoteBookPane, PreviousTab, Tab);
 }
 
 /*--------------------------------------------------------------------
@@ -861,13 +911,14 @@ void parse_cmdline(int argc, char *argv[]) {
 			{ "verbose", no_argument, 0, 'v' },
 			{ "FontSize", required_argument, 0, 'f' },
 			{ "jack", required_argument, 0, 'j' },
+			{ "disable-jack", no_argument, 0, 'd' },
 			{ "layout", required_argument, 0, 'l' },
 			{ "IncludeFile", no_argument, 0, 'i' },
 //			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "?hiv:f:j:l:",
+		c = getopt_long(argc, argv, "?hidv:f:j:l:",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
@@ -898,12 +949,18 @@ void parse_cmdline(int argc, char *argv[]) {
 			printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
 			break;
 
+		case 'd':
+			JackMaster = 0;
+			printd(LogInfo, "JackMaster off\n");
+			break;
+
 		default:
 		case 'h':
 			printf("Live Music CLI Usage\n");
 			printf(" v verbose - Debug output level\n");
 			printf(" f FontSize - Font Size for smaller screens.\n");
 			printf(" j jack - Jack master name.\n");
+			printf(" d disable-jack - Don't user jack.\n");
 			printf(" l Layout - Glade layout file.\n");
 			printf(" i IncludeFile - Generate include file on exit.\n");
 
@@ -1201,7 +1258,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment1);
-	printd(LogInfo, "Vscale 1 %d\n", NewValue);
+	printd(LogDebug, "Vscale 1 %d\n", NewValue);
 	ThisPatchNum = gMyInfo.HardSlider[0];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
@@ -1215,6 +1272,9 @@ void VScale1_Changed(GtkAdjustment *adj) {
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
 		         (char) NewValue * 1.27);
+
+	printd(LogDebug, "Vscale 1 End %d\n", NewValue);
+
 }
 
 /*--------------------------------------------------------------------
@@ -1237,13 +1297,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 	gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
 
-#if 0
-	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(NewValue, 0);
-	else
-#endif
-
-		LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
 
 	SendMidi(SND_SEQ_EVENT_CONTROLLER,
 	         ThisPatch->OutPort,
@@ -1271,17 +1325,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	ThisPatchNum = gMyInfo.HardSlider[2];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment3);
-	// Your ears are not linear.
-	// if (NewValue < 3)
-	// 	LogValue = NewValue;
-	// else
-//		LogValue = (int)( pow(NewValue, 0.75)*3.3);
 	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
-//		LogValue = (int)( logf((float)NewValue) * 21.8);
-//		LogValue = (int)( log2f((float)NewValue) * 50);
-
-//	printf( "%d, %d\n", NewValue, LogValue);
 
 	if (ThisPatch->OutPort == InternalPort)
 		MyOSCJackVol(LogValue, 0);
@@ -1358,6 +1402,8 @@ int SetVolume2(int Value) {
  * Description:
  *---------------------------------------------------------------------*/
 int SetVolume3(int Value) {
+	printd(LogDebug, "Slider 3 %x %d\n",
+	       Adjustment2, Value);
 	gtk_adjustment_set_value(Adjustment3, Value);
 	gtk_range_set_adjustment(VScale3, Adjustment3);
 	return (Value);
@@ -1369,8 +1415,9 @@ int SetVolume3(int Value) {
  * Description:
  *---------------------------------------------------------------------*/
 int SetVolume4(int Value) {
+	printd(LogDebug, "Slider 4 %x %d\n",
+	       Adjustment2, Value);
 	gtk_adjustment_set_value(Adjustment4, Value);
-//	gMyInfo.MidiVolume = Value;
 	gtk_range_set_adjustment(VScale4, Adjustment4);
 	return (Value);
 }
@@ -1446,11 +1493,13 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 	do {
 		printd(LogInfo, "DoPatch: %s \n", NextPatch->Name);
 		SendMidiPatch(NextPatch);
+
 		UpdateStatus(NextPatch->Name);
+		
 
 		NextCommand = FindString(fsPatchNames, NextPatch->Chain);
 		NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
-
+		LastAbsPatch = NextCommand;
 		if (NextCommand != -1)
 			usleep(150000);
 
@@ -1532,7 +1581,7 @@ void CreateHTMLGuide(LiveMusicInfo *myInfo) {
  *
  *---------------------------------------------------------------------*/
 void RaiseWindowsNum(int AppNumber) {
-//	printd(LogInfo,"Raise Window %s\n", gMyInfo.Apps[AppNumber].Name);
+	printd(LogInfo, "Raise Window %s\n", gMyInfo.Apps[AppNumber].Name);
 	RaiseWindows(&gMyInfo.Apps[AppNumber].Name);
 }
 
@@ -1603,7 +1652,7 @@ void IncrementMode(void) {
 //	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
-	printd(LogInfo, "Increment Mode %d\n", CurrentLayout);
+	printd(LogDebug, "Increment Mode %d\n", CurrentLayout);
 }
 
 /*--------------------------------------------------------------------
@@ -1694,8 +1743,6 @@ int GuitarMidiPreset(char Wait) {
 	*/
 	SwitchToTab(0);
 
-	sleep(1);
-
 	// MyOSCJackVol(NewValue);
 	MyOSCJackMute(1, 0);
 	WaitingforMidi = 1;
@@ -1718,7 +1765,7 @@ int GuitarMidiPreset(char Wait) {
 int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	tPatchIndex PatchChange;
 
-	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
+//	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
 	if (MidiNote < Max_Patches) {
 		PatchChange = MidiNote - gMyInfo.MidiBaseNote;
@@ -1736,7 +1783,9 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	if (WaitingforMidiHold == 0) {
 		WaitingforMidi = 0;
-		MyOSCJackMute(0, 0);
+		/* In case the note rings.
+		*/
+		RemoveMuteCount = MuteCountDelay;
 	} else if (MidiNote >= Max_Patches) {
 		WaitingforMidi = 0;
 		MyOSCJackMute(0, 0);
@@ -1803,7 +1852,7 @@ gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data)  {
 			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) < MaxKeyTimeout || gMyInfo.KeyPatchValue == 0 ) {
 				gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
 				gMyInfo.KeyIsValue = 1;
-				printd(LogDebug, "Key %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
+				printd(LogDebug, "Key Press %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
 			}
 		} else
 			gMyInfo.KeyPatchValue = gMyInfo.KeyChar;
@@ -1915,6 +1964,27 @@ int CloseHistoryFile(void) {
 }
 
 #if 0
+/*--------------------------------------------------------------------
+ * Function:            create_pixbuf
+ *
+ * Description:		Load an icon file for the application
+ *
+ *---------------------------------------------------------------------*/
+GdkPixbuf *create_pixbuf(const gchar * filename) {
+	GdkPixbuf *pixbuf;
+	GError *error = NULL;
+#if 0
+	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+	if (!pixbuf)
+		fprintf(stderr, "%s\n", error->message);
+	g_error_free(error);
+}
+return pixbuf;
+#endif
+return (NULL);
+}
+
+
 /*--------------------------------------------------------------------
  * Function:		CheckConnectionData
  *

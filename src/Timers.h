@@ -33,8 +33,15 @@ extern int TempoState;
 enum { tmrAlsa = 0, tmrGTK = 1, tmrRT = 2 };
 #define TimerToUse tmrRT
 
+
 //#define AlsaTimer 1
+
+// GTK timer not very accurate.
 //#define GTKTimer 1
+
+// Accurate but, locks in 
+// __GI___poll (fds=0x7fff254dd658, nfds=1, timeout=-1)
+//    at ../sysdeps/unix/sysv/linux/poll
 #define RTTimer 1
 
 /*

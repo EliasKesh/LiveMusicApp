@@ -242,7 +242,8 @@ static struct {
 static gboolean envir_utf8;
 
 void RaiseWindows(char *AppName) {
-	Display *disp;
+	Display *disp = NULL;
+	memset(&options, 0, sizeof(options)); /* just for sure */
 
 	printf("RaiseWindows %s\n", AppName);
 	if (!(disp = XOpenDisplay(NULL))) {
@@ -258,6 +259,8 @@ void RaiseWindows(char *AppName) {
 void NextDesktop(void) {
 	Display *disp;
 	int error;
+	memset(&options, 0, sizeof(options)); /* just for sure */
+
 
 	if (!(disp = XOpenDisplay(NULL))) {
 		fputs("Cannot open display.\n", stderr);
@@ -276,6 +279,8 @@ void NextDesktop(void) {
 void PrevDesktop(void) {
 	Display *disp;
 	int error;
+	memset(&options, 0, sizeof(options)); /* just for sure */
+
 
 	if (!(disp = XOpenDisplay(NULL))) {
 		fputs("Cannot open display.\n", stderr);
@@ -294,6 +299,8 @@ void PrevDesktop(void) {
 void GoToDesktop(char Number) {
 	Display *disp;
 	int error;
+	memset(&options, 0, sizeof(options)); /* just for sure */
+
 
 	if (!(disp = XOpenDisplay(NULL))) {
 		fputs("Cannot open display.\n", stderr);

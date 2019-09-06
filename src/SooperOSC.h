@@ -52,6 +52,7 @@ enum {
 	OSCSyncOff,
 	OSCSyncSource,
 	OSCRecThres,
+	OSCRecLoop,
 	MaxOSCCommands
 };
 

@@ -167,6 +167,9 @@ function FindDevice {
         AudioDevice=$Device
         AudioInDevice=$Device
         AudioOutDevice=$Device
+                JBuffer=128
+        JPeriod=3
+
         MidiGuitarInputPort="iO4"
         PedalBoardIn="iO4"
         MidiOut="iO4"
@@ -1031,7 +1034,7 @@ function SetUpApplications {
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15 `GTK_THEME=LiveMusicTheme ./LiveMusicApp -v 1 -l $ButtonLayout -j "${AudioOutDevice}"`  >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme ./LiveMusicApp -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
 #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
@@ -1083,7 +1086,7 @@ function SetUpApplications {
     
     # Do we launch the drum machine .
     if test "${Hydrogen}" = "true"; then
-        hydrogen -s  /home/Dropbox/LiveEffects/Drums/AllPatterns.h2song &
+        hydrogen -s  /home/Dropbox/LiveEffects/Drums/JustFunky.h2song &
     fi
     
     Delay 2
@@ -1215,8 +1218,8 @@ function SetPlacement1920 {
     wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
     wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
     
-    wmctrl -F -r LiveMusicApp -t $LiveMusicAppDesktop
-    wmctrl -F -r LiveMusicApp -e 0,0,0,1855,1050
+    wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
+    wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1855,1050
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,850,400,1000,600
@@ -1257,8 +1260,8 @@ function SetPlacement1600 {
     wmctrl -r ${EffectsProcessorName} -e 0,$NewOffset,30,850,650
     wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
     
-    wmctrl -r LiveMusicApp -e 0,`expr $NewOffset + 550`,10,1340,800
-    wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
+    wmctrl -r LiveMusicApp_1 -e 0,`expr $NewOffset + 550`,10,1340,800
+    wmctrl -r LiveMusicApp_1 -t $LiveMusicAppDesktop
     
     wmctrl -r Patchage -e 0,80,10,1200,700
     wmctrl -r Patchage -t $PatchageDesktop
@@ -1290,8 +1293,8 @@ function SetPlacement1200 {
     wmctrl -r ${EffectsProcessorName} -e 1,0,30,850,760
     wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
     
-    wmctrl -r LiveMusicApp -e 0,0,10,1300,760
-    wmctrl -r LiveMusicApp -t $LiveMusicAppDesktop
+    wmctrl -r LiveMusicApp_1 -e 0,0,10,1300,760
+    wmctrl -r LiveMusicApp_1 -t $LiveMusicAppDesktop
     
     wmctrl -r Patchage -e 0,80,10,1000,700
     wmctrl -r Patchage -t $PatchageDesktop
@@ -1337,7 +1340,7 @@ MidiController=true
 Rosegarden=false
 Hydrogen=false
 Ardour=false
-MP3Player=true
+MP3Player=false
 Looper=false
 MusicViewer=false
 LogFile=LogGuitar
@@ -1497,6 +1500,7 @@ while getopts "abcdfrpmvlswt" OPT; do
             killall aqualung
             killall mididings
             KillAll a2jmidid
+            KillAll gedit
             
             
             KillAll jackd

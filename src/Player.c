@@ -64,7 +64,7 @@ int PlayerWrite(char *String);
 /*
  * Place Static variables here
  */
-static FILE *SavedLoop;
+static FILE *SavedLoopFD;
 static FILE *OutPipe;
 int InPipeFD;
 int PlayPauseState = 1;
@@ -360,6 +360,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 G_CALLBACK(normal_release_handler),
 	                 &EnterSaveLoop);
 
+
 	/*
 	 * Create a new saved loop
 	 */
@@ -564,16 +565,23 @@ void SetPlayerFile(char *FileName) {
 void OpenSavedLoopFile(char *FileName) {
 	char SaveLoopName[300];
 	NumSavedLoops = 0;
+
+
+	if (SavedLoopFD) {
+		fclose(SavedLoopFD);
+	}
+
+	NumSavedLoops = 0;
 	/*
 	 * Let's open the Saved Looped file.
 	 */
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX(SaveCombo));
 	sprintf(SaveLoopName, "%s.Loops", FileName);
 	printd(LogDebug, " OpenSavedLoopFile %s\n", SaveLoopName);
-	SavedLoop = fopen(SaveLoopName, "r+");
-	if (SavedLoop) {
-		while (!feof(SavedLoop)) {
-			fscanf(SavedLoop, "%s %f, %f \n",
+	SavedLoopFD = fopen(SaveLoopName, "r+");
+	if (SavedLoopFD) {
+		while (!feof(SavedLoopFD)) {
+			fscanf(SavedLoopFD, "%s %f, %f \n",
 			       &mySavedLoops[NumSavedLoops].LoopName,
 			       &mySavedLoops[NumSavedLoops].Start,
 			       &mySavedLoops[NumSavedLoops].Length);
@@ -599,7 +607,7 @@ void OpenSavedLoopFile(char *FileName) {
 				gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo), 1);
 			}
 		}
-		fclose(SavedLoop);
+//		fclose(SavedLoopFD);
 	}
 }
 /*--------------------------------------------------------------------
@@ -614,17 +622,24 @@ void SaveLoopFile(void) {
 	 * Let's open the Saved Looped file.
 	 */
 	sprintf(SaveLoopName, "\"%s.Loops\"", CurrentFile);
-	printd(LogDebug, " SavedLoopFile %s\n", SaveLoopName);
-	SavedLoop = fopen(SaveLoopName, "w");
-	if (SavedLoop) {
+//	sprintf(SaveLoopName, "MyTest.loop");
+	printd(LogTest, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
+//	SavedLoopFD = fopen(SaveLoopName, "a+");
+	printd(LogTest, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+	if (SavedLoopFD) {
 		while (Loop < NumSavedLoops) {
-			fprintf(SavedLoop, "%s %f, %f \n",
+			fprintf(SavedLoopFD, "%s %f, %f \n",
 			        mySavedLoops[Loop].LoopName,
 			        mySavedLoops[Loop].Start,
 			        mySavedLoops[Loop].Length);
+			printf("%s %f, %f \n",
+			        mySavedLoops[Loop].LoopName,
+			        mySavedLoops[Loop].Start,
+			        mySavedLoops[Loop].Length);
+
 			Loop++;
 		}
-		fclose(SavedLoop);
+//		fclose(SavedLoopFD);
 	}
 }
 
@@ -695,6 +710,9 @@ void PlayerPoll(char How) {
 		return;
 	}
 
+	if (PlayPauseState) {
+		return;
+	}
 	/*
 	 * Ask the player for the current playback position.
 	 */
@@ -936,7 +954,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	char *entry_line;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
+	printd(LogTest, "NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1206,6 +1224,7 @@ void plLoopToggle(void) {
  * Description:		Position Sliders changed.
  *---------------------------------------------------------------------*/
 void plPausePlay(void) {
+
 	if (PlayPauseState) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(PlayPause.Image),
 		                          PlayPause.ButtonUpImage);

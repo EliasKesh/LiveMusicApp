@@ -593,7 +593,7 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
 /*--------------------------------------------------------------------
 * Function:		SendMidiPatch
 *
-* Description:		<Description/Comments>
+* Description:		This should not get called via the thread.
 *
 *---------------------------------------------------------------------*/
 int SendMidiPatch(PatchInfo * thePatch) {
@@ -631,15 +631,15 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case ToNextDesktop:
-		NextDesktop();
+		gMyInfo.NextDeskSwitch = TRUE;
 		break;
 
 	case ToPrevDesktop:
-		PrevDesktop();
+		gMyInfo.PrevDeskSwitch = TRUE;
 		break;
 
 	case ToDesktop:
-		GoToDesktop(thePatch->Patch);
+		gMyInfo.GoToDeskSwitch = thePatch->Patch;
 		break;
 
 #if 0
@@ -653,12 +653,15 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 #endif
 	case cmdMidiSelect:
-		GuitarMidiPreset(FALSE);
+		gMyInfo.GuitarMidiCallParam1 = FALSE;
+		gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
+		printd(LogTest, "GuitarMidiPreset cmdMidiSelect %d\n", gMyInfo.GuitarMidiCallParam1);
 		break;
 
 	case cmdBankSelect:
 		printd(LogInfo, "Bank Select COmmand\n");
-		IncrementMode();
+		gMyInfo.IncrementSwitch = TRUE;
+//		IncrementMode();
 		break;
 
 	case cmdSetList:
@@ -688,11 +691,11 @@ int SendMidiPatch(PatchInfo * thePatch) {
 //      GuitarMidiPreset break;
 
 	case SwitchTab:
-		TabSwitch = thePatch->Patch;
+		gMyInfo.TabSwitch = thePatch->Patch;
 		break;
 
 	case RaiseApp:
-		RaiseSwitch = thePatch->Patch;
+		gMyInfo.RaiseSwitch = thePatch->Patch;
 		break;
 
 	case TransStart:
@@ -732,7 +735,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case cmdVolume:
-		SetVolume1(thePatch->Patch + gMyInfo.AnalogVolume);
+//		SetVolume1(thePatch->Patch + gMyInfo.AnalogVolume);
 		break;
 
 	/* OSC to sooperlooper
@@ -810,7 +813,13 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	*/
 	case cmdHardSlider:
 	case cmdSetExpr:
+		/* Which control should the
+		expression pedal control.
+		*/
 		gMyInfo.ExpreP1Slider = LastAbsPatch;
+
+		/* Used to update the text.
+		*/
 		gMyInfo.SliderUpdate = LastAbsPatch;
 
 		printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, LastAbsPatch);
@@ -911,12 +920,18 @@ void *alsa_midi_thread(void * context_ptr) {
 		case SND_SEQ_EVENT_NOTE:
 			sprintf(msg_str_ptr, "Note");
 			if (WaitingforMidi) {
-				GuitarMidiPresetComplete(event_ptr->data.control.value);
+				gMyInfo.GuitarMidiCallParam1 = event_ptr->data.control.value;
+				gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
+		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
+
+//				GuitarMidiPresetComplete(event_ptr->data.control.value);
 			}
 			break;
 		case SND_SEQ_EVENT_NOTEON:
 			if (WaitingforMidi) {
-				GuitarMidiPresetComplete(event_ptr->data.note.note);
+				gMyInfo.GuitarMidiCallParam1 = event_ptr->data.note.note;
+				gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
+		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
 			} else {
 				//SendMidi(SND_SEQ_EVENT_NOTEON, 0, FluidPort, 07, (int) val);
 				if (event_ptr->data.note.velocity != 0) {
@@ -1013,22 +1028,18 @@ void *alsa_midi_thread(void * context_ptr) {
 				switch (gMyInfo.ExpreP1Slider) {
 				case Slider1:
 					AlsaEvent = *event_ptr;
-//					SetVolume1(event_ptr->data.control.value);
 					break;
 
 				case Slider2:
 					AlsaEvent = *event_ptr;
-//					SetVolume2(event_ptr->data.control.value);
 					break;
 
 				case Slider3:
 					AlsaEvent = *event_ptr;
-//					SetVolume3(event_ptr->data.control.value);
 					break;
 
 				case Slider4:
 					AlsaEvent = *event_ptr;
-//					SetVolume4(event_ptr->data.control.value);
 //					break;
 
 				default:
@@ -1098,11 +1109,18 @@ void *alsa_midi_thread(void * context_ptr) {
 				sprintf(msg_str_ptr, "Midi Preset Selection, %d",
 				        (signed int) event_ptr->data.control.value);
 				if (event_ptr->data.control.value == 0) {
-					GuitarMidiPreset(TRUE);
+				gMyInfo.GuitarMidiCallParam1 = TRUE;
+				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
+		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
+
+//					GuitarMidiPreset(TRUE);
 				}
 #if 1
 				if (event_ptr->data.control.value == 1) {
-					GuitarMidiPresetComplete(Max_Patches);
+					gMyInfo.GuitarMidiCallParam1 = Max_Patches;
+					gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
+		printd(LogTest, "GuitarMidiPresetComplete SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
+//					GuitarMidiPresetComplete(Max_Patches);
 				}
 #endif
 				break;
@@ -1118,7 +1136,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_MAIN_VOLUME:
 				cc_name = "LSB Main volume";
-				SetVolume4(event_ptr->data.control.value / 1.28);
+//				SetVolume4(event_ptr->data.control.value / 1.28);
 				break;
 			case MIDI_CTL_LSB_BALANCE:
 				cc_name = "Balance";
@@ -1291,11 +1309,13 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (FishmanDPad == 12) {
 					FishmanBullSh = 1;
 				}
-#if 0
+#if 1
 
 				if (FishmanDPad == 85) {
 					FishmanBullSh = 0;
-					GuitarMidiPreset(FALSE);
+				gMyInfo.GuitarMidiCallParam1 = FALSE;
+				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
+		printd(LogTest, "GuitarMidiPreset FishmanDPad %d\n", gMyInfo.GuitarMidiCallParam1);
 
 				}
 #endif
@@ -1310,7 +1330,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (FishmanDPad == 12) {
 					if (AlsaValue == 0) {
 						printd(LogDebug, "Fishman Value %d %d\n", AlsaValue, FishmanDPad);
-						GuitarMidiPreset();
+//						GuitarMidiPreset();
 					}
 				}
 
@@ -1339,7 +1359,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 					case 1:
 						FishmanSwitch = FishmanLeft;
-						GuitarMidiPreset();
+//						GuitarMidiPreset();
 						break;
 
 					}
@@ -1371,7 +1391,9 @@ void *alsa_midi_thread(void * context_ptr) {
 
 			if (AlsaValue == 1) {
 				FishmanBullSh = 0;
-				GuitarMidiPreset(FALSE);
+				gMyInfo.GuitarMidiCallParam1 = FALSE;
+				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
+		printd(LogTest, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
 
 			}
 
@@ -1399,9 +1421,11 @@ void *alsa_midi_thread(void * context_ptr) {
 			        (unsigned int) event_ptr->data.control.value);
 
 			/* Here is where Program changes happen from Program change inputs.
-			 */
-			PatchIndex = LayoutSwitchPatch(event_ptr->data.control.value,
-			                               true);
+			 
+			 EJK Check if context is OK to do this here in the thread. */
+			gMyInfo.LayoutCall = TRUE;
+			gMyInfo.LayoutCallParam1 = event_ptr->data.control.value;
+			gMyInfo.LayoutCallParam2 = TRUE;			
 
 			break;
 		case SND_SEQ_EVENT_CHANPRESS:

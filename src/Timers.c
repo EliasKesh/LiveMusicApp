@@ -230,7 +230,7 @@ void MyTimerInit(void) {
 	gMyInfo.TempoTimerID = 0;
 	gMyInfo.TimerCount = 0;
 	gMyInfo.AlsaTimerHandle = 0;
-	SetTempo(120);
+	SetTempo(130);
 }
 
 /*--------------------------------------------------------------------
@@ -291,9 +291,9 @@ void SetTempo(unsigned int NewTempo) {
 		in.it_value.tv_nsec = 0;
 		in.it_interval.tv_sec = 0;
 
-		in.it_interval.tv_nsec = 30000000000 / NewTempo;
+//		in.it_interval.tv_nsec = 30000000000 / NewTempo;
 		// Double the timer interval.
-//		in.it_interval.tv_nsec = 15000000000 / NewTempo;
+		in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
 		//issue the periodic timer request here.
 		Ret = timer_settime(timerid, 0, &in, &out);
@@ -320,14 +320,14 @@ static void time_handlerRT (union sigval val) {
 
 //	printd(LogDebug, " IN time_handler\n");
 
-//	if (++SubBeats > 3) {
-	if (++SubBeats > 1) {
+	if (++SubBeats > 7) {
+//	if (++SubBeats > 1) {
 		ToggleTempo();
 		SubBeats = 0;
 //	printf(" IN time_handler\n");
-		g_idle_add(GTKIdel_cb, theMainWindow);
 	}
 
+	g_idle_add(GTKIdel_cb, theMainWindow);
 
 	return;
 }
@@ -376,7 +376,7 @@ void ToggleTempo(void) {
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
-			printd(LogDebug, "cntStateWaitingforRecCount %d\n", BeatCount);
+			printd(LogTest, "cntStateWaitingforRecCount %d\n", BeatCount);
 			/* Wait for the downbeat.
 			*/
 			if (BeatCount == 1)
@@ -385,14 +385,14 @@ void ToggleTempo(void) {
 			break;
 
 		case cntStateWaitingforRecCount:
-			printd(LogDebug, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+			printd(LogTest, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 			if (CountInCount-- == gMyInfo.CountInBeats) {
 
 				/* Tell Drums to start.
 				*/
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
-				printd(LogDebug, "Start %d %d\n", CountInCount,  TempoState);
+				printd(LogTest, "Start %d %d\n", CountInCount,  TempoState);
 				/* Set sync source to Internal
 				*/
 				OSCCommand(OSCSyncSource, typeSyncjack);
@@ -409,8 +409,8 @@ void ToggleTempo(void) {
 				// Send a start record over OSC
 				com_play();
 				//		OSCCommand(OSCStartRecord, 0);
-//				gMyInfo.MetronomeOn = FALSE;
-				printd(LogDebug, "Loop Start 1\n\n");
+				gMyInfo.MetronomeOn = FALSE;
+				printd(LogTest, "Loop Start 1\n\n");
 			}
 
 			break;
@@ -418,11 +418,12 @@ void ToggleTempo(void) {
 		/* If we are recording and still not done.
 		*/
 		case cntStateRecording:
-			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
+			printd(LogTest, "cntStateRecording %d\n", LoopRecBeats);
 			if (LoopRecBeats == gMyInfo.LoopRecBeats)
 				OSCCommand(OSCStartRecord, 0);
-				LoopRecBeats--;
 
+
+			LoopRecBeats--;
 #if 0
 
 			if (LoopRecBeats == 0) {
@@ -442,19 +443,17 @@ void ToggleTempo(void) {
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
-				printd(LogDebug, "Loop Off\n\n");
+				printd(LogTest, "Loop Off\n\n");
 
 				CountInActiveState = cntStatePostRecord;
 			}
-
-
 			break;
 
 		case cntStatePostRecord:
+			printd(LogTest, "Record Post\n\n");
 			CountInActiveState = cntStateWaitingIdle;
 			OSCCommand(OSCSyncSource, 1);
 			OSCCommand(OSCSyncOn, 0);
-
 			break;
 
 		/* If we are not recording, but the CountIn has
@@ -485,17 +484,11 @@ void ToggleTempo(void) {
 				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
-			sprintf(TempoUpdateString, "On %d - %d", gMyInfo.Tempo, BeatCount);
+			sprintf(TempoUpdateString, "On %d - %d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
 		} else
 			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
 
 
-		/* Make sure the buttons are all up after being pressed.
-		*/
-		ClearMainButtons();
-
-		jack_poll();
-		MyOSCPoll(FALSE);
 
 		UIUpdateFromTimer = TRUE;
 
