@@ -488,13 +488,31 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
-	if (strstr(theURI, ".mid") ) {
+	if (strstr(theURI, ".mid") || strstr(theURI, ".med") ) {
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
 		sprintf(string, "/usr/bin/muse \'%s\' &", &theURI[7]);
+//		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
+		system(string);
+		printf("**----** systemcall %s\n", string);
+		printd(LogDebug, "*** systemcall %s\n", string);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	if (strstr(theURI, ".mscz")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+		sprintf(string, "/usr/bin/musescore \'%s\' &", &theURI[7]);
 		system(string);
 		printf("**----** systemcall %s\n", string);
 		printd(LogDebug, "*** systemcall %s\n", string);

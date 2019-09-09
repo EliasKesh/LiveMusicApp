@@ -710,9 +710,9 @@ void PlayerPoll(char How) {
 		return;
 	}
 
-	if (PlayPauseState) {
-		return;
-	}
+	// if (PlayPauseState) {
+	// 	return;
+	// }
 	/*
 	 * Ask the player for the current playback position.
 	 */
