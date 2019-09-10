@@ -1,6 +1,4 @@
 bin_PROGRAMS = LiveMusicApp
-#SUBDIRS = src ChartFixer
-# VPATH = src:ChartFixer
 ACLOCAL_AMFLAGS = -I m4
 
 LiveMusicApp_SOURCES = src/AlsaUtils.c \
@@ -34,7 +32,7 @@ src/SooperOSC.h \
 ChartFixer/ChartFixer.c \
 ChartFixer/ChartFixer.h
 
-LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result
+LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result -Wno-deprecated
 LiveMusicApp_CPPFLAGS += $(GTK3_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(ALSA_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(GLADEUI_CFLAGS)
@@ -54,3 +52,7 @@ LiveMusicApp_LDFLAGS += $(JACK_LIBS)
 LiveMusicApp_LDFLAGS += $(LIBLO_LIBS)
 LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __Bump_NUMBER=$$(./Scripts/IncBuildNumber.sh)
 # LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
+
+# Copy the preferences.
+Prefsdir = "$(HOME)/.config/LiveMusicApp"
+Prefs_DATA = LiveMusicRes/* 

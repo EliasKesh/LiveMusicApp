@@ -215,7 +215,11 @@ void InitGuiPrefs(void) {
 	GtkWidget *view;
 	GtkWidget *widget;
 	GtkWidget *About_Box;
+	GtkWidget *MidiOutput;
 	char 	VersionString[200];
+
+	MidiOutput = GTK_WIDGET(gtk_builder_get_object(gxml, "MidiOutputList"));
+
 
 	view = CreatePatchViewModel();
 	Patch_Pane = GTK_WIDGET(gtk_builder_get_object(gxml, "PatchScroller"));
@@ -271,7 +275,13 @@ void InitGuiPrefs(void) {
 	                 &Midi_Base);
 	gtk_spin_button_set_value(Midi_Base, gMyInfo.MidiBaseNote);
 
-
+	/* Midi output port pane.
+	*/
+	MidiOutput = GTK_WIDGET(gtk_builder_get_object(gxml, "MidiOutputList"));
+	printf("GTK-WIDGET %x\n", MidiOutput);
+	gtk_list_box_insert(MidiOutput, "One", 0);
+	gtk_list_box_insert(MidiOutput, "Three", 2);
+	gtk_list_box_insert(MidiOutput, "Two", 1);
 
 	OSC_Address = GTK_WIDGET(gtk_builder_get_object(gxml, "OSC_Address"));
 	g_signal_connect(G_OBJECT(OSC_Address),
