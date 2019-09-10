@@ -47,14 +47,16 @@ int WriteToHistory(char *str);
 
 int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 
-#define ResourceDirectory	"./LiveMusicRes/"
+//#define ResourceDirectory	"/usr/share/LiveMusicApp/"
+//#define ResourceDirectory	"~/.config/LiveMusicApp/"
+
 
 #define MaxStringPortName	32
 enum {
 	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
-	TempoPort, ClickPort, PedalPort, InternalPort, MaxOutPorts
+	TempoPort, ClickPort, PedalPort, InternalPort, 
+	User1, User2, User3, MaxOutPorts
 };
-
 
 
 // Timer countdown in Miliseconds
@@ -534,5 +536,6 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void SetScale4Label(char *String);
 int GTKIdel_cb(gpointer data);
+char *GetResourceDir(char *FileName);
 
 #endif

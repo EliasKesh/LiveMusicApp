@@ -16,3 +16,14 @@ an analog effects processor (rakarrack), midi font player
 (hydrogen), MP3 player (clementine) and guitar tab editor (TuxGuitar).
 However all of these are configurable so that they can be changed
 based on the preferences of the user.
+
+Building:
+./autogen.sh clean
+./autogen.sh
+./confgure
+make
+sudo make install
+
+and/or 
+dpkg-buildpackage -b -uc -us
+

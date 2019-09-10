@@ -203,7 +203,7 @@ LiveMusicInfo GlobalInfo = {
 /* 181 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 },
 "/home/Dropbox/FusionBlue/index.html",
-6, 
+9, 
  { 
 "Fluid",
 "Guitarix",
@@ -211,7 +211,10 @@ LiveMusicInfo GlobalInfo = {
 "Transport",
 "Tempo",
 "Click",
-"Pedal"
+"Pedal",
+"User1",
+"User2",
+"User3"
 },
 {
 { "guitarix", 0 },

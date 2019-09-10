@@ -32,23 +32,24 @@
 #include "PrefsGui.h"
 #include <unistd.h>
 #include "config.h"
+#include <pwd.h>
 
 //#define UsingNewButtons	1
 
 #ifdef UsingNewButtons
-#define GLADE_FILE ResourceDirectory"LiveMusicApp.glade.Buttons"
+#define GLADE_FILE GetResourceDir("LiveMusicApp.glade.Buttons")
 #else
-#define GLADE_FILE ResourceDirectory"LiveMusicApp.glade"
+#define GLADE_FILE "LiveMusicApp.glade"
 #endif
-#define Icon_FILE ResourceDirectory"LiveIcon.png"
+#define Icon_FILE GetResourceDir("LiveIcon.png")
 #define MaxTabs	5
 #define UsingImageButtons
 
 /* Max number of history messages.
 */
 #define MaxStatusHold 8
-#define CSSFileName "./LiveMusicRes/LiveMusicApp.css"
-#define HistoryFileName	"./LiveMusicRes/LiveMusicHistory"
+#define CSSFileName GetResourceDir("LiveMusicApp.css")
+#define HistoryFileName	GetResourceDir("LiveMusicHistory")
 #define MaxKeyTimeout	3
 
 // export LIBGL_ALWAYS_SOFTWARE=1
@@ -110,6 +111,7 @@ FILE 	*FileHistory;
 
 #define MuteCountDelay  8;
 char  RemoveMuteCount;
+char *homedir;
 
 /*
  * Place Local prototypes here
@@ -171,6 +173,25 @@ char *printd(char LogLevel, const char *fmt, ...) {
 
 	return NULL;
 }
+char *ResourceFileName[250];
+
+/*--------------------------------------------------------------------
+ * Function:		GetResourceDir
+ *
+ * Description:		Return the full path for the file.
+ *
+ *---------------------------------------------------------------------*/
+char *GetResourceDir(char *FileName) {
+
+	strcpy(ResourceFileName, homedir);
+	printf("New File Name %s\n",ResourceFileName);
+
+	strcat(ResourceFileName, "/.config/LiveMusicApp/");
+
+	strcat(ResourceFileName, FileName);
+	printf("New File Name %s\n",ResourceFileName);
+	return(ResourceFileName);
+}
 
 /*--------------------------------------------------------------------
  * Function:            main
@@ -212,6 +233,14 @@ int main(int argc, char *argv[]) {
 	gMyInfo.NextDeskSwitch = NULLSwitch;
 	gMyInfo.PrevDeskSwitch = NULLSwitch;
 	gMyInfo.GoToDeskSwitch = Max_Patches;
+
+	if ((homedir = getenv("HOME")) == NULL) {
+	    homedir = getpwuid(getuid())->pw_dir;
+	}
+
+	printf("Home Dir %s\n",homedir );
+
+	GetResourceDir("./MyFile.png");
 
 	/* Default name for the jack client.
 	*/
@@ -298,8 +327,8 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 
 	/* Choose the glad file based on the layout we are using.
 	*/
-	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
-	if (!gtk_builder_add_from_file(gxml, TempStrBuf, &error)) {
+	sprintf(TempStrBuf, "%s.%d",GLADE_FILE, KeyLayout);
+	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf), &error)) {
 		g_warning("Couldn't load builder file: %s", error->message);
 		g_error_free(error);
 	}
@@ -340,17 +369,17 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	MButtonY = (int) ((float) ButtonSize * 0.6);
 
 	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                        "./LiveMusicRes/MainSwitchOn.png", MButtonX, MButtonY, NULL, NULL);
+	                        GetResourceDir("MainSwitchOn.png"), MButtonX, MButtonY, NULL, NULL);
 	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                         "./LiveMusicRes/MainSwitchOff.png", MButtonX, MButtonY, NULL, NULL);
+	                         GetResourceDir("MainSwitchOff.png"), MButtonX, MButtonY, NULL, NULL);
 	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         "./LiveMusicRes/PatchSwitchOn.png", BButtonX, BButtonY, NULL, NULL);
+	                         GetResourceDir("PatchSwitchOn.png"), BButtonX, BButtonY, NULL, NULL);
 	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          "./LiveMusicRes/PatchSwitchOff.png", BButtonX, BButtonY, NULL, NULL);
+	                          GetResourceDir("PatchSwitchOff.png"), BButtonX, BButtonY, NULL, NULL);
 	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         "./LiveMusicRes/NoteBSwitchOn.png", MButtonX, MButtonY, NULL, NULL);
+	                         GetResourceDir("NoteBSwitchOn.png"), MButtonX, MButtonY, NULL, NULL);
 	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          "./LiveMusicRes/NoteBSwitchOff.png", MButtonX, MButtonY, NULL, NULL);
+	                          GetResourceDir("NoteBSwitchOff.png"), MButtonX, MButtonY, NULL, NULL);
 //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 

@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -105,7 +106,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_LiveMusicApp_OBJECTS = src/LiveMusicApp-AlsaUtils.$(OBJEXT) \
@@ -190,6 +191,34 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+DATA = $(Prefs_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -364,8 +393,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-#SUBDIRS = src ChartFixer
-# VPATH = src:ChartFixer
 ACLOCAL_AMFLAGS = -I m4
 LiveMusicApp_SOURCES = src/AlsaUtils.c \
 src/HTML.c \
@@ -399,15 +426,20 @@ ChartFixer/ChartFixer.c \
 ChartFixer/ChartFixer.h
 
 LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 \
-	-Wno-unused-result $(GTK3_CFLAGS) $(ALSA_CFLAGS) \
-	$(GLADEUI_CFLAGS) $(WEBKIT2GTK_CFLAGS) $(JACK_CFLAGS) \
-	$(LIBLO_CFLAGS) -DMY_BUILD_NUMBER=$$(cat \
+	-Wno-unused-result -Wno-deprecated $(GTK3_CFLAGS) \
+	$(ALSA_CFLAGS) $(GLADEUI_CFLAGS) $(WEBKIT2GTK_CFLAGS) \
+	$(JACK_CFLAGS) $(LIBLO_CFLAGS) -DMY_BUILD_NUMBER=$$(cat \
 	./Scripts/BuildNumber)
 #LiveMusicApp_CPPFLAGS += -DBUILD_NUMBER1=$(shell ./IncBuildNumber.sh)
 LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/ -lxmltok -lxml2 \
 	$(GTK3_LIBS) $(ALSA_LIBS) $(GLADEUI_v) $(WEBKIT2GTK_LIBS) \
 	$(JACK_LIBS) $(LIBLO_LIBS) -Xlinker --defsym -Xlinker \
 	__Bump_NUMBER=$$(./Scripts/IncBuildNumber.sh)
+# LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
+
+# Copy the preferences.
+Prefsdir = "$(HOME)/.config/LiveMusicApp"
+Prefs_DATA = LiveMusicRes/* 
 all: all-am
 
 .SUFFIXES:
@@ -846,6 +878,27 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-PrefsDATA: $(Prefs_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(Prefs_DATA)'; test -n "$(Prefsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(Prefsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(Prefsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(Prefsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(Prefsdir)" || exit $$?; \
+	done
+
+uninstall-PrefsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(Prefs_DATA)'; test -n "$(Prefsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(Prefsdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1074,9 +1127,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1151,7 +1204,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-PrefsDATA
 
 install-dvi: install-dvi-am
 
@@ -1214,7 +1267,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-PrefsDATA uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
@@ -1225,20 +1278,19 @@ uninstall-am: uninstall-binPROGRAMS
 	dist-xz dist-zip distcheck distclean distclean-compile \
 	distclean-generic distclean-hdr distclean-libtool \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS
+	dvi-am html html-am info info-am install install-PrefsDATA \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-PrefsDATA uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
-# LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

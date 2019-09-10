@@ -17,7 +17,8 @@ DestDir="/home/Dropbox/LiveEffects/"
 
 cp LiveMusicApp  ${DestDir}
 cp ./Scripts/KeepLiveMusicRunning.sh  ${DestDir}
-rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
+# rsync -avrx ./LiveMusicRes/ ${DestDir}LiveMusicRes/
+rsync -avrx ./LiveMusicRes/ ~/.config/LiveMusicApp/
 cp ./Scripts/GuitarEffects ${DestDir}
 # cp /home/elias/workspace/MusicFiles/ExtractHTML ${DestDir}
 cp /home/elias/workspace/MusicFiles/MyTuxGuitar ${DestDir}
@@ -25,6 +26,10 @@ cp /home/elias/workspace/MusicFiles/jack-plumbing ${DestDir}"/Prefs/"
 
 echo "Copy back to source."
 rsync -avrx ${DestDir}"/Prefs/" ./Prefs/
+
+# /home/elias/.config/rncbc.org/Qsynth.conf
+# /home/elias/.sooperlooper
+# /home/elias/.config/guitarix
 
 
 
