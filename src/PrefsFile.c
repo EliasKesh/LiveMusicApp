@@ -1,14 +1,28 @@
 /*	File: 	PrefsFile
- |
- |	Contains:
- |
- |
- |	Written By: 	Elias Keshishoglou on Tue Dec 25 17:28:58 PST 2012
- |
- |	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
- |
- |
- |---------------------------------------------------------------------*/
+ *
+ *	Contains:
+ *
+ *
+ *	Written By: 	Elias Keshishoglou on Tue Dec 25 17:28:58 PST 2012
+ *
+ *	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
+ *
+ *	This program is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU General Public License
+ *	as published by the Free Software Foundation; either version 2
+ *	of the License, or (at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ *
+ *---------------------------------------------------------------------*/
 
 #define PrefsFile_c
 
@@ -59,60 +73,38 @@ InitPref (void) {
 
 	memset (&gMyInfo, 0, sizeof (LiveMusicInfo));
 //	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
-	ReadPrefs ();
-//	PrintDataStructure(&gMyInfo, NULL);
 
-#if 0
-	WritePrefs ();
-	ReadPrefs ();
-	exit(0);
+	/* If we can not read the XML file load up the defaults.
+	*/
 
-#endif
-//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
+	if (ReadPrefs ())
+		memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 
-#if 1
+
+	/* If it's a new install set the Charts directory.
+	*/
+	if (NewInstall) {
+		strcpy(gMyInfo.BasePath,GetResourceDir("index.html",FileLocTunes ));
+	}
+
+	/* Clear some of the basic user variables.
+	*/
 	gMyInfo.TempoMax = 8;
 
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
-#endif
+	WritePrefs();
 
-#if 0 // Loaded from file.
-	gMyInfo.AnalogVolume = 100;
-	gMyInfo.MidiVolume = 80;
-	gMyInfo.StatusTextColor = 0xffffe0;
-	gMyInfo.ButtonTextColor = 0xffe0e0;
-
-	gMyInfo.MidiBaseNote = 45;
-	gMyInfo.BeatsPerMeasure = 4;
-	gMyInfo.LoopRecBeats = 16;
-	gMyInfo.CountInBeats = 4;
-	gMyInfo.ExpreP1Slider = Slider3;
-	gMyInfo.MidiPassThru = 1;
-	gMyInfo.MidiPassLevel = 110;
-
-	strcpy (gMyInfo.OSCIPAddress, "127.0.0.1");
-	strcpy (gMyInfo.OSCPortNumLooper, "9951");
-	strcpy (gMyInfo.OSCPortNumJackVol, "9952");
-	strcpy (gMyInfo.OSCPortNumHydrogen, "9000");
-#endif
-//    ReadPrefs();
-//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
-//      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
-//	WritePrefs();
-
-
-
+	/* If we wish to generate an include file from the
+	existing preferences.
+	*/
 	if (GenerateHFile)
 		PrintDataStructure(&gMyInfo, DefinePrefsFile);
 
+	/* Setup some parameters that require preferences values.
+	*/
 	PostProcessPrefs(&gMyInfo);
-
-	/*
-	 * Create the popup Menu's now that we have the presets.
-	 */
-	CreatePatchPopupMenu ();
 }
 
 /*--------------------------------------------------------------------
@@ -141,8 +133,7 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-void
-PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
+void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 	int Loop;
 	int Loop1;
 	PortsInfo *thePorts;
@@ -339,8 +330,7 @@ PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------------------------------*/
-void
-WritePrefs (void) {
+void WritePrefs (void) {
 	xmlDocPtr doc = NULL;		/* document pointer */
 	xmlNodePtr root_node = NULL, node = NULL, node0 = NULL, node1 = NULL, node2 = NULL;	/* node pointers */
 	xmlDtdPtr dtd = NULL;		/* DTD pointer */
@@ -442,7 +432,7 @@ WritePrefs (void) {
 		sprintf (buff, "StrNum%03d", Loop);
 		node = xmlNewChild (node1, NULL, buff, NULL);
 		sprintf (buff, "%02d", gMyInfo.BaseStringName[Loop]);
-	xmlSetProp (node, "Value", buff);
+		xmlSetProp (node, "Value", buff);
 	}
 
 	/*
@@ -484,41 +474,27 @@ WritePrefs (void) {
 	printd (LogDebug, "In Write Prefs layouts\n");
 	Loop = 0;
 	node = xmlNewChild (root_node, NULL, BAD_CAST "Layouts", NULL);
-//      printd(LogInfo, "Starting %x %s\n",node, gMyInfo.LayoutPresets[Loop].Name);
 	while (gMyInfo.LayoutPresets[Loop].Name[0]) {
 		sprintf (buff, "Layout%03d", Loop);
 		node1 = xmlNewChild (node, NULL, buff, NULL);
-//              printd(LogInfo, "Loop %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
 
 		xmlSetProp (node1, "LayoutName", gMyInfo.LayoutPresets[Loop].Name);
-//              printd(LogInfo, "xmlSetProp %d %x %s\n",Loop,node1, LayoutPresets[Loop].Name);
 
-//              node1 = xmlNewChild(node, NULL, BAD_CAST LayoutPresets[Loop].Name, NULL);
 		for (PatchLoop = 0; PatchLoop < Max_Patches; PatchLoop++) {
 			sprintf (buff, "Patch%03d", PatchLoop);
-//                      printd(LogInfo, "Patchnames %s\n",buff);
 			node2 = xmlNewChild (node1, NULL, buff, NULL);
 			xmlSetProp (node2, "PatchName",
 			            gMyInfo.LayoutPresets[Loop].Presets[PatchLoop]);
-//                      node2= xmlNewChild(node1, NULL, BAD_CAST LayoutPresets[Loop].Presets[PatchLoop], NULL);
 		}
 		Loop++;
 	}
 
-#if 0
-	typedef struct {
-		char Name[PatchNameSize];
-		char Presets[Max_Patches][PatchNameSize];
-	} LayoutType;
-
-	LayoutType LayoutPresets
-#endif
 	/*
 	 * Dumping document to stdio or file
 	 */
-	
-	printd (LogDebug, "In Write Prefs %s\n", GetResourceDir(PREFSFILENAME,FileLocConfig));
-	xmlSaveFormatFileEnc (	GetResourceDir(PREFSFILENAME,FileLocConfig), doc, "UTF-8", 1);
+
+	printd (LogDebug, "In Write Prefs %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
+	xmlSaveFormatFileEnc (	GetResourceDir(PREFSFILENAME, FileLocConfig), doc, "UTF-8", 1);
 
 	xmlFreeDoc (doc);
 
@@ -567,8 +543,7 @@ int ParseCountL3;
 int LayoutIndexXML;
 int PatchIndexXML;
 
-static void
-processNode (xmlTextReaderPtr reader, char Location) {
+static void processNode (xmlTextReaderPtr reader, char Location) {
 	xmlChar *name, *value;
 	int NodeType;
 	int Depth;
@@ -657,15 +632,13 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp ("ClickRest", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelClickRest;
-
 			printd (LogInfo, "\nTop Level Set %d\n", TopLevelParse);
-		}			/* Depth == 1 NodeType == 1   */
+		}
 
 		if (!strcmp ("Layouts", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelLayouts;
 			printd (LogInfo, "Found Layouts\n");
 		}
-
 
 		if (!strcmp ("Tempo", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelTempo;
@@ -726,15 +699,13 @@ processNode (xmlTextReaderPtr reader, char Location) {
 	if (TopLevelParse == dTopLevelOutPorts) {
 		/* Get the second element.
 		 */
-		printd(LogDebug, "dTopLevelOutPorts %d %d\n",Depth, NodeType );
+		printd(LogDebug, "dTopLevelOutPorts %d %d\n", Depth, NodeType );
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "Port%03d", &HoldIndex);
-//                                      printd(LogInfo, "\nButton Number %d\n",HoldIndex );
 			ParseCountL2 = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-//                                      printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp ("Name", name))
 				strcpy (gMyInfo.OutPortName[ParseCountL2], value);
 
@@ -744,16 +715,16 @@ processNode (xmlTextReaderPtr reader, char Location) {
 	if (TopLevelParse == dTopStrings) {
 		/* Get the second element.
 		 */
-		printd(LogDebug, "dTopStrings %d %d\n",Depth, NodeType );
+		printd(LogDebug, "dTopStrings %d %d\n", Depth, NodeType );
 
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "StrNum%03d", &HoldIndex);
-       printd(LogDebug, "String Number %d\n",HoldIndex );
+			printd(LogDebug, "String Number %d\n", HoldIndex );
 			ParseCountL2 = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-       printd(LogDebug, "String Value %d %d %s\n",HoldIndex, ParseCountL2, value );
+			printd(LogDebug, "String Value %d %d %s\n", HoldIndex, ParseCountL2, value );
 			if (!strcmp ("Value", name))
 				gMyInfo.BaseStringName[ParseCountL2] = atoi(value);
 
@@ -765,12 +736,10 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		 */
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "App%03d", &HoldIndex);
-//                                      printd(LogInfo, "\nButton Number %d\n",HoldIndex );
 			ParseCountL2 = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-//                                      printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp ("Name", name))
 				strcpy (gMyInfo.Apps[ParseCountL2].Name, value);
 
@@ -781,12 +750,11 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 	/* ********************************** */
 	if (TopLevelParse == dTopLevelLayouts) {
-//printd(LogInfo, "IN the TopLevel Layouts Parse\n");
-//              printd(LogInfo, "dTopLevelLayouts %d %d\n",LayoutIndexXML,  PatchIndexXML);
+		printd(LogInfo, "IN the TopLevel Layouts Parse\n");
+		printd(LogInfo, "dTopLevelLayouts %d %d\n", LayoutIndexXML,  PatchIndexXML);
 
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "Layout%03d\n", &HoldIndex);
-//                      printd(LogInfo, "Layout Index %d \n",HoldIndex );
 
 			/* This is the index for the Layouts. */
 			LayoutIndexXML = HoldIndex;
@@ -795,14 +763,6 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		if (Depth == 3 && NodeType == 2) {
 			/* Assign Names here.   */
 			printd (LogInfo, "Layout Name Read %d %s\n", LayoutIndexXML, value);
-#if 0
-			if (!*value) {
-				TopLevelParse = dTopLevelNone;
-				printd (LogInfo, "Layout Names end\n");
-				exit (0);
-				return;
-			}
-#endif
 			strcpy (gMyInfo.LayoutPresets[LayoutIndexXML].Name, value);
 		}
 
@@ -813,7 +773,6 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 		if (Depth == 4 && NodeType == 2) {
 			/* Assign Presets here. */
-//              printd(LogInfo, "Preset Name %d %s\n",ParseCountL3, value );
 			strcpy (gMyInfo.
 			        LayoutPresets[LayoutIndexXML].Presets[PatchIndexXML],
 			        value);
@@ -825,14 +784,10 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		 */
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "Preset%03d", &HoldIndex);
-//                                      printd(LogInfo, "\nButton Number %d\n",HoldIndex );
 			ParseCountL2 = HoldIndex;
-// Index                        gMyInfo.MyPatchInfo[ParseCountL2].Index = HoldIndex;
 		}
 
 		if (Depth == 3 && NodeType == 2) {
-
-//              printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 
 			if (!strcmp ("Name", name))
 				strcpy (gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
@@ -975,19 +930,10 @@ processNode (xmlTextReaderPtr reader, char Location) {
 			sscanf(value, "%x", &gMyInfo.ButtonTextColor);
 		}
 
-	}				/* Depth == 2 && NodeType == 3        */
-
-#if 0
-	if (Location == 2) {
-
-		if (TopLevelParse == dTopLevelSongPath) {
-			printd (LogDebug, "Song Path %s\n", value);
-			strncpy (gMyInfo.BasePath, value, 255);
-		}
-
 	}
-#endif
 
+	/* Free memory.
+	*/
 	if (value != NULL)
 		xmlFree (value);
 
@@ -995,8 +941,7 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		xmlFree (name);
 }
 
-void
-ReadPrefs () {
+int ReadPrefs () {
 	xmlTextReaderPtr reader;
 	int ret;
 
@@ -1007,7 +952,7 @@ ReadPrefs () {
 	printd (LogDebug, "----------------------\n");
 	printd (LogDebug, "Reading prefs file\n");
 	printd (LogDebug, "----------------------\n");
-	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME,FileLocConfig));
+	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME, FileLocConfig));
 	if (reader != NULL) {
 		ret = xmlTextReaderRead (reader);
 		while (ret == 1) {
@@ -1019,12 +964,15 @@ ReadPrefs () {
 		}
 		xmlFreeTextReader (reader);
 		if (ret != 0) {
-			printd (LogDebug, "%s : failed to parse\n",GetResourceDir(PREFSFILENAME,FileLocConfig));
+			printd (LogDebug, "%s : failed to parse\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
+			return (1);
 		}
 	} else {
-		printd (LogDebug, "Unable to open %s\n",GetResourceDir(PREFSFILENAME,FileLocConfig));
+		printd (LogDebug, "Unable to open %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
+		return (1);
 	}
 	printd (LogDebug, "----------------------\n");
 	printd (LogDebug, "Done Reading prefs file\n");
 	printd (LogDebug, "----------------------\n");
+	return (0);
 }

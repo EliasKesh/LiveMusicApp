@@ -1,8 +1,6 @@
 /* ejk first checked in.
  one more test of Git.
  */
-/* include/aconfig.h.  Generated from aconfig.h.in by configure.  */
-/* include/aconfig.h.in.  Generated from configure.in by autoheader.  */
 
 /* directory containing alsa configuration */
 #define DATADIR "/usr/share/alsa"

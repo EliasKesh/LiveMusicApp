@@ -2,7 +2,7 @@
 * AlsaUtils.c
 *
 *  Created on: Dec 25, 2012
-*	  Author: elias
+*	  modified by: Elias Keshishoglou
 */
 
 #include <stdio.h>

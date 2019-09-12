@@ -2,9 +2,8 @@
 |
 | File:   HIDGrab
 |
-| Contains: Routines to get a HID device detach
-    it from the kernel so it can be used to control
-    Midi and OSC .
+| Contains: Routines to get a HID device detach    it from the kernel so it can be used to control
+|    Midi and OSC .
 |
 |
 | Written By:   Elias Keshishoglou

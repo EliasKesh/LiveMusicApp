@@ -16,6 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Modifications for LiveMusicApp: Elias Keshishoglou
  */
 
 #include <stdio.h>
@@ -159,7 +161,7 @@ static void com_locate(int NewFrame) {
 }
 
 static void com_master(void) {
-	if (jack_set_timebase_callback(client, NULL, timebase, NULL) != 0)
+	if (jack_set_timebase_callback(client, 0, timebase, NULL) != 0)
 		printd(LogDebug, "Unable to take over timebase.\n");
 }
 

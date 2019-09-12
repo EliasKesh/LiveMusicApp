@@ -532,6 +532,7 @@ EXTERN int 	UIUpdateFromTimer;
 EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
+EXTERN char NewInstall;
 
 
 

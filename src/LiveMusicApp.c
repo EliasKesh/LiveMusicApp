@@ -1,32 +1,32 @@
 /*---------------------------------------------------------------------
- *      Revision Date:   2012/01/15 22:52:40
- *
- *      Contains:       Main code for the Live Music Application
- *
- *      Written by:     Elias Keshishoglou
- *
- *      Date:           Jan 15, 2012
- *
- *		Version:        1.3.4
- *
- *      Copyright © 2012 Elias Keshishoglou.  All rights reserved.
- *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version 2
- *	of the License, or (at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
- *
- *---------------------------------------------------------------------*/
+|      Revision Date:   2012/01/15 22:52:40
+|
+|      Contains:       Main code for the Live Music Application
+|
+|      Written by:     Elias Keshishoglou
+|
+|      Date:           Jan 15, 2012
+|
+|		Version:        1.3.4
+|
+|      Copyright © 2012 Elias Keshishoglou.  All rights reserved.
+|
+|	This program is free software; you can redistribute it and/or
+|	modify it under the terms of the GNU General Public License
+|	as published by the Free Software Foundation; either version 2
+|	of the License, or (at your option) any later version.
+|
+|	This program is distributed in the hope that it will be useful,
+|	but WITHOUT ANY WARRANTY; without even the implied warranty of
+|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|	GNU General Public License for more details.
+|
+|	You should have received a copy of the GNU General Public License
+|	along with this program; if not, write to the Free Software
+|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|
+|
+|---------------------------------------------------------------------*/
 
 #define LiveMusicApp_c
 
@@ -204,10 +204,52 @@ char *GetResourceDir(char *FileName, char WhichLoc) {
 		strcat(ResourceFileName, "/.config/LiveMusicApp/");
 
 	if (WhichLoc == FileLocTunes)
-		strcat(ResourceFileName, "DefaultSongs/");
+		strcat(ResourceFileName, "/MySongs/");
 
 	strcat(ResourceFileName, FileName);
 	return(ResourceFileName);
+}
+	
+
+/*--------------------------------------------------------------------
+ * Function:		Check for the .config dirs
+ *
+ * Description:		
+ *
+ *---------------------------------------------------------------------*/
+void CheckForStartupDirs(void) {
+struct stat s;
+int err;
+char FileString[255];
+char CommandString[400];
+char *UserName;
+
+	/* Get home directory.
+	*/
+	if ((homedir = getenv("HOME")) == NULL) {
+	    homedir = getpwuid(getuid())->pw_dir;
+	}
+
+	UserName = getenv("USER");
+
+	NewInstall = 0;
+	sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
+	err = stat(FileString, &s);
+	if(-1 == err) {
+
+		printf("Not Found %s\n", FileString);
+		sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/share/LiveMusicApp %s/.config/", UserName,UserName,homedir);
+		system(CommandString);
+	}
+
+
+	sprintf(FileString, "%s/MySongs", homedir);
+	err = stat(FileString, &s);
+	if(-1 == err) {
+		sprintf(CommandString, "mv %s/.config/LiveMusicApp/MySongs %s/", homedir, homedir);
+		system(CommandString);
+		NewInstall = 1;
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -251,11 +293,10 @@ int main(int argc, char *argv[]) {
 	gMyInfo.PrevDeskSwitch = NULLSwitch;
 	gMyInfo.GoToDeskSwitch = Max_Patches;
 
-	if ((homedir = getenv("HOME")) == NULL) {
-	    homedir = getpwuid(getuid())->pw_dir;
-	}
 
-	printf("Home Dir %s\n",homedir );
+	CheckForStartupDirs();
+
+	// printf("Home Dir %s\n",homedir );
 
 	GetResourceDir("./MyFile.png", FileLocConfig);
 
@@ -477,7 +518,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	InitHTML(gxml);
 	printd(LogInfo, "After InitHTML\n");
-
 	/*
 	 * Set up the Midi Sequencer ports
 	 */
@@ -571,6 +611,11 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	InitGuiPrefs();
 
 	/*
+	 * Create the popup Menu's (ctrl-click) now that we have the presets.
+	 */
+	CreatePatchPopupMenu ();
+
+	/*
 	 * Show the main window and let the show begin.
 	 */
 	gtk_widget_show_all(theMainWindow);
@@ -578,6 +623,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * And they're off.
 	 */
+	printd(LogInfo, "And we're off \n");
 	gtk_main();
 
 	/*
@@ -1083,12 +1129,8 @@ gboolean click_handler(GtkWidget *widget,
 		ShowPatchListSelect(GTK_WINDOW(widget), Loop);
 
 	}
-//	PatchIndex = LayoutSwitchPatch(user_data, true);
 	LayoutSwitchPatch(Loop, true);
 
-//	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
-//		MainButtons[Loop].ButtonDownImage);
-//	g_idle_add(GTKIdel_cb, theMainWindow);
 	return TRUE; /* stop event propagation */
 }
 
@@ -1186,61 +1228,6 @@ void CreateMainButtons(void) {
 		                 Loop);
 
 	}
-#endif
-#if 0
-#ifndef UsingNewButtons
-
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-		sprintf(Buffer, "button%d", Loop + 1);
-		MainButtons[Loop] = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
-#if 0
-		MainButtonImage = gtk_image_new_from_file(ResourceDirectory"MainButtonImage.png");
-		g_object_set (MainButtons[Loop],
-		              "image", MainButtonImage,
-		              NULL);
-#endif
-#if 0
-		"label", &text,
-		"use-stock", &use_stock,
-		"use-underline", &use_underline,
-#endif
-//		gtk_container_add(MainButtons[Loop], MainButtonImage);
-//		gtk_button_set_image(MainButtons[Loop],MainButtonImage);
-//		gtk_settings_set_property_value(MainButtons[Loop], "always-show-image", TRUE);
-//	gtk_button_set_always_show_image(MainButtons[Loop], TRUE);
-		g_signal_connect_data(G_OBJECT(MainButtons[Loop]), "clicked",
-		                      G_CALLBACK(on_button_clicked), Loop, NULL, 0);
-	}
-#else
-	ButtonFrame = GTK_WIDGET (gtk_builder_get_object (gxml, "ButtonFrame") );
-	printd(LogInfo, "Button Frame %x\n", ButtonFrame);
-
-	Table = gtk_table_new(6, 5, false);
-	printd(LogInfo, "Table %x\n", Table);
-
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-		MainButtons[Loop] = gtk_button_new_with_label (gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name);
-		gtk_button_set_image(MainButtons[Loop], MainButtonImage);
-		gtk_button_set_always_show_image(MainButtons[Loop], TRUE);
-		g_signal_connect (MainButtons[Loop], "clicked",
-		                  G_CALLBACK (on_button_clicked), (void *)Loop);
-//		gtk_widget_show(MainButtons[Loop]);
-		gtk_widget_set_usize(MainButtons[Loop], 120, 120);
-//		gtk_table_attach_defaults(GTK_TABLE(Table), MainButtons[Loop],
-//			Col, Col + 1, Row, Row + 1);
-		gtk_table_attach(GTK_TABLE(Table), MainButtons[Loop],
-		                 Col, Col + 1, Row, Row + 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
-		if (Col++ > 4) {
-			Col = 0;
-			Row++;
-		}
-		printd(LogInfo, "Loop %d %d %d %x\n", Loop, Col, Row, MainButtons[Loop]);
-	}
-	g_signal_connect_data(G_OBJECT(MainButtons[Loop]), "clicked",
-	                      G_CALLBACK(on_button_clicked), Loop, NULL, 0);
-
-	gtk_container_add (GTK_CONTAINER (ButtonFrame), Table);
-#endif
 #endif
 	GtkWidget *Label;
 
@@ -1485,38 +1472,26 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
 #ifdef UsingImageButtons
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-//		printd(LogInfo, "Loop %d gMyInfo [%s] Patch %d\n", Loop,
-//			gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
 		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
-//		printd(LogInfo, "SetUpMainButtons: %d %d\n", Loop, PatchIndex);
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-//	        printd(LogInfo, "---%*s%*s---\n",10+strlen(s)/2,s,10-strlen(s)/2,"");
 			sprintf(String, "       %02d       \n%*s", Loop + 1, 7 + StringLen / 2,
 			        gMyInfo.MyPatchInfo[PatchIndex].Name);
 			MyImageButtonSetText(&MainButtons[Loop], String);
-//			gtk_label_set_text((MainButtons[Loop].Label), String);
-//       	  gdk_color_parse ("green", &color);
-//        	  gtk_widget_modify_fg (myChild, GTK_STATE_NORMAL, &color);
 		}
 	}
 
 #else
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		myButton = MainButtons[Loop];
-//		printd(LogInfo, "Loop %d gMyInfo [%s] Patch %d\n", Loop,
-//			gMyInfo.MyPatchInfo[GetModePreset(Loop)].Name, GetModePreset(Loop));
 		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
-//		printd(LogInfo, "SetUpMainButtons: %d %d\n", Loop, PatchIndex);
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			sprintf(String, "%02d-%s", Loop + 1,
 			        gMyInfo.MyPatchInfo[PatchIndex].Name);
 			myChild = gtk_bin_get_child(GTK_BIN(myButton));
 			gtk_label_set_text((myChild), String);
-//       	  gdk_color_parse ("green", &color);
-//        	  gtk_widget_modify_fg (myChild, GTK_STATE_NORMAL, &color);
 		}
 	}
 #endif

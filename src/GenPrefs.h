@@ -258,7 +258,7 @@ LiveMusicInfo GlobalInfo = {
     },
 { 
  	{
- "Guitar", 
+ "Main", 
 {
 /*   0 */  "Preset1", 
 /*   1 */  "Preset2", 

@@ -7,7 +7,7 @@
 
 #ifndef ALSAUTILS_H_
 #define ALSAUTILS_H_
-#include <asoundlib.h>
+#include <alsa/asoundlib.h>
 bool MyAlsaInit(void);
 bool MyAlsaClose();
 

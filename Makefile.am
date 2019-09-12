@@ -53,15 +53,42 @@ LiveMusicApp_LDFLAGS += $(LIBLO_LIBS)
 LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __Bump_NUMBER=$$(./Scripts/IncBuildNumber.sh)
 # LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
 
+
+
 # Copy the preferences.
-Prefsdir = "$(HOME)/.config/LiveMusicApp"
-Prefs_DATA = LiveMusicRes/* 
+#Prefsdir = "$(HOME)/.config/LiveMusicApp/"
+# Prefs_DATA = LiveMusicRes/* 
 # Prefs_DATA = LiveMusicRes/* -c -m 644
 
-Songsdir = "$(HOME)/MySongs"
-Songs_DATA = DefaultSongs/*
+Prefsdir = "$(prefix)/share/LiveMusicApp/"
+Prefs_DATA = LiveMusicRes/*
+Songsdir = "$(prefix)/share/LiveMusicApp/MySongs/"
+Songs_DATA = MySongs/background.png \
+		MySongs/logo.jpg \
+		MySongs/index.html \
+		MySongs/LiveMusicAppDocumentation.pdf
+		
+Tune1dir = "$(prefix)/share/LiveMusicApp/MySongs/BlueRondo"
+Tune1_DATA = MySongs/BlueRondo/*
+
+#Songsdir = "$(Prefsdir)/MySongs/"
+# Songs_DATA = DefaultSongs/*
+
+# Songsdir = "$(HOME)/MySongs/"
+# Songs_DATA = DefaultSongs/*
 #Songs_DATA = DefaultSongs/* -c -m 644
 
+# install-data-local:
+
 install-exec-hook:
-	chmod a+rw $(Songsdir)
-	chown $(USER) $(Songsdir)
+#	rsync -avrx "./MySongs" $(Prefsdir)
+#	rsync -avrx "./LiveMusicRes/" $(Prefsdir)
+
+# 	$(MKDIR_P) $(Prefsdir)
+# 	$(MKDIR_P) $(Songsdir)
+# 	chmod a+rw $(Songsdir)
+# 	chown $$USER:$$USER $(Songsdir)
+# 	chmod a+rw $(Prefsdir)
+# 	chown $$USER:$$USER $(Prefsdir)
+# 	rsync -avrx "./DefaultSongs/" "$(HOME)/MySongs/"
+# 	rsync -avrx "./LiveMusicRes/" "$(HOME)/.config/LiveMusicApp/"

@@ -1,13 +1,29 @@
 /*---------------------------------------------------------------------
 |
-|	File: 	MyWidgets
+|	File: 	HTML.c
 |
-|	Contains:
+|	Contains: Routines for reading charts
+|		and webkit interactions.
 |
 |
 |	Written By: 	Elias Keshishoglou
 |
 |	Copyright �: 	2014 Elias Keshishoglou all rights reserved.
+|
+|	This program is free software; you can redistribute it and/or
+|	modify it under the terms of the GNU General Public License
+|	as published by the Free Software Foundation; either version 2
+|	of the License, or (at your option) any later version.
+|
+|	This program is distributed in the hope that it will be useful,
+|	but WITHOUT ANY WARRANTY; without even the implied warranty of
+|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|	GNU General Public License for more details.
+|
+|	You should have received a copy of the GNU General Public License
+|	along with this program; if not, write to the Free Software
+|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|
 |
 |
 |---------------------------------------------------------------------*/
@@ -230,10 +246,15 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
  * Description:	The users patch 1 was selected.
  *
  *---------------------------------------------------------------------*/
-gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+gboolean on_patch_clicked(GtkWidget *widget,
+                          GdkEvent *event,
+                          gpointer user_data) {
 
 	tPatchIndex Preset;
 	int CPatch;
+	GdkEvent *theEvent;
+
+	theEvent = gtk_get_current_event();
 
 	CPatch = (int) user_data;
 	printd(LogDebug, "In Button Preset %d\n", CPatch);
@@ -243,6 +264,15 @@ gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data
 		Preset = gMyInfo.WebPresets.thePreset[CPatch];
 	} else
 		return (false);
+
+	if (theEvent->button.state & GDK_CONTROL_MASK) {
+		printd(LogInfo, "We have Control Down\n");
+/* FINISH, need to make the assignment in Patch_Popup_CB
+*/
+
+		ShowPatchListSelect(GTK_WINDOW(widget), CPatch);
+
+	}
 
 	/* Make sure the preset is at least in the correct range.
 	*/
@@ -342,7 +372,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 
 	// Call the text editor.
 	sprintf(ExecuteString, "%s/LiveEditor %s &\n",
-	        GetResourceDir("",FileLocConfig), CurrentURI);
+	        GetResourceDir("", FileLocConfig), CurrentURI);
 	printd(LogDebug, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
@@ -373,14 +403,15 @@ void PageLoaded (WebKitWebView  *web_view,
 
 #if 1
 	strcpy(BasePathName, CurrentURI);
-	for (Loop = strlen(BasePathName); Loop >=0; Loop--)
+	for (Loop = strlen(BasePathName); Loop >= 0; Loop--)
 		if (BasePathName[Loop] == '/') {
-			BasePathName[Loop +1] = 0;
+			BasePathName[Loop + 1] = 0;
 			Loop = -1;
 		}
 
 //	printd(LogTest, "Base Name %s \n", BasePathName);
 #endif
+	printd(LogTest, "After Basename %s \n", BasePathName);
 
 	/* Keep a record
 	*/
@@ -1037,7 +1068,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 
 #if 1
 			strcpy(gMyInfo.LoopFileName, BasePathName);
-			strcat(gMyInfo.LoopFileName, tokenizer);	
+			strcat(gMyInfo.LoopFileName, tokenizer);
 #else
 			strcpy(LoopFile, tokenizer);
 			strcpy(gMyInfo.LoopFileName, tokenizer);
