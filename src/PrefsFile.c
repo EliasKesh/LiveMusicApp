@@ -28,7 +28,7 @@
  * Place defines and Typedefs here
  */
 
-#define PREFSFILENAME "LiveMusicRes/LiveMusic.xml"
+#define PREFSFILENAME "LiveMusic.xml"
 #define DefinePrefsFile "./src/GenPrefs.h"
 
 /*
@@ -58,8 +58,9 @@ InitPref (void) {
 	int Count;
 
 	memset (&gMyInfo, 0, sizeof (LiveMusicInfo));
-	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
-
+//	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
+	ReadPrefs ();
+//	PrintDataStructure(&gMyInfo, NULL);
 
 #if 0
 	WritePrefs ();
@@ -99,7 +100,9 @@ InitPref (void) {
 //    ReadPrefs();
 //	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 //      printd(LogInfo, "Prefs %s %s\n", GlobalInfo.Apps[2].Name, &gMyInfo.Apps[2].Name);
-//      WritePrefs();
+//	WritePrefs();
+
+
 
 	if (GenerateHFile)
 		PrintDataStructure(&gMyInfo, DefinePrefsFile);
@@ -252,6 +255,16 @@ PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 
 	}
 
+	fprintf (PrefsFile, " %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
+	printf (" %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
+
+	for (Loop = 0; Loop < TotalMaxStrings; Loop++) {
+		fprintf (PrefsFile, "%d,\n", myInfo->BaseStringName[Loop]);
+		printf ("%d,\n", myInfo->BaseStringName[Loop]);
+	}
+
+	fprintf (PrefsFile, "    },\n");
+
 	printd (LogInfo, "BaseName %s\n", myInfo->BasePath);
 
 	printd (LogInfo, "Num Ports %d\n", myInfo->NumOutPorts);
@@ -337,7 +350,7 @@ WritePrefs (void) {
 
 	LIBXML_TEST_VERSION;
 
-	printd (LogInfo, "In Write Prefs\n");
+	printd (LogDebug, "In Write Prefs\n");
 	doc = xmlNewDoc (BAD_CAST "1.0");
 	root_node = xmlNewNode (NULL, BAD_CAST XML_BASIC_SETTINGS);
 	xmlDocSetRootElement (doc, root_node);
@@ -408,6 +421,7 @@ WritePrefs (void) {
 	 */
 	sprintf (buff, "%03d", gMyInfo.NumOutPorts);
 	xmlNewChild (root_node, NULL, BAD_CAST "NumOutPorts", BAD_CAST buff);
+	printd (LogDebug, "In Write Prefs Output Ports\n");
 
 	node1 = xmlNewChild (root_node, NULL, BAD_CAST "OutPorts", NULL);
 	for (Loop = 0; Loop < MaxOutPorts; Loop++) {
@@ -416,6 +430,20 @@ WritePrefs (void) {
 		xmlSetProp (node, "Name", gMyInfo.OutPortName[Loop]);
 	}
 
+
+	/*
+	 * Write out the String Names.
+	 */
+	sprintf (buff, "%03d", gMyInfo.NumberOfStrings);
+	xmlNewChild (root_node, NULL, BAD_CAST "NumberOfStrings", BAD_CAST buff);
+
+	node1 = xmlNewChild (root_node, NULL, BAD_CAST "Strings", NULL);
+	for (Loop = 0; Loop < TotalMaxStrings; Loop++) {
+		sprintf (buff, "StrNum%03d", Loop);
+		node = xmlNewChild (node1, NULL, buff, NULL);
+		sprintf (buff, "%02d", gMyInfo.BaseStringName[Loop]);
+	xmlSetProp (node, "Value", buff);
+	}
 
 	/*
 	 * Write out the Patches
@@ -453,6 +481,7 @@ WritePrefs (void) {
 	/*
 	 * Dump the layouts to the XML File.
 	 */
+	printd (LogDebug, "In Write Prefs layouts\n");
 	Loop = 0;
 	node = xmlNewChild (root_node, NULL, BAD_CAST "Layouts", NULL);
 //      printd(LogInfo, "Starting %x %s\n",node, gMyInfo.LayoutPresets[Loop].Name);
@@ -487,7 +516,9 @@ WritePrefs (void) {
 	/*
 	 * Dumping document to stdio or file
 	 */
-	xmlSaveFormatFileEnc (PREFSFILENAME, doc, "UTF-8", 1);
+	
+	printd (LogDebug, "In Write Prefs %s\n", GetResourceDir(PREFSFILENAME,FileLocConfig));
+	xmlSaveFormatFileEnc (	GetResourceDir(PREFSFILENAME,FileLocConfig), doc, "UTF-8", 1);
 
 	xmlFreeDoc (doc);
 
@@ -526,7 +557,7 @@ enum { dTopLevelNone = 0, dTopLevelMainButtons, dTopLevelNumOutPorts,
        dTopLevelAnalogVolume,  dTopLevelMidiVolume, dTopLevelStatusTextColor, dTopLevelButtonTextColor,
        dTopLevelOSCIPAddress, dTopLevelOSCPortNumLooper,
        dTopLevelOSCPortNumJackVol, dTopLevelOSCPortNumHydrogen,
-       dTopMidiPassThru, dTopMidiPassLevel
+       dTopMidiPassThru, dTopMidiPassLevel, dTopMaxStrings, dTopStrings
      };
 
 int TopLevelParse;
@@ -554,10 +585,8 @@ processNode (xmlTextReaderPtr reader, char Location) {
 	NodeType = xmlTextReaderNodeType (reader);
 	Depth = xmlTextReaderDepth (reader);
 	//      if (NodeType != 14 && NodeType != 3) {
-#if 0
-	printd (LogInfo, "%d D=%d T=%d N=[%s] V=[%s] E=%d\n", Location,
-	        Depth, NodeType, name, value, xmlTextReaderIsEmptyElement (reader));
-#endif
+	printd (LogDebug, "%d D=%d T=%d N=[%s] V=[%s] E=%d Top=%d\n", Location,
+	        Depth, NodeType, name, value, xmlTextReaderIsEmptyElement (reader), TopLevelParse);
 
 	if (Depth == 2)
 		ParseCountL2++;
@@ -569,12 +598,12 @@ processNode (xmlTextReaderPtr reader, char Location) {
 		ParseCountL4++;
 
 	if (Depth == 1 && NodeType == 14) {
-		printd (LogInfo, "\n*** Setting Top level to None\n");
+		printd (LogDebug, "\n*** Setting Top level to None\n");
 		TopLevelParse = dTopLevelNone;
 	}
 
 	if (Depth == 1 && NodeType == 1) {
-		printd (LogInfo, "\nTop Level Clear \n");
+		printd (LogDebug, "\nTop Level Clear \n");
 		TopLevelParse = dTopLevelNone;
 		ParseCountL4 = 0;
 		ParseCountL2 = 0;
@@ -588,6 +617,14 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp ("NumOutPorts", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelNumOutPorts;
+		}
+
+		if (!strcmp ("NumberOfStrings", name) && NodeType == 1) {
+			TopLevelParse = dTopMaxStrings;
+		}
+
+		if (!strcmp ("Strings", name) && NodeType == 1) {
+			TopLevelParse = dTopStrings;
 		}
 
 		if (!strcmp ("OutPorts", name) && NodeType == 1) {
@@ -689,6 +726,7 @@ processNode (xmlTextReaderPtr reader, char Location) {
 	if (TopLevelParse == dTopLevelOutPorts) {
 		/* Get the second element.
 		 */
+		printd(LogDebug, "dTopLevelOutPorts %d %d\n",Depth, NodeType );
 		if (Depth == 2 && NodeType == 1) {
 			sscanf (name, "Port%03d", &HoldIndex);
 //                                      printd(LogInfo, "\nButton Number %d\n",HoldIndex );
@@ -699,6 +737,25 @@ processNode (xmlTextReaderPtr reader, char Location) {
 //                                      printd(LogInfo, "But %d %s %s", ParseCountL2, name, value);
 			if (!strcmp ("Name", name))
 				strcpy (gMyInfo.OutPortName[ParseCountL2], value);
+
+		}
+	}
+
+	if (TopLevelParse == dTopStrings) {
+		/* Get the second element.
+		 */
+		printd(LogDebug, "dTopStrings %d %d\n",Depth, NodeType );
+
+		if (Depth == 2 && NodeType == 1) {
+			sscanf (name, "StrNum%03d", &HoldIndex);
+       printd(LogDebug, "String Number %d\n",HoldIndex );
+			ParseCountL2 = HoldIndex;
+		}
+
+		if (Depth == 3 && NodeType == 2) {
+       printd(LogDebug, "String Value %d %d %s\n",HoldIndex, ParseCountL2, value );
+			if (!strcmp ("Value", name))
+				gMyInfo.BaseStringName[ParseCountL2] = atoi(value);
 
 		}
 	}
@@ -800,111 +857,121 @@ processNode (xmlTextReaderPtr reader, char Location) {
 
 		}
 
-	}				/* TopLevelParse == dTopLevelMainButtons      */
+	}
+
+	/* String names here.
+	*/
+
+	/* TopLevelParse == dTopLevelMainButtons      */
 	if (Depth == 2 && NodeType == 3) {
 		if (TopLevelParse == dTopLevelNumOutPorts) {
 			gMyInfo.NumOutPorts = atoi (value);
-			printd (LogInfo, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
+			printd (LogDebug, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
+		}
+
+		if (TopLevelParse == dTopMaxStrings) {
+			gMyInfo.NumberOfStrings = atoi (value);
+			printd (LogDebug, "\n***Number of Strings %d\n", gMyInfo.NumberOfStrings);
 		}
 
 		if (TopLevelParse == dTopLevelSongPath) {
-			printd (LogInfo, "Song Path %s\n", value);
+			printd (LogDebug, "Song Path %s\n", value);
 			strncpy (gMyInfo.BasePath, value, 255);
 		}
 
 		if (TopLevelParse == dTopLevelMetronome) {
-			printd (LogInfo, "dTopLevelMetronome %s\n", value);
+			printd (LogDebug, "dTopLevelMetronome %s\n", value);
 			gMyInfo.TempoMax = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelMetronomeOn) {
-			printd (LogInfo, "dTopLevelMetronomeOn %s\n", value);
+			printd (LogDebug, "dTopLevelMetronomeOn %s\n", value);
 			gMyInfo.MetronomeOn = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelMidiBase) {
-			printd (LogInfo, "dTopLevelMidiBase %s\n", value);
+			printd (LogDebug, "dTopLevelMidiBase %s\n", value);
 			gMyInfo.MidiBaseNote = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelClick1) {
-			printd (LogInfo, "dTopLevelClick1 %s\n", value);
+			printd (LogDebug, "dTopLevelClick1 %s\n", value);
 			gMyInfo.Drum1 = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelClickRest) {
-			printd (LogInfo, "dTopLevelClickRest %s\n", value);
+			printd (LogDebug, "dTopLevelClickRest %s\n", value);
 			gMyInfo.DrumRest = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelTempo) {
-			printd (LogInfo, "dTopLevelTempo %s\n", value);
+			printd (LogDebug, "dTopLevelTempo %s\n", value);
 			gMyInfo.Tempo = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelCountInBeats) {
-			printd (LogInfo, "dTopLevelCountInBeats %s\n", value);
+			printd (LogDebug, "dTopLevelCountInBeats %s\n", value);
 			gMyInfo.CountInBeats = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelLoopRecBeats) {
-			printd (LogInfo, "dTopLevelLoopRecBeats %s\n", value);
+			printd (LogDebug, "dTopLevelLoopRecBeats %s\n", value);
 			gMyInfo.LoopRecBeats = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelBeatsPerMeasure) {
-			printd (LogInfo, "dTopLevelBeatsPerMeasure %s\n", value);
+			printd (LogDebug, "dTopLevelBeatsPerMeasure %s\n", value);
 			gMyInfo.BeatsPerMeasure = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelAnalogVolume) {
-			printd (LogInfo, "dTopLevelAnalogVolume %s\n", value);
+			printd (LogDebug, "dTopLevelAnalogVolume %s\n", value);
 			gMyInfo.AnalogVolume = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelMidiVolume) {
-			printd (LogInfo, "dTopLevelMidiVolume %s\n", value);
+			printd (LogDebug, "dTopLevelMidiVolume %s\n", value);
 			gMyInfo.MidiVolume = atoi (value);
 		}
 
 		if (TopLevelParse == dTopMidiPassLevel) {
-			printd (LogInfo, "dTopMidiPassLevel %s\n", value);
+			printd (LogDebug, "dTopMidiPassLevel %s\n", value);
 			gMyInfo.MidiPassLevel = atoi (value);
 		}
 
 		if (TopLevelParse == dTopMidiPassThru) {
-			printd (LogInfo, "dTopMidiPassThru %s\n", value);
+			printd (LogDebug, "dTopMidiPassThru %s\n", value);
 			gMyInfo.MidiPassThru = atoi (value);
 		}
 
 		if (TopLevelParse == dTopLevelOSCIPAddress) {
-			printd (LogInfo, "dTopLevelOSCIPAddress %s\n", value);
+			printd (LogDebug, "dTopLevelOSCIPAddress %s\n", value);
 			strncpy (gMyInfo.OSCIPAddress, value, sizeof (gMyInfo.OSCIPAddress));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumJackVol) {
-			printd (LogInfo, "dTopLevelOSCPortNumJackVol %s\n", value);
+			printd (LogDebug, "dTopLevelOSCPortNumJackVol %s\n", value);
 			strncpy (gMyInfo.OSCPortNumJackVol, value, sizeof (gMyInfo.OSCPortNumJackVol));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumLooper) {
-			printd (LogInfo, "dTopLevelOSCPortNumLooper %s\n", value);
+			printd (LogDebug, "dTopLevelOSCPortNumLooper %s\n", value);
 			strncpy (gMyInfo.OSCPortNumLooper, value, sizeof (gMyInfo.OSCPortNumLooper));
 		}
 
 		if (TopLevelParse == dTopLevelOSCPortNumHydrogen) {
-			printd (LogInfo, "dTopLevelOSCPortNumHydrogen %s\n", value);
+			printd (LogDebug, "dTopLevelOSCPortNumHydrogen %s\n", value);
 			strncpy (gMyInfo.OSCPortNumHydrogen, value, sizeof (gMyInfo.OSCPortNumHydrogen));
 		}
 
 		if (TopLevelParse == dTopLevelStatusTextColor) {
-			printd (LogInfo, "dTopLevelStatusTextColor %s\n", value);
+			printd (LogDebug, "dTopLevelStatusTextColor %s\n", value);
 			sscanf(value, "%x", &gMyInfo.StatusTextColor);
 		}
 
 
 		if (TopLevelParse == dTopLevelButtonTextColor) {
-			printd (LogInfo, "dTopLevelButtonTextColor %s\n", value);
+			printd (LogDebug, "dTopLevelButtonTextColor %s\n", value);
 			sscanf(value, "%x", &gMyInfo.ButtonTextColor);
 		}
 
@@ -914,7 +981,7 @@ processNode (xmlTextReaderPtr reader, char Location) {
 	if (Location == 2) {
 
 		if (TopLevelParse == dTopLevelSongPath) {
-			printd (LogInfo, "Song Path %s\n", value);
+			printd (LogDebug, "Song Path %s\n", value);
 			strncpy (gMyInfo.BasePath, value, 255);
 		}
 
@@ -937,10 +1004,10 @@ ReadPrefs () {
 	int NodeType;
 	int Depth;
 
-	printd (LogInfo, "----------------------\n");
-	printd (LogInfo, "Reading prefs file\n");
-	printd (LogInfo, "----------------------\n");
-	reader = xmlNewTextReaderFilename (PREFSFILENAME);
+	printd (LogDebug, "----------------------\n");
+	printd (LogDebug, "Reading prefs file\n");
+	printd (LogDebug, "----------------------\n");
+	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME,FileLocConfig));
 	if (reader != NULL) {
 		ret = xmlTextReaderRead (reader);
 		while (ret == 1) {
@@ -952,12 +1019,12 @@ ReadPrefs () {
 		}
 		xmlFreeTextReader (reader);
 		if (ret != 0) {
-			printd (LogInfo, "%s : failed to parse\n", PREFSFILENAME);
+			printd (LogDebug, "%s : failed to parse\n",GetResourceDir(PREFSFILENAME,FileLocConfig));
 		}
 	} else {
-		printd (LogInfo, "Unable to open %s\n", PREFSFILENAME);
+		printd (LogDebug, "Unable to open %s\n",GetResourceDir(PREFSFILENAME,FileLocConfig));
 	}
-	printd (LogInfo, "----------------------\n");
-	printd (LogInfo, "Done Reading prefs file\n");
-	printd (LogInfo, "----------------------\n");
+	printd (LogDebug, "----------------------\n");
+	printd (LogDebug, "Done Reading prefs file\n");
+	printd (LogDebug, "----------------------\n");
 }

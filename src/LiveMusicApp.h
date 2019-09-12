@@ -1,13 +1,28 @@
 /*---------------------------------------------------------------------
  |
- |	File: 	LiveMusicApp
+ |	File: 	LiveMusicApp.h
  |
- |	Contains:
+ |	Contains: Global information for the entire projects
+ |            should be placed in this file.
  |
  |
  |	Written By: 	Elias Keshishoglou on Wed Dec 26 14:13:15 PST 2012
  |
  |	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
+ |
+ |	This program is free software; you can redistribute it and/or
+ |	modify it under the terms of the GNU General Public License
+ |	as published by the Free Software Foundation; either version 2
+ |	of the License, or (at your option) any later version.
+ |
+ |	This program is distributed in the hope that it will be useful,
+ |	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ |	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ |	GNU General Public License for more details.
+ |
+ |	You should have received a copy of the GNU General Public License
+ |	along with this program; if not, write to the Free Software
+ |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  |
  |
  |---------------------------------------------------------------------*/
@@ -41,6 +56,7 @@
 
 #define PatchNameSize 60
 #define MaxHardSliders 5
+#define TotalMaxStrings 10
 
 char *printd(char LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
@@ -176,6 +192,8 @@ typedef struct {
 	char 		OSCPortNumLooper[6];
 	char 		OSCPortNumJackVol[6];
 	char 		OSCPortNumHydrogen[6];
+	char        NumberOfStrings;
+	char 		BaseStringName[TotalMaxStrings];
 
 	LayoutType LayoutPresets[Max_Layouts];
 
@@ -391,9 +409,20 @@ enum { cntStateWaitingIdle = 0,
 #define PedalLED8Off	16
 #define PedalLED8On		17
 
+enum { NValueA = 0, NValueBb, NValueB,
+		NValueC, NValueDb, NValueD,
+		NValueEb, NValueE, NValueF,
+		NValueGb, NValueG, NValueAb, NValueNone };
+
+
 
 #ifdef LiveMusicApp_c
 #define EXTERN /* */
+char *GlobalNoteNames[] = {
+	"A","Bb","B","C","Db",
+	"D","Eb","E","F","Gb",
+	"G","Ab"};
+
 char *CustomPorts[] = {
 	"FluidPort",
 	"GuitarixPort",
@@ -536,6 +565,6 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void SetScale4Label(char *String);
 int GTKIdel_cb(gpointer data);
-char *GetResourceDir(char *FileName);
-
+enum {FileLocConfig = 0, FileLocTunes };
+char *GetResourceDir(char *FileName, char WhichLoc);
 #endif

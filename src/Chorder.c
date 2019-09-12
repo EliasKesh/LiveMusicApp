@@ -33,7 +33,7 @@
  */
 
 #define MaxDisplayFrets	16
-#define MaxNumStrings	8
+#define MaxNumStrings	TotalMaxStrings
 #define MaxNumFrets		24
 
 #if (GTK_MAJOR_VERSION == 2)
@@ -252,18 +252,6 @@ PreChordMenu myPreChordMenu[] = {
 	{ NULL, "" }
 };
 
-#define NValueA		0
-#define NValueBb	1
-#define NValueB		2
-#define NValueC		3
-#define NValueDb	4
-#define NValueD		5
-#define NValueEb	6
-#define NValueE		7
-#define NValueF		8
-#define NValueGb	9
-#define NValueG		10
-#define NValueAb	11
 
 char *FlatNotes[12] = {
 	"A ", "Bb", "B ", "C ", "Db", "D ", "Eb", "E ", "F ",
@@ -429,9 +417,10 @@ void PrintBoard() {
  * ** TODO Make this dynamic based on Preferences
  *---------------------------------------------------------------------*/
 void SetOpenString(void) {
+int Loop;
 
-	NumStrings = MaxNumStrings;
-
+	NumStrings = gMyInfo.NumberOfStrings;
+	printf("SetOpenString: Numer %d\n", NumStrings);
 #if 0
 	StringLayout[8][0] = NValueB;
 	StringLayout[7][0] = NValueE;
@@ -443,15 +432,9 @@ void SetOpenString(void) {
 	StringLayout[1][0] = NValueBb;
 	StringLayout[0][0] = NValueEb;
 #endif
-	StringLayout[8][0] = NValueE;
-	StringLayout[7][0] = NValueGb;
-	StringLayout[6][0] = NValueB;
-	StringLayout[5][0] = NValueE;
-	StringLayout[4][0] = NValueA;
-	StringLayout[3][0] = NValueD;
-	StringLayout[2][0] = NValueG;
-	StringLayout[1][0] = NValueC;
-	StringLayout[0][0] = NValueF;
+
+	for (Loop = 0; Loop < MaxNumStrings; Loop++)
+		StringLayout[Loop][0] = gMyInfo.BaseStringName[Loop];
 }
 
 /*--------------------------------------------------------------------
@@ -774,20 +757,20 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	vbox = gtk_vbox_new(FALSE, 10);
 	BottomBox = gtk_hbox_new(FALSE, 10);
 
-//	Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("./wood.png"), &err);
-	Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("RedWood.png"),
+//	Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("./wood.png",FileLocConfig), &err);
+	Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("RedWood.png",FileLocConfig),
 	                                       &err);
 
 	FingerboardDot = gdk_pixbuf_new_from_file(
-	                     GetResourceDir("FretboardDot.png"), &err);
-	BouncieBall = gdk_pixbuf_new_from_file(GetResourceDir("ball.png"), &err);
-	BouncieBallBl = gdk_pixbuf_new_from_file(GetResourceDir("blueball.png"),
+	                     GetResourceDir("FretboardDot.png",FileLocConfig), &err);
+	BouncieBall = gdk_pixbuf_new_from_file(GetResourceDir("ball.png",FileLocConfig), &err);
+	BouncieBallBl = gdk_pixbuf_new_from_file(GetResourceDir("blueball.png",FileLocConfig),
 	                &err);
-	BouncieBallGr = gdk_pixbuf_new_from_file(GetResourceDir("greenball.png"),
+	BouncieBallGr = gdk_pixbuf_new_from_file(GetResourceDir("greenball.png",FileLocConfig),
 	                &err);
-	BouncieBallRed = gdk_pixbuf_new_from_file(GetResourceDir("redball.png"),
+	BouncieBallRed = gdk_pixbuf_new_from_file(GetResourceDir("redball.png",FileLocConfig),
 	                 &err);
-	BouncieBallYel = gdk_pixbuf_new_from_file(GetResourceDir("yelball.png"),
+	BouncieBallYel = gdk_pixbuf_new_from_file(GetResourceDir("yelball.png",FileLocConfig),
 	                 &err);
 
 	MyFretArea = gtk_image_new();
@@ -1069,7 +1052,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 
 	gtk_frame_set_shadow_type (GTK_FRAME (window), GTK_SHADOW_IN);
 	MyFretArea = gtk_drawing_area_new ();
-	CSurface = cairo_image_surface_create_from_png (GetResourceDir("RedWood.png"));
+	CSurface = cairo_image_surface_create_from_png (GetResourceDir("RedWood.png",FileLocConfig));
 	printd(LogInfo, "FretOffset 1\n");
 
 	/* Scale the loaded image to occupy the entire screen  */
@@ -1221,12 +1204,12 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 //    gtk_window_get_size(MainWindow, &Cwidth, &Cheight);
 
 	FingerboardDot = cairo_image_surface_create_from_png(
-	                     GetResourceDir("FretboardDot.png"));
-	BouncieBall = cairo_image_surface_create_from_png(GetResourceDir("ball.png") );
-	BouncieBallBl = cairo_image_surface_create_from_png(GetResourceDir("blueball.png") );
-	BouncieBallGr = cairo_image_surface_create_from_png(GetResourceDir("greenball.png") );
-	BouncieBallRed = cairo_image_surface_create_from_png(GetResourceDir("redball.png") );
-	BouncieBallYel = cairo_image_surface_create_from_png(GetResourceDir("yelball.png") );
+	                     GetResourceDir("FretboardDot.png",FileLocConfig));
+	BouncieBall = cairo_image_surface_create_from_png(GetResourceDir("ball.png",FileLocConfig) );
+	BouncieBallBl = cairo_image_surface_create_from_png(GetResourceDir("blueball.png",FileLocConfig) );
+	BouncieBallGr = cairo_image_surface_create_from_png(GetResourceDir("greenball.png",FileLocConfig) );
+	BouncieBallRed = cairo_image_surface_create_from_png(GetResourceDir("redball.png",FileLocConfig) );
+	BouncieBallYel = cairo_image_surface_create_from_png(GetResourceDir("yelball.png",FileLocConfig) );
 
 //   gtk_widget_set_size_request(MyFretArea,
 //                                FretOffset * (MaxDisplayFrets + 1) + 30,

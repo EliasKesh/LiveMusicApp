@@ -66,6 +66,7 @@ theImageButtons TapTempoButton;
 GtkWidget *scrolled_window;
 char		SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
+char  BasePathName[250];
 
 // ~/.config/mimeapps.list
 
@@ -341,7 +342,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 
 	// Call the text editor.
 	sprintf(ExecuteString, "%s/LiveEditor %s &\n",
-	        GetResourceDir(""), CurrentURI);
+	        GetResourceDir("",FileLocConfig), CurrentURI);
 	printd(LogDebug, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
@@ -358,6 +359,7 @@ void PageLoaded (WebKitWebView  *web_view,
                  gpointer        user_data) {
 	gchar *CurrentURI;
 	char *Pointer;
+	int   Loop;
 
 	/* We only care about the completed event.
 	*/
@@ -367,7 +369,18 @@ void PageLoaded (WebKitWebView  *web_view,
 	/* Get the URL that was selected.
 	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
-	printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
+	printd(LogTest, "load_status_cb %s event %d \n", CurrentURI, load_event);
+
+#if 1
+	strcpy(BasePathName, CurrentURI);
+	for (Loop = strlen(BasePathName); Loop >=0; Loop--)
+		if (BasePathName[Loop] == '/') {
+			BasePathName[Loop +1] = 0;
+			Loop = -1;
+		}
+
+//	printd(LogTest, "Base Name %s \n", BasePathName);
+#endif
 
 	/* Keep a record
 	*/
@@ -1021,8 +1034,15 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			String = Found;
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogDebug, "LoopFile %s\n", tokenizer);
+
+#if 1
+			strcpy(gMyInfo.LoopFileName, BasePathName);
+			strcat(gMyInfo.LoopFileName, tokenizer);	
+#else
 			strcpy(LoopFile, tokenizer);
 			strcpy(gMyInfo.LoopFileName, tokenizer);
+#endif
+			printd(LogTest, "LoopFile name %s\n", gMyInfo.LoopFileName);
 			MyOSCLoadFile(gMyInfo.LoopFileName);
 		}
 

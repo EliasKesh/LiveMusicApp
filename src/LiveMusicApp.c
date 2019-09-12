@@ -7,9 +7,24 @@
  *
  *      Date:           Jan 15, 2012
  *
+ *		Version:        1.3.4
+ *
  *      Copyright © 2012 Elias Keshishoglou.  All rights reserved.
  *
- *      Change History (located at end of file)
+ *	This program is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU General Public License
+ *	as published by the Free Software Foundation; either version 2
+ *	of the License, or (at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
  *
  *---------------------------------------------------------------------*/
 
@@ -37,19 +52,19 @@
 //#define UsingNewButtons	1
 
 #ifdef UsingNewButtons
-#define GLADE_FILE GetResourceDir("LiveMusicApp.glade.Buttons")
+#define GLADE_FILE GetResourceDir("LiveMusicApp.glade.Buttons",FileLocConfig)
 #else
 #define GLADE_FILE "LiveMusicApp.glade"
 #endif
-#define Icon_FILE GetResourceDir("LiveIcon.png")
+#define Icon_FILE GetResourceDir("LiveIcon.png",FileLocConfig)
 #define MaxTabs	5
 #define UsingImageButtons
 
 /* Max number of history messages.
 */
 #define MaxStatusHold 8
-#define CSSFileName GetResourceDir("LiveMusicApp.css")
-#define HistoryFileName	GetResourceDir("LiveMusicHistory")
+#define CSSFileName GetResourceDir("LiveMusicApp.css",FileLocConfig)
+#define HistoryFileName	"LiveMusicHistory"
 #define MaxKeyTimeout	3
 
 // export LIBGL_ALWAYS_SOFTWARE=1
@@ -105,6 +120,7 @@ int MainButtonCountOn;
 at rehearsal.
 */
 FILE 	*FileHistory;
+char *ResourceFileName[250];
 
 /* Update the Tabs in GTK context.
 */
@@ -173,7 +189,6 @@ char *printd(char LogLevel, const char *fmt, ...) {
 
 	return NULL;
 }
-char *ResourceFileName[250];
 
 /*--------------------------------------------------------------------
  * Function:		GetResourceDir
@@ -181,15 +196,17 @@ char *ResourceFileName[250];
  * Description:		Return the full path for the file.
  *
  *---------------------------------------------------------------------*/
-char *GetResourceDir(char *FileName) {
+char *GetResourceDir(char *FileName, char WhichLoc) {
 
 	strcpy(ResourceFileName, homedir);
-	printf("New File Name %s\n",ResourceFileName);
 
-	strcat(ResourceFileName, "/.config/LiveMusicApp/");
+	if (WhichLoc == FileLocConfig)
+		strcat(ResourceFileName, "/.config/LiveMusicApp/");
+
+	if (WhichLoc == FileLocTunes)
+		strcat(ResourceFileName, "DefaultSongs/");
 
 	strcat(ResourceFileName, FileName);
-	printf("New File Name %s\n",ResourceFileName);
 	return(ResourceFileName);
 }
 
@@ -240,7 +257,7 @@ int main(int argc, char *argv[]) {
 
 	printf("Home Dir %s\n",homedir );
 
-	GetResourceDir("./MyFile.png");
+	GetResourceDir("./MyFile.png", FileLocConfig);
 
 	/* Default name for the jack client.
 	*/
@@ -328,7 +345,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/* Choose the glad file based on the layout we are using.
 	*/
 	sprintf(TempStrBuf, "%s.%d",GLADE_FILE, KeyLayout);
-	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf), &error)) {
+	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf,FileLocConfig), &error)) {
 		g_warning("Couldn't load builder file: %s", error->message);
 		g_error_free(error);
 	}
@@ -369,17 +386,17 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	MButtonY = (int) ((float) ButtonSize * 0.6);
 
 	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                        GetResourceDir("MainSwitchOn.png"), MButtonX, MButtonY, NULL, NULL);
+	                        GetResourceDir("MainSwitchOn.png",FileLocConfig), MButtonX, MButtonY, NULL, NULL);
 	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("MainSwitchOff.png"), MButtonX, MButtonY, NULL, NULL);
+	                         GetResourceDir("MainSwitchOff.png",FileLocConfig), MButtonX, MButtonY, NULL, NULL);
 	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("PatchSwitchOn.png"), BButtonX, BButtonY, NULL, NULL);
+	                         GetResourceDir("PatchSwitchOn.png",FileLocConfig), BButtonX, BButtonY, NULL, NULL);
 	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("PatchSwitchOff.png"), BButtonX, BButtonY, NULL, NULL);
+	                          GetResourceDir("PatchSwitchOff.png",FileLocConfig), BButtonX, BButtonY, NULL, NULL);
 	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("NoteBSwitchOn.png"), MButtonX, MButtonY, NULL, NULL);
+	                         GetResourceDir("NoteBSwitchOn.png",FileLocConfig), MButtonX, MButtonY, NULL, NULL);
 	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("NoteBSwitchOff.png"), MButtonX, MButtonY, NULL, NULL);
+	                          GetResourceDir("NoteBSwitchOff.png",FileLocConfig), MButtonX, MButtonY, NULL, NULL);
 //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
 	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
@@ -1965,7 +1982,7 @@ int FindString(int StringList, char *String) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-	FileHistory = fopen(HistoryFileName, "a+");	printf("File History %x\n", FileHistory);
+	FileHistory = fopen(GetResourceDir(HistoryFileName,FileLocTunes) , "a+");	printf("File History %x\n", FileHistory);
 	if (FileHistory) {
 		fseek(FileHistory, 0, SEEK_END);
 		printd(LogDebug, FileHistory, "*****************\n");

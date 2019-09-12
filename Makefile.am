@@ -56,3 +56,12 @@ LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __Bump_NUMBER=$$(./Scripts/In
 # Copy the preferences.
 Prefsdir = "$(HOME)/.config/LiveMusicApp"
 Prefs_DATA = LiveMusicRes/* 
+# Prefs_DATA = LiveMusicRes/* -c -m 644
+
+Songsdir = "$(HOME)/MySongs"
+Songs_DATA = DefaultSongs/*
+#Songs_DATA = DefaultSongs/* -c -m 644
+
+install-exec-hook:
+	chmod a+rw $(Songsdir)
+	chown $(USER) $(Songsdir)
