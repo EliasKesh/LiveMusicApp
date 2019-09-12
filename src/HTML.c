@@ -399,7 +399,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	/* Get the URL that was selected.
 	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
-	printd(LogTest, "load_status_cb %s event %d \n", CurrentURI, load_event);
+	printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
 
 #if 1
 	strcpy(BasePathName, CurrentURI);
@@ -409,9 +409,9 @@ void PageLoaded (WebKitWebView  *web_view,
 			Loop = -1;
 		}
 
-//	printd(LogTest, "Base Name %s \n", BasePathName);
+//	printd(LogDebug, "Base Name %s \n", BasePathName);
 #endif
-	printd(LogTest, "After Basename %s \n", BasePathName);
+	printd(LogDebug, "After Basename %s \n", BasePathName);
 
 	/* Keep a record
 	*/
@@ -1073,7 +1073,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			strcpy(LoopFile, tokenizer);
 			strcpy(gMyInfo.LoopFileName, tokenizer);
 #endif
-			printd(LogTest, "LoopFile name %s\n", gMyInfo.LoopFileName);
+			printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
 			MyOSCLoadFile(gMyInfo.LoopFileName);
 		}
 

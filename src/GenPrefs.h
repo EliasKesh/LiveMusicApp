@@ -254,8 +254,7 @@ LiveMusicInfo GlobalInfo = {
 3,
 8,
 12,
-12,
-    },
+12 },
 { 
  	{
  "Main", 

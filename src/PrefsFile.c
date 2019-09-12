@@ -55,11 +55,9 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo);
 /*
  * Place Static variables here
  */
-/* @formatter:off */
+
 //#include "DefPrefs.h"
 #include "GenPrefs.h"
-
-// START-ECLIPSE-FORMATTING
 
 /*--------------------------------------------------------------------
  * Function:		InitPref
@@ -77,8 +75,11 @@ InitPref (void) {
 	/* If we can not read the XML file load up the defaults.
 	*/
 
-	if (ReadPrefs ())
+	if (ReadPrefs ()) {
 		memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
+		printd(LogDebug, "ReadFrefs Failed. \n");
+		NewInstall = 1;
+	}
 
 
 	/* If it's a new install set the Charts directory.
@@ -94,7 +95,7 @@ InitPref (void) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
-	WritePrefs();
+	// WritePrefs();
 
 	/* If we wish to generate an include file from the
 	existing preferences.
@@ -121,7 +122,7 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo) {
 		if (MyInfo->MyPatchInfo[Index].CustomCommand == cmdHardSlider)
 			if (MyInfo->MyPatchInfo[Index].Channel < MaxHardSliders) {
 				MyInfo->HardSlider[MyInfo->MyPatchInfo[Index].Channel] = Index;
-				printf("PostProcessPrefs %d %d\n", Index, MyInfo->MyPatchInfo[Index].Channel);
+				printd(LogDebug, "PostProcessPrefs %d %d\n", Index, MyInfo->MyPatchInfo[Index].Channel);
 			}
 	}
 
@@ -953,6 +954,7 @@ int ReadPrefs () {
 	printd (LogDebug, "Reading prefs file\n");
 	printd (LogDebug, "----------------------\n");
 	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME, FileLocConfig));
+	printd (LogTest, "Reader %x\n", reader);
 	if (reader != NULL) {
 		ret = xmlTextReaderRead (reader);
 		while (ret == 1) {
@@ -964,12 +966,12 @@ int ReadPrefs () {
 		}
 		xmlFreeTextReader (reader);
 		if (ret != 0) {
-			printd (LogDebug, "%s : failed to parse\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
+			printd (LogTest, "%s : failed to parse\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
 			return (1);
 		}
 	} else {
-		printd (LogDebug, "Unable to open %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
-		return (1);
+		printd (LogTest, "Unable to open %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
+		return (2);
 	}
 	printd (LogDebug, "----------------------\n");
 	printd (LogDebug, "Done Reading prefs file\n");

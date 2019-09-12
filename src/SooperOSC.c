@@ -122,7 +122,7 @@ int OSCCommand(int Command, char Option) {
 
 	case OSCStopRecord:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogTest, "OSCStopRecord %s\n", NewCommand);
+		printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "s", "record");
 		break;
 
@@ -152,7 +152,7 @@ int OSCCommand(int Command, char Option) {
 
 	case OSCRecLoop:
 		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogTest, "OSCRecLP %s\n", NewCommand);
+		printd(LogDebug, "OSCRecLP %s\n", NewCommand);
 		lo_send(SLOSCaddr, NewCommand, "s", "record");
 		gMyInfo.LoopTempo = gMyInfo.Tempo;
 		gMyInfo.RecordStopLoop = gMyInfo.LoopPosition;
@@ -176,14 +176,14 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 	int index = argv[0]->i;
 	float val  = argv[2]->f;
 
-	printd(LogTest, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
+	printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
 	gMyInfo.LoopPosition = val;
 
 	/* Check to see if we should send the
 	record off command.
 	*/
 	if (val > 0 && (gMyInfo.RecordStopLoop >= 0)) {
-		printd(LogTest, "ctrl_handler Stop Loop\n");
+		printd(LogDebug, "ctrl_handler Stop Loop\n");
 		gMyInfo.RecordStopLoop = -1;
 		OSCCommand(OSCRec, 0);
 	}
@@ -353,11 +353,11 @@ void MyOSCJackVol(int Volume, int channel) {
 void MyOSCJackMute(int Mute, int channel) {
 
 	if (Mute == 1) {
-		printd(LogTest, "MyOSCJackMute On\n");
+		printd(LogDebug, "MyOSCJackMute On\n");
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED7On );
 	} else {
-		printd(LogTest, "MyOSCJackMute Off\n");
+		printd(LogDebug, "MyOSCJackMute Off\n");
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED7Off );
 	}

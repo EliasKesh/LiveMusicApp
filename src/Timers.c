@@ -390,7 +390,7 @@ void ToggleTempo(void) {
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
-			printd(LogTest, "cntStateWaitingforRecCount %d\n", BeatCount);
+			printd(LogDebug, "cntStateWaitingforRecCount %d\n", BeatCount);
 			/* Wait for the downbeat.
 			*/
 			if (BeatCount == 1)
@@ -399,14 +399,14 @@ void ToggleTempo(void) {
 			break;
 
 		case cntStateWaitingforRecCount:
-			printd(LogTest, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+			printd(LogDebug, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 			if (CountInCount-- == gMyInfo.CountInBeats) {
 
 				/* Tell Drums to start.
 				*/
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
-				printd(LogTest, "Start %d %d\n", CountInCount,  TempoState);
+				printd(LogDebug, "Start %d %d\n", CountInCount,  TempoState);
 				/* Set sync source to Internal
 				*/
 				OSCCommand(OSCSyncSource, typeSyncjack);
@@ -424,7 +424,7 @@ void ToggleTempo(void) {
 				com_play();
 				//		OSCCommand(OSCStartRecord, 0);
 				gMyInfo.MetronomeOn = FALSE;
-				printd(LogTest, "Loop Start 1\n\n");
+				printd(LogDebug, "Loop Start 1\n\n");
 			}
 
 			break;
@@ -432,7 +432,7 @@ void ToggleTempo(void) {
 		/* If we are recording and still not done.
 		*/
 		case cntStateRecording:
-			printd(LogTest, "cntStateRecording %d\n", LoopRecBeats);
+			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
 			if (LoopRecBeats == gMyInfo.LoopRecBeats)
 				OSCCommand(OSCStartRecord, 0);
 
@@ -457,14 +457,14 @@ void ToggleTempo(void) {
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
-				printd(LogTest, "Loop Off\n\n");
+				printd(LogDebug, "Loop Off\n\n");
 
 				CountInActiveState = cntStatePostRecord;
 			}
 			break;
 
 		case cntStatePostRecord:
-			printd(LogTest, "Record Post\n\n");
+			printd(LogDebug, "Record Post\n\n");
 			CountInActiveState = cntStateWaitingIdle;
 			OSCCommand(OSCSyncSource, 1);
 			OSCCommand(OSCSyncOn, 0);

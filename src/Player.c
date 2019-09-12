@@ -637,9 +637,9 @@ void SaveLoopFile(void) {
 	 */
 	sprintf(SaveLoopName, "\"%s.Loops\"", CurrentFile);
 //	sprintf(SaveLoopName, "MyTest.loop");
-	printd(LogTest, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
+	printd(LogDebug, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
 //	SavedLoopFD = fopen(SaveLoopName, "a+");
-	printd(LogTest, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+	printd(LogDebug, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
 	if (SavedLoopFD) {
 		while (Loop < NumSavedLoops) {
 			fprintf(SavedLoopFD, "%s %f, %f \n",
@@ -968,7 +968,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	char *entry_line;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogTest, "NextSeg_click_handler %x\n", theButton);
+	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 

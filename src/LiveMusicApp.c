@@ -691,18 +691,18 @@ int GTKIdel_cb(gpointer data) {
 	/* Check to see if a TAB was switched.
 	*/
 	if (gMyInfo.TabSwitch != NULLSwitch) {
-		printd(LogTest, "TabSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "TabSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
 		SwitchToTab(gMyInfo.TabSwitch);
-		printd(LogTest, "TabSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "TabSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
 		gMyInfo.TabSwitch = NULLSwitch;
 	}
 
 	/* Check to see if a Window was switched.
 	*/
 	if (gMyInfo.RaiseSwitch != NULLSwitch) {
-		printd(LogTest, "RaiseSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "RaiseSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
 		RaiseWindowsNum(gMyInfo.RaiseSwitch);
-		printd(LogTest, "RaiseSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "RaiseSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
 		gMyInfo.RaiseSwitch = NULLSwitch;
 	}
 

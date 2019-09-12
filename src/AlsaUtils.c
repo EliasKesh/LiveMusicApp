@@ -655,7 +655,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	case cmdMidiSelect:
 		gMyInfo.GuitarMidiCallParam1 = FALSE;
 		gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
-		printd(LogTest, "GuitarMidiPreset cmdMidiSelect %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiPreset cmdMidiSelect %d\n", gMyInfo.GuitarMidiCallParam1);
 		break;
 
 	case cmdBankSelect:
@@ -922,7 +922,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			if (WaitingforMidi) {
 				gMyInfo.GuitarMidiCallParam1 = event_ptr->data.control.value;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
-		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
 
 //				GuitarMidiPresetComplete(event_ptr->data.control.value);
 			}
@@ -931,7 +931,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			if (WaitingforMidi) {
 				gMyInfo.GuitarMidiCallParam1 = event_ptr->data.note.note;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
-		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
 			} else {
 				//SendMidi(SND_SEQ_EVENT_NOTEON, 0, FluidPort, 07, (int) val);
 				if (event_ptr->data.note.velocity != 0) {
@@ -1111,7 +1111,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (event_ptr->data.control.value == 0) {
 				gMyInfo.GuitarMidiCallParam1 = TRUE;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
-		printd(LogTest, "GuitarMidiCallStart SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiCallStart SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
 
 //					GuitarMidiPreset(TRUE);
 				}
@@ -1119,7 +1119,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (event_ptr->data.control.value == 1) {
 					gMyInfo.GuitarMidiCallParam1 = Max_Patches;
 					gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
-		printd(LogTest, "GuitarMidiPresetComplete SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiPresetComplete SND_SEQ_EVENT_CONTROL14 %d\n", gMyInfo.GuitarMidiCallParam1);
 //					GuitarMidiPresetComplete(Max_Patches);
 				}
 #endif
@@ -1315,7 +1315,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					FishmanBullSh = 0;
 				gMyInfo.GuitarMidiCallParam1 = FALSE;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
-		printd(LogTest, "GuitarMidiPreset FishmanDPad %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiPreset FishmanDPad %d\n", gMyInfo.GuitarMidiCallParam1);
 
 				}
 #endif
@@ -1393,7 +1393,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				FishmanBullSh = 0;
 				gMyInfo.GuitarMidiCallParam1 = FALSE;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
-		printd(LogTest, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
+		printd(LogDebug, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
 
 			}
 
