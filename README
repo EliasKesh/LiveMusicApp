@@ -27,3 +27,10 @@ sudo make install
 and/or 
 dpkg-buildpackage -b -uc -us
 
+
+In order to view PDF files in the charts tab you need to install the browser-plugin-evince. Here is a link to a deb.
+http://ftp.us.debian.org/debian/pool/main/e/evince/browser-plugin-evince_3.22.1-3+deb9u1_amd64.deb
+
+The start up and connections scripts are still too 
+tied to my setup so I will work on those and release
+them shortly.

@@ -521,7 +521,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "/usr/bin/smplayer \'%s\' &", &theURI[7]);
+		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
 		system(string);
 		printf("**----** systemcall %s\n", string);
 		printd(LogDebug, "*** systemcall %s\n", string);
@@ -538,7 +538,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "/usr/bin/muse \'%s\' &", &theURI[7]);
+		sprintf(string, "muse \'%s\' &", &theURI[7]);
 //		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
 		system(string);
 		printf("**----** systemcall %s\n", string);
@@ -556,7 +556,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "/usr/bin/musescore \'%s\' &", &theURI[7]);
+		sprintf(string, "musescore \'%s\' &", &theURI[7]);
 		system(string);
 		printf("**----** systemcall %s\n", string);
 		printd(LogDebug, "*** systemcall %s\n", string);
@@ -574,7 +574,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \'%s\' &", &theURI[7]);
+//		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \'%s\' &", &theURI[7]);
+		sprintf(string, "tuxguitar \'%s\' &", &theURI[7]);
 		system(string);
 		printd(LogDebug, "*** systemcall %s\n", string);
 
@@ -597,7 +598,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			*PageIndex = 0;
 			PageIndex += 6;
 			PageNumber = atoi(PageIndex);
-			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
+//			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
+			sprintf(string, "okular \'%s\'' --page=%d &", theURI, PageNumber);
 		} else {
 			return (false);
 //		sprintf(string, "/usr/bin/okular \"%s\" &", theURI);
