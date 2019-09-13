@@ -371,8 +371,10 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	// g_print("Save %s\n", CurrentURI);
 
 	// Call the text editor.
-	sprintf(ExecuteString, "%s/LiveEditor %s &\n",
-	        GetResourceDir("", FileLocConfig), CurrentURI);
+	// sprintf(ExecuteString, "%s/LiveEditor %s &\n",
+	//         GetResourceDir("", FileLocConfig), CurrentURI);
+	sprintf(ExecuteString, "gedit %s &\n",
+	         CurrentURI);
 	printd(LogDebug, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
