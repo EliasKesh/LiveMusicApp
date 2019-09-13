@@ -234,7 +234,7 @@ function FindDevice {
         amixer -c 1 sset 'NUX USB Audio 2.0 ',0 2032
     fi
     
-    # If we have the Focuswrite scarlett
+    # If we are n a Raspberry PI with the PISound card.
     Device="pisound"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
@@ -247,7 +247,7 @@ function FindDevice {
         AudioOutDevice="$Device"
     fi
     
-    # If we have the StarTech scarlett
+    # If we have 
     Device="USB Advanced Audio Device"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
@@ -1034,7 +1034,7 @@ function SetUpApplications {
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15 `GTK_THEME=LiveMusicTheme ./LiveMusicApp -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp --e v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
 #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
@@ -1049,7 +1049,7 @@ function SetUpApplications {
     
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
-        #        nice -15 sooperlooper -p 9951 -m ./Prefs/SLMidi.slb -L ./Prefs/EliasLooper.slsess &
+        #        nice -15 sooperlooper -p 9951 -m ./Prefs/SLMidiF.slb -L ./Prefs/EliasLooper.slsess &
         slgui -L /home/Dropbox/LiveEffects/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
@@ -1081,7 +1081,7 @@ function SetUpApplications {
     fi
     
     if test "${TabPlayer}" = "true"; then
-        MyTuxGuitar
+        tuxguitar & 
     fi
     
     # Do we launch the drum machine .

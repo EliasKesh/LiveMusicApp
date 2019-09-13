@@ -23,7 +23,7 @@ if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
-	./LiveMusicApp & 
+	LiveMusicApp & 
 	sleep 3
 	./GuitarEffects -c
 	./GuitarEffects -b
