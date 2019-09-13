@@ -284,7 +284,7 @@ int main(int argc, char *argv[]) {
 	WaitingforMidi = 0;
 	GenerateHFile = 0;
 	KeyLayout = 1;
-	JackMaster = 1;
+	JackMaster = 0;
 	RemoveMuteCount = 0;
 	gMyInfo.TimerCount = 0;
 	gMyInfo.TabSwitch = NULLSwitch;
@@ -447,8 +447,10 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
 	                 (GCallback ) tab_focus_callback, gxml);
 
+#if 0
 	g_signal_connect(G_OBJECT(theMainWindow), "key_press_event", G_CALLBACK(key_press_cb), theMainWindow);
 	gMyInfo.KeyPatchValue = 0;
+#endif
 
 	/*
 	 * Setup and initialize our status bar and Mode indicator
@@ -495,6 +497,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
 	g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
+#if 0
 	/*
 	 * The OK Button on the About Box
 	 */
@@ -503,7 +506,8 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	                 G_CALLBACK(
 	                     button_press_notify_cb),
 	                 NULL);
-
+#endif
+	                 
 	/*
 	 * Debug, this prints out the main internal data structure.
 	 */
@@ -1003,14 +1007,14 @@ void parse_cmdline(int argc, char *argv[]) {
 			{ "verbose", no_argument, 0, 'v' },
 			{ "FontSize", required_argument, 0, 'f' },
 			{ "jack", required_argument, 0, 'j' },
-			{ "disable-jack", no_argument, 0, 'd' },
+			{ "enable jack", no_argument, 0, 'e' },
 			{ "layout", required_argument, 0, 'l' },
 			{ "IncludeFile", no_argument, 0, 'i' },
 //			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
 			{ 0, 0, 0, 0 }
 		};
 
-		c = getopt_long(argc, argv, "?hidv:f:j:l:",
+		c = getopt_long(argc, argv, "?hiev:f:j:l:",
 		                long_options, &option_index);
 		if (c == -1)
 			break;
@@ -1041,8 +1045,8 @@ void parse_cmdline(int argc, char *argv[]) {
 			printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
 			break;
 
-		case 'd':
-			JackMaster = 0;
+		case 'e':
+			JackMaster = 1;
 			printd(LogInfo, "JackMaster off\n");
 			break;
 
@@ -1052,7 +1056,7 @@ void parse_cmdline(int argc, char *argv[]) {
 			printf(" v verbose - Debug output level\n");
 			printf(" f FontSize - Font Size for smaller screens.\n");
 			printf(" j jack - Jack master name.\n");
-			printf(" d disable-jack - Don't user jack.\n");
+			printf(" e enable-jack - Connect to jackserver.\n");
 			printf(" l Layout - Glade layout file.\n");
 			printf(" i IncludeFile - Generate include file on exit.\n");
 
@@ -1855,6 +1859,7 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 #endif
 	return (FALSE);
 }
+
 
 /*--------------------------------------------------------------------
  * Function:		key_press_cb

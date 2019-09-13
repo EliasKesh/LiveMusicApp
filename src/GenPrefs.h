@@ -244,15 +244,15 @@ LiveMusicInfo GlobalInfo = {
  "9951", /* OSCPortNumLooper   */
  "9952", /* OSCPortNumJackVol   */
  "9000", /* OSCPortNumHydrogen   */
- 8, /* Number of Strings   */
- {9,
-2,
-7,
+ 6, /* Number of Strings   */
+ { 7,
 0,
 5,
 10,
-3,
-8,
+2,
+7,
+12,
+12,
 12,
 12 },
 { 

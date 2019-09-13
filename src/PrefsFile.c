@@ -81,7 +81,6 @@ InitPref (void) {
 		NewInstall = 1;
 	}
 
-
 	/* If it's a new install set the Charts directory.
 	*/
 	if (NewInstall) {
