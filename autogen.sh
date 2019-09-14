@@ -7,7 +7,7 @@ rm -rf LiveMusicApp config.log \
 	missing config.guess config.sub \
 	src/makefile stamp-h1 ltmain.sh \
 	debian/livemusicapp debian/.debhelper
-rm ChartFixer/makefile
+# rm ChartFixer/makefile
 rm .deps ./src/.deps ./ChartFixer/.deps -rf
 rm makefile autom4te.cache -rf
 else

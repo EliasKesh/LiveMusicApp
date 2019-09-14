@@ -372,6 +372,10 @@ enum {
 #define ModeLastItem		ModeLooper
 #endif
 
+#ifndef MY_BUILD_NUMBER
+#define MY_BUILD_NUMBER 1
+#endif
+
 /*
  * Place Static variables here.
  */

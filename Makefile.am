@@ -92,3 +92,6 @@ install-exec-hook:
 # 	chown $$USER:$$USER $(Prefsdir)
 # 	rsync -avrx "./DefaultSongs/" "$(HOME)/MySongs/"
 # 	rsync -avrx "./LiveMusicRes/" "$(HOME)/.config/LiveMusicApp/"
+
+clean-local:
+	rm -f *.0 src/*.o
