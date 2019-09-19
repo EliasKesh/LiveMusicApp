@@ -147,8 +147,8 @@ typedef struct {
 
 #define MaxPresetButtons 6
 typedef struct {
-	char	thePreset[MaxPresetButtons];
-	char 	theTempo;
+	tPatchIndex	thePreset[MaxPresetButtons];
+	int	theTempo;
 } WebLoadPresets;
 
 enum {
@@ -159,6 +159,8 @@ enum {
 	LiveMusicApp,
 	MP3Player,
 	TabPlayer,
+	MidiPlayer,
+	ScoreEditor,
 	MaxApps
 };
 
@@ -413,12 +415,12 @@ enum { cntStateWaitingIdle = 0,
 #define PedalLED8Off	16
 #define PedalLED8On		17
 
+/* Note values for the fretboard view.
+*/
 enum { NValueA = 0, NValueBb, NValueB,
 		NValueC, NValueDb, NValueD,
 		NValueEb, NValueE, NValueF,
 		NValueGb, NValueG, NValueAb, NValueNone };
-
-
 
 #ifdef LiveMusicApp_c
 #define EXTERN /* */
@@ -521,8 +523,8 @@ EXTERN int      GenerateHFile;
 EXTERN char		JackName[MaxStringPortName];
 EXTERN int 		FishmanSwitch;
 EXTERN int 		FishmanSelSwitch;
-EXTERN int 		LastPatch;
-EXTERN int 		LastAbsPatch;
+//EXTERN int 		LastPatch;
+//EXTERN int 		LastAbsPatch;
 EXTERN int 		CurrentTab;
 EXTERN int 		PreviousTab;
 EXTERN snd_seq_event_t AlsaEvent;

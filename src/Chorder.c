@@ -431,8 +431,6 @@ void PrintBoard() {
 void SetOpenString(void) {
 int Loop;
 
-	NumStrings = gMyInfo.NumberOfStrings;
-	printf("SetOpenString: Numer %d\n", NumStrings);
 #if 0
 	StringLayout[8][0] = NValueB;
 	StringLayout[7][0] = NValueE;
@@ -445,6 +443,7 @@ int Loop;
 	StringLayout[0][0] = NValueEb;
 #endif
 
+	NumStrings = gMyInfo.NumberOfStrings;
 	for (Loop = 0; Loop < MaxNumStrings; Loop++)
 		StringLayout[Loop][0] = gMyInfo.BaseStringName[Loop];
 }

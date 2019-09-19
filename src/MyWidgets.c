@@ -98,14 +98,13 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
  * Description:         Change or Set the text of a button..
  *---------------------------------------------------------------------*/
 int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
-	char		FormatString[100];
+	char		FormatString[200];
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
-//sprintf(FormatString, "<span font=\"10\" color=\"white\"><b>%s</b></span>", String);
-//sprintf(FormatString, "<span size=\"12800\" color=\"white\"><b>%s</b></span>", String);
 
-
-	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", gMyInfo.ButtonTextColor, String);
-//	sprintf(FormatString, "<span font=\"10\" ><b>%s</b></span>", String);
+//	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", 
+//		gMyInfo.ButtonTextColor, String);
+	sprintf(FormatString, "<span  face=\"monospace\" font=\"10\" color='#%lx'><b>%s</b></span>", 
+		gMyInfo.ButtonTextColor, String);
 
 	gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 

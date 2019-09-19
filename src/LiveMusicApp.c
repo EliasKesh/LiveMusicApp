@@ -759,7 +759,8 @@ int GTKIdel_cb(gpointer data) {
 
 	/* If new information about the slider.
 	*/
-	if (gMyInfo.SliderUpdate) {
+	if (gMyInfo.SliderUpdate > 0 && gMyInfo.SliderUpdate < Max_Patches) {
+			printd(LogDebug, "SliderUpdate %d\n", gMyInfo.SliderUpdate);
 		if (gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].CustomCommand == cmdSetExpr) {
 			printd(LogDebug, "SliderUpdate \n");
 			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
@@ -1480,12 +1481,13 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-			sprintf(String, "       %02d       \n%*s", Loop + 1, 7 + StringLen / 2,
-			        gMyInfo.MyPatchInfo[PatchIndex].Name);
+			sprintf(String, "     %02d     \n%*s", 
+				Loop + 1, 
+				(14 + StringLen) / 2,
+		        gMyInfo.MyPatchInfo[PatchIndex].Name);
 			MyImageButtonSetText(&MainButtons[Loop], String);
 		}
 	}
-
 #else
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		myButton = MainButtons[Loop];
@@ -1524,7 +1526,7 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 
 		NextCommand = FindString(fsPatchNames, NextPatch->Chain);
 		NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
-		LastAbsPatch = NextCommand;
+//		LastAbsPatch = NextCommand;
 		if (NextCommand != -1)
 			usleep(150000);
 
@@ -1692,10 +1694,10 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex FinalRetVal;
 	int Loop;
 
-	LastPatch = MidiIn;
-	LastAbsPatch = GetModePreset(MidiIn);
-	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, LastAbsPatch,
-	       &gMyInfo.MyPatchInfo[(char) LastAbsPatch]);
+//	LastPatch = MidiIn;
+	Preset = GetModePreset(MidiIn);
+	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, Preset,
+	       &gMyInfo.MyPatchInfo[(char) Preset]);
 
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
@@ -1703,7 +1705,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	}
 
 //	printd(LogDebug,"Old LastPatch %d\n", LastPatch);
-	LastPatch = MidiIn;
+//	LastPatch = MidiIn;
 
 	/*
 	 * Toggle the on screen buttons if the midi input is used.
@@ -1716,8 +1718,8 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	}
 
 //	RetVal = GetModePreset(MidiIn);
-	RetVal = LastAbsPatch;
-	if (RetVal >= Max_Patches) {
+	RetVal = Preset;
+	if (RetVal >= Max_Patches || RetVal < 0) {
 		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
 		return (0);
 	}

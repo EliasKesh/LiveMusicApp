@@ -498,9 +498,9 @@ void ToggleTempo(void) {
 				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
-			sprintf(TempoUpdateString, "On %d - %d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
+			sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
 		} else
-			sprintf(TempoUpdateString, "Off %d - %d", gMyInfo.Tempo, BeatCount);
+			sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
 
 
 

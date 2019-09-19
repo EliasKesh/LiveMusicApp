@@ -130,7 +130,7 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 	printd(LogInfo, "On Butting Pressed CB\n");
 
 	/* single click with the right mouse button? */
-	printf("view_onButtonPressed");
+	printd (LogDebug, "view_onButtonPressed");
 //	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
 	if (1 ) {
 		gtk_widget_show_all(PatchPopupMenu);

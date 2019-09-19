@@ -1034,7 +1034,7 @@ function SetUpApplications {
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp --e v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
 #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     

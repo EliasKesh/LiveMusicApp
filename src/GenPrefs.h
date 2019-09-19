@@ -148,8 +148,8 @@ LiveMusicInfo GlobalInfo = {
 /* 131 */ {"Midi V",          NoBank         ,   7, FluidPort      ,   1, cmdHardSlider, "None" },
 /* 132 */ {"Master V",        NoBank         ,   7, InternalPort   ,   2, cmdHardSlider, "None" },
 /* 133 */ {"Expr P",          NoBank         ,   2, GuitarixPort   ,   3, cmdHardSlider, "None" },
-/* 134 */ {"",                NoBank         ,   0, FluidPort      ,   1, NoCustom  , "None" },
-/* 135 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/* 134 */ {"FunkyFord",       NoBank         ,  10, GuitarixPort   ,   1, NoCustom  , "None" },
+/* 135 */ {"Straights",       NoBank         ,  11, GuitarixPort   ,   1, NoCustom  , "None" },
 /* 136 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 137 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 138 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -219,33 +219,35 @@ LiveMusicInfo GlobalInfo = {
 {
 { "guitarix", 0 },
 { "qsynth", 0 },
-{ "SooperLooper", 0 },
+{ "sooperlooper", 0 },
 { "audacity", 0 },
 { "LiveMusicApp_1", 0 },
 { "clementine", 0 },
-{ "hydrogen", 0 }
+{ "hydrogen", 0 },
+{ "muse", 0 },
+{ "gedit", 0 }
 },
  8, /* TempoMax  */
  0, /* Metronome On  */
  37, /* Drum down beat, midi code  */
  44, /* Drum Other beats  */
  50, /* Base Midi Note for switching  */
- 130, /* Tempo   */
- 8, /* CountInBeats   */
- 16, /* LoopRecBeats   */
+ 122, /* Tempo   */
+ 4, /* CountInBeats   */
+ 8, /* LoopRecBeats   */
  1, /* MidiPassThru   */
  110, /* MidiPassLevel   */
  4, /* BeatsPerMeasure   */
  100, /* AnalogVolume   */
  0, /* MidiVolume   */
- 0xff0000, /* StatusTextColor   */
+ 0xffffe0, /* StatusTextColor   */
  0xffe0e0, /* ButtonTextColor   */
  "127.0.0.1", /* OSCIPAddress   */
  "9951", /* OSCPortNumLooper   */
  "9952", /* OSCPortNumJackVol   */
  "9000", /* OSCPortNumHydrogen   */
  6, /* Number of Strings   */
- { 7,
+ {7,
 0,
 5,
 10,
@@ -254,7 +256,8 @@ LiveMusicInfo GlobalInfo = {
 12,
 12,
 12,
-12 },
+12,
+    },
 { 
  	{
  "Main", 
@@ -338,7 +341,7 @@ LiveMusicInfo GlobalInfo = {
 /*  76 */  "Taurus2", 
 /*  77 */  "Honky", 
 /*  78 */  "Organ", 
-/*  79 */  "Flute", 
+/*  79 */  "FunkyFord", 
 },}, 
 	{
  "Midi", 

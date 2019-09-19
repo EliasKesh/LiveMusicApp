@@ -197,7 +197,7 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
 gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
                                   gpointer user_data) {
 
-	printf("Prefs_Regenerate_handler\n");
+	printd (LogDebug, "Prefs_Regenerate_handler\n");
 //	gtk_widget_destroy(user_data);
 	DoChartFix(gMyInfo.BasePath,
 	           1, 1, 1, 1);
@@ -212,7 +212,7 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
 gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
                                    gpointer user_data) {
 
-	printf("Prefs_about_close_handler\n");
+	printd (LogDebug, "Prefs_about_close_handler\n");
 	gtk_widget_destroy(user_data);
 
 }
@@ -292,7 +292,7 @@ void InitGuiPrefs(void) {
 	/* Midi output port pane.
 	*/
 	MidiOutput = GTK_WIDGET(gtk_builder_get_object(gxml, "MidiOutputList"));
-	printf("GTK-WIDGET %x\n", MidiOutput);
+	printd (LogDebug, "GTK-WIDGET %x\n", MidiOutput);
 	gtk_list_box_insert(MidiOutput, "One", 0);
 	gtk_list_box_insert(MidiOutput, "Three", 2);
 	gtk_list_box_insert(MidiOutput, "Two", 1);

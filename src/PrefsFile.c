@@ -953,7 +953,7 @@ int ReadPrefs () {
 	printd (LogDebug, "Reading prefs file\n");
 	printd (LogDebug, "----------------------\n");
 	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME, FileLocConfig));
-	printd (LogTest, "Reader %x\n", reader);
+	printd (LogDebug, "Reader %x\n", reader);
 	if (reader != NULL) {
 		ret = xmlTextReaderRead (reader);
 		while (ret == 1) {

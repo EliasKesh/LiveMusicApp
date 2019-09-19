@@ -816,13 +816,15 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		/* Which control should the
 		expression pedal control.
 		*/
-		gMyInfo.ExpreP1Slider = LastAbsPatch;
-
+//		gMyInfo.ExpreP1Slider = LastAbsPatch;
+		gMyInfo.ExpreP1Slider = 
+		FindString(fsPatchNames, thePatch->Name);
+		
 		/* Used to update the text.
 		*/
-		gMyInfo.SliderUpdate = LastAbsPatch;
+		gMyInfo.SliderUpdate = gMyInfo.ExpreP1Slider;
 
-		printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, LastAbsPatch);
+		printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
 		break;
 
 // SND_SEQ_EVENT_SETPOS_TIME

@@ -267,19 +267,20 @@ gboolean on_patch_clicked(GtkWidget *widget,
 
 	if (theEvent->button.state & GDK_CONTROL_MASK) {
 		printd(LogInfo, "We have Control Down\n");
-/* FINISH, need to make the assignment in Patch_Popup_CB
-*/
+		/* FINISH, need to make the assignment in Patch_Popup_CB
+		*/
 
 		ShowPatchListSelect(GTK_WINDOW(widget), CPatch);
 
 	}
+
+	printd(LogDebug, "In Button Preset %d %d\n", CPatch, Preset);
 
 	/* Make sure the preset is at least in the correct range.
 	*/
 	if (Preset < 0  ||  Preset > Max_Patches)
 		return (false);
 
-	printd(LogDebug, "In Button Preset %d %d\n", CPatch, Preset);
 	printd(LogDebug, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
 	/* Execute the patch change.
@@ -374,8 +375,8 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	// sprintf(ExecuteString, "%s/LiveEditor %s &\n",
 	//         GetResourceDir("", FileLocConfig), CurrentURI);
 	sprintf(ExecuteString, "gedit %s &\n",
-	         CurrentURI);
-	printd(LogDebug, "Edit: %s\n", ExecuteString);
+	        CurrentURI);
+	printd(LogInfo, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
 #endif
@@ -507,7 +508,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 * Tell web kit not to o anything with it.
 		 */
 		SetPlayerFile((theURI + 7));
-		printd(LogDebug, "Call SetPlayer %s \n", theURI);
+		printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
@@ -525,8 +526,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
 		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
 		system(string);
-		printf("**----** systemcall %s\n", string);
-		printd(LogDebug, "*** systemcall %s\n", string);
+		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -543,8 +543,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		sprintf(string, "muse \'%s\' &", &theURI[7]);
 //		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
 		system(string);
-		printf("**----** systemcall %s\n", string);
-		printd(LogDebug, "*** systemcall %s\n", string);
+		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -560,8 +559,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
 		sprintf(string, "musescore \'%s\' &", &theURI[7]);
 		system(string);
-		printf("**----** systemcall %s\n", string);
-		printd(LogDebug, "*** systemcall %s\n", string);
+		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -579,7 +577,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 //		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \'%s\' &", &theURI[7]);
 		sprintf(string, "tuxguitar \'%s\' &", &theURI[7]);
 		system(string);
-		printd(LogDebug, "*** systemcall %s\n", string);
+		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -609,7 +607,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
 //		printd(LogDebug, "PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
 		system(string);
-		printd(LogDebug, "*** systemcall %s\n", string);
+		printd(LogInfo, "*** systemcall %s\n", string);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -881,9 +879,7 @@ void InitHTML(GtkBuilder * gxml) {
 
 	strncpy(FileName, "file://", 7 );
 	strncpy(&FileName[7], gMyInfo.BasePath, sizeof (FileName) - 7);
-//	strncpy(FileName, gMyInfo.BasePath, sizeof (FileName));
-	printf("OK from here\n");
-	printf("Path %s %s\n", gMyInfo.BasePath, FileName);
+	printd (LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
 	//   strcat(FileName, "/indexCharts.html");
 //	strncpy(FileName, "file:///home/Dropbox/FusionBlue/index.html", 254);
 	webkit_web_view_load_uri (web_view, FileName);
@@ -981,6 +977,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			/* skip 8  "preset1 "	*/
 			Found += (8 + ContentTagLen);
 			thePresets->thePreset[0] = AssignPreset(1, Found);
+	printd(LogDebug, "Preset1 %d\n", thePresets->thePreset[0]);
 			strncpy(temp, Copy, MAXLINE);
 		}
 
