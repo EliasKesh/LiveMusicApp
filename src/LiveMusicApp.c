@@ -866,8 +866,8 @@ void SwitchToTab(char Tab) {
 void on_button_clicked(GtkButton *button, gpointer user_data) {
 	tPatchIndex PatchIndex;
 
+    printd(LogInfo, "on_button_clicked %d\n", (int) user_data);
 	PatchIndex = LayoutSwitchPatch(user_data, true);
-//    printd(LogInfo, "User data %d\n", (int) user_data);
 }
 
 /*--------------------------------------------------------------------
@@ -1134,7 +1134,11 @@ gboolean click_handler(GtkWidget *widget,
 		ShowPatchListSelect(GTK_WINDOW(widget), Loop);
 
 	}
-	LayoutSwitchPatch(Loop, true);
+	/* Only call make the call if we are not adding,
+	a new patch to the button.
+	*/
+	else
+		LayoutSwitchPatch(Loop, true);
 
 	return TRUE; /* stop event propagation */
 }
