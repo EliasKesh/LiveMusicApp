@@ -1482,6 +1482,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 #ifdef UsingImageButtons
 	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
 		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
+		printd(LogInfo, "SetUpMainButtons1:IMG %d %d \n", Loop, PatchIndex);
 
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
@@ -1489,6 +1490,8 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 				Loop + 1, 
 				(14 + StringLen) / 2,
 		        gMyInfo.MyPatchInfo[PatchIndex].Name);
+		printd(LogInfo, "SetUpMainButtons:IMG %d %d %s \n", Loop, PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
+
 			MyImageButtonSetText(&MainButtons[Loop], String);
 		}
 	}
@@ -1500,7 +1503,8 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
 			sprintf(String, "%02d-%s", Loop + 1,
 			        gMyInfo.MyPatchInfo[PatchIndex].Name);
-			myChild = gtk_bin_get_child(GTK_BIN(myButton));
+			printd(LogInfo, "SetUpMainButtons %d %s \n", PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
+		myChild = gtk_bin_get_child(GTK_BIN(myButton));
 			gtk_label_set_text((myChild), String);
 		}
 	}
@@ -1729,6 +1733,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	}
 
 	FinalRetVal = RetVal;
+
 	/* If the command is a preset lookup the patch.
 	*/
 	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
@@ -1747,6 +1752,9 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 				}
 		}
 	}
+
+	if (FinalRetVal > Max_Patches)
+		FinalRetVal = RetVal;
 
 	/* If we should act on it then call for a change.
 	*/

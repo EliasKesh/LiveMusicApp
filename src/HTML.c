@@ -269,7 +269,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
 		printd(LogInfo, "We have Control Down\n");
 		/* FINISH, need to make the assignment in Patch_Popup_CB
 		*/
-
+		CurrentPreset = CPatch + Max_Patches + 1;
 		ShowPatchListSelect(GTK_WINDOW(widget), CPatch);
 
 	}

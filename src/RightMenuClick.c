@@ -83,11 +83,25 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
  *
  *---------------------------------------------------------------------*/
 void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
+char String[10];
+
 	/* we passed the view as userdata when we connected the signal */
 //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
 //	g_print("Do something! %d\n", (int)userdata);
+	printd(LogDebug, "Patch_Popup_CB %d\n", (int)userdata);
+
+
+	if (CurrentPreset < Max_Patches) {
 	strcpy(gMyInfo.LayoutPresets[CurrentLayout].Presets[CurrentPreset], gMyInfo.MyPatchInfo[(int)userdata].Name);
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
+	}
+
+	/* If it's not a main patch check for song presets.
+	*/
+	if (CurrentPreset > Max_Patches && CurrentPreset <= Preset6Patch) {
+		sprintf(String, "%d", (int)userdata);
+		AssignPreset(CurrentPreset-Max_Patches, String);
+	}
 }
 
 /*--------------------------------------------------------------------

@@ -106,6 +106,8 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 	sprintf(FormatString, "<span  face=\"monospace\" font=\"10\" color='#%lx'><b>%s</b></span>", 
 		gMyInfo.ButtonTextColor, String);
 
+	printd(LogInfo, "MyImageButtonSetText %x %s \n", theButton, String);
+
 	gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 
 	return (0);

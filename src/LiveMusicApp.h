@@ -126,7 +126,14 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 80
+#define MaxPresetButtons 6
 #define Max_Patches	 182
+#define Preset1Patch (Max_Patches + 1)
+#define Preset2Patch (Max_Patches + 2)
+#define Preset3Patch (Max_Patches + 3)
+#define Preset4Patch (Max_Patches + 4)
+#define Preset5Patch (Max_Patches + 5)
+#define Preset6Patch (Max_Patches + 6)
 #define Max_Layouts	 10
 #define FileNameMaxLength	250
 
