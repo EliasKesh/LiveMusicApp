@@ -87,6 +87,93 @@ char  BasePathName[250];
 // ~/.config/mimeapps.list
 
 /*--------------------------------------------------------------------
+ * Function:		SavePresetChanges
+ *
+ * Description:	write any changes to the file.
+ * Cheesy way of doing this.
+ *---------------------------------------------------------------------*/
+char SavePresetChanges(char *FileName) {
+	FILE *InFile;
+	FILE *OutFile;
+	char FileLine[200];
+	tPatchIndex thePatch;
+
+	// Open the current html file.
+	InFile = fopen(&FileName[7], "r");
+	printf("FileName %x, %s\n", InFile, FileName);
+
+	// Open a temp file.
+	sprintf(FileLine, "%s.Test", &FileName[7]);
+	OutFile = fopen(FileLine, "w+");
+
+	if (!InFile || !OutFile) {
+		printf("Html File Error %x %x\n", InFile, OutFile);
+		return;
+	}
+
+	/* Read the infile line by line and replace the meta
+	Data with the current settings.
+	*/
+	while (!feof(InFile)) {
+		FileLine[0] = 0;
+		fgets(FileLine, 200, InFile);
+
+		if (strstr(FileLine, "Preset1")) {
+			thePatch = gMyInfo.WebPresets.thePreset[0];
+			sprintf(FileLine, "<meta name=\"Preset1\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Preset2")) {
+			thePatch = gMyInfo.WebPresets.thePreset[1];
+			sprintf(FileLine, "<meta name=\"Preset2\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Preset3")) {
+			thePatch = gMyInfo.WebPresets.thePreset[2];
+			sprintf(FileLine, "<meta name=\"Preset3\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Preset4")) {
+			thePatch = gMyInfo.WebPresets.thePreset[3];
+			sprintf(FileLine, "<meta name=\"Preset4\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Preset5")) {
+			thePatch = gMyInfo.WebPresets.thePreset[4];
+			sprintf(FileLine, "<meta name=\"Preset5\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Preset6")) {
+			thePatch = gMyInfo.WebPresets.thePreset[5];
+			sprintf(FileLine, "<meta name=\"Preset6\" content=\"%s\" >\n",
+			        gMyInfo.MyPatchInfo[thePatch].Name);
+		}
+
+		if (strstr(FileLine, "Tempo")) {
+			sprintf(FileLine, "<meta name=\"Tempo\" content=\"%d\" >\n", gMyInfo.Tempo);
+		}
+
+		printf("%s", FileLine);
+		fprintf(OutFile, "%s", FileLine);
+	}
+
+	// Close both files
+	fclose(InFile);
+	fclose(OutFile);
+
+	sprintf(FileLine, "%s.Test", &FileName[7]);
+
+	// Rename the temp file back to the main file.
+	rename(FileLine, &FileName[7]);
+}
+
+
+/*--------------------------------------------------------------------
  * Function:		on_Back_clicked
  *
  * Description:	Web browser back button
@@ -94,10 +181,19 @@ char  BasePathName[250];
  *---------------------------------------------------------------------*/
 void on_Back_clicked(GtkButton * button, gpointer user_data) {
 //		webkit_web_view_set_editable( web_view, false);
+	const gchar *CurrentURI;
+
+
 	gtk_image_set_from_pixbuf(GTK_IMAGE(BackButton.Image),
 	                          BackButton.ButtonDownImage);
+	CurrentURI = webkit_web_view_get_uri(web_view);
+
+	SavePresetChanges((char *)CurrentURI);
+
 	webkit_web_view_go_back(web_view);
-	g_print("Back:\n");
+//	g_print("Back:\n");
+
+	// Reset the patches
 	SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
 	SetPatchTitles(&PresetButtons[1], "Preset 2", 2);
 	SetPatchTitles(&PresetButtons[2], "Preset 3", 3);
@@ -117,7 +213,7 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 	gtk_image_set_from_pixbuf(GTK_IMAGE(ForwardButton.Image),
 	                          ForwardButton.ButtonDownImage);
 	webkit_web_view_go_forward(web_view);
-	g_print("Forward:\n");
+//	g_print("Forward:\n");
 }
 
 /*--------------------------------------------------------------------
@@ -147,7 +243,7 @@ int ScrollDown(int Amount) {
 /*--------------------------------------------------------------------
  * Function:		Scale the page to fit with scroll bars
  *
- * Description:	Web browser forward button
+ * Description:	Scale to fit routine. Doesn't work well.
  *
  *---------------------------------------------------------------------*/
 int ScalePage(void) {
@@ -183,13 +279,13 @@ int ScalePage(void) {
  *
  *---------------------------------------------------------------------*/
 void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
-	const gchar *CurrentURI;
+//	const gchar *CurrentURI;
 
 //	 webkit_web_view_reload(web_view);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(ScaleButton.Image),
 	                          ScaleButton.ButtonDownImage);
 
-	CurrentURI = webkit_web_view_get_uri(web_view);
+//	CurrentURI = webkit_web_view_get_uri(web_view);
 //	g_print("Current %s\n", CurrentURI);
 	ScalePage();
 }
@@ -207,37 +303,39 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 	struct timeval Time1;
 	double elapsedTime;
 
+	if (event->button.state & GDK_CONTROL_MASK) {
+	}
+
 	// Get the new time
 	gettimeofday(&Time1, NULL);
 
 	// Subtract the old time.
 	elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
 	elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
-#if 0
-	printf("%ld:%ld->", Time0.tv_sec, Time0.tv_usec);
-	printf("%ld:%ld->\n", Time1.tv_sec, Time1.tv_usec);
-	printf("Elasped %lf\n", elapsedTime);
-#endif
+
 
 	// Calculate BPM
-	if (elapsedTime != 0)
+	if (elapsedTime != 0 && CurTapTempo < 200)
 		CurTapTempo = (.35 * CurTapTempo) + (.65 * (60 * 1000) / elapsedTime);
 	else
-		CurTapTempo = 30;
+		CurTapTempo = 100;
 
 	// Make this time the old time
 	Time0 = Time1;
 
 	// Update the button.
-	sprintf(String, "Tap=%d", CurTapTempo);
-	MyImageButtonSetText(&TapTempoButton, String);
+	if (CurTapTempo < 250)
+		sprintf(String, "Tap=%d", CurTapTempo);
+	else
+		sprintf(String, "Tap=??");
+
+		MyImageButtonSetText(&TapTempoButton, String);
 //	webkit_web_view_set_editable(web_view, TRUE);
 
-	/*
-	 * Draw the button
-	 */
-	gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image), TapTempoButton.ButtonDownImage);
-
+		/*
+		 * Draw the button
+		 */
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image), TapTempoButton.ButtonDownImage);
 }
 
 /*--------------------------------------------------------------------
@@ -249,7 +347,6 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 gboolean on_patch_clicked(GtkWidget *widget,
                           GdkEvent *event,
                           gpointer user_data) {
-
 	tPatchIndex Preset;
 	int CPatch;
 	GdkEvent *theEvent;
@@ -272,6 +369,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
 		CurrentPreset = CPatch + Max_Patches + 1;
 		ShowPatchListSelect(GTK_WINDOW(widget), CPatch);
 
+		return (TRUE);
 	}
 
 	printd(LogDebug, "In Button Preset %d %d\n", CPatch, Preset);
@@ -293,6 +391,12 @@ gboolean on_patch_clicked(GtkWidget *widget,
 	return (1);
 }
 
+/*--------------------------------------------------------------------
+ * Function:		on_patch__release_handler
+ *
+ * Description:	The release of a preset click.
+ *
+ *---------------------------------------------------------------------*/
 gboolean on_patch__release_handler(GtkWidget *widget,
                                    GdkEvent *event,
                                    gpointer user_data) {
@@ -369,12 +473,12 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 
 	// Get the current URI of the viewable file.
 	CurrentURI = webkit_web_view_get_uri(web_view);
-	// g_print("Save %s\n", CurrentURI);
 
 	// Call the text editor.
-	// sprintf(ExecuteString, "%s/LiveEditor %s &\n",
-	//         GetResourceDir("", FileLocConfig), CurrentURI);
-	sprintf(ExecuteString, "gedit %s &\n",
+//	sprintf(ExecuteString, "gedit %s &\n",
+//	        CurrentURI);
+	sprintf(ExecuteString, "%s %s &\n",
+	        gMyInfo.Apps[HTMLEditor],
 	        CurrentURI);
 	printd(LogInfo, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
@@ -394,17 +498,22 @@ void PageLoaded (WebKitWebView  *web_view,
 	char *Pointer;
 	int   Loop;
 
-	/* We only care about the completed event.
-	*/
-	if (load_event != WEBKIT_LOAD_FINISHED)
-		return;
-
 	/* Get the URL that was selected.
 	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
 
+	/* We only care about the completed event.
+	WEBKIT_LOAD_STARTED, WEBKIT_LOAD_REDIRECTED,
+	WEBKIT_LOAD_COMMITTED, WEBKIT_LOAD_FINISHED
+	*** Use WEBKIT_LOAD_FINISHED to reload after ever click.
+	*/
+	if (load_event != WEBKIT_LOAD_COMMITTED)
+		return;
 #if 1
+	/* We need an absolue path. For files in the current
+	song folder add the full path before the name.
+	*/
 	strcpy(BasePathName, CurrentURI);
 	for (Loop = strlen(BasePathName); Loop >= 0; Loop--)
 		if (BasePathName[Loop] == '/') {
@@ -420,7 +529,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	*/
 	WriteToHistory(CurrentURI);
 
-	Pointer = strstr(CurrentURI, ".html");
+//	Pointer = strstr(CurrentURI, ".html");
 
 	/* Let's check to see if this is an HTML file.
 	*/
@@ -444,6 +553,8 @@ int ishex(int x) {
 	        (x >= 'A' && x <= 'F');
 }
 
+/* Get rid of URL funky characters, like %20
+*/
 int DecodeURI(char *s, char *dec) {
 	char *o;
 	char *end = s + strlen(s);
@@ -451,28 +562,26 @@ int DecodeURI(char *s, char *dec) {
 
 	for (o = dec; s <= end; o++) {
 		c = *s++;
-		if (c == '+') c = ' ';
+		if (c == '+')
+			c = ' ';
 		else if (c == '%' && (	!ishex(*s++)	||
 		                        !ishex(*s++)	||
 		                        !sscanf(s - 2, "%2x", &c)))
 			return -1;
 
-		if (dec) *o = c;
+		if (dec)
+			*o = c;
 	}
-#if 0
-	size_t		Length;
-	int		Loop;
-	Length = o - dec;
-	o = dec;
-
-	for (Loop = 0; Loop < Length; Loop++)
-		if ( dec[Loop] == 0x20)
-			dec[Loop] = 255;
-#endif
-
 	return o - dec;
 }
 
+/*--------------------------------------------------------------------
+ * Function:		NavigationPolicy
+ *
+ * Description:	Return TRUE means we are handling the URL
+ * FALSE means that webkit has to handle it.
+ *
+ *---------------------------------------------------------------------*/
 gboolean NavigationPolicy(WebKitWebView * web_view,
                           WebKitPolicyDecision    * decision,
                           WebKitPolicyDecisionType decision_type,
@@ -540,7 +649,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "muse \'%s\' &", &theURI[7]);
+		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer], &theURI[7]);
+//		sprintf(string, "muse \'%s\' &", &theURI[7]);
 //		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
@@ -558,6 +668,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
 		sprintf(string, "musescore \'%s\' &", &theURI[7]);
+//		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer], &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -575,7 +686,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
 //		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \'%s\' &", &theURI[7]);
-		sprintf(string, "tuxguitar \'%s\' &", &theURI[7]);
+		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[TabPlayer], &theURI[7]);
+//		sprintf(string, "tuxguitar \'%s\' &", &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -977,7 +1089,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			/* skip 8  "preset1 "	*/
 			Found += (8 + ContentTagLen);
 			thePresets->thePreset[0] = AssignPreset(1, Found);
-	printd(LogDebug, "Preset1 %d\n", thePresets->thePreset[0]);
+			printd(LogDebug, "Preset1 %d\n", thePresets->thePreset[0]);
 			strncpy(temp, Copy, MAXLINE);
 		}
 

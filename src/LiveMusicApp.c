@@ -150,7 +150,7 @@ int CloseHistoryFile(void);
 int InitHistoryFile(void);
 gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data);
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data);
-void on_Tempo_Button(GtkWidget *widget, gpointer user_data);
+void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void on_About_clicked(GtkButton *button, gpointer user_data);
 gboolean layout_click_handler(GtkWidget *widget,
                               GdkEvent *event,
@@ -940,7 +940,12 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
  * Description:		Turn the Metrognome on or off
  *
  *---------------------------------------------------------------------*/
-void on_Tempo_Button(GtkWidget *widget, gpointer user_data) {
+void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+
+	// Put Dialog here.
+	if (event->button.state & GDK_CONTROL_MASK) {
+	}
+
 	if (gMyInfo.MetronomeOn) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
 		                          TempoDraw.ButtonUpImage);

@@ -167,7 +167,7 @@ enum {
 	MP3Player,
 	TabPlayer,
 	MidiPlayer,
-	ScoreEditor,
+	HTMLEditor,
 	MaxApps
 };
 

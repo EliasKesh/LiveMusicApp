@@ -83,7 +83,7 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
  *
  *---------------------------------------------------------------------*/
 void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
-char String[10];
+char String[20];
 
 	/* we passed the view as userdata when we connected the signal */
 //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
@@ -100,7 +100,8 @@ char String[10];
 	*/
 	if (CurrentPreset > Max_Patches && CurrentPreset <= Preset6Patch) {
 		sprintf(String, "%d", (int)userdata);
-		AssignPreset(CurrentPreset-Max_Patches, String);
+		printf("In CTRL Preset %d %s\n", CurrentPreset-Max_Patches, String);
+		gMyInfo.WebPresets.thePreset[CurrentPreset-Max_Patches - 1] = AssignPreset(CurrentPreset-Max_Patches, String);
 	}
 }
 
