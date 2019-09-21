@@ -100,14 +100,14 @@ char SavePresetChanges(char *FileName) {
 
 	// Open the current html file.
 	InFile = fopen(&FileName[7], "r");
-	printf("FileName %x, %s\n", InFile, FileName);
+//	printf("FileName %x, %s\n", InFile, FileName);
 
 	// Open a temp file.
 	sprintf(FileLine, "%s.Test", &FileName[7]);
 	OutFile = fopen(FileLine, "w+");
 
 	if (!InFile || !OutFile) {
-		printf("Html File Error %x %x\n", InFile, OutFile);
+		printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
 		return;
 	}
 
@@ -158,7 +158,7 @@ char SavePresetChanges(char *FileName) {
 			sprintf(FileLine, "<meta name=\"Tempo\" content=\"%d\" >\n", gMyInfo.Tempo);
 		}
 
-		printf("%s", FileLine);
+//		printf("%s", FileLine);
 		fprintf(OutFile, "%s", FileLine);
 	}
 
@@ -191,7 +191,6 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 	SavePresetChanges((char *)CurrentURI);
 
 	webkit_web_view_go_back(web_view);
-//	g_print("Back:\n");
 
 	// Reset the patches
 	SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
@@ -213,7 +212,6 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 	gtk_image_set_from_pixbuf(GTK_IMAGE(ForwardButton.Image),
 	                          ForwardButton.ButtonDownImage);
 	webkit_web_view_go_forward(web_view);
-//	g_print("Forward:\n");
 }
 
 /*--------------------------------------------------------------------
@@ -279,14 +277,11 @@ int ScalePage(void) {
  *
  *---------------------------------------------------------------------*/
 void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
-//	const gchar *CurrentURI;
 
 //	 webkit_web_view_reload(web_view);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(ScaleButton.Image),
 	                          ScaleButton.ButtonDownImage);
 
-//	CurrentURI = webkit_web_view_get_uri(web_view);
-//	g_print("Current %s\n", CurrentURI);
 	ScalePage();
 }
 
@@ -315,7 +310,7 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 
 
 	// Calculate BPM
-	if (elapsedTime != 0 && CurTapTempo < 200)
+	if (elapsedTime != 0 && CurTapTempo < 250)
 		CurTapTempo = (.35 * CurTapTempo) + (.65 * (60 * 1000) / elapsedTime);
 	else
 		CurTapTempo = 100;
