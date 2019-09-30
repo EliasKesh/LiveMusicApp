@@ -111,7 +111,6 @@ void SetTempo(unsigned int NewTempo) {
 
 	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
 	gMyInfo.Tempo = NewTempo;
-//	gMyInfo.TempoReload = 40;
 //	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
 //	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
@@ -171,7 +170,6 @@ void MyTimerInit(void) {
 
 	/* Set up a timer for Tempo.
 	*/
-//	SetupAlsaTimer(90);
 	SetTempo(100);
 }
 
@@ -190,20 +188,11 @@ void SetTempo(unsigned int NewTempo) {
 	*/
 	com_tempo(NewTempo);
 
-//	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
 	gMyInfo.Tempo = NewTempo;
-//	gMyInfo.TempoReload = 40;
-//	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
-//	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
 	/* Send out a message our tempo is changing.
 	 */
-//	setTimerFreq(15000 / NewTempo);
-//	setTimerFreq(100);
 	SetupAlsaTimer(NewTempo);
-
-//printd(LogDebug, "Set Alsa Timer\n");
-
 }
 
 /*--------------------------------------------------------------------

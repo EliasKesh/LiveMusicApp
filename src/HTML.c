@@ -79,7 +79,7 @@ theImageButtons SetListButton;
 theImageButtons PlayPauseButton;
 theImageButtons TapTempoButton;
 
-GtkWidget *scrolled_window;
+GtkWidget *ChartGTKView;
 char		SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
 char  BasePathName[250];
@@ -224,7 +224,7 @@ int ScrollDown(int Amount) {
 	GtkAdjustment *Adjust;
 	gint Value, UpperV, VIncrement;
 
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)scrolled_window);
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 	VIncrement = gtk_adjustment_get_page_increment(Adjust);
 	Value = gtk_adjustment_get_value(Adjust);
@@ -250,10 +250,10 @@ int ScalePage(void) {
 	gint Horiz, Vert;
 	gfloat ScaleH, ScaleV;
 
-	Adjust = gtk_scrolled_window_get_hadjustment((GtkScrolledWindow *)scrolled_window);
+	Adjust = gtk_scrolled_window_get_hadjustment((GtkScrolledWindow *)ChartGTKView);
 	UpperH = gtk_adjustment_get_upper(Adjust);
 
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)scrolled_window);
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 
 	if (UpperH != 0)
@@ -308,7 +308,6 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 	elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
 	elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
 
-
 	// Calculate BPM
 	if (elapsedTime != 0 && CurTapTempo < 250)
 		CurTapTempo = (.35 * CurTapTempo) + (.65 * (60 * 1000) / elapsedTime);
@@ -324,13 +323,13 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 	else
 		sprintf(String, "Tap=??");
 
-		MyImageButtonSetText(&TapTempoButton, String);
+	MyImageButtonSetText(&TapTempoButton, String);
 //	webkit_web_view_set_editable(web_view, TRUE);
 
-		/*
-		 * Draw the button
-		 */
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image), TapTempoButton.ButtonDownImage);
+	/*
+	 * Draw the button
+	 */
+	gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image), TapTempoButton.ButtonDownImage);
 }
 
 /*--------------------------------------------------------------------
@@ -473,9 +472,9 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 //	sprintf(ExecuteString, "gedit %s &\n",
 //	        CurrentURI);
 	sprintf(ExecuteString, "%s %s &\n",
-	        gMyInfo.Apps[HTMLEditor],
-	        CurrentURI);
-	printd(LogInfo, "Edit: %s\n", ExecuteString);
+	        gMyInfo.Apps[HTMLEditor].Name,
+	        &CurrentURI[7]);
+	printd(LogTest, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
 #endif
@@ -644,7 +643,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer], &theURI[7]);
+		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
 //		sprintf(string, "muse \'%s\' &", &theURI[7]);
 //		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
 		system(string);
@@ -663,7 +662,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
 		sprintf(string, "musescore \'%s\' &", &theURI[7]);
-//		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer], &theURI[7]);
+//		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -680,9 +679,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-//		sprintf(string, "/home/Dropbox/LiveEffects/MyTuxGuitar \'%s\' &", &theURI[7]);
-		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[TabPlayer], &theURI[7]);
-//		sprintf(string, "tuxguitar \'%s\' &", &theURI[7]);
+		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[TabPlayer].Name, &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -709,10 +706,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			sprintf(string, "okular \'%s\'' --page=%d &", theURI, PageNumber);
 		} else {
 			return (false);
-//		sprintf(string, "/usr/bin/okular \"%s\" &", theURI);
 		}
 
-//		printd(LogDebug, "PAGE %x %s %d\n", &PageIndex, PageIndex, PageNumber);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -871,18 +866,19 @@ void InitHTML(GtkBuilder * gxml) {
 
 	}
 
-	scrolled_window = GTK_WIDGET(
+	ChartGTKView = GTK_WIDGET(
 	                      gtk_builder_get_object(gxml, "scrolledwindow1"));
 
 	//	gtk_widget_set_name (scrolled_window, "GtkLauncher");
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+//	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+//	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 
-#if 1
+#if 0
 // Scroll bar fix to add GtkViewport
 	GtkWidget *viewport;
-
+printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
+	                      gtk_widget_get_margin_right (scrolled_window));
 	viewport =
 	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
 	                      gtk_scrolled_window_get_vadjustment (scrolled_window));
@@ -891,6 +887,7 @@ void InitHTML(GtkBuilder * gxml) {
 	gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
 	                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
 //      gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
+//	gtk_scrolled_window_set_max_content_width()
 	gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
 
 
@@ -899,7 +896,8 @@ void InitHTML(GtkBuilder * gxml) {
 	/* Create a new webkit view to display our data.
 	 */
 	web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
-	gtk_container_add(GTK_CONTAINER(viewport), GTK_WIDGET(web_view));
+	gtk_container_add(GTK_CONTAINER(ChartGTKView), GTK_WIDGET(web_view));
+
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object((GtkBuilder * )gxml, "BackButton"));
 	MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage, MainButtonOffImage);
@@ -1034,7 +1032,7 @@ void InitHTML(GtkBuilder * gxml) {
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
 
-	gtk_widget_show_all(scrolled_window);
+	gtk_widget_show_all(ChartGTKView);
 }
 
 #define ContentTagLen	9

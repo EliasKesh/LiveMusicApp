@@ -59,7 +59,7 @@ LiveMusicInfo GlobalInfo = {
 /*  50 */ {"LooperApp",       NoBank         ,   2, InternalPort   ,   1, RaiseApp  , "None" },
 /*  51 */ {"DrumApp",         NoBank         ,   6, InternalPort   ,   1, RaiseApp  , "None" },
 /*  52 */ {"MP3Player",       NoBank         ,   5, InternalPort   ,   1, RaiseApp  , "None" },
-/*  53 */ {"TabPlayer",       NoBank         ,   7, InternalPort   ,   1, RaiseApp  , "" },
+/*  53 */ {"TabPlayer",       NoBank         ,   7, InternalPort   ,   1, RaiseApp  , "None" },
 /*  54 */ {"PreTab",          NoBank         ,   0, InternalPort   ,   1, SwitchTab , "LiveApp" },
 /*  55 */ {"ScoreTab",        NoBank         ,   1, InternalPort   ,   1, SwitchTab , "LiveApp" },
 /*  56 */ {"PlayerTab",       NoBank         ,   2, InternalPort   ,   1, SwitchTab , "LiveApp" },
@@ -150,7 +150,7 @@ LiveMusicInfo GlobalInfo = {
 /* 133 */ {"Expr P",          NoBank         ,   2, GuitarixPort   ,   3, cmdHardSlider, "None" },
 /* 134 */ {"FunkyFord",       NoBank         ,  10, GuitarixPort   ,   1, NoCustom  , "None" },
 /* 135 */ {"Straights",       NoBank         ,  11, GuitarixPort   ,   1, NoCustom  , "None" },
-/* 136 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
+/* 136 */ {"HoldM",           NoBank         ,  12, GuitarixPort   ,   1, NoCustom  , "None" },
 /* 137 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 138 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 139 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -223,6 +223,7 @@ LiveMusicInfo GlobalInfo = {
 { "audacity", 0 },
 { "LiveMusicApp_1", 0 },
 { "clementine", 0 },
+{ "tuxguitar", 0 },
 { "hydrogen", 0 },
 { "muse", 0 },
 { "gedit", 0 }
@@ -232,29 +233,29 @@ LiveMusicInfo GlobalInfo = {
  37, /* Drum down beat, midi code  */
  44, /* Drum Other beats  */
  50, /* Base Midi Note for switching  */
- 122, /* Tempo   */
+ 130, /* Tempo   */
  4, /* CountInBeats   */
  8, /* LoopRecBeats   */
  1, /* MidiPassThru   */
  110, /* MidiPassLevel   */
  4, /* BeatsPerMeasure   */
- 100, /* AnalogVolume   */
- 0, /* MidiVolume   */
+ 0, /* AnalogVolume   */
+ 83, /* MidiVolume   */
  0xffffe0, /* StatusTextColor   */
  0xffe0e0, /* ButtonTextColor   */
  "127.0.0.1", /* OSCIPAddress   */
  "9951", /* OSCPortNumLooper   */
  "9952", /* OSCPortNumJackVol   */
  "9000", /* OSCPortNumHydrogen   */
- 6, /* Number of Strings   */
- {7,
+ 8, /* Number of Strings   */
+ {9,
+2,
+7,
 0,
 5,
 10,
-2,
-7,
-12,
-12,
+3,
+8,
 12,
 12,
     },

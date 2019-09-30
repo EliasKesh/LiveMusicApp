@@ -13,8 +13,8 @@
 #
 #---------------------------------------------------------------------#
 
-LiveMusicApp -v 6 > ./LiveText.txt &
-# LiveMusicApp  &
+# ./LiveMusicApp -v 6 > ./LiveText.txt &
+./LiveMusicApp  &
 sleep 3
 aconnect "VMPK Output" "LiveMusic Input"
 aconnect "LiveMusic Output":0 KMidimon
@@ -24,6 +24,7 @@ aconnect "LiveMusic Output":3 KMidimon
 
 aconnect "EliasPedal3":0 "LiveMusic Input":0
 aconnect "Fishman TriplePlay":0 "LiveMusic Input":0
+aconnect "LPD8":0 "LiveMusic Input":0
 
 aconnect  "LiveMusic Output":6 "EliasPedal3":0
 

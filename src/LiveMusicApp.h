@@ -58,6 +58,8 @@
 #define MaxHardSliders 5
 #define TotalMaxStrings 10
 
+#define EliasPresets 1
+
 char *printd(char LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
 
@@ -100,6 +102,13 @@ typedef struct {
 	char NumDevices;
 	AlsaDevice Devices[20];
 } PortsInfo;
+
+#define MaxControllers 8
+typedef struct {
+	int OutPort;
+	int OutControl;
+} ControllerRoute;
+
 
 typedef struct {
 //	char	Button[32];
@@ -166,6 +175,7 @@ enum {
 	LiveMusicApp,
 	MP3Player,
 	TabPlayer,
+	DrumPlayer,
 	MidiPlayer,
 	HTMLEditor,
 	MaxApps
@@ -209,6 +219,10 @@ typedef struct {
 
 	// Generated Beyond this point.
 	//-------------------------------------
+
+	/* Move above after prefs.
+	*/
+	ControllerRoute ControlRoute[MaxControllers];
 
 	snd_seq_t *SeqPort[MaxOutPorts];
 	//	int			SeqQueue[MaxOutPorts];

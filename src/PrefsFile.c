@@ -94,6 +94,22 @@ InitPref (void) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
+	gMyInfo.ControlRoute[0].OutPort = MaxOutPorts;
+	gMyInfo.ControlRoute[0].OutControl = 0;
+	gMyInfo.ControlRoute[1].OutPort = GuitarixPort;
+	gMyInfo.ControlRoute[1].OutControl = 7;
+	gMyInfo.ControlRoute[2].OutPort = LooperPort;
+	gMyInfo.ControlRoute[2].OutControl = 8;
+	gMyInfo.ControlRoute[3].OutPort = TransportPort;
+	gMyInfo.ControlRoute[3].OutControl = 9;
+	gMyInfo.ControlRoute[4].OutPort = TransportPort;
+	gMyInfo.ControlRoute[4].OutControl = 10;
+	gMyInfo.ControlRoute[5].OutPort = TransportPort;
+	gMyInfo.ControlRoute[5].OutControl = 11;
+	gMyInfo.ControlRoute[6].OutPort = TransportPort;
+	gMyInfo.ControlRoute[6].OutControl = 12;
+
+
 	// WritePrefs();
 
 	/* If we wish to generate an include file from the

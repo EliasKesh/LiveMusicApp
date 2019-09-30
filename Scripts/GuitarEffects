@@ -490,8 +490,9 @@ function SetUpConnections {
     DrummerOut=`aconnect -i | grep -m 1 $DrumNameOut | awk '{ print $2}'`
     echo "Drum Mac In "$DrummerIn" Out "$DrummerOut
     
-    LPADIn=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
-    echo "LPADIn="$LPADIn
+    LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
+#   LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
+    echo "LPADOut="$LPADOut
     
     XSessionIn=`aconnect -i | grep -m 1 "X-Session" | awk '{ print $2}'`
     echo "XSessionIn="$XSessionIn
@@ -527,6 +528,7 @@ function SetUpConnections {
     
     # Connect Pedal to LiveMusic
     aconnect $PedalBoardOut"0" $LiveMusicInput
+    aconnect $LPADOut"0" $LiveMusicInput
     
     # Connect Fishman In to LiveMusic
     aconnect $MidiGuitarInput $LiveMusicInput
@@ -1086,7 +1088,7 @@ function SetUpApplications {
     
     # Do we launch the drum machine .
     if test "${Hydrogen}" = "true"; then
-        hydrogen -s  /home/Dropbox/LiveEffects/Drums/JustFunky.h2song &
+        hydrogen -k GMKit -s  /home/Dropbox/LiveEffects/Drums/JustFunky.h2song &
     fi
     
     Delay 2
