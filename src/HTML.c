@@ -97,13 +97,24 @@ char SavePresetChanges(char *FileName) {
 	FILE *OutFile;
 	char FileLine[200];
 	tPatchIndex thePatch;
+    DIR* directory;
 
-	// Open the current html file.
-	InFile = fopen(&FileName[7], "r");
-//	printf("FileName %x, %s\n", InFile, FileName);
+    /* Check to see if this is a directory.
+    If it is return, don't try and modify it.
+    */
+	directory = opendir(FileName);
+    if (directory != NULL) {
+     closedir(directory);
+     return 0;
+    }
 
-	// Open a temp file.
-	sprintf(FileLine, "%s.Test", &FileName[7]);
+	/* Open the current html file.
+	*/
+	InFile = fopen(FileName, "r");
+
+	/* Open the output file.
+	*/
+	sprintf(FileLine, "%s.Test", FileName);
 	OutFile = fopen(FileLine, "w+");
 
 	if (!InFile || !OutFile) {
@@ -116,42 +127,51 @@ char SavePresetChanges(char *FileName) {
 	*/
 	while (!feof(InFile)) {
 		FileLine[0] = 0;
+
+		/* Read a line of file.
+		*/
 		fgets(FileLine, 200, InFile);
 
 		if (strstr(FileLine, "Preset1")) {
 			thePatch = gMyInfo.WebPresets.thePreset[0];
-			sprintf(FileLine, "<meta name=\"Preset1\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset1\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Preset2")) {
 			thePatch = gMyInfo.WebPresets.thePreset[1];
-			sprintf(FileLine, "<meta name=\"Preset2\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset2\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Preset3")) {
 			thePatch = gMyInfo.WebPresets.thePreset[2];
-			sprintf(FileLine, "<meta name=\"Preset3\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset3\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Preset4")) {
 			thePatch = gMyInfo.WebPresets.thePreset[3];
-			sprintf(FileLine, "<meta name=\"Preset4\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset4\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Preset5")) {
 			thePatch = gMyInfo.WebPresets.thePreset[4];
-			sprintf(FileLine, "<meta name=\"Preset5\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset5\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Preset6")) {
 			thePatch = gMyInfo.WebPresets.thePreset[5];
-			sprintf(FileLine, "<meta name=\"Preset6\" content=\"%s\" >\n",
-			        gMyInfo.MyPatchInfo[thePatch].Name);
+			if (thePatch >= 0 && thePatch < Max_Patches)
+				sprintf(FileLine, "<meta name=\"Preset6\" content=\"%s\" >\n",
+				        gMyInfo.MyPatchInfo[thePatch].Name);
 		}
 
 		if (strstr(FileLine, "Tempo")) {
@@ -159,6 +179,9 @@ char SavePresetChanges(char *FileName) {
 		}
 
 //		printf("%s", FileLine);
+
+		/* Now write the line back to the output file.
+		*/
 		fprintf(OutFile, "%s", FileLine);
 	}
 
@@ -166,10 +189,10 @@ char SavePresetChanges(char *FileName) {
 	fclose(InFile);
 	fclose(OutFile);
 
-	sprintf(FileLine, "%s.Test", &FileName[7]);
+	sprintf(FileLine, "%s.Test", FileName);
 
 	// Rename the temp file back to the main file.
-	rename(FileLine, &FileName[7]);
+	rename(FileLine, FileName);
 }
 
 
@@ -186,9 +209,11 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 
 	gtk_image_set_from_pixbuf(GTK_IMAGE(BackButton.Image),
 	                          BackButton.ButtonDownImage);
+	/* Get the currently loaded page.
+	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
 
-	SavePresetChanges((char *)CurrentURI);
+	SavePresetChanges((char *)&CurrentURI[7]);
 
 	webkit_web_view_go_back(web_view);
 
@@ -867,7 +892,7 @@ void InitHTML(GtkBuilder * gxml) {
 	}
 
 	ChartGTKView = GTK_WIDGET(
-	                      gtk_builder_get_object(gxml, "scrolledwindow1"));
+	                   gtk_builder_get_object(gxml, "scrolledwindow1"));
 
 	//	gtk_widget_set_name (scrolled_window, "GtkLauncher");
 //	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -877,8 +902,8 @@ void InitHTML(GtkBuilder * gxml) {
 #if 0
 // Scroll bar fix to add GtkViewport
 	GtkWidget *viewport;
-printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
-	                      gtk_widget_get_margin_right (scrolled_window));
+	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
+	       gtk_widget_get_margin_right (scrolled_window));
 	viewport =
 	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
 	                      gtk_scrolled_window_get_vadjustment (scrolled_window));

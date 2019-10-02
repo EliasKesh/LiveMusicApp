@@ -751,6 +751,7 @@ int GTKIdel_cb(gpointer data) {
 	}
 
 	if (RemoveMuteCount) {
+		printd(LogTest, "RemoveMuteCount %d\n", RemoveMuteCount);
 		if (RemoveMuteCount-- == 1 ) {
 			MyOSCJackMute(0, 0);
 			RemoveMuteCount = 0;
@@ -1709,7 +1710,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
  *---------------------------------------------------------------------*/
 int GuitarMidiPreset(char Wait) {
 
-	printd(LogInfo, "GuitarMidiPreset Start\n");
+	printd(LogTest, "GuitarMidiPreset Start Wait=%d\n", Wait);
 
 	/* Switch to the patch tab so we can see
 	what we want to select.
@@ -1738,7 +1739,7 @@ int GuitarMidiPreset(char Wait) {
 int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	tPatchIndex PatchChange;
 
-//	printd(LogInfo, "GuitarMidiPresetComplete Start %d\n", MidiNote);
+	printd(LogTest, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
 	if (MidiNote < Max_Patches) {
 		PatchChange = MidiNote - gMyInfo.MidiBaseNote;
@@ -1747,7 +1748,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 //		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
 	}
 
-	printd(LogInfo, "GuitarMidiPresetComplete end Patch %d %d %d\n", gMyInfo.MidiBaseNote,
+	printd(LogTest, "GuitarMidiPresetComplete end Patch %d %d %d\n", gMyInfo.MidiBaseNote,
 	       PreviousTab, PatchChange);
 
 	/* Switch back to what ever we were looking at.
@@ -1756,10 +1757,12 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	if (WaitingforMidiHold == 0) {
 		WaitingforMidi = 0;
+	printd(LogTest, "WaitingforMidiHold \n");
 		/* In case the note rings.
 		*/
 		RemoveMuteCount = MuteCountDelay;
 	} else if (MidiNote >= Max_Patches) {
+	printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
 		WaitingforMidi = 0;
 		MyOSCJackMute(0, 0);
 		WaitingforMidiHold = 0;

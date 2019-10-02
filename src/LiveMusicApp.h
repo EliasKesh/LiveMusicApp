@@ -143,6 +143,7 @@ typedef struct {
 #define Preset4Patch (Max_Patches + 4)
 #define Preset5Patch (Max_Patches + 5)
 #define Preset6Patch (Max_Patches + 6)
+#define Max_Patches_W_Presets Preset6Patch
 #define Max_Layouts	 10
 #define FileNameMaxLength	250
 
