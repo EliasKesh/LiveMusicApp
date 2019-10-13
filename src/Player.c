@@ -668,7 +668,7 @@ int PlayerWrite(char *String) {
 	Val = fputs(String, OutPipe);
 	fflush(OutPipe);
 
-	printd(LogDebug, "Player Write %x %d  %s", OutPipe, Val, String);
+	printd(LogRealTime, "Player Write %x %d  %s", OutPipe, Val, String);
 
 	if (Val < 0)
 		printd(LogDebug, "Error **Player Write %d  %s", Val, String);

@@ -97,16 +97,16 @@ char SavePresetChanges(char *FileName) {
 	FILE *OutFile;
 	char FileLine[200];
 	tPatchIndex thePatch;
-    DIR* directory;
+	DIR* directory;
 
-    /* Check to see if this is a directory.
-    If it is return, don't try and modify it.
-    */
+	/* Check to see if this is a directory.
+	If it is return, don't try and modify it.
+	*/
 	directory = opendir(FileName);
-    if (directory != NULL) {
-     closedir(directory);
-     return 0;
-    }
+	if (directory != NULL) {
+		closedir(directory);
+		return 0;
+	}
 
 	/* Open the current html file.
 	*/

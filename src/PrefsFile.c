@@ -94,21 +94,22 @@ InitPref (void) {
 	for (Count = 0; Count < MaxPresetButtons; Count++)
 		gMyInfo.WebPresets.thePreset[Count] = -1;
 
-	gMyInfo.ControlRoute[0].OutPort = MaxOutPorts;
+#if 0
+	gMyInfo.ControlRoute[0].OutPort = InternalPort;
 	gMyInfo.ControlRoute[0].OutControl = 0;
 	gMyInfo.ControlRoute[1].OutPort = GuitarixPort;
 	gMyInfo.ControlRoute[1].OutControl = 7;
-	gMyInfo.ControlRoute[2].OutPort = LooperPort;
-	gMyInfo.ControlRoute[2].OutControl = 8;
-	gMyInfo.ControlRoute[3].OutPort = TransportPort;
+	gMyInfo.ControlRoute[2].OutPort = FluidPort;
+	gMyInfo.ControlRoute[2].OutControl = 7;
+	gMyInfo.ControlRoute[3].OutPort = LooperPort;
 	gMyInfo.ControlRoute[3].OutControl = 9;
-	gMyInfo.ControlRoute[4].OutPort = TransportPort;
-	gMyInfo.ControlRoute[4].OutControl = 10;
-	gMyInfo.ControlRoute[5].OutPort = TransportPort;
-	gMyInfo.ControlRoute[5].OutControl = 11;
-	gMyInfo.ControlRoute[6].OutPort = TransportPort;
-	gMyInfo.ControlRoute[6].OutControl = 12;
-
+	gMyInfo.ControlRoute[4].OutPort = GuitarixPort;
+	gMyInfo.ControlRoute[4].OutControl = 9;
+	gMyInfo.ControlRoute[5].OutPort = GuitarixPort;
+	gMyInfo.ControlRoute[5].OutControl = 10;
+	gMyInfo.ControlRoute[7].OutPort = TransportPort;
+	gMyInfo.ControlRoute[7].OutControl = 12;
+#endif
 
 	// WritePrefs();
 
@@ -303,6 +304,27 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 			        thePorts->Devices[Loop].Ports[Loop1].Name);
 		}
 	}
+
+	/* Controller prefs.
+	*/
+	if (PrefsFile)
+		fprintf (PrefsFile, "{ // Controller mapping \n");
+
+	for (Loop = 0; Loop < MaxControllers; Loop++) {
+		printd (LogInfo, "Cont=%d %d\n", Loop,
+		        gMyInfo.ControlRoute[Loop].OutPort);
+
+		if (PrefsFile)
+			fprintf (PrefsFile, "{ /* %3d */  %d, %d },\n", Loop, 
+			gMyInfo.ControlRoute[Loop].OutPort,
+			gMyInfo.ControlRoute[Loop].OutControl);
+	}
+
+	if (PrefsFile)
+		fprintf (PrefsFile, "}, \n");
+
+
+
 	if (PrefsFile)
 		fprintf (PrefsFile, "{ \n ");
 
@@ -327,6 +349,9 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 
 
 	}
+
+
+
 	if (PrefsFile) {
 		fprintf (PrefsFile, "{\n \"\", { },\t},\n },\n}; \n");
 		fflush(PrefsFile);
@@ -474,7 +499,8 @@ void WritePrefs (void) {
 		xmlSetProp (node, "Chain", gMyInfo.MyPatchInfo[Loop].Chain);
 	}
 
-
+	/* Application names.
+	*/
 	node1 = xmlNewChild (root_node, NULL, BAD_CAST "AppNames", NULL);
 	for (Loop = 0; Loop < MaxApps; Loop++) {
 		sprintf (buff, "App%03d", Loop);
@@ -482,6 +508,18 @@ void WritePrefs (void) {
 		xmlSetProp (node, "Name", gMyInfo.Apps[Loop].Name);
 		sprintf (buff, "%03d", gMyInfo.Apps[Loop].PortID);
 		xmlSetProp (node, "PortID", buff);
+	}
+
+	/* Controller mapping.
+	*/
+	node1 = xmlNewChild (root_node, NULL, BAD_CAST "ControllerMap", NULL);
+	for (Loop = 0; Loop < MaxControllers; Loop++) {
+		sprintf (buff, "App%03d", Loop);
+		node = xmlNewChild (node1, NULL, buff, NULL);
+		sprintf (buff, "%03d", gMyInfo.ControlRoute[Loop].OutPort);
+		xmlSetProp (node, "Port", buff);
+		sprintf (buff, "%03d", gMyInfo.ControlRoute[Loop].OutControl);
+		xmlSetProp (node, "Midi", buff);
 	}
 
 	/*
@@ -508,7 +546,6 @@ void WritePrefs (void) {
 	/*
 	 * Dumping document to stdio or file
 	 */
-
 	printd (LogDebug, "In Write Prefs %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
 	xmlSaveFormatFileEnc (	GetResourceDir(PREFSFILENAME, FileLocConfig), doc, "UTF-8", 1);
 
@@ -543,6 +580,7 @@ void WritePrefs (void) {
 //
 enum { dTopLevelNone = 0, dTopLevelMainButtons, dTopLevelNumOutPorts,
        dTopLevelOutPorts, dTopLevelSongPath, dTopLevelAppName,
+       dTopLevelControllerMap,
        dTopLevelMetronome, dTopLevelMetronomeOn, dTopLevelMidiBase,
        dTopLevelClick1, dTopLevelClickRest, dTopLevelLayouts,
        dTopLevelTempo, dTopLevelCountInBeats, dTopLevelLoopRecBeats, dTopLevelBeatsPerMeasure,
@@ -628,6 +666,10 @@ static void processNode (xmlTextReaderPtr reader, char Location) {
 
 		if (!strcmp ("AppNames", name) && NodeType == 1) {
 			TopLevelParse = dTopLevelAppName;
+		}
+
+		if (!strcmp ("ControllerMap", name) && NodeType == 1) {
+			TopLevelParse = dTopLevelControllerMap;
 		}
 
 		if (!strcmp ("TempoMax", name) && NodeType == 1) {
@@ -744,6 +786,27 @@ static void processNode (xmlTextReaderPtr reader, char Location) {
 			if (!strcmp ("Value", name))
 				gMyInfo.BaseStringName[ParseCountL2] = atoi(value);
 
+		}
+	}
+
+
+
+	/* Controller Maps.
+	*/
+	if (TopLevelParse == dTopLevelControllerMap) {
+		/* Get the second element.
+		 */
+		if (Depth == 2 && NodeType == 1) {
+			sscanf (name, "App%03d", &HoldIndex);
+			ParseCountL2 = HoldIndex;
+		}
+
+		if (Depth == 3 && NodeType == 2) {
+			if (!strcmp ("Port", name))
+				gMyInfo.ControlRoute[ParseCountL2].OutPort = atoi (value);
+
+			if (!strcmp ("Midi", name))
+				gMyInfo.ControlRoute[ParseCountL2].OutControl = atoi (value);
 		}
 	}
 
@@ -940,12 +1003,10 @@ static void processNode (xmlTextReaderPtr reader, char Location) {
 			sscanf(value, "%x", &gMyInfo.StatusTextColor);
 		}
 
-
 		if (TopLevelParse == dTopLevelButtonTextColor) {
 			printd (LogDebug, "dTopLevelButtonTextColor %s\n", value);
 			sscanf(value, "%x", &gMyInfo.ButtonTextColor);
 		}
-
 	}
 
 	/* Free memory.

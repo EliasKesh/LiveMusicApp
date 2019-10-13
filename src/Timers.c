@@ -146,7 +146,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
-	printd(LogDebug, " IN time_handler GTK\n");
+	printd(LogRealTime, " IN time_handler GTK\n");
 	ToggleTempo();
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
@@ -203,7 +203,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
-	printd(LogDebug, " IN time_handler Alsa\n");
+	printd(LogRealTime, " IN time_handler Alsa\n");
 	if (!JackRunning)
 		ToggleTempo();
 
@@ -351,7 +351,7 @@ void ToggleTempo(void) {
 
 	// gettimeofday(&Time0, NULL);
 	// printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
-	printd(LogDebug, "Tempo %d %d\n", TempoState,  TempoState);
+	printd(LogRealTime, "Tempo %d %d\n", TempoState,  TempoState);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -509,6 +509,5 @@ void ToggleTempo(void) {
 //		}
 	}
 #endif
-
 }
 

@@ -46,6 +46,7 @@
 
 #define LogTest 10
 
+#define LogRealTime 7
 #define LogDebug 6
 #define LogError 5
 #define LogAlert 4
@@ -62,12 +63,10 @@
 
 char *printd(char LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
-
 int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 
 //#define ResourceDirectory	"/usr/share/LiveMusicApp/"
 //#define ResourceDirectory	"~/.config/LiveMusicApp/"
-
 
 #define MaxStringPortName	32
 enum {
@@ -76,11 +75,11 @@ enum {
 	User1, User2, User3, MaxOutPorts
 };
 
-
 // Timer countdown in Miliseconds
-
 #define Timer1Ticks		250
 
+/* Type used for patches.
+*/
 typedef unsigned short tPatchIndex;
 
 /* These are used to hold connection information
@@ -215,18 +214,15 @@ typedef struct {
 	char        NumberOfStrings;
 	char 		BaseStringName[TotalMaxStrings];
 
+	ControllerRoute ControlRoute[MaxControllers];
 	LayoutType LayoutPresets[Max_Layouts];
+
 
 
 	// Generated Beyond this point.
 	//-------------------------------------
 
-	/* Move above after prefs.
-	*/
-	ControllerRoute ControlRoute[MaxControllers];
-
 	snd_seq_t *SeqPort[MaxOutPorts];
-	//	int			SeqQueue[MaxOutPorts];
 
 	/* Web paged preset are load here when the
 	HTML page is loaded.

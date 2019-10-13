@@ -240,7 +240,7 @@ LiveMusicInfo GlobalInfo = {
  110, /* MidiPassLevel   */
  4, /* BeatsPerMeasure   */
  0, /* AnalogVolume   */
- 83, /* MidiVolume   */
+ 100, /* MidiVolume   */
  0xffffe0, /* StatusTextColor   */
  0xffe0e0, /* ButtonTextColor   */
  "127.0.0.1", /* OSCIPAddress   */
@@ -259,6 +259,16 @@ LiveMusicInfo GlobalInfo = {
 12,
 12,
     },
+{ // Controller mapping 
+{ /*   0 */  7, 0 },
+{ /*   1 */  1, 7 },
+{ /*   2 */  0, 7 },
+{ /*   3 */  2, 9 },
+{ /*   4 */  1, 9 },
+{ /*   5 */  1, 10 },
+{ /*   6 */  0, 0 },
+{ /*   7 */  3, 12 },
+}, 
 { 
  	{
  "Main", 

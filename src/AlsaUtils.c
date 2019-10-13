@@ -889,11 +889,18 @@ void *alsa_midi_thread(void * context_ptr) {
 			/* 01 */
 			case MIDI_CTL_MSB_MODWHEEL:
 				cc_name = "Modulation";
-#ifdef EliasPresets
-			if (gMyInfo.ControlRoute[0].OutPort == MaxOutPorts) {
+// #ifdef EliasPresets
+#if 0
+			if (gMyInfo.ControlRoute[0].OutPort == InternalPort) {
 				MyOSCJackVol(event_ptr->data.control.value, 0);
 			}
 #endif			
+			SetVolume3(event_ptr->data.control.value / 1.28);
+
+#if 0
+			gMyInfo.ExpreP1Slider =
+		    FindString(fsPatchNames, "Expr P");
+#endif
 				break;
 			/* 02 */
 			case MIDI_CTL_MSB_BREATH:
@@ -995,6 +1002,7 @@ void *alsa_midi_thread(void * context_ptr) {
 					gMyInfo.ExpreP1Slider = 0;
 				}
 
+#if 0
 				switch (gMyInfo.ExpreP1Slider) {
 				case Slider1:
 					AlsaEvent = *event_ptr;
@@ -1021,6 +1029,13 @@ void *alsa_midi_thread(void * context_ptr) {
 					       event_ptr->data.control.value);
 					break;
 				}
+#endif
+					AlsaEvent = *event_ptr;
+					printd(LogInfo, "Send Midi MSB Volume Default %d %d %d %d\n",
+					       gMyInfo.ExpreP1Slider,
+					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
+					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].OutPort,
+					       event_ptr->data.control.value);
 
 				break;
 			/* 0x08 */
@@ -1344,33 +1359,42 @@ void *alsa_midi_thread(void * context_ptr) {
 				FishmanDPad = 5;
 #endif
 				/* Sel Switch is sending the data */
-				if (FishmanDPad == 5 && !FishmanBullSh)
+				if (FishmanDPad == 5 && !FishmanBullSh) {
 					switch (AlsaValue) {
 					case 1: // Guitar Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanGuitar;
-						gMyInfo.ExpreP1Slider = Slider1;
+//						gMyInfo.ExpreP1Slider = Slider1;
+						gMyInfo.ExpreP1Slider =
+		    			FindString(fsPatchNames, "Expr P");
 						break;
 
 					case 2: //  Midi Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanSynth;
-						gMyInfo.ExpreP1Slider = Slider2;
+//						gMyInfo.ExpreP1Slider = Slider2;
+						gMyInfo.ExpreP1Slider =
+		    			FindString(fsPatchNames, "Midi V");
 						break;
 
 					case 3: // Main Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanMix;
-						gMyInfo.ExpreP1Slider = Slider3;
+//						gMyInfo.ExpreP1Slider = Slider4;
+						gMyInfo.ExpreP1Slider =
+		    			FindString(fsPatchNames, "Master V");
 						break;
 					}
 
 				printd(LogDebug, "FishmanSwitch %d\n", FishmanSwitch);
 				break;
 			}
-
+			else
 			if (AlsaValue == 1) {
 				FishmanBullSh = 0;
 				gMyInfo.GuitarMidiCallParam1 = FALSE;
 				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
 				printd(LogDebug, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
+
+			}
+
 
 			}
 

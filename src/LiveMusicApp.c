@@ -628,7 +628,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	/*
 	 * After we quit we should write back the changes.
 	 */
-	CloseHIDGrab();
+//	CloseHIDGrab();
 	WritePrefs();
 	MyAlsaClose();
 	MyOSCClose();
@@ -651,9 +651,10 @@ int GTKIdel_cb(gpointer data) {
 	 gets performed here.
 	 Expression control of active GUI sliders.
 	*/
-//	printd(LogDebug, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+//	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+	printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
 		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
 			printd(LogDebug, "GTKIdel_cb Slider1 %d \n", Slider1);
@@ -726,9 +727,7 @@ int GTKIdel_cb(gpointer data) {
 		gMyInfo.LayoutCall = FALSE;
 		gMyInfo.LayoutCallParam1 = 0;
 		gMyInfo.LayoutCallParam2 = 0;
-
 	}
-
 
 	if (gMyInfo.NextDeskSwitch) {
 		NextDesktop();
@@ -773,7 +772,7 @@ int GTKIdel_cb(gpointer data) {
 	*/
 	if (UIUpdateFromTimer == TRUE) {
 		UIUpdateFromTimer = FALSE;
-		printd(LogDebug, "UIUpdateFromTimer 1\n");
+		printd(LogRealTime, "UIUpdateFromTimer 1\n");
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 
 		/* Make sure the buttons are all up after being pressed.
