@@ -23,7 +23,7 @@ if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
-	LiveMusicApp -e & 
+    nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
 	sleep 3
 	./GuitarEffects -c
 	./GuitarEffects -b
@@ -35,7 +35,7 @@ if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 #	cd /home/Dropbox/LiveEffects
-	guitarix & 
+	guitarix  -p 7000 & 
 	sleep 3
 	./GuitarEffects -c
 	./GuitarEffects -b

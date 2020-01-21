@@ -43,7 +43,7 @@ function FindDevice {
     export USBDeviceNum=`echo "$USBDevice" | grep -Po '(?<=device )\W*\K[^ :]*'`
     echo " -- "
     echo "D: "$USBDevice" N: "$USBName" CN "$USBCardNum" CI "$USBDeviceNum
-
+    
     # export SndCardHW=`./HwSndParams hw:$USBCardNum`
     
     #   ./HwSndParams hw:1 | grep "Supported" | awk '{print $3}'
@@ -90,7 +90,7 @@ function FindDevice {
         JBuffer=1024
         JPeriod=3
     fi
-
+    
     # ART Tube Pre
     Device="USB Audio CODEC"
     echo $DeviceList | grep "${Device}"  >/dev/null
@@ -167,9 +167,9 @@ function FindDevice {
         AudioDevice=$Device
         AudioInDevice=$Device
         AudioOutDevice=$Device
-                JBuffer=128
+        JBuffer=128
         JPeriod=3
-
+        
         MidiGuitarInputPort="iO4"
         PedalBoardIn="iO4"
         MidiOut="iO4"
@@ -226,12 +226,12 @@ function FindDevice {
         # AudioSampleRate=96000
         JBuffer=128
         JPeriod=3
-      # AudioSampleRate=192000
+        # AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
         AudioOutDevice="$Device"
-        amixer -c 1 sset 'Mic',0 2032
-        amixer -c 1 sset 'NUX USB Audio 2.0 ',0 2032
+        amixer -c $USBCardNum sset 'Mic',0 2032
+        amixer -c $USBCardNum sset 'NUX USB Audio 2.0 ',0 2032
     fi
     
     # If we are n a Raspberry PI with the PISound card.
@@ -247,7 +247,7 @@ function FindDevice {
         AudioOutDevice="$Device"
     fi
     
-    # If we have 
+    # If we have
     Device="USB Advanced Audio Device"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
@@ -315,7 +315,7 @@ function SetDefinitions {
 #---------------------------------------------------------------------#
 function StartJack {
     
-
+    
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -337,28 +337,28 @@ function StartJack {
     echo "Starting Jack"   >> $LogFile
     # Now start jack.
     echo "****************"
-    echo "Starting Jack" 
-
+    echo "Starting Jack"
+    
     nice -18 jackd \
     -c h -R \
     -t5000 \
     -dalsa \
     -Chw:$AudioInHW$DeviceAdder \
     -Phw:$AudioOutHW$DeviceAdder \
-    -r$AudioSampleRate -p$JBuffer -n$JPeriod >> $LogFile 2>&1 & 
+    -r$AudioSampleRate -p$JBuffer -n$JPeriod >> $LogFile 2>&1 &
     
     echo "****************"
     echo "****************"  >> $LogFile
     echo "jackd  -c h -R -t5000 -p40 \
     -dalsa  -Chw:"$AudioInHW$DeviceAdder" -Phw:"$AudioOutHW$DeviceAdder \
-    "-r"$AudioSampleRate" -p"$JBuffer" -n"$JPeriod 
+    "-r"$AudioSampleRate" -p"$JBuffer" -n"$JPeriod
     echo "****************" >> $LogFile
     echo "****************"
     
     # Jack can be a bit slow to come up.
     Delay 2
     echo " About to Start Jack-Volume"
-    nice -18 jack-volume -p 9952 -n 1  >> $LogFile 2>&1 &    
+    nice -18 jack-volume -p 9952 -n 1  >> $LogFile 2>&1 &
     
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
@@ -414,7 +414,7 @@ function SetUpConnections {
     amixer -c 1 sset 'PCM' 128
     
     amixer sset 'Master' 100
-
+    
     # Nux Interface
     # Record Volume
     # amixer -c 1 cset numid=10 2032
@@ -491,7 +491,7 @@ function SetUpConnections {
     echo "Drum Mac In "$DrummerIn" Out "$DrummerOut
     
     LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
-#   LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
+    #   LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
     echo "LPADOut="$LPADOut
     
     XSessionIn=`aconnect -i | grep -m 1 "X-Session" | awk '{ print $2}'`
@@ -641,7 +641,7 @@ function SetUpConnections {
     echo "Guitarix "${LiveClickOut}" to Fluid "${LooperClickIn}
     jack_connect "${LiveClickOut}" "${LooperClickIn}"
     
-    jack_connect "TuxGuitar:GM Port" "${MidiSoundin}" 
+    jack_connect "TuxGuitar:GM Port" "${MidiSoundin}"
 }
 
 #---------------------------------------------------------------------#
@@ -650,7 +650,7 @@ function SetUpConnections {
 #
 #---------------------------------------------------------------------#
 function SetUpConnections1 {
-#    set -x
+    #    set -x
     #MainOut1="system:playback_1"
     #MainOut2="system:playback_2"
     MainOut1="jack-volume:input_1"
@@ -677,7 +677,7 @@ function SetUpConnections1 {
     amixer cset name='Capture Switch' 2
     
     amixer sset 'Master' 100
-
+    
     # Nux Interface
     # Record Volume
     # amixer -c 1 cset numid=10 2032
@@ -1012,7 +1012,7 @@ function FindUSB {
                 fi
             fi
         fi
-    done   
+    done
 }
 
 #---------------------------------------------------------------------#
@@ -1025,26 +1025,27 @@ function SetUpApplications {
     # Set the first Desktop to use.
     qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 5
     
-     if test "${SoundSynth}" = "true"; then
-   # Launch the Soundfont player.
-    echo "Starting qsynth"  >> $LogFile
-    nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
-    fi 
-
+    if test "${SoundSynth}" = "true"; then
+        # Launch the Soundfont player.
+        echo "Starting qsynth"  >> $LogFile
+        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+    fi
+    
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
         nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
-#        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
+        #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
     # This is the Guitar effects processor
     if test "${GuitarEffects}" = "true"; then
         echo "Starting Guitar Effects"  >> $LogFile
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb &
-        nice -15   ${EffectsProcessorName}  -p 7000 >> $LogFile 2>&1 &
+        #        nice -15   ${EffectsProcessorName}  --disable-multi-client --sync -p 7000 >> $LogFile 2>&1 &
+        nice -15   ${EffectsProcessorName} -p 7000 >> $LogFile 2>&1 &
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr &
         Delay 2
     fi
@@ -1083,7 +1084,7 @@ function SetUpApplications {
     fi
     
     if test "${TabPlayer}" = "true"; then
-        tuxguitar & 
+        tuxguitar &
     fi
     
     # Do we launch the drum machine .
@@ -1092,14 +1093,14 @@ function SetUpApplications {
     fi
     
     Delay 2
- 
+    
     jack-plumbing /home/Dropbox/LiveEffects/Prefs/jack-plumbing >> $LogFile 2>&1 &
-   
+    
     # This script check for a failed app
     # and will relaunch it
     if test "${BackroundChecker}" = "true"; then
-       /home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh &
-    fi 
+        /home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh &
+    fi
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
 
@@ -1114,8 +1115,10 @@ function SetPlacement {
     MaxOffSet=1368
     ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
     xinput map-to-output $ExtID LVDS1
-
-
+    
+    #   ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
+    #   xinput map-to-output $ExtID HDMI1
+    
     # On home PC spread it out
     if [ `hostname` == "Keshie" ]; then
         echo "Keshie"
@@ -1156,9 +1159,7 @@ function SetPlacement {
         MidiDesktop=$AnalogDesktop
         DrumDesktop=$AnalogDesktop
         MaxOffSet=1920
-
     fi
-
     
     # Check for Digitizer, tells us where we are.
     xinput | grep "ILITEK"
@@ -1167,8 +1168,14 @@ function SetPlacement {
         ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
         xinput map-to-output $ExtID HDMI1
         XOffset=0
+        YOffset=1080
         NewOffset=`expr $XOffset + 1050`
         MaxOffSet=`expr 1368+1920`
+        PlayerDesktop=4
+        PatchageDesktop=4
+        LooperDesktop=5
+        AnalogDesktop=5
+        MidiDesktop=5
         SetPlacement1920
     else
         
@@ -1215,23 +1222,22 @@ function SetPlacement {
 function SetPlacement1920 {
     set -x
     
-    echo "1920 Placement Offset  "$XOffset
+    echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
     wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-    wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1855,1050
+    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,850,400,1000,600
     
-    wmctrl -r qsynth -e 0,850,0,1000,350
+    wmctrl -r qsynth -e 0,870,0,1000,330
     wmctrl -r qsynth -t $MidiDesktop
     
-    NewOffset=`expr $XOffset + 0`
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
-    wmctrl -r clementine -e 0,0,0,1920,1000
+    wmctrl -r clementine -e 0,$XOffset,YOffset,1920,1000
     wmctrl -r clementine -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
@@ -1243,10 +1249,10 @@ function SetPlacement1920 {
     
     wmctrl -r Patchage -t $PatchageDesktop
     wmctrl -r Patchage -e 0,0,0,1700,1000
-
+    
     wmctrl -r catia -t $PatchageDesktop
     wmctrl -r catia -e 0,0,0,1700,1000
-set +x
+    set +x
 }
 
 #---------------------------------------------------------------------#
@@ -1367,7 +1373,7 @@ echo "----------------------------------------------------------------------" >>
 echo `date` >> $LogFile
 echo "----------------------------------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdfrpmvlswt" OPT; do
+while getopts "abcdfhrpmvlswt" OPT; do
     echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1384,7 +1390,7 @@ while getopts "abcdfrpmvlswt" OPT; do
         v - version
         s - Stop everything
         w - Working Scoring
-            t - Tab Editor"
+        t - Tab Editor"
             exit 0
         ;;
         v)
@@ -1470,8 +1476,8 @@ while getopts "abcdfrpmvlswt" OPT; do
             killall qjackctl
             killall ardour2
             killall jack-volume
-                  killall KeepLiveMusicRunning.sh
-      
+            killall KeepLiveMusicRunning.sh
+            
             killall qmidiroute
             killall mididings
             killall guitarix
@@ -1484,14 +1490,14 @@ while getopts "abcdfrpmvlswt" OPT; do
             killall livedings
             killall jack-volume
             killall catia
-
+            
             killall LiveMusicApp
             killall sooperlooper
             killall slgui
             killall tuxguitar
             killall smplayer
             KillAll a2jmidid
-
+            
             killall kmidimon
             killall kdialog
             killall konqueror
@@ -1521,7 +1527,7 @@ while getopts "abcdfrpmvlswt" OPT; do
             killall jackd
             KillAll catia
             KillAll a2jmidid
-
+            
             killall jack-plumbing
             xset s on
             xset +dpms
@@ -1543,6 +1549,7 @@ done
 # Keep the computer from screen saving.
 xset s off
 xset -dpms
+qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
 
 
@@ -1562,6 +1569,12 @@ export IAM=`whoami`
 
 # Try and find what device we should use.
 FindDevice
+echo -n "System Timer "
+cat /sys/devices/system/clocksource/clocksource0/current_clocksource
+hpet
+
+echo -n "Timer Speed "
+cat /sys/class/rtc/rtc0/max_user_freq1024
 
 # Set the definitions for the functions.
 SetDefinitions
@@ -1600,7 +1613,7 @@ SetUpConnections
 # Run the patch bay
 echo "***************** Starting Patch Bay"
 # patchage  > /dev/null 2>&1 &
-catia > $LogFile 2>&1 & 
+catia > $LogFile 2>&1 &
 
 
 echo "***************** Starting SetPlacement"
@@ -1615,6 +1628,13 @@ SetUpConnections
 SetPlacement
 
 sleep 5
+
+# Set up the mier levels and the interconnection between devices.
+SetUpConnections
+# Put apps in the right place/desktop
+SetPlacement
+
+sleep 10
 
 # Set up the mier levels and the interconnection between devices.
 SetUpConnections
