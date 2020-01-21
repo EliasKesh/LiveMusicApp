@@ -74,13 +74,15 @@ InitPref (void) {
 
 	/* If we can not read the XML file load up the defaults.
 	*/
-
+#if 1
 	if (ReadPrefs ()) {
 		memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 		printd(LogDebug, "ReadFrefs Failed. \n");
 		NewInstall = 1;
 	}
-
+#else
+	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
+#endif
 	/* If it's a new install set the Charts directory.
 	*/
 	if (NewInstall) {
@@ -122,6 +124,7 @@ InitPref (void) {
 	/* Setup some parameters that require preferences values.
 	*/
 	PostProcessPrefs(&gMyInfo);
+	gMyInfo.MidiThresholdLevel = 35;
 }
 
 /*--------------------------------------------------------------------

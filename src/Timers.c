@@ -321,7 +321,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
 
-//	printd(LogDebug, " IN time_handler\n");
+	printd(LogRealTime, " IN time_handler %d\n", SubBeats);
 
 	if (++SubBeats > 7) {
 //	if (++SubBeats > 1) {

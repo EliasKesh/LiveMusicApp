@@ -1080,6 +1080,9 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	NoteNames = FlatNotes;
 	SetOpenString();
 //  FretOffset = width/MaxDisplayFrets;
+	if (!NumStrings)
+		return;
+
 	FretOffset = Fwidth / MaxDisplayFrets;
 	StringOffset = (Fheight) / NumStrings;
 

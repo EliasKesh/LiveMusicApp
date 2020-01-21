@@ -500,6 +500,19 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 }
 
 /*--------------------------------------------------------------------
+ * Function:		SetMP3PlayVol
+ *
+ * Description:		Set the playback volume
+ *---------------------------------------------------------------------*/
+int SetMP3PlayVol(int Value) {
+	gtk_adjustment_set_value(VolumeAdjustment, Value);
+	printd(LogDebug, "Player Volume %d\n", Value);
+	gtk_range_set_adjustment(VolumeSpin, VolumeAdjustment);
+
+	return (Value);
+}
+
+/*--------------------------------------------------------------------
  * Function:		SaveLoopPopup_cb
  *
  * Description:		Enter loop info after set by user..

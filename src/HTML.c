@@ -728,7 +728,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			PageIndex += 6;
 			PageNumber = atoi(PageIndex);
 //			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
-			sprintf(string, "okular \'%s\'' --page=%d &", theURI, PageNumber);
+			sprintf(string, "okular \'%s\' --page=%d &", &theURI[7], PageNumber);
 		} else {
 			return (false);
 		}

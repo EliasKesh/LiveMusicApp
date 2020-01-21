@@ -843,9 +843,14 @@ void *alsa_midi_thread(void * context_ptr) {
 					snd_seq_ev_set_controller(&ev, 0, SND_SEQ_EVENT_NOTEON, (int )event_ptr->data.note.note);
 					snd_seq_ev_set_direct(&ev);
 					ev.type = SND_SEQ_EVENT_NOTEON;
-					ev.data.note.velocity = gMyInfo.MidiVolume;
-					ev.data.note.note = event_ptr->data.note.note;
-					snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
+// EJK NOTE:Midi Threshold
+					// We get ghost notes for the fishman.
+					printd(LogDebug, "gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+					if (event_ptr->data.note.velocity > gMyInfo.MidiThresholdLevel) {
+						ev.data.note.velocity = gMyInfo.MidiVolume;
+						ev.data.note.note = event_ptr->data.note.note;
+						snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
+					}
 				}
 			}
 			break;
@@ -885,32 +890,36 @@ void *alsa_midi_thread(void * context_ptr) {
 			switch (ControllerValue) {
 			case MIDI_CTL_MSB_BANK:
 				cc_name = "Bank selection";
+				printd(LogDebug, "%s \n", cc_name);
 				break;
 			/* 01 */
 			case MIDI_CTL_MSB_MODWHEEL:
 				cc_name = "Modulation";
+				printd(LogDebug, "%s \n", cc_name);
 // #ifdef EliasPresets
 #if 0
-			if (gMyInfo.ControlRoute[0].OutPort == InternalPort) {
-				MyOSCJackVol(event_ptr->data.control.value, 0);
-			}
-#endif			
-			SetVolume3(event_ptr->data.control.value / 1.28);
+				if (gMyInfo.ControlRoute[0].OutPort == InternalPort) {
+					MyOSCJackVol(event_ptr->data.control.value, 0);
+				}
+#endif
+				SetVolume1(event_ptr->data.control.value / 1.28);
 
 #if 0
-			gMyInfo.ExpreP1Slider =
-		    FindString(fsPatchNames, "Expr P");
+				gMyInfo.ExpreP1Slider =
+				    FindString(fsPatchNames, "Expr P");
 #endif
 				break;
 			/* 02 */
 			case MIDI_CTL_MSB_BREATH:
 				cc_name = "Breath";
+				printd(LogDebug, "%s \n", cc_name);
+				SetVolume2(event_ptr->data.control.value / 1.28);
+#if 0
 #ifdef EliasPresets
-				printd(LogTest, "%s \n", cc_name);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutPort,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutControl,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
 #else
@@ -919,39 +928,46 @@ void *alsa_midi_thread(void * context_ptr) {
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
 				         event_ptr->data.control.value);
 #endif
-			break;
+#endif
+				break;
 			/* 03 */
 			case 0x03:
-				cc_name = "Unknown";
+				cc_name = "Unknown 0x03";
+				printd(LogDebug, "%s \n", cc_name);
+				SetVolume3(event_ptr->data.control.value / 1.28);
+
+#if 0
 #ifdef EliasPresets
-				printd(LogTest, "%s \n", cc_name);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutPort,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutControl,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
 #endif
-			break;
+#endif
+				break;
 			/* 04 */
 			case MIDI_CTL_MSB_FOOT:
 				cc_name = "Foot";
+				printd(LogDebug, "%s \n", cc_name);
+				SetVolume4(event_ptr->data.control.value / 1.28);
+#if 0
 #ifdef EliasPresets
-				printd(LogTest, "%s \n", cc_name);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutPort,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutControl,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
 #endif
-
+#endif
 #if 0
 				ThisPatchNum = gMyInfo.HardSlider[1];
 				ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-				printf("%s %d %d %d\n", cc_name, ThisPatchNum, 
-					ThisPatch->Channel,
-					event_ptr->data.control.value);
+				printf("%s %d %d %d\n", cc_name, ThisPatchNum,
+				       ThisPatch->Channel,
+				       event_ptr->data.control.value);
 
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 				         ThisPatch->OutPort,
@@ -966,12 +982,13 @@ void *alsa_midi_thread(void * context_ptr) {
 			/* 0x05 */
 			case MIDI_CTL_MSB_PORTAMENTO_TIME:
 				cc_name = "Portamento time";
-#ifdef EliasPresets
 				printd(LogTest, "%s \n", cc_name);
+				gMyInfo.SetMP3PlayVolBool = event_ptr->data.control.value;
+#if 0
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutPort,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutControl,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
 #endif
@@ -979,12 +996,12 @@ void *alsa_midi_thread(void * context_ptr) {
 			/* 0x06 */
 			case MIDI_CTL_MSB_DATA_ENTRY:
 				cc_name = "Data entry";
+				printd(LogDebug, "%s \n", cc_name);
 #ifdef EliasPresets
-				printd(LogTest, "%s \n", cc_name);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutPort,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
-				         gMyInfo.ControlRoute[ControllerValue-1].OutControl,
+				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
 #endif
@@ -995,6 +1012,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_MAIN_VOLUME:
 				// ejk SEND
 				cc_name = "Main volume";
+				printd(LogDebug, "%s \n", cc_name);
 //				printd(LogInfo, "Send Midi MSB Volume main %d %d %d\n",
 //				       event_ptr->data.control.value, Slider1, gMyInfo.ExpreP1Slider);
 
@@ -1030,21 +1048,24 @@ void *alsa_midi_thread(void * context_ptr) {
 					break;
 				}
 #endif
-					AlsaEvent = *event_ptr;
-					printd(LogInfo, "Send Midi MSB Volume Default %d %d %d %d\n",
-					       gMyInfo.ExpreP1Slider,
-					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
-					       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].OutPort,
-					       event_ptr->data.control.value);
+				AlsaEvent = *event_ptr;
+				printd(LogInfo, "Send Midi MSB Volume Default %d %d %d %d\n",
+				       gMyInfo.ExpreP1Slider,
+				       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Patch,
+				       gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].OutPort,
+				       event_ptr->data.control.value);
 
 				break;
 			/* 0x08 */
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
+				printd(LogDebug, "%s \n", cc_name);
+				gMyInfo.MidiThresholdLevel = event_ptr->data.control.value;
 				break;
 			/* 0x0a */
 			case MIDI_CTL_MSB_PAN:
 				cc_name = "Panpot";
+				printd(LogDebug, "%s \n", cc_name);
 				break;
 			/* 0x0b *.
 			case MIDI_CTL_MSB_EXPRESSION:
@@ -1057,7 +1078,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			/* 0x0c */
 			case MIDI_CTL_MSB_EFFECT1:
 				cc_name = "Effect1";
-				printd(LogInfo, "Send Effect1 expression %d\n",
+				printd(LogDebug, "Send Effect1 expression %d\n",
 				       event_ptr->data.control.value);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
 				         event_ptr->data.control.value);
@@ -1365,35 +1386,33 @@ void *alsa_midi_thread(void * context_ptr) {
 						FishmanSelSwitch = FishmanSwitch = FishmanGuitar;
 //						gMyInfo.ExpreP1Slider = Slider1;
 						gMyInfo.ExpreP1Slider =
-		    			FindString(fsPatchNames, "Expr P");
+						    FindString(fsPatchNames, "Expr P");
 						break;
 
 					case 2: //  Midi Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanSynth;
 //						gMyInfo.ExpreP1Slider = Slider2;
 						gMyInfo.ExpreP1Slider =
-		    			FindString(fsPatchNames, "Midi V");
+						    FindString(fsPatchNames, "Midi V");
 						break;
 
 					case 3: // Main Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanMix;
 //						gMyInfo.ExpreP1Slider = Slider4;
 						gMyInfo.ExpreP1Slider =
-		    			FindString(fsPatchNames, "Master V");
+						    FindString(fsPatchNames, "Master V");
 						break;
 					}
 
-				printd(LogDebug, "FishmanSwitch %d\n", FishmanSwitch);
-				break;
-			}
-			else
-			if (AlsaValue == 1) {
-				FishmanBullSh = 0;
-				gMyInfo.GuitarMidiCallParam1 = FALSE;
-				gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
-				printd(LogDebug, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
+					printd(LogDebug, "FishmanSwitch %d\n", FishmanSwitch);
+					break;
+				} else if (AlsaValue == 1) {
+					FishmanBullSh = 0;
+					gMyInfo.GuitarMidiCallParam1 = FALSE;
+					gMyInfo.GuitarMidiCall = GuitarMidiCallStart;
+					printd(LogDebug, "GuitarMidiPreset FishmanBullSh %d\n", gMyInfo.GuitarMidiCallParam1);
 
-			}
+				}
 
 
 			}

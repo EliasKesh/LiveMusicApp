@@ -1,18 +1,18 @@
 LiveMusicInfo GlobalInfo = {
  	{
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/*   0 */ {"BaseChorus",      NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   1 */ {"SusDist",         NoBank         ,   1, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   2 */ {"Jazz",            NoBank         ,   2, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   3 */ {"Bell",            NoBank         ,   3, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   4 */ {"EchoLead",        NoBank         ,   4, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   5 */ {"CompLead",        NoBank         ,   5, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   6 */ {"Hard",            NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   2 */ {"Jazz_Pre",            NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "None" },
+/*  10 */ {"Funky_Pre",       NoBank         ,  1, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   6 */ {"HDist_Pre",            NoBank         ,   2, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   0 */ {"Str_pre",      NoBank         ,   3, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   4 */ {"EchoLd_Pre",        NoBank         ,   4, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   3 */ {"Tapping_Pre",            NoBank         ,   5, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   5 */ {"FlangeD_Pre",        NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   6 */ {"HDist_Pre",            NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   7 */ {"FlangeDist",      NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   8 */ {"FunkyGuitar",     NoBank         ,   8, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   9 */ {"Blues",           NoBank         ,   9, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/*  10 */ {"BaseMel",         NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Mel Tog" },
 /*  11 */ {"BaseWah",         NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Wah Tog" },
 /*  12 */ {"BaseDist",        NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Dist Tog" },
 /*  13 */ {"Expr Vol",        NoBank         ,   7, GuitarixPort   ,   0, cmdSetExpr, "None" },
@@ -112,7 +112,7 @@ LiveMusicInfo GlobalInfo = {
 /*  99 */ {"Drums",           NoBank         ,   1, FluidPort      ,   1, NoCustom  , "None" },
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
 /* 100 */ {"Slap Bass",       SFDSF          ,  24, FluidPort      ,   1, NoCustom  , "None" },
-/* 101 */ {"Synth Hard",      SFDSF          ,  60, FluidPort      ,   1, NoCustom  , "None" },
+/* 101 */ {"Synth HDist_Pre",      SFDSF          ,  60, FluidPort      ,   1, NoCustom  , "None" },
 /* 102 */ {"Marimba",         SFDSF          ,  12, FluidPort      ,   1, NoCustom  , "None" },
 /* 103 */ {"Breath1",         SFDSF          ,  48, FluidPort      ,   1, NoCustom  , "None" },
 /* 104 */ {"Low Synth",       SFDSF          ,  45, FluidPort      ,   1, NoCustom  , "None" },
@@ -148,9 +148,9 @@ LiveMusicInfo GlobalInfo = {
 /* 131 */ {"Midi V",          NoBank         ,   7, FluidPort      ,   1, cmdHardSlider, "None" },
 /* 132 */ {"Master V",        NoBank         ,   7, InternalPort   ,   2, cmdHardSlider, "None" },
 /* 133 */ {"Expr P",          NoBank         ,   2, GuitarixPort   ,   3, cmdHardSlider, "None" },
-/* 134 */ {"FunkyFord",       NoBank         ,  10, GuitarixPort   ,   1, NoCustom  , "None" },
-/* 135 */ {"Straights",       NoBank         ,  11, GuitarixPort   ,   1, NoCustom  , "None" },
-/* 136 */ {"HoldM",           NoBank         ,  12, GuitarixPort   ,   1, NoCustom  , "None" },
+/* 134 */ {"Str_Pre",       NoBank         ,  11, GuitarixPort   ,   1, NoCustom  , "None" },
+/* 135 */ {"HoldM",           NoBank         ,  12, GuitarixPort   ,   1, NoCustom  , "None" },
+/* 136 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 137 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 138 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
 /* 139 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "" },
@@ -233,14 +233,14 @@ LiveMusicInfo GlobalInfo = {
  37, /* Drum down beat, midi code  */
  44, /* Drum Other beats  */
  50, /* Base Midi Note for switching  */
- 130, /* Tempo   */
+ 50, /* Tempo   */
  4, /* CountInBeats   */
  8, /* LoopRecBeats   */
  1, /* MidiPassThru   */
  110, /* MidiPassLevel   */
  4, /* BeatsPerMeasure   */
- 0, /* AnalogVolume   */
- 100, /* MidiVolume   */
+ 59, /* AnalogVolume   */
+ 0, /* MidiVolume   */
  0xffffe0, /* StatusTextColor   */
  0xffe0e0, /* ButtonTextColor   */
  "127.0.0.1", /* OSCIPAddress   */
@@ -276,20 +276,20 @@ LiveMusicInfo GlobalInfo = {
 /*   0 */  "Preset1", 
 /*   1 */  "Preset2", 
 /*   2 */  "Preset3", 
-/*   3 */  "BaseChorus", 
-/*   4 */  "SusDist", 
-/*   5 */  "Jazz", 
-/*   6 */  "EchoLead", 
-/*   7 */  "CompLead", 
-/*   8 */  "Hard", 
+/*   3 */  "Jazz_Pre", 
+/*   4 */  "Funky_Pre", 
+/*   5 */  "Jazz_Pre", 
+/*   6 */  "EchoLd_Pre", 
+/*   7 */  "Funky_Pre", 
+/*   8 */  "Str_Pre", 
 /*   9 */  "FlangeDist", 
 /*  10 */  "FunkyGuitar", 
 /*  11 */  "Blues", 
 /*  12 */  "MS20Bass", 
 /*  13 */  "Breath", 
-/*  14 */  "Expr Vol", 
+/*  14 */  "Expr Dist", 
 /*  15 */  "Expr Wah", 
-/*  16 */  "Expr Dist", 
+/*  16 */  "Expr Vol", 
 /*  17 */  "Guitar V", 
 /*  18 */  "Midi V", 
 /*  19 */  "Master V", 
@@ -368,7 +368,7 @@ LiveMusicInfo GlobalInfo = {
 /*   8 */  "Walky", 
 /*   9 */  "Drums", 
 /*  10 */  "Slap Bass", 
-/*  11 */  "Synth Hard", 
+/*  11 */  "Synth HDist_Pre", 
 /*  12 */  "Marimba", 
 /*  13 */  "Breath1", 
 /*  14 */  "Low Synth", 

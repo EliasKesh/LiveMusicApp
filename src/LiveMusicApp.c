@@ -651,7 +651,7 @@ int GTKIdel_cb(gpointer data) {
 	 gets performed here.
 	 Expression control of active GUI sliders.
 	*/
-//	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 	printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
@@ -688,6 +688,10 @@ int GTKIdel_cb(gpointer data) {
 		AlsaEvent.data.control.param = 0;
 	}
 
+	if (gMyInfo.SetMP3PlayVolBool) {
+		SetMP3PlayVol(gMyInfo.SetMP3PlayVolBool);
+		gMyInfo.SetMP3PlayVolBool = 0;
+	}
 
 	/* Check to see if a TAB was switched.
 	*/
