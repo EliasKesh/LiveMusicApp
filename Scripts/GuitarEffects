@@ -1369,11 +1369,12 @@ xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # Right of
 # xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" -5500 4100 0 4100
 
+# Exec=env WINEPREFIX="/home/elias/.wine64" wine64 MIDIGuitar2-64bit.exe
 echo "----------------------------------------------------------------------" >> $LogFile
 echo `date` >> $LogFile
 echo "----------------------------------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdfhrpmvlswt" OPT; do
+while getopts "abcdgfhrpmvlswt" OPT; do
     echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1382,15 +1383,16 @@ while getopts "abcdfhrpmvlswt" OPT; do
         b - Adjust Placement
         c - Make Connections
         d - Drum Machine
+        g - Generate Charts
         j - JamStik
         l - Looper
-        r - Rosegarden
-        p - PFD viewer
         m - Music Player
-        v - version
+        p - PFD viewer
+        r - Rosegarden
         s - Stop everything
-        w - Working Scoring
-        t - Tab Editor"
+        t - Tab Editor
+        v - version
+        w - Working Scoring"
             exit 0
         ;;
         v)
@@ -1429,6 +1431,9 @@ while getopts "abcdfhrpmvlswt" OPT; do
             BackroundChecker=false
             MP3Player=false
             SoundSynth=true
+        ;;
+         g)
+            LiveMusicCharts.py /home/Dropbox/FusionBlue/ChartsHTML/ -f -c -i
         ;;
         j)
             echo "JamStik"

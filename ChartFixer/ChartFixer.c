@@ -537,9 +537,9 @@ int VerifyChart (char *thePath) {
 	if (myChartData.PresetFlag == 0) {
 		MyPrintf("Filling MetaTag %d\n", MetaCount);
 		strcpy(myChartData.MetaDataTag[MetaCount], "Preset1");
-		strcpy(myChartData.MetaData[MetaCount++], "Base");
+		strcpy(myChartData.MetaData[MetaCount++], "Jazz");
 		strcpy(myChartData.MetaDataTag[MetaCount], "Preset2");
-		strcpy(myChartData.MetaData[MetaCount++], "BaseDist");
+		strcpy(myChartData.MetaData[MetaCount++], "Expr Dist");
 		strcpy(myChartData.MetaDataTag[MetaCount], "Preset3");
 		strcpy(myChartData.MetaData[MetaCount++], "BaseWah");
 		strcpy(myChartData.MetaDataTag[MetaCount], "Preset4");
@@ -655,7 +655,13 @@ int WriteChart (char *OutputFileName) {
 			fprintf(OutFile, "<a style=\"color:red\" href=%s>[%10s]</a>  \n",
 			        myChartData.Href[Loop], Strip_Ext(myChartData.Href[Loop]) );
 			Loop++;
-		} else {
+		} else 
+		if (!strcmp(ExtPtr, "tg")) {
+			fprintf(OutFile, "<a style=\"color:Orange\" href=%s>[%10s]</a>  \n",
+			        myChartData.Href[Loop], Strip_Ext(myChartData.Href[Loop]) );
+			Loop++;
+		}
+		else {
 			fprintf(OutFile, "<a style=\"color:yellow\" href=%s>[%10s]</a>  \n",
 			        myChartData.Href[Loop], Strip_Ext(myChartData.Href[Loop]) );
 			Loop++;

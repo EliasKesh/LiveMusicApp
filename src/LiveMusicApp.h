@@ -265,7 +265,7 @@ typedef struct {
 	unsigned int 	GoToDeskSwitch;
 	unsigned int 	IncrementSwitch;
 	unsigned char 	MidiThresholdLevel;
-	unsigned char 	SetMP3PlayVolBool;
+	unsigned int 	SetMP3PlayVolBool;
 } LiveMusicInfo;
 
 /* Semophore for UI in GTK not timers.

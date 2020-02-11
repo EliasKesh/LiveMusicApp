@@ -1124,9 +1124,15 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
 int StartPlayer(void) {
 
 	system("killall mplayer");
-	system("killall mplayer");
 	printd(LogDebug, "After Kill\n");
 	sleep(.3);
+	system("killall mplayer");
+	sleep(.3);
+	system("killall mplayer");
+
+	sleep(.3);
+	system("killall mplayer");
+
 
 #if 1
 	if (OutPipe) {
@@ -1138,20 +1144,20 @@ int StartPlayer(void) {
 	if (WeAreLooping) {
 		sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f  \"%s\" >/tmp/LiveMusicIn",
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn",
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
 		        gtk_adjustment_get_value(VolumeAdjustment),
 		        gtk_adjustment_get_value(SpeedAdjustment),
 		        CurrentFile);
-		printd(LogDebug, "calling  Loop %s\n", PlayerString);
+		printd(LogTest, "calling  Loop %s\n", PlayerString);
 
 	} else {
 		sprintf(PlayerString,
 		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
 		        CurrentLength,
 		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
-		printd(LogDebug, "calling %s\n", PlayerString);
+		printd(LogTest, "calling %s\n", PlayerString);
 	}
 
 	OutPipe = popen(PlayerString, "w");
