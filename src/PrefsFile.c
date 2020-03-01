@@ -36,6 +36,19 @@
 #include <libxml/parser.h>
 #include "xmltok/xmlparse.h"
 #include "SooperOSC.h"
+#include <libxml/xmlreader.h>
+
+int TopLevelParse;
+
+typedef struct {
+	char Valid;
+	char name[250];
+	char value[250];
+	int Level;
+	int Type;
+} ParseData;
+
+#define MaxLevels 10
 
 // /usr/include/libxml2/
 /*
@@ -80,13 +93,17 @@ InitPref (void) {
 		printd(LogDebug, "ReadFrefs Failed. \n");
 		NewInstall = 1;
 	}
+
+//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
+//	exit(1);
+
 #else
 	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 #endif
 	/* If it's a new install set the Charts directory.
 	*/
 	if (NewInstall) {
-		strcpy(gMyInfo.BasePath,GetResourceDir("index.html",FileLocTunes ));
+		strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes ));
 	}
 
 	/* Clear some of the basic user variables.
@@ -130,7 +147,7 @@ InitPref (void) {
 /*--------------------------------------------------------------------
  * Function:		PostProcessPrefs
  *
- * Description:		Make any assignments
+ * Description:		Make any assignments not included in the prefs
  *
  *---------------------------------------------------------------------*/
 int PostProcessPrefs(LiveMusicInfo *MyInfo) {
@@ -144,13 +161,12 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo) {
 				printd(LogDebug, "PostProcessPrefs %d %d\n", Index, MyInfo->MyPatchInfo[Index].Channel);
 			}
 	}
-
 }
 
 /*--------------------------------------------------------------------
  * Function:		PrintDataStructure
  *
- * Description:		<Description/Comments>
+ * Description:		Print out the data structure in an "#include" format
  *
  *---------------------------------------------------------------------*/
 void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
@@ -267,11 +283,11 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 	}
 
 	fprintf (PrefsFile, " %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
-	printf (" %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
+//	printf (" %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
 
 	for (Loop = 0; Loop < TotalMaxStrings; Loop++) {
 		fprintf (PrefsFile, "%d,\n", myInfo->BaseStringName[Loop]);
-		printf ("%d,\n", myInfo->BaseStringName[Loop]);
+//		printf ("%d,\n", myInfo->BaseStringName[Loop]);
 	}
 
 	fprintf (PrefsFile, "    },\n");
@@ -318,9 +334,9 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 		        gMyInfo.ControlRoute[Loop].OutPort);
 
 		if (PrefsFile)
-			fprintf (PrefsFile, "{ /* %3d */  %d, %d },\n", Loop, 
-			gMyInfo.ControlRoute[Loop].OutPort,
-			gMyInfo.ControlRoute[Loop].OutControl);
+			fprintf (PrefsFile, "{ /* %3d */  %d, %d },\n", Loop,
+			         gMyInfo.ControlRoute[Loop].OutPort,
+			         gMyInfo.ControlRoute[Loop].OutControl);
 	}
 
 	if (PrefsFile)
@@ -347,13 +363,10 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 			if (PrefsFile)
 				fprintf (PrefsFile, "/* %3d */  \"%s\", \n", Loop1, gMyInfo.LayoutPresets[Loop].Presets[Loop1]);
 		}
+
 		if (PrefsFile)
 			fprintf (PrefsFile, "},}, \n", gMyInfo.LayoutPresets[Loop].Name);
-
-
 	}
-
-
 
 	if (PrefsFile) {
 		fprintf (PrefsFile, "{\n \"\", { },\t},\n },\n}; \n");
@@ -560,500 +573,418 @@ void WritePrefs (void) {
 		PrintDataStructure(&gMyInfo, DefinePrefsFile);
 }
 
-#include <libxml/xmlreader.h>
-// NodeType: The node type,
-// 1 for start element,
-// 2 for attributes,
-// 3 for text nodes,
-// 4 for CData sections,
-// 5 for entity references,
-// 6 for entity declarations,
-// 7 for PIs,
-// 8 for comments,
-// 9 for the document nodes,
-// 10 for DTD/Doctype nodes,
-// 11 for document fragment and
-// 12 for notation nodes.
-// 13 Whitespace
-// 14 SignificantWhitespace
-// 15 for end of element,
-// 16 EndEntity
-// XML_ELEMENT_NODE
-//
-//
-enum { dTopLevelNone = 0, dTopLevelMainButtons, dTopLevelNumOutPorts,
-       dTopLevelOutPorts, dTopLevelSongPath, dTopLevelAppName,
-       dTopLevelControllerMap,
-       dTopLevelMetronome, dTopLevelMetronomeOn, dTopLevelMidiBase,
-       dTopLevelClick1, dTopLevelClickRest, dTopLevelLayouts,
-       dTopLevelTempo, dTopLevelCountInBeats, dTopLevelLoopRecBeats, dTopLevelBeatsPerMeasure,
-       dTopLevelAnalogVolume,  dTopLevelMidiVolume, dTopLevelStatusTextColor, dTopLevelButtonTextColor,
-       dTopLevelOSCIPAddress, dTopLevelOSCPortNumLooper,
-       dTopLevelOSCPortNumJackVol, dTopLevelOSCPortNumHydrogen,
-       dTopMidiPassThru, dTopMidiPassLevel, dTopMaxStrings, dTopStrings
-     };
 
-int TopLevelParse;
-int ParseCountL4;
-int ParseCountL2;
-int ParseCountL3;
-int LayoutIndexXML;
-int PatchIndexXML;
-
-static void processNode (xmlTextReaderPtr reader, char Location) {
-	xmlChar *name, *value;
-	int NodeType;
-	int Depth;
-	char Buffer[100];
+/*--------------------------------------------------------------------
+ * Function:		LoadXMLPair
+ *
+ * Description:		Take the data from the XML and put it into
+ * 	the global data structure.
+ *
+ *---------------------------------------------------------------------*/
+void LoadXMLPair(ParseData *theData) {
+	char NodeType = 1;
+	char *name;
+	char *value;
+	int ParseCountL2 = 0;
 	int HoldIndex;
 
-
-	name = xmlTextReaderName (reader);
-	if (name == NULL)
-		name = xmlStrdup (BAD_CAST "");
-
-	value = xmlTextReaderValue (reader);
-
-	NodeType = xmlTextReaderNodeType (reader);
-	Depth = xmlTextReaderDepth (reader);
-	//      if (NodeType != 14 && NodeType != 3) {
-	printd (LogDebug, "%d D=%d T=%d N=[%s] V=[%s] E=%d Top=%d\n", Location,
-	        Depth, NodeType, name, value, xmlTextReaderIsEmptyElement (reader), TopLevelParse);
-
-	if (Depth == 2)
-		ParseCountL2++;
-
-	if (Depth == 3)
-		ParseCountL3++;
-
-	if (Depth == 4)
-		ParseCountL4++;
-
-	if (Depth == 1 && NodeType == 14) {
-		printd (LogDebug, "\n*** Setting Top level to None\n");
-		TopLevelParse = dTopLevelNone;
-	}
-
-	if (Depth == 1 && NodeType == 1) {
-		printd (LogDebug, "\nTop Level Clear \n");
-		TopLevelParse = dTopLevelNone;
-		ParseCountL4 = 0;
-		ParseCountL2 = 0;
-		ParseCountL3 = 0;
-
-		/* Let's start by looking for the highest level qualifier.
-		 */
-		if (!strcmp ("MainButtons", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMainButtons;
-		}
-
-		if (!strcmp ("NumOutPorts", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelNumOutPorts;
-		}
-
-		if (!strcmp ("NumberOfStrings", name) && NodeType == 1) {
-			TopLevelParse = dTopMaxStrings;
-		}
-
-		if (!strcmp ("Strings", name) && NodeType == 1) {
-			TopLevelParse = dTopStrings;
-		}
-
-		if (!strcmp ("OutPorts", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOutPorts;
-		}
-
-		if (!strcmp ("SongPath", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelSongPath;
-		}
-
-		if (!strcmp ("AppNames", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelAppName;
-		}
-
-		if (!strcmp ("ControllerMap", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelControllerMap;
-		}
-
-		if (!strcmp ("TempoMax", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMetronome;
-		}
-
-		if (!strcmp ("MetroOn", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMetronomeOn;
-		}
-
-		if (!strcmp ("MidiBaseNote", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMidiBase;
-		}
-
-		if (!strcmp ("Click1", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelClick1;
-		}
-
-		if (!strcmp ("ClickRest", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelClickRest;
-			printd (LogInfo, "\nTop Level Set %d\n", TopLevelParse);
-		}
-
-		if (!strcmp ("Layouts", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelLayouts;
-			printd (LogInfo, "Found Layouts\n");
-		}
-
-		if (!strcmp ("Tempo", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelTempo;
-		}
-
-		if (!strcmp ("MidiPassThru", name) && NodeType == 1) {
-			TopLevelParse = dTopMidiPassThru;
-		}
-
-		if (!strcmp ("MidiPassLevel", name) && NodeType == 1) {
-			TopLevelParse = dTopMidiPassLevel;
-		}
-
-		if (!strcmp ("CountInBeats", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelCountInBeats;
-		}
-
-		if (!strcmp ("LoopRecBeats", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelLoopRecBeats;
-		}
-		if (!strcmp ("BeatsPerMeasure", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelBeatsPerMeasure;
-		}
-
-		if (!strcmp ("AnalogVolume", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelAnalogVolume;
-		}
-
-		if (!strcmp ("MidiVolume", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelMidiVolume;
-		}
-
-		if (!strcmp ("StatusTextColor", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelStatusTextColor;
-		}
-
-		if (!strcmp ("ButtonTextColor", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelButtonTextColor;
-		}
-
-		if (!strcmp ("OSCIPAddress", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOSCIPAddress;
-		}
-
-		if (!strcmp ("OSCPortNumLooper", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOSCPortNumLooper;
-		}
-
-		if (!strcmp ("OSCPortNumJackVol", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOSCPortNumJackVol;
-		}
-
-		if (!strcmp ("OSCPortNumHydrogen", name) && NodeType == 1) {
-			TopLevelParse = dTopLevelOSCPortNumHydrogen;
-		}
-	}
-
-	if (TopLevelParse == dTopLevelOutPorts) {
-		/* Get the second element.
-		 */
-		printd(LogDebug, "dTopLevelOutPorts %d %d\n", Depth, NodeType );
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "Port%03d", &HoldIndex);
-			ParseCountL2 = HoldIndex;
-		}
-
-		if (Depth == 3 && NodeType == 2) {
-			if (!strcmp ("Name", name))
-				strcpy (gMyInfo.OutPortName[ParseCountL2], value);
-
-		}
-	}
-
-	if (TopLevelParse == dTopStrings) {
-		/* Get the second element.
-		 */
-		printd(LogDebug, "dTopStrings %d %d\n", Depth, NodeType );
-
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "StrNum%03d", &HoldIndex);
-			printd(LogDebug, "String Number %d\n", HoldIndex );
-			ParseCountL2 = HoldIndex;
-		}
-
-		if (Depth == 3 && NodeType == 2) {
-			printd(LogDebug, "String Value %d %d %s\n", HoldIndex, ParseCountL2, value );
-			if (!strcmp ("Value", name))
-				gMyInfo.BaseStringName[ParseCountL2] = atoi(value);
-
-		}
-	}
-
-
-
-	/* Controller Maps.
+	/* Extract the basic information for tha top level.
 	*/
-	if (TopLevelParse == dTopLevelControllerMap) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "App%03d", &HoldIndex);
-			ParseCountL2 = HoldIndex;
-		}
+	name = theData[1].name;
+	value = theData[2].value;
 
-		if (Depth == 3 && NodeType == 2) {
-			if (!strcmp ("Port", name))
-				gMyInfo.ControlRoute[ParseCountL2].OutPort = atoi (value);
+	/* Let's start by looking for the highest level qualifier.
+	 */
+	if (!strcmp ("MainButtons", name)) {
+		sscanf (theData[2].name, "Preset%03d", &HoldIndex);
 
-			if (!strcmp ("Midi", name))
-				gMyInfo.ControlRoute[ParseCountL2].OutControl = atoi (value);
+		if (!strcmp ("Name", theData[3].name))
+			strcpy (gMyInfo.MyPatchInfo[HoldIndex].Name, theData[3].value);
+		else
+		if (!strcmp ("Channel", theData[3].name))
+			gMyInfo.MyPatchInfo[HoldIndex].Channel = atoi (theData[3].value);
+		else
+		if (!strcmp ("Controller", theData[3].name))
+			gMyInfo.MyPatchInfo[HoldIndex].BankSelect = atoi (theData[3].value);
+		else
+		if (!strcmp ("OutPort", theData[3].name))
+			gMyInfo.MyPatchInfo[HoldIndex].OutPort = atoi (theData[3].value);
+		else
+		if (!strcmp ("Patch", theData[3].name))
+			gMyInfo.MyPatchInfo[HoldIndex].Patch = atoi (theData[3].value);
+		else
+		if (!strcmp ("Custom", theData[3].name))
+			gMyInfo.MyPatchInfo[HoldIndex].CustomCommand = atoi (theData[3].value);
+		else
+		if (!strcmp ("Chain", theData[3].name)) {
+
+			if (theData[3].value[0] == 0)
+				strcpy (gMyInfo.MyPatchInfo[HoldIndex].Chain, "None");
+			else
+				strcpy (gMyInfo.MyPatchInfo[HoldIndex].Chain, theData[3].value);
+
+			if (gMyInfo.MyPatchInfo[HoldIndex].Name[0] != 0)
+				printd (LogDebug, "Patch %d %-25s %03d %03d %03d %03d %s\n",
+				        HoldIndex,
+				        gMyInfo.MyPatchInfo[HoldIndex].Name,
+				        gMyInfo.MyPatchInfo[HoldIndex].Channel,
+				        gMyInfo.MyPatchInfo[HoldIndex].BankSelect,
+				        gMyInfo.MyPatchInfo[HoldIndex].Patch,
+				        gMyInfo.MyPatchInfo[HoldIndex].CustomCommand,
+				        gMyInfo.MyPatchInfo[HoldIndex].Chain);
 		}
 	}
 
-	if (TopLevelParse == dTopLevelAppName) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "App%03d", &HoldIndex);
-			ParseCountL2 = HoldIndex;
+	if (!strcmp ("NumOutPorts", name)) {
+		gMyInfo.NumOutPorts = atoi (value);
+		printd (LogDebug, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
+	}
+
+	if (!strcmp ("NumberOfStrings", name)) {
+		gMyInfo.NumberOfStrings = atoi (value);
+		printd (LogDebug, "\n***Number of Strings %d\n", gMyInfo.NumberOfStrings);
+	}
+
+	if (!strcmp ("Strings", name)) {
+//			TopLevelParse = dTopStrings;
+		sscanf (theData[2].name, "StrNum%03d", &HoldIndex);
+		gMyInfo.BaseStringName[HoldIndex] = atoi(theData[3].value);
+		printd (LogDebug, "dTopStrings %d %d\n",
+		        HoldIndex,
+		        gMyInfo.BaseStringName[HoldIndex]);
+	}
+
+	if (!strcmp ("OutPorts", name)) {
+		sscanf (theData[2].name, "Port%03d", &HoldIndex);
+		strcpy (gMyInfo.OutPortName[HoldIndex], theData[3].value);
+		printd (LogDebug, "dTopLevelOutPorts %d %s\n",
+		        HoldIndex,
+		        gMyInfo.OutPortName[HoldIndex]);
+	}
+
+	if (!strcmp ("SongPath", name)) {
+		printd (LogDebug, "Song Path %s\n", value);
+		strncpy (gMyInfo.BasePath, value, 255);
+		printd (LogDebug, "Song Path1 %s\n", value);
+	}
+
+	if (!strcmp ("AppNames", name)) {
+//			TopLevelParse = dTopLevelAppName;
+		sscanf (theData[2].name, "App%03d", &HoldIndex);
+
+		if (!strcmp ("Name", theData[3].name))
+			strcpy (gMyInfo.Apps[HoldIndex].Name, theData[3].value);
+		else
+		if (!strcmp ("PortID", theData[3].name)) {
+			gMyInfo.Apps[HoldIndex].PortID = atoi (theData[3].value);
+
+			printd (LogDebug, "dTopLevelAppName %d %s %d\n",
+			        HoldIndex,
+			        gMyInfo.Apps[HoldIndex].Name,
+			        gMyInfo.Apps[HoldIndex].PortID);
 		}
 
-		if (Depth == 3 && NodeType == 2) {
-			if (!strcmp ("Name", name))
-				strcpy (gMyInfo.Apps[ParseCountL2].Name, value);
+	}
 
-			if (!strcmp ("PortID", name))
-				gMyInfo.Apps[ParseCountL2].PortID = atoi (value);
+	if (!strcmp ("ControllerMap", name)) {
+//			TopLevelParse = dTopLevelControllerMap;
+		sscanf (theData[2].name, "App%03d", &HoldIndex);
+
+		if (!strcmp ("Name", theData[3].name))
+			strcpy (gMyInfo.ControlRoute[HoldIndex].OutPort, theData[3].value);
+		else
+		if (!strcmp ("PortID", theData[3].name)) {
+			gMyInfo.ControlRoute[HoldIndex].OutControl = atoi (theData[3].value);
+
+			printd (LogDebug, "dTopLevelControllerMap %d %s %s\n",
+			        HoldIndex,
+			        gMyInfo.Apps[HoldIndex].Name,
+			        gMyInfo.Apps[HoldIndex].PortID);
+
 		}
 	}
 
-	/* ********************************** */
-	if (TopLevelParse == dTopLevelLayouts) {
-		printd(LogInfo, "IN the TopLevel Layouts Parse\n");
-		printd(LogInfo, "dTopLevelLayouts %d %d\n", LayoutIndexXML,  PatchIndexXML);
+	if (!strcmp ("TempoMax", name)) {
+		printd (LogDebug, "dTopLevelMetronome %s\n", value);
+		gMyInfo.TempoMax = atoi (value);
+	}
 
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "Layout%03d\n", &HoldIndex);
+	if (!strcmp ("MetroOn", name)) {
+		printd (LogDebug, "dTopLevelMetronomeOn %s\n", value);
+		gMyInfo.MetronomeOn = atoi (value);
+	}
 
-			/* This is the index for the Layouts. */
-			LayoutIndexXML = HoldIndex;
+	if (!strcmp ("MidiBaseNote", name)) {
+		printd (LogDebug, "dTopLevelMidiBase %s\n", value);
+		gMyInfo.MidiBaseNote = atoi (value);
+	}
+
+	if (!strcmp ("Click1", name)) {
+		printd (LogDebug, "dTopLevelClick1 %s\n", value);
+		gMyInfo.Drum1 = atoi (value);
+	}
+
+	if (!strcmp ("ClickRest", name)) {
+		printd (LogDebug, "dTopLevelClickRest %s\n", value);
+		gMyInfo.DrumRest = atoi (value);
+	}
+
+	if (!strcmp ("Layouts", name)) {
+		sscanf (theData[2].name, "Layout%03d", &HoldIndex);
+
+		if (!strcmp ("LayoutName", theData[3].name)) {
+			strcpy (gMyInfo.LayoutPresets[HoldIndex].Name, theData[3].value);
+			theData[3].value[0] = 0;
 		}
-
-		if (Depth == 3 && NodeType == 2) {
-			/* Assign Names here.   */
-			printd (LogInfo, "Layout Name Read %d %s\n", LayoutIndexXML, value);
-			strcpy (gMyInfo.LayoutPresets[LayoutIndexXML].Name, value);
-		}
-
-		if (Depth == 3 && NodeType == 1) {
-			sscanf (name, "Patch%03d\n", &HoldIndex);
-			PatchIndexXML = HoldIndex;
-		}
-
-		if (Depth == 4 && NodeType == 2) {
-			/* Assign Presets here. */
+		else
+		if (!strcmp ("PatchName", theData[4].name)) {
+			sscanf (theData[3].name, "Patch%03d", &ParseCountL2);
 			strcpy (gMyInfo.
-			        LayoutPresets[LayoutIndexXML].Presets[PatchIndexXML],
-			        value);
+			        LayoutPresets[HoldIndex].Presets[ParseCountL2],
+			        theData[4].value);
+			theData[4].value[0] = 0;
+
+			if (gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2][0] != 0)
+				printd (LogInfo, "dTopLevelLayouts %d %d [%s] [%s]\n",
+				        HoldIndex, ParseCountL2,
+				        gMyInfo.LayoutPresets[HoldIndex].Name,
+				        gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2]
+				       );
 		}
 	}
 
-	if (TopLevelParse == dTopLevelMainButtons) {
-		/* Get the second element.
-		 */
-		if (Depth == 2 && NodeType == 1) {
-			sscanf (name, "Preset%03d", &HoldIndex);
-			ParseCountL2 = HoldIndex;
-		}
-
-		if (Depth == 3 && NodeType == 2) {
-
-			if (!strcmp ("Name", name))
-				strcpy (gMyInfo.MyPatchInfo[ParseCountL2].Name, value);
-
-			if (!strcmp ("Channel", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].Channel = atoi (value);
-
-			if (!strcmp ("Controller", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].BankSelect = atoi (value);
-
-			if (!strcmp ("OutPort", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].OutPort = atoi (value);
-
-			if (!strcmp ("Patch", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].Patch = atoi (value);
-
-			if (!strcmp ("Custom", name))
-				gMyInfo.MyPatchInfo[ParseCountL2].CustomCommand = atoi (value);
-
-			if (!strcmp ("Chain", name))
-				strcpy (gMyInfo.MyPatchInfo[ParseCountL2].Chain, value);
-
-		}
-
+	if (!strcmp ("Tempo", name)) {
+		gMyInfo.Tempo = atoi (theData[2].value);
+		printd (LogDebug, "dTopLevelTempo %d\n", gMyInfo.Tempo);
 	}
 
-	/* String names here.
-	*/
-
-	/* TopLevelParse == dTopLevelMainButtons      */
-	if (Depth == 2 && NodeType == 3) {
-		if (TopLevelParse == dTopLevelNumOutPorts) {
-			gMyInfo.NumOutPorts = atoi (value);
-			printd (LogDebug, "\n***Numout Ports %d\n", gMyInfo.NumOutPorts);
-		}
-
-		if (TopLevelParse == dTopMaxStrings) {
-			gMyInfo.NumberOfStrings = atoi (value);
-			printd (LogDebug, "\n***Number of Strings %d\n", gMyInfo.NumberOfStrings);
-		}
-
-		if (TopLevelParse == dTopLevelSongPath) {
-			printd (LogDebug, "Song Path %s\n", value);
-			strncpy (gMyInfo.BasePath, value, 255);
-		}
-
-		if (TopLevelParse == dTopLevelMetronome) {
-			printd (LogDebug, "dTopLevelMetronome %s\n", value);
-			gMyInfo.TempoMax = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelMetronomeOn) {
-			printd (LogDebug, "dTopLevelMetronomeOn %s\n", value);
-			gMyInfo.MetronomeOn = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelMidiBase) {
-			printd (LogDebug, "dTopLevelMidiBase %s\n", value);
-			gMyInfo.MidiBaseNote = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelClick1) {
-			printd (LogDebug, "dTopLevelClick1 %s\n", value);
-			gMyInfo.Drum1 = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelClickRest) {
-			printd (LogDebug, "dTopLevelClickRest %s\n", value);
-			gMyInfo.DrumRest = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelTempo) {
-			printd (LogDebug, "dTopLevelTempo %s\n", value);
-			gMyInfo.Tempo = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelCountInBeats) {
-			printd (LogDebug, "dTopLevelCountInBeats %s\n", value);
-			gMyInfo.CountInBeats = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelLoopRecBeats) {
-			printd (LogDebug, "dTopLevelLoopRecBeats %s\n", value);
-			gMyInfo.LoopRecBeats = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelBeatsPerMeasure) {
-			printd (LogDebug, "dTopLevelBeatsPerMeasure %s\n", value);
-			gMyInfo.BeatsPerMeasure = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelAnalogVolume) {
-			printd (LogDebug, "dTopLevelAnalogVolume %s\n", value);
-			gMyInfo.AnalogVolume = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelMidiVolume) {
-			printd (LogDebug, "dTopLevelMidiVolume %s\n", value);
-			gMyInfo.MidiVolume = atoi (value);
-		}
-
-		if (TopLevelParse == dTopMidiPassLevel) {
-			printd (LogDebug, "dTopMidiPassLevel %s\n", value);
-			gMyInfo.MidiPassLevel = atoi (value);
-		}
-
-		if (TopLevelParse == dTopMidiPassThru) {
-			printd (LogDebug, "dTopMidiPassThru %s\n", value);
-			gMyInfo.MidiPassThru = atoi (value);
-		}
-
-		if (TopLevelParse == dTopLevelOSCIPAddress) {
-			printd (LogDebug, "dTopLevelOSCIPAddress %s\n", value);
-			strncpy (gMyInfo.OSCIPAddress, value, sizeof (gMyInfo.OSCIPAddress));
-		}
-
-		if (TopLevelParse == dTopLevelOSCPortNumJackVol) {
-			printd (LogDebug, "dTopLevelOSCPortNumJackVol %s\n", value);
-			strncpy (gMyInfo.OSCPortNumJackVol, value, sizeof (gMyInfo.OSCPortNumJackVol));
-		}
-
-		if (TopLevelParse == dTopLevelOSCPortNumLooper) {
-			printd (LogDebug, "dTopLevelOSCPortNumLooper %s\n", value);
-			strncpy (gMyInfo.OSCPortNumLooper, value, sizeof (gMyInfo.OSCPortNumLooper));
-		}
-
-		if (TopLevelParse == dTopLevelOSCPortNumHydrogen) {
-			printd (LogDebug, "dTopLevelOSCPortNumHydrogen %s\n", value);
-			strncpy (gMyInfo.OSCPortNumHydrogen, value, sizeof (gMyInfo.OSCPortNumHydrogen));
-		}
-
-		if (TopLevelParse == dTopLevelStatusTextColor) {
-			printd (LogDebug, "dTopLevelStatusTextColor %s\n", value);
-			sscanf(value, "%x", &gMyInfo.StatusTextColor);
-		}
-
-		if (TopLevelParse == dTopLevelButtonTextColor) {
-			printd (LogDebug, "dTopLevelButtonTextColor %s\n", value);
-			sscanf(value, "%x", &gMyInfo.ButtonTextColor);
-		}
+	if (!strcmp ("MidiPassThru", name)) {
+		printd (LogDebug, "dTopMidiPassThru %s\n", value);
+		gMyInfo.MidiPassThru = atoi (value);
 	}
 
-	/* Free memory.
-	*/
-	if (value != NULL)
-		xmlFree (value);
+	if (!strcmp ("MidiPassLevel", name)) {
+		printd (LogDebug, "dTopMidiPassLevel %s\n", value);
+		gMyInfo.MidiPassLevel = atoi (value);
+	}
 
-	if (NodeType == 1)
-		xmlFree (name);
+	if (!strcmp ("CountInBeats", name)) {
+		printd (LogDebug, "dTopLevelCountInBeats %s\n", value);
+		gMyInfo.CountInBeats = atoi (value);
+	}
+
+	if (!strcmp ("LoopRecBeats", name)) {
+		printd (LogDebug, "dTopLevelLoopRecBeats %s\n", value);
+		gMyInfo.LoopRecBeats = atoi (value);
+	}
+	if (!strcmp ("BeatsPerMeasure", name)) {
+		printd (LogDebug, "dTopLevelBeatsPerMeasure %s\n", value);
+		gMyInfo.BeatsPerMeasure = atoi (value);
+	}
+
+	if (!strcmp ("AnalogVolume", name)) {
+		printd (LogDebug, "dTopLevelAnalogVolume %s\n", value);
+		gMyInfo.AnalogVolume = atoi (value);
+	}
+
+	if (!strcmp ("MidiVolume", name)) {
+		printd (LogDebug, "dTopLevelMidiVolume %s\n", value);
+		gMyInfo.MidiVolume = atoi (value);
+	}
+
+	if (!strcmp ("StatusTextColor", name)) {
+		printd (LogDebug, "dTopLevelStatusTextColor %s\n", value);
+		sscanf(value, "%x", &gMyInfo.StatusTextColor);
+	}
+
+	if (!strcmp ("ButtonTextColor", name)) {
+		printd (LogDebug, "dTopLevelButtonTextColor %s\n", value);
+		sscanf(value, "%x", &gMyInfo.ButtonTextColor);
+	}
+
+	if (!strcmp ("OSCIPAddress", name)) {
+		printd (LogDebug, "dTopLevelOSCIPAddress %s\n", value);
+		strncpy (gMyInfo.OSCIPAddress, value, sizeof (gMyInfo.OSCIPAddress));
+	}
+
+	if (!strcmp ("OSCPortNumLooper", name)) {
+		printd (LogDebug, "dTopLevelOSCPortNumLooper %s\n", value);
+		strncpy (gMyInfo.OSCPortNumLooper, value, sizeof (gMyInfo.OSCPortNumLooper));
+	}
+
+	if (!strcmp ("OSCPortNumJackVol", name)) {
+		printd (LogDebug, "dTopLevelOSCPortNumJackVol %s\n", value);
+		strncpy (gMyInfo.OSCPortNumJackVol, value, sizeof (gMyInfo.OSCPortNumJackVol));
+	}
+
+	if (!strcmp ("OSCPortNumHydrogen", name)) {
+		printd (LogDebug, "dTopLevelOSCPortNumHydrogen %s\n", value);
+		strncpy (gMyInfo.OSCPortNumHydrogen, value, sizeof (gMyInfo.OSCPortNumHydrogen));
+	}
+
 }
 
-int ReadPrefs () {
+/*--------------------------------------------------------------------
+ * Function:		LoadXMLData
+ *
+ * Description:		Debug to print values as they are parsed XML.
+ *
+ *---------------------------------------------------------------------*/
+int LoadXMLData(ParseData *theData) {
+	int Level = 0;
+
+#if 0
+	while (theData[++Level].Valid) {
+		if (theData[Level].name[0] != '\n' &&
+		        theData[Level].name[0] != '#')
+			printf("%d[%s],", Level,
+			       theData[Level].name);
+
+		if (theData[Level].value[0] != '\n' &&
+		        theData[Level].value[0] != '#')
+			printf("(%s),",
+			       theData[Level].value);
+	}
+
+	printf("\n");
+#endif
+	LoadXMLPair(theData);
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		processNode
+ *
+ * Description:		Read the next node of XML and copy the info to the
+ * 	ParseData structure.
+ *
+ *---------------------------------------------------------------------*/
+static int
+processNode(xmlTextReaderPtr reader, ParseData *theData) {
+	const xmlChar *name, *value;
+	int XMLName;
+	int XMLType;
+
+	name = xmlTextReaderConstName(reader);
+
+//    if (xmlTextReaderNodeType(reader) >10)
+//        return(0);
+
+	if (name)
+		strcpy(theData->name, name);
+
+	theData->Level = xmlTextReaderDepth(reader);
+	theData->Type = xmlTextReaderNodeType(reader);
+	value = xmlTextReaderConstValue(reader);
+
+	if (value)
+		strcpy(theData->value, value);
+
+	if (theData->Type < MaxLevels)
+		theData->Valid = 1;
+
+	return (0);
+}
+
+static int
+streamFile(const char *filename) {
 	xmlTextReaderPtr reader;
 	int ret;
+	ParseData theData1, theData2;
+	ParseData myData[MaxLevels];
 
-	xmlChar *name, *value;
-	int NodeType;
-	int Depth;
+	/*
+	 * Pass some special parsing options to activate DTD attribute defaulting,
+	 * entities substitution and DTD validation
+	 */
+	reader = xmlReaderForFile(filename, NULL,
+	                          XML_PARSE_DTDATTR |  /* default DTD attributes */
+	                          XML_PARSE_NOENT |    /* substitute entities */
+	                          XML_PARSE_DTDVALID); /* validate with the DTD */
+
+	if (reader != NULL) {
+		ret = xmlTextReaderRead(reader);
+		while (ret == 1) {
+
+			processNode(reader, &theData1);
+			if (theData1.Level == 1 && theData1.Type == 1) {
+				memset(myData, 0, sizeof (myData));
+//				myData[theData1.Level] = theData1;
+			}
+
+#if 1
+			if (theData1.Level < MaxLevels ) {
+				myData[theData1.Level] = theData1;
+				if (theData1.Type < MaxLevels)
+					LoadXMLData(myData);
+			}
+#else
+			if (theData1.Level == 2 && theData1.Type == 1) {
+				myData[theData1.Level] = theData1;
+			}
+
+			if (theData1.Level == 2 && theData1.Type == 3) {
+				myData[theData1.Level] = theData1;
+				LoadXMLData(myData);
+			}
+
+			if (theData1.Level == 3 && theData1.Type == 1) {
+				myData[theData1.Level] = theData1;
+//				LoadXMLData(myData);
+			}
+#endif
+			while (xmlTextReaderMoveToNextAttribute (reader)) {
+				processNode(reader, &theData1);
+#if 1
+				if (theData1.Level < MaxLevels ) {
+					myData[theData1.Level] = theData1;
+					if (theData1.Type < MaxLevels)
+						LoadXMLData(myData);
+				}
+
+#else
+				if (theData1.Level == 3 && theData1.Type == 2) {
+					myData[theData1.Level] = theData1;
+					LoadXMLData(myData);
+				}
+
+				if (theData1.Level == 4 && theData1.Type == 2) {
+					myData[theData1.Level] = theData1;
+					LoadXMLData(myData);
+				}
+#endif
+			}
+			ret = xmlTextReaderRead(reader);
+		}
+		/*
+		 * Once the document has been fully parsed check the validation results
+		 */
+		if (xmlTextReaderIsValid(reader) != 1) {
+			fprintf(stderr, "Document %s does not validate\n", filename);
+		}
+		xmlFreeTextReader(reader);
+		if (ret != 0) {
+			fprintf(stderr, "%s : failed to parse\n", filename);
+		}
+	} else {
+		fprintf(stderr, "Unable to open %s\n", filename);
+	}
+
+	return (ret);
+
+}
+
+/*--------------------------------------------------------------------
+ * Function:		ReadPrefs
+ *
+ * Description:		Abstraction interface to XML
+ *
+ *---------------------------------------------------------------------*/
+int ReadPrefs () {
 
 	printd (LogDebug, "----------------------\n");
 	printd (LogDebug, "Reading prefs file\n");
 	printd (LogDebug, "----------------------\n");
-	reader = xmlNewTextReaderFilename (	GetResourceDir(PREFSFILENAME, FileLocConfig));
-	printd (LogDebug, "Reader %x\n", reader);
-	if (reader != NULL) {
-		ret = xmlTextReaderRead (reader);
-		while (ret == 1) {
-			processNode (reader, 1);
-			while (xmlTextReaderMoveToNextAttribute (reader))
-				processNode (reader, 2);
-
-			ret = xmlTextReaderRead (reader);
-		}
-		xmlFreeTextReader (reader);
-		if (ret != 0) {
-			printd (LogTest, "%s : failed to parse\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
-			return (1);
-		}
-	} else {
-		printd (LogTest, "Unable to open %s\n", GetResourceDir(PREFSFILENAME, FileLocConfig));
-		return (2);
-	}
-	printd (LogDebug, "----------------------\n");
-	printd (LogDebug, "Done Reading prefs file\n");
-	printd (LogDebug, "----------------------\n");
-	return (0);
+	return (streamFile(GetResourceDir(PREFSFILENAME, FileLocConfig)));
 }
+

@@ -48,6 +48,7 @@
 #include <unistd.h>
 #include "config.h"
 #include <pwd.h>
+#include "libgen.h"
 
 //#define UsingNewButtons	1
 
@@ -64,7 +65,7 @@
 */
 #define MaxStatusHold 8
 #define CSSFileName GetResourceDir("LiveMusicApp.css",FileLocConfig)
-#define HistoryFileName	"LiveMusicHistory"
+#define HistoryFileName	"/LiveMusicHistory.txt"
 #define MaxKeyTimeout	3
 
 // export LIBGL_ALWAYS_SOFTWARE=1
@@ -120,7 +121,7 @@ int MainButtonCountOn;
 at rehearsal.
 */
 FILE 	*FileHistory;
-char *ResourceFileName[250];
+char ResourceFileName[250];
 
 /* Update the Tabs in GTK context.
 */
@@ -198,13 +199,22 @@ char *printd(char LogLevel, const char *fmt, ...) {
  *---------------------------------------------------------------------*/
 char *GetResourceDir(char *FileName, char WhichLoc) {
 
-	strcpy(ResourceFileName, homedir);
 
-	if (WhichLoc == FileLocConfig)
+	if (WhichLoc == FileLocConfig) {
+		strcpy(ResourceFileName, homedir);
 		strcat(ResourceFileName, "/.config/LiveMusicApp/");
+	}
 
-	if (WhichLoc == FileLocTunes)
+	if (WhichLoc == FileLocTunes) {
+		strcpy(ResourceFileName, homedir);
 		strcat(ResourceFileName, "/MySongs/");
+	}
+
+
+	if (WhichLoc == FileLocUser) {
+		strcpy(ResourceFileName, (gMyInfo.BasePath));
+		dirname(ResourceFileName);
+	}
 
 	strcat(ResourceFileName, FileName);
 	return (ResourceFileName);
@@ -309,12 +319,6 @@ int main(int argc, char *argv[]) {
 	printf("Build date  : %s:%s\n", __DATE__, __TIME__);
 	printf("Build Number %d\n", MY_BUILD_NUMBER);
 
-	/* History saves the charts you open.
-	I forget what I worked on at rehearsal,
-	this helps me remeber.
-	*/
-	InitHistoryFile();
-
 	/* Handle any HID pedals,
 	Must be called before gtk_init
 	*/
@@ -380,6 +384,12 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Initialize the XML reader/writer and set some basic values here.
 	 */
 	InitPref();
+
+	/* History saves the charts you open.
+	I forget what I worked on at rehearsal,
+	this helps me remeber.
+	*/
+	InitHistoryFile();
 
 	/*
 	 create an instance of the GladeXML object and build widgets within
@@ -1879,8 +1889,9 @@ int FindString(int StringList, char *String) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-//	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocTunes) , "a+");	
-	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");	
+	printf("File History %x\n", FileHistory);
+	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");	
+//	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");	
 	printd(LogDebug,"File History %x\n", FileHistory);
 
 	if (FileHistory) {

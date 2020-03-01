@@ -1066,6 +1066,16 @@ function SetUpApplications {
         QT_STYLE_OVERRIDE=QtCurve clementine &
     fi
     
+    if test "${MusePlayer}" = "true"; then
+        # Set the first Desktop to use.
+        QT_STYLE_OVERRIDE=QtCurve muse &
+    fi
+
+    if test "${MuseScore}" = "true"; then
+        # Set the first Desktop to use.
+        QT_STYLE_OVERRIDE=QtCurve musescore3 &
+    fi
+
     # External viewer, not used anymore
     if test "${MusicViewer}" = "true"; then
         qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 6
@@ -1320,158 +1330,8 @@ function SetPlacement1200 {
     wmctrl -r TuxGuitar -t $PlayerDesktop
 }
 
-#---------------------------------------------------------------------#
-#
-# Main, start of script
-#
-#---------------------------------------------------------------------#
-# set -x
-#
-
-#cd /home/elias/LiveMusic
-
-#xinput | grep "PixArtImaging"
-#if [ "$?" = "0" ] ; then
-#   xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
-#   ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
-#   xinput map-to-output $ExtID HDMI1
-#   ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
-#   xinput map-to-output $ExtID LVDS1
-#fi
-
-echo "Line "$1
-# Set Default values
-GuitarEffects=true
-EffectsProcessorName="guitarix"
-
-MidiController=true
-Rosegarden=false
-Hydrogen=false
-Ardour=false
-MP3Player=false
-Looper=false
-MusicViewer=false
-LogFile=LogGuitar
-#LogFile=/dev/tty
-JackFile=LogJack
-TabPlayer=false
-XOffset=0
-JamStik=false
-ButtonLayout=1
-OneScreeOnly=false
-BackroundChecker=true
-SoundSynth=true
-
-xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
-# sudo echo 5 > /proc/sys/vm/swappiness
-# sudo echo -n performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
-
-# Right of
-# xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" -5500 4100 0 4100
-
-# Exec=env WINEPREFIX="/home/elias/.wine64" wine64 MIDIGuitar2-64bit.exe
-echo "----------------------------------------------------------------------" >> $LogFile
-echo `date` >> $LogFile
-echo "----------------------------------------------------------------------" >> $LogFile
-# Parse command line options.
-while getopts "abcdgfhrpmvlswt" OPT; do
-    echo "hello "$OPT
-    case "$OPT" in
-        h)
-            echo "
-        a - Ardour
-        b - Adjust Placement
-        c - Make Connections
-        d - Drum Machine
-        g - Generate Charts
-        j - JamStik
-        l - Looper
-        m - Music Player
-        p - PFD viewer
-        r - Rosegarden
-        s - Stop everything
-        t - Tab Editor
-        v - version
-        w - Working Scoring"
-            exit 0
-        ;;
-        v)
-            echo "`basename $0` version 6.7"
-            echo "2019-31-03"
-            exit 0
-        ;;
-        a)
-            echo "Ardour2"
-            Ardour=true
-        ;;
-        b)
-            SetPlacement
-            exit 0
-        ;;
-        c)
-            FindDevice
-            SetDefinitions
-            SetUpConnections
-            exit 0
-        ;;
-        d)
-            echo "Drum Machine"
-            Hydrogen=true
-        ;;
-        f)
-            echo "Test"
-            Rosegarden=false
-            MidiController=true
-            GuitarEffects=false
-            MusicViewer=false
-            OneScreeOnly=true
-            TabPlayer=false
-            Looper=true
-            Hydrogen=true
-            BackroundChecker=false
-            MP3Player=false
-            SoundSynth=true
-        ;;
-         g)
-            LiveMusicCharts.py /home/Dropbox/FusionBlue/ChartsHTML/ -f -c -i
-        ;;
-        j)
-            echo "JamStik"
-            JamStik=true
-        ;;
-        l)
-            echo "Looper"
-            Looper=true
-        ;;
-        m)
-            echo "MP3 Player"
-            MP3Player=true
-        ;;
-        r)
-            echo "Rosegarden"
-            Rosegarden=true
-        ;;
-        t)
-            echo "Tab Player"
-            TabPlayer=true
-        ;;
-        l)
-            echo "Looper"
-            Looper=true
-        ;;
-        p)
-            echo "PDF"
-            MusicViewer=true
-        ;;
-        w)
-            echo "PDF"
-            Rosegarden=true
-            MidiController=false
-            GuitarEffects=false
-            MusicViewer=false
-        ;;
-        s)
-            echo "Closing down Effects"
+function StopEverything {
+                echo "Closing down Effects"
             KillAll KeepLiveMusicRunning.sh
             killall patchage
             killall ${EffectsProcessorName}
@@ -1536,8 +1396,186 @@ while getopts "abcdgfhrpmvlswt" OPT; do
             killall jack-plumbing
             xset s on
             xset +dpms
-            killall GuitarEffects
-            
+            killall GuitarEffects    
+            exit 0
+}
+
+#---------------------------------------------------------------------#
+#
+# Main, start of script
+#
+#---------------------------------------------------------------------#
+# set -x
+#
+
+#cd /home/elias/LiveMusic
+
+#xinput | grep "PixArtImaging"
+#if [ "$?" = "0" ] ; then
+#   xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
+#   ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
+#   xinput map-to-output $ExtID HDMI1
+#   ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
+#   xinput map-to-output $ExtID LVDS1
+#fi
+
+echo "Line "$1
+# Set Default values
+GuitarEffects=true
+EffectsProcessorName="guitarix"
+
+MidiController=true
+Rosegarden=false
+Hydrogen=false
+Ardour=false
+MP3Player=false
+MusePlayer=false
+MuseScore=false
+Looper=false
+MusicViewer=false
+LogFile=LogGuitar
+#LogFile=/dev/tty
+JackFile=LogJack
+TabPlayer=false
+XOffset=0
+JamStik=false
+ButtonLayout=1
+OneScreeOnly=false
+BackroundChecker=true
+SoundSynth=true
+
+xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
+# sudo echo 5 > /proc/sys/vm/swappiness
+# sudo echo -n performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+
+# Right of
+# xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" -5500 4100 0 4100
+
+# Exec=env WINEPREFIX="/home/elias/.wine64" wine64 MIDIGuitar2-64bit.exe
+echo "----------------------------------------------------------------------" >> $LogFile
+echo `date` >> $LogFile
+echo "----------------------------------------------------------------------" >> $LogFile
+# Parse command line options.
+while getopts "abcdegfhrpmnovlswt" OPT; do
+    echo "hello "$OPT
+    case "$OPT" in
+        h)
+            echo "
+        a - Ardour
+        b - Adjust Placement
+        c - Make Connections
+        d - Drum Machine
+        e - Launcher Execute
+        g - Generate Charts
+        j - JamStik
+        l - Looper
+        m - Music Player
+        n - Muse Player
+        o - Muse Score
+        p - PFD viewer
+        r - Rosegarden
+        s - Stop everything
+        t - Tab Editor
+        v - version
+        w - Working Scoring"
+            exit 0
+        ;;
+        v)
+            echo "`basename $0` version 6.7"
+            echo "2019-31-03"
+            exit 0
+        ;;
+        a)
+            echo "Ardour2"
+            Ardour=true
+        ;;
+        b)
+            SetPlacement
+            exit 0
+        ;;
+        c)
+            FindDevice
+            SetDefinitions
+            SetUpConnections
+            exit 0
+        ;;
+        d)
+            echo "Drum Machine"
+            Hydrogen=true
+        ;;
+        e)
+            pid=`pgrep LiveMusicApp`
+            if [ -z $pid ]
+            then
+                MP3Player=true
+            else
+                StopEverything
+            fi
+        ;;
+
+        f)
+            echo "Test"
+            Rosegarden=false
+            MidiController=true
+            GuitarEffects=false
+            MusicViewer=false
+            OneScreeOnly=true
+            TabPlayer=false
+            Looper=true
+            Hydrogen=true
+            BackroundChecker=false
+            MP3Player=false
+            SoundSynth=true
+        ;;
+        g)
+            LiveMusicCharts.py /home/Dropbox/FusionBlue/ChartsHTML/ -f -c -i
+        ;;
+        j)
+            echo "JamStik"
+            JamStik=true
+        ;;
+        l)
+            echo "Looper"
+            Looper=true
+        ;;
+        m)
+            echo "MP3 Player"
+            MP3Player=true
+        ;;
+        n)
+            echo "Muse"
+            MusePlayer=true
+        ;;
+        o)
+            echo "Muse Score"
+            MuseScore=true
+        ;;
+
+        r)
+            echo "Rosegarden"
+            Rosegarden=true
+        ;;
+        t)
+            echo "Tab Player"
+            TabPlayer=true
+        ;;
+        l)
+            echo "Looper"
+            Looper=true
+        ;;
+        p)
+            echo "PDF"
+            MusicViewer=true
+        ;;
+        w)
+            echo "PDF"
+            Rosegarden=true
+            MidiController=false
+            GuitarEffects=false
+            MusicViewer=false
+        ;;
+        s)
+            StopEverything
             exit 0
         ;;
         o)

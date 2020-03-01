@@ -591,6 +591,6 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void SetScale4Label(char *String);
 int GTKIdel_cb(gpointer data);
-enum {FileLocConfig = 0, FileLocTunes };
+enum {FileLocConfig = 0, FileLocTunes, FileLocUser };
 char *GetResourceDir(char *FileName, char WhichLoc);
 #endif

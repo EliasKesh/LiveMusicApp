@@ -2,24 +2,34 @@ include "gx_head_Guitarix.rc"
 
 style "guitarix_effect_title" {
     font_name = "Roboto Condensed Regular 10"
-    fg[NORMAL] = "#ff7700"
+    fg[NORMAL] = "#ffffff"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
 
 style "guitarix_font" {
     font_name = "Roboto Condensed Regular 8"
-    fg[NORMAL] =  "#ff7700"
+    fg[NORMAL] =  "#ff8800"
 }
+widget "*.rack_label" style:highest "guitarix_font"
+widget "*Value" style:highest "guitarix_font"
+widget "*ampbox*label" style:highest "guitarix_font"
+widget "*beffekt_label" style:highest "guitarix_font"
+widget "*rack_effect_label" style:highest "guitarix_font"
 
 style "guitarix_default" {
     stock["background1"]    = {{"Elias.png"}}
+    stock["logo"]           = {{"logo_white.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
 
 style "guitarix_frame" {
-    bg[NORMAL]              = "#000000"
+    bg[NORMAL]              = "#292727"
+
+    engine "murrine"  {
+    }
+
     engine "clearlooks" {
-        contrast            = 1.2
+        contrast            = 1.9
         radius              = 4.0
         disable_focus       = TRUE
     }
@@ -30,6 +40,7 @@ class "*GtkHSeparator" style:highest "guitarix_frame"
 
 style "guitarix-paintbox"
 {
-  stock['gxhead'] = {{"live_wallpaper_orange.png"}}
+  GxPaintBox::icon-set =1
+  stock['gxhead'] = {{"live_wallpaper_camouflage.png"}}
 }
 class "*GxPaintBox" style "guitarix-paintbox"

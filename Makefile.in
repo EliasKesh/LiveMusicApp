@@ -106,7 +106,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)" \
+	"$(DESTDIR)$(Songsdir)" "$(DESTDIR)$(Tune1dir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_LiveMusicApp_OBJECTS = src/LiveMusicApp-AlsaUtils.$(OBJEXT) \
@@ -218,7 +219,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-DATA = $(Prefs_DATA)
+DATA = $(Prefs_DATA) $(Songs_DATA) $(Tune1_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -438,8 +439,19 @@ LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/ -lxmltok -lxml2 \
 # LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
 
 # Copy the preferences.
-Prefsdir = "$(HOME)/.config/LiveMusicApp"
-Prefs_DATA = LiveMusicRes/* 
+#Prefsdir = "$(HOME)/.config/LiveMusicApp/"
+# Prefs_DATA = LiveMusicRes/* 
+# Prefs_DATA = LiveMusicRes/* -c -m 644
+Prefsdir = "$(prefix)/share/LiveMusicApp/"
+Prefs_DATA = LiveMusicRes/*
+Songsdir = "$(prefix)/share/LiveMusicApp/MySongs/"
+Songs_DATA = MySongs/background.png \
+		MySongs/logo.jpg \
+		MySongs/index.html \
+		MySongs/LiveMusicAppDocumentation.pdf
+
+Tune1dir = "$(prefix)/share/LiveMusicApp/MySongs/BlueRondo"
+Tune1_DATA = MySongs/BlueRondo/*
 all: all-am
 
 .SUFFIXES:
@@ -899,6 +911,48 @@ uninstall-PrefsDATA:
 	@list='$(Prefs_DATA)'; test -n "$(Prefsdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(Prefsdir)'; $(am__uninstall_files_from_dir)
+install-SongsDATA: $(Songs_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(Songs_DATA)'; test -n "$(Songsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(Songsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(Songsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(Songsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(Songsdir)" || exit $$?; \
+	done
+
+uninstall-SongsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(Songs_DATA)'; test -n "$(Songsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(Songsdir)'; $(am__uninstall_files_from_dir)
+install-Tune1DATA: $(Tune1_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(Tune1_DATA)'; test -n "$(Tune1dir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(Tune1dir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(Tune1dir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(Tune1dir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(Tune1dir)" || exit $$?; \
+	done
+
+uninstall-Tune1DATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(Tune1_DATA)'; test -n "$(Tune1dir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(Tune1dir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1129,7 +1183,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(Prefsdir)" "$(DESTDIR)$(Songsdir)" "$(DESTDIR)$(Tune1dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1168,7 +1222,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool clean-local \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1204,14 +1259,15 @@ info: info-am
 
 info-am:
 
-install-data-am: install-PrefsDATA
+install-data-am: install-PrefsDATA install-SongsDATA install-Tune1DATA
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
 install-exec-am: install-binPROGRAMS
-
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
 
 install-html-am:
@@ -1267,30 +1323,58 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-PrefsDATA uninstall-binPROGRAMS
+uninstall-am: uninstall-PrefsDATA uninstall-SongsDATA \
+	uninstall-Tune1DATA uninstall-binPROGRAMS
 
-.MAKE: install-am install-strip
+.MAKE: install-am install-exec-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles am--refresh check \
 	check-am clean clean-binPROGRAMS clean-cscope clean-generic \
-	clean-libtool cscope cscopelist-am ctags ctags-am dist \
-	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
-	dist-xz dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-PrefsDATA \
+	clean-libtool clean-local cscope cscopelist-am ctags ctags-am \
+	dist dist-all dist-bzip2 dist-gzip dist-lzip dist-shar \
+	dist-tarZ dist-xz dist-zip distcheck distclean \
+	distclean-compile distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-PrefsDATA install-SongsDATA install-Tune1DATA \
 	install-am install-binPROGRAMS install-data install-data-am \
 	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-PrefsDATA uninstall-am uninstall-binPROGRAMS
+	install-exec-hook install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-PrefsDATA uninstall-SongsDATA \
+	uninstall-Tune1DATA uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
+
+#Songsdir = "$(Prefsdir)/MySongs/"
+# Songs_DATA = DefaultSongs/*
+
+# Songsdir = "$(HOME)/MySongs/"
+# Songs_DATA = DefaultSongs/*
+#Songs_DATA = DefaultSongs/* -c -m 644
+
+# install-data-local:
+
+install-exec-hook:
+#	rsync -avrx "./MySongs" $(Prefsdir)
+#	rsync -avrx "./LiveMusicRes/" $(Prefsdir)
+
+# 	$(MKDIR_P) $(Prefsdir)
+# 	$(MKDIR_P) $(Songsdir)
+# 	chmod a+rw $(Songsdir)
+# 	chown $$USER:$$USER $(Songsdir)
+# 	chmod a+rw $(Prefsdir)
+# 	chown $$USER:$$USER $(Prefsdir)
+# 	rsync -avrx "./DefaultSongs/" "$(HOME)/MySongs/"
+# 	rsync -avrx "./LiveMusicRes/" "$(HOME)/.config/LiveMusicApp/"
+
+clean-local:
+	rm -f *.0 src/*.o
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

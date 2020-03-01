@@ -60,10 +60,10 @@ def WriteFile(fname, dirname):
   # start writing the HTML header
   theFile.write("<html>\n<head>\n<style type=\"text/css\">\n")
 #  theFile.write("{text-align: left; width: 100%; height: 100%;}\n body {\n")
-  theFile.write("background-image: url(../background.png);\n");
-  theFile.write("color: #ff9000;\n\
-</style>\n\
-</head>\n")
+
+
+  theFile.write("body {\nbackground-image: url(../background.png);\nheight: 100%; }")
+  theFile.write("</style>\n</head>\n")
 
 # background-repeat:background-size: 200%;\n\
 # no-repeat;
@@ -88,6 +88,8 @@ def WriteFile(fname, dirname):
 
   theFile.write("<font color=#880000>"+sTitle+"</font>\n")
   theFile.write("<font color=#8800FF>Solo:"+sSolo+"</font>\n")
+  # The Logo
+  theFile.write("<img style=\"width:60px; height:50px\" SRC=\"../logo.jpg\" align=right>")
 
   # Add links for the external media files.
   for x in range(0, sHREFIndex):
@@ -433,8 +435,7 @@ height: 100%; }\n\
         if (CurrentIndex != PreviousIndex):
           if (Reference):
              theFile.write("<p id=\""+CurrentIndex+"aaa\"></p>")
-             theFile.write("<a href=\"#TOP\">TOP    </a>")
-
+             theFile.write("<a style=\"color:red\" href=\"#TOP\">TOP</a><br>")
 
         theFile.write("[<a href=./"+DirName+"/"+FileName+">"+FileNoExt+PadString+"</a>]\n")
 
