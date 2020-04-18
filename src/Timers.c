@@ -233,7 +233,7 @@ void MyTimerInit(void) {
 	gMyInfo.TempoTimerID = 0;
 	gMyInfo.TimerCount = 0;
 	gMyInfo.AlsaTimerHandle = 0;
-	SetTempo(130);
+// ejk segfault 	SetTempo(130);
 }
 
 /*--------------------------------------------------------------------

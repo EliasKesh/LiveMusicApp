@@ -123,6 +123,8 @@ at rehearsal.
 FILE 	*FileHistory;
 char ResourceFileName[250];
 
+FILE 	*LogFile;
+
 /* Update the Tabs in GTK context.
 */
 
@@ -188,6 +190,8 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	if (RunLogLevel >= LogLevel || (LogLevel == LogTest) )
 		printf( "L%d %s", LogLevel, p);
 
+	fprintf(LogFile,"L%d %s", LogLevel, p);
+
 	return NULL;
 }
 
@@ -199,18 +203,23 @@ char *printd(char LogLevel, const char *fmt, ...) {
  *---------------------------------------------------------------------*/
 char *GetResourceDir(char *FileName, char WhichLoc) {
 
-
+	/* Location of resource files needed.
+	*/
 	if (WhichLoc == FileLocConfig) {
 		strcpy(ResourceFileName, homedir);
 		strcat(ResourceFileName, "/.config/LiveMusicApp/");
 	}
 
+	/* Default location of the Songs files.
+	*/
 	if (WhichLoc == FileLocTunes) {
 		strcpy(ResourceFileName, homedir);
 		strcat(ResourceFileName, "/MySongs/");
 	}
 
-
+	/* The location the user selected. Must load prefs
+	file before using this option.
+	*/
 	if (WhichLoc == FileLocUser) {
 		strcpy(ResourceFileName, (gMyInfo.BasePath));
 		dirname(ResourceFileName);
@@ -219,7 +228,6 @@ char *GetResourceDir(char *FileName, char WhichLoc) {
 	strcat(ResourceFileName, FileName);
 	return (ResourceFileName);
 }
-
 
 /*--------------------------------------------------------------------
  * Function:		Check for the .config dirs
@@ -251,7 +259,6 @@ void CheckForStartupDirs(void) {
 		sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
 		system(CommandString);
 	}
-
 
 	sprintf(FileString, "%s/MySongs", homedir);
 	err = stat(FileString, &s);
@@ -303,12 +310,12 @@ int main(int argc, char *argv[]) {
 	gMyInfo.PrevDeskSwitch = NULLSwitch;
 	gMyInfo.GoToDeskSwitch = Max_Patches;
 
-
+	/* Let's see what's already installed.
+	*/
 	CheckForStartupDirs();
-
-	// printf("Home Dir %s\n",homedir );
-
 	GetResourceDir("./MyFile.png", FileLocConfig);
+	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");	
+
 
 	/* Default name for the jack client.
 	*/
@@ -316,8 +323,8 @@ int main(int argc, char *argv[]) {
 
 	parse_cmdline(argc, argv);
 
-	printf("Build date  : %s:%s\n", __DATE__, __TIME__);
-	printf("Build Number %d\n", MY_BUILD_NUMBER);
+	printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
+	printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
 
 	/* Handle any HID pedals,
 	Must be called before gtk_init
@@ -391,6 +398,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	*/
 	InitHistoryFile();
 
+
 	/*
 	 create an instance of the GladeXML object and build widgets within
 	 the window1 root node.
@@ -420,9 +428,9 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	        GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 	printd(LogInfo, "ejk About to load\n");
-	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
+//	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
 
-	g_object_unref(provider);
+//	g_object_unref(provider);
 
 
 	/* Connect the close button.
@@ -645,6 +653,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	CloseJackTransport();
 	LivePlayerClose();
 	printd(LogInfo, "Closing LiveApp\n");
+	fclose(LogFile);
 
 	return 0;
 }
@@ -687,7 +696,7 @@ int GTKIdel_cb(gpointer data) {
 
 		default:
 //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
-			printd(LogDebug, "GTKIdel_cb Default\n");
+			printd(LogTest, "GTKIdel_cb Default\n");
 //			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
 			SetVolume4(AlsaEvent.data.control.value / 1.28);
 			break;
@@ -1406,19 +1415,21 @@ void VScale4_Changed(GtkAdjustment *adj) {
 	NewValue = gtk_adjustment_get_value(Adjustment4);
 	ThisPatchNum = gMyInfo.ExpreP1Slider;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-	printd(LogInfo, "Vscale 4 %d P=%d\n",
+	printd(LogTest, "Vscale 4 %d P=%d\n",
 	       NewValue, ThisPatch->Channel);
 
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 
-	if (ThisPatch->OutPort == InternalPort)
+	if (ThisPatch->OutPort == InternalPort) {
 		MyOSCJackVol(NewValue, 0);
-	else
+	}
+	else {
 		SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		         ThisPatch->OutPort,
 		         ThisPatch->Channel,
 		         ThisPatch->Patch,
 		         (char) NewValue * 1.27);
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -1469,7 +1480,7 @@ int SetVolume3(int Value) {
  * Description:
  *---------------------------------------------------------------------*/
 int SetVolume4(int Value) {
-	printd(LogDebug, "Slider 4 %x %d\n",
+	printd(LogTest, "Slider 4 %x %d\n",
 	       Adjustment2, Value);
 	gtk_adjustment_set_value(Adjustment4, Value);
 	gtk_range_set_adjustment(VScale4, Adjustment4);
@@ -1853,12 +1864,14 @@ int FindString(int StringList, char *String) {
 
 //	if (String[0] == 0)
 //		return(-1);
+	printd(LogDebug,"FindString %d %s\n",
+			StringList, String);
 
 	if (StringList == fsPatchNames) {
 		for (Loop = 0; Loop < Max_Patches; Loop++) {
-//	printd(LogDebug,"FindString %d %s %s\n",
-//			Loop, String,
-//			gMyInfo.MyPatchInfo[Loop].Name);
+	// printd(LogDebug,"FindString %d %s %s\n",
+	// 		Loop, String,
+	// 		gMyInfo.MyPatchInfo[Loop].Name);
 
 			if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String))
 				return (Loop);

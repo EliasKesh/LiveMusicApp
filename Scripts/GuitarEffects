@@ -1021,10 +1021,7 @@ function FindUSB {
 #
 #---------------------------------------------------------------------#
 function SetUpApplications {
-    
-    # Set the first Desktop to use.
-    qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 5
-    
+       
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
@@ -1045,7 +1042,7 @@ function SetUpApplications {
         echo "Starting Guitar Effects"  >> $LogFile
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb &
         #        nice -15   ${EffectsProcessorName}  --disable-multi-client --sync -p 7000 >> $LogFile 2>&1 &
-        nice -15   ${EffectsProcessorName} -p 7000 >> $LogFile 2>&1 &
+        nice -15   ${EffectsProcessorApp} -p 7000 >> $LogFile 2>&1 &
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr &
         Delay 2
     fi
@@ -1053,7 +1050,7 @@ function SetUpApplications {
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
         #        nice -15 sooperlooper -p 9951 -m ./Prefs/SLMidiF.slb -L ./Prefs/EliasLooper.slsess &
-        slgui -L /home/Dropbox/LiveEffects/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
+        slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
     if test "${Ardour}" = "true"; then
@@ -1078,7 +1075,6 @@ function SetUpApplications {
 
     # External viewer, not used anymore
     if test "${MusicViewer}" = "true"; then
-        qdbus org.kde.kwin /KWin org.kde.KWin.setCurrentDesktop 6
         if test "${Group}" = "fusion"; then
             okular /home/Music/BandStuff/Fusion/FusionBlueCharts.pdf
         else
@@ -1099,17 +1095,17 @@ function SetUpApplications {
     
     # Do we launch the drum machine .
     if test "${Hydrogen}" = "true"; then
-        hydrogen -k GMKit -s  /home/Dropbox/LiveEffects/Drums/JustFunky.h2song &
+        hydrogen -k GMKit -s  /home/elias/MySongs/Drums/JustFunky.h2song &
     fi
     
     Delay 2
     
-    jack-plumbing /home/Dropbox/LiveEffects/Prefs/jack-plumbing >> $LogFile 2>&1 &
+    jack-plumbing /home/elias/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
     
     # This script check for a failed app
     # and will relaunch it
     if test "${BackroundChecker}" = "true"; then
-        /home/Dropbox/LiveEffects/KeepLiveMusicRunning.sh &
+        KeepLiveMusicRunning.sh &
     fi
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
@@ -1235,7 +1231,7 @@ function SetPlacement1920 {
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
-    wmctrl -r ${EffectsProcessorName} -e 0,0,0,652,1060
+    wmctrl -r ${EffectsProcessorName} -e 0,0,0,700,1020
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
     wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
@@ -1397,6 +1393,8 @@ function StopEverything {
             xset s on
             xset +dpms
             killall GuitarEffects    
+            FAHClient --send-unpause "LiveMusicApp_Done"
+
             exit 0
 }
 
@@ -1422,7 +1420,8 @@ function StopEverything {
 echo "Line "$1
 # Set Default values
 GuitarEffects=true
-EffectsProcessorName="guitarix"
+EffectsProcessorName="Guitarix"
+EffectsProcessorApp="guitarix"
 
 MidiController=true
 Rosegarden=false
@@ -1433,7 +1432,7 @@ MusePlayer=false
 MuseScore=false
 Looper=false
 MusicViewer=false
-LogFile=LogGuitar
+LogFile=~/LogGuitar.txt
 #LogFile=/dev/tty
 JackFile=LogJack
 TabPlayer=false
@@ -1528,7 +1527,8 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             SoundSynth=true
         ;;
         g)
-            LiveMusicCharts.py /home/Dropbox/FusionBlue/ChartsHTML/ -f -c -i
+            LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
+            LiveMusicCharts.py /home/elias/MySongs/FusionBlue/ -f -c -i -r
         ;;
         j)
             echo "JamStik"
@@ -1594,7 +1594,7 @@ xset s off
 xset -dpms
 qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
-
+FAHClient --send-pause "LiveMusicApp_Running"
 
 # Remove the switches we parsed above.
 shift `expr $OPTIND - 1`
@@ -1614,10 +1614,9 @@ export IAM=`whoami`
 FindDevice
 echo -n "System Timer "
 cat /sys/devices/system/clocksource/clocksource0/current_clocksource
-hpet
 
 echo -n "Timer Speed "
-cat /sys/class/rtc/rtc0/max_user_freq1024
+cat /sys/class/rtc/rtc0/max_user_freq
 
 # Set the definitions for the functions.
 SetDefinitions

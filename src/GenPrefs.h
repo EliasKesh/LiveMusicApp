@@ -7,12 +7,12 @@ LiveMusicInfo GlobalInfo = {
 /*   3 */ {"Str_pre",         NoBank         ,   3, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   4 */ {"EchoLd_Pre",      NoBank         ,   4, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   5 */ {"Tapping_Pre",     NoBank         ,   5, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   6 */ {"FlangeD_Pre",     NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   7 */ {"HDist_Pre",       NoBank         ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   8 */ {"FlangeDist",      NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
-/*   9 */ {"FunkyGuitar",     NoBank         ,   8, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   6 */ {"FlangeD_Pre",     SFDrums        ,   6, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   7 */ {"Blues_Pre",       NoBank         ,   7, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   8 */ {"Basic_Pre",       NoBank         ,   8, GuitarixPort   ,   1, NoCustom  , "None" },
+/*   9 */ {"CompLead",        NoBank         ,   9, GuitarixPort   ,   1, NoCustom  , "None" },
 /*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ 
-/*  10 */ {"Blues",           NoBank         ,   9, GuitarixPort   ,   1, NoCustom  , "None" },
+/*  10 */ {"Clean_Pre",       NoBank         ,  10, GuitarixPort   ,   1, NoCustom  , "None" },
 /*  11 */ {"BaseWah",         NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Wah Tog" },
 /*  12 */ {"BaseDist",        NoBank         ,   0, GuitarixPort   ,   1, NoCustom  , "Dist Tog" },
 /*  13 */ {"Expr Vol",        NoBank         ,   7, GuitarixPort   ,   0, cmdSetExpr, "None" },
@@ -202,7 +202,7 @@ LiveMusicInfo GlobalInfo = {
 /* 180 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "None" },
 /* 181 */ {"",                NoBank         ,   0, FluidPort      ,   0, NoCustom  , "None" },
 },
-"/home/Dropbox",
+"/home/Dropbox/MySongs/index.html",
 9, 
  { 
 "Fluid",
@@ -233,7 +233,7 @@ LiveMusicInfo GlobalInfo = {
  37, /* Drum down beat, midi code  */
  44, /* Drum Other beats  */
  50, /* Base Midi Note for switching  */
- 130, /* Tempo   */
+ 50, /* Tempo   */
  4, /* CountInBeats   */
  8, /* LoopRecBeats   */
  1, /* MidiPassThru   */
@@ -401,7 +401,7 @@ LiveMusicInfo GlobalInfo = {
 	{
  "Looper", 
 {
-/*   0 */  "Preset1", 
+/*   0 */  "LP Rec", 
 /*   1 */  "LP Trig", 
 /*   2 */  "LP Pause", 
 /*   3 */  "LP All", 
@@ -428,7 +428,7 @@ LiveMusicInfo GlobalInfo = {
 	{
  "Control", 
 {
-/*   0 */  "Preset1", 
+/*   0 */  "TransStart", 
 /*   1 */  "TransCont", 
 /*   2 */  "TransStop", 
 /*   3 */  "TransBack", 

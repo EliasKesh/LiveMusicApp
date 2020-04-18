@@ -142,6 +142,8 @@ InitPref (void) {
 	*/
 	PostProcessPrefs(&gMyInfo);
 	gMyInfo.MidiThresholdLevel = 35;
+
+//	exit(0);
 }
 
 /*--------------------------------------------------------------------

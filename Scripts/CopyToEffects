@@ -13,7 +13,8 @@
 #
 #---------------------------------------------------------------------#
 # DestDir="/home/GDriveKesh/Music/LiveEffects/"
-DestDir="/home/Dropbox/LiveEffects/"
+# DestDir="/home/Dropbox/LiveEffects/"
+DestDir="/home/elias/LiveEffects/"
 
 cp LiveMusicApp  ${DestDir}
 cp ./Scripts/KeepLiveMusicRunning.sh  ${DestDir}

@@ -78,7 +78,7 @@ int PlayerWrite(char *String);
 /*
  * Place Static variables here
  */
-static FILE *SavedLoopFD;
+FILE *SavedLoopFD;
 static FILE *OutPipe;
 int InPipeFD;
 int PlayPauseState = 1;
@@ -535,10 +535,14 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
  *---------------------------------------------------------------------*/
 int ResetPlayer(void) {
 
+//	system("killall mplayer");
+
 	gtk_adjustment_set_value(PositionAdjustment, 0);
 	gtk_adjustment_set_value(FineStartAdjustment, 0);
 	gtk_adjustment_set_value(FineEndAdjustment, 0);
 	gtk_adjustment_set_value(SpeedAdjustment, 1.0);
+	// gtk_image_set_from_pixbuf(GTK_IMAGE(LoopButton.Image),
+	//              LoopButton.ButtonUpImage);
 	PlayerWrite("set_property time_pos 0.0 \n");
 	WeAreLooping = 0;
 	return (0);
@@ -552,6 +556,7 @@ int ResetPlayer(void) {
  *---------------------------------------------------------------------*/
 int LivePlayerClose(void) {
 
+	SaveLoopFile();
 	PlayerWrite("quit\n");
 	return (0);
 }
@@ -562,6 +567,7 @@ int LivePlayerClose(void) {
  *---------------------------------------------------------------------*/
 void SetPlayerFile(char *FileName) {
 
+	ResetPlayer();
 	// sox Pools.mp3  -n spectrogram  -x 800 -Y 130 -c 1 −−clobber  -a -o spectrogram.png
 	sprintf(PlayerString,
 	        "sox \"%s\"  -n spectrogram  -x 900 -Y 130 -c 1  -r -a -o ./spectrogram.png\n",
@@ -578,9 +584,10 @@ void SetPlayerFile(char *FileName) {
 	PlayerAsk = 0;
 	PlayPauseState = 0;
 	plPausePlay();
+	ResetPlayer();
+	printf("*** Open SavedLoop\n");
 	OpenSavedLoopFile(FileName);
 	PlayerWrite("get_time_length\n");
-	ResetPlayer();
 
 }
 
@@ -593,9 +600,9 @@ void OpenSavedLoopFile(char *FileName) {
 	char SaveLoopName[300];
 	NumSavedLoops = 0;
 
-
 	if (SavedLoopFD) {
 		fclose(SavedLoopFD);
+		SavedLoopFD=0;
 	}
 
 	NumSavedLoops = 0;
@@ -604,16 +611,17 @@ void OpenSavedLoopFile(char *FileName) {
 	 */
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX(SaveCombo));
 	sprintf(SaveLoopName, "%s.Loops", FileName);
-	printd(LogDebug, " OpenSavedLoopFile %s\n", SaveLoopName);
-	SavedLoopFD = fopen(SaveLoopName, "r+");
+	printd(LogTest, " OpenSavedLoopFile %s\n", SaveLoopName);
+	SavedLoopFD = fopen(SaveLoopName, "r");
+	printd(LogTest, " OpenSavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
 	if (SavedLoopFD) {
 		while (!feof(SavedLoopFD)) {
 			fscanf(SavedLoopFD, "%s %f, %f \n",
 			       &mySavedLoops[NumSavedLoops].LoopName,
 			       &mySavedLoops[NumSavedLoops].Start,
 			       &mySavedLoops[NumSavedLoops].Length);
-#if 0
-			printd(LogDebug, "Reading Loop %d %s %f %f\n", NumSavedLoops,
+#if 1
+			printd(LogTest, "Reading Loop %d %s %f %f\n", NumSavedLoops,
 			       mySavedLoops[NumSavedLoops].LoopName,
 			       mySavedLoops[NumSavedLoops].Start,
 			       mySavedLoops[NumSavedLoops].Length);
@@ -634,7 +642,8 @@ void OpenSavedLoopFile(char *FileName) {
 				gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo), 1);
 			}
 		}
-//		fclose(SavedLoopFD);
+		fclose(SavedLoopFD);
+		SavedLoopFD=0;
 	}
 }
 /*--------------------------------------------------------------------
@@ -645,28 +654,32 @@ void OpenSavedLoopFile(char *FileName) {
 void SaveLoopFile(void) {
 	char SaveLoopName[300];
 	int Loop = 0;
+	FILE *SavedLoopFD;
+
 	/*
 	 * Let's open the Saved Looped file.
 	 */
-	sprintf(SaveLoopName, "\"%s.Loops\"", CurrentFile);
+	sprintf(SaveLoopName, "%s.Loops", CurrentFile);
+	printd(LogTest, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
+	errno = 0;
+	SavedLoopFD = fopen(SaveLoopName, "w+");
 //	sprintf(SaveLoopName, "MyTest.loop");
-	printd(LogDebug, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
-//	SavedLoopFD = fopen(SaveLoopName, "a+");
-	printd(LogDebug, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+	printd(LogTest, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
 	if (SavedLoopFD) {
 		while (Loop < NumSavedLoops) {
 			fprintf(SavedLoopFD, "%s %f, %f \n",
 			        mySavedLoops[Loop].LoopName,
 			        mySavedLoops[Loop].Start,
 			        mySavedLoops[Loop].Length);
-			printf("%s %f, %f \n",
+			printf("SaveLoop %s %f, %f \n",
 			        mySavedLoops[Loop].LoopName,
 			        mySavedLoops[Loop].Start,
 			        mySavedLoops[Loop].Length);
 
 			Loop++;
 		}
-//		fclose(SavedLoopFD);
+		fclose(SavedLoopFD);
+		SavedLoopFD=0;
 	}
 }
 
@@ -981,7 +994,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	char *entry_line;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
+	printd(LogTest, "NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 

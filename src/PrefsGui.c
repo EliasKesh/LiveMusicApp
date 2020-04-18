@@ -139,7 +139,7 @@ gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
 	}
 
 	if (widget == Tempo_pref) {
-		SetTempo(value);
+// ejk segfault 	SetTempo(value);
 //   		gMyInfo.Tempo = value;
 		printd(LogDebug, "Tempo_pref  %x %d\n", widget, value);
 	}

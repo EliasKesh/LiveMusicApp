@@ -15,6 +15,7 @@
 import os
 import argparse
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from wand.image import Image
 import sys
 
 sPresets=[]
@@ -120,7 +121,10 @@ def WriteFile(fname, dirname):
   for x in range(0, sSrcIndex):
     FileName=sSrcFile[x]
 
-    if (FileName.find("pdf") > 0):
+# Look for a PDF file and see how many Pages.
+#    if (FileName.find(".pdf") > 0):
+    if (FileName.endswith("pdf") > 0):
+        print ("PDF Name: ",dirname+"/"+FileName )
         pdf = PdfFileReader(open(dirname+"/"+FileName,'rb'))
         pdfPages=pdf.getNumPages()
 
@@ -134,7 +138,8 @@ def WriteFile(fname, dirname):
         else:
           theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" dual=\"true\" currentpage=\"2\"  continuous=\"false\" height=\"100%\" width=\"100%\" >\n")
     else:
-        theFile.write("<img alt=\"\" src=\""+FileName+"\" height=\"100%\" >\n")
+        theFile.write("<img alt=\"\" src=\""+FileName+"\"  height=\"100%\" >\n")
+ #       theFile.write("<img alt=\"\" src=\""+FileName+"\" height=\"100%\" width=\"100%\" >\n")
 
 # Options for evince browser plugin
 #  ZoomMode "none"  "fit-page" "fit-width"  "auto") == 0)
@@ -170,7 +175,7 @@ def ClearVariables():
   sSetIndex=0
   sHREFFile=['','','','','','','','','','','','','']
   sHREFIndex=0
-  sSrcFile=['','','','','','','','','','','','','']
+  sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSrcIndex=0
   sGlobalNotes=""
 
@@ -346,6 +351,7 @@ def LoadVariables(Files):
 #    print ("Load Variables ",Files)
     sHREFIndex=0
     sSrcIndex=0
+    Files.sort()
     for filename in Files:
 
         if (filename.endswith("mp3")):
@@ -383,10 +389,10 @@ def LoadVariables(Files):
             sSrcFile[sSrcIndex]=filename
             sSrcIndex=sSrcIndex+1
 
-        if (filename.endswith("pdf")):
+ #       if (filename.endswith("pdf")):
  #           print ("pdf ", filename)
-            sSrcFile[sSrcIndex]=filename
-            sSrcIndex=sSrcIndex+1
+ #           sSrcFile[sSrcIndex]=filename
+ #           sSrcIndex=sSrcIndex+1
 
 # Create the main index html page
 # ------------------------------------------
@@ -474,6 +480,21 @@ def CreateNewHTML(fname,dirname,Files):
   sSetIndex=1
   WriteFile(dirname+"/"+fname+".html", dirname)
 
+def ExtractPDF(Files, dirname):
+#    print ("Load Variables ",Files)
+    for theFile in Files:
+        if (theFile.endswith("pdf")):
+            f = dirname+"/"+theFile
+            print ("pdf ", f)
+            with(Image(filename=f, resolution=120)) as source: 
+               for i, image in enumerate(source.sequence):
+                   newfilename = f[:-4] + str(i + 1) + '.pdf.jpg'
+                   Image(image).save(filename=newfilename)
+                   print ("PDF to ", newfilename)
+           
+            if (os.path.exists(f)):
+              os.rename(f,f+".conv")
+
 # Main
 # ------------------------------------------
 #
@@ -486,15 +507,31 @@ parser.add_argument("-f", action='store_true', help="Fix additional meta Data")
 parser.add_argument("-i", action='store_true', help="Create index.html")
 parser.add_argument("-c", action='store_true', help="Create HTML from folder")
 parser.add_argument("-r", action='store_true', help="Reference on Create")
+parser.add_argument("-p", action='store_true', help="Pdf to JPG")
 args = parser.parse_args()
 #print args.accumulate(args.integers)
 
 # look for the base directory
 if (args.BaseDir == ""):
-    BaseDir="/home/Dropbox/FusionBlue/ChartsHTML/Havona"
+    BaseDir="/home/elias/MySongs/FusionBlue/"
 #    BaseDir="/mnt/Personal/ChartsHTML"
 else:
     BaseDir=args.BaseDir
+
+# if we need to convert PDFs to jpg do that first.
+if (args.p):
+  for Root, Dir, Files in os.walk(BaseDir):
+    FoundHTML=0
+    ClearVariables()
+    for filename in Files:
+#        Check for an html file
+        if filename.endswith('.html'):
+            sys.stdout.write("\n"+filename+" ")
+            FoundHTML=1
+#           walk thru a file and pull out meta data.
+            if (ParseFile(filename,Root) == 0):
+                ExtractPDF(Files,Root)
+
 
 # This returns file in one directry
 # for Files in os.listdir(BaseDir):
@@ -538,3 +575,7 @@ if (args.i):
     GenerateIndex(BaseDir, MySongList,args.r)
 
 # print("Done")
+
+
+
+# jpdfbookmarks.jar for modify pages

@@ -114,6 +114,17 @@ char scSLoc[] =
 char scLydian[] =
 { 0, 2, 4, 6, 7, 9, 11, EOfscl };
 
+char scHarMaj[] =
+{ 0, 2, 4, 5, 7, 8, 11, EOfscl };
+char scHarMin[] =
+{ 0, 2, 3, 5, 7, 8, 11, EOfscl };
+
+char scMelMinUp[] =
+{ 0, 2, 3, 5, 7, 9, 11, EOfscl };
+char scMelMinDown[] =
+{ 0, 2, 3, 5, 7, 8, 10, EOfscl };
+
+
 char scAcoustic[] =
 { 0, 2, 4, 6, 7, 9, 10, EOfscl };
 char scHungMaj1[] =
@@ -170,12 +181,18 @@ ChordMenu myChordMenu[] = {
 	{ ch69, "Dom 69" },
 	{ scMajor, "Major Scale" },
 	{ scMinor, "Minor Scale" },
+	{ scHemiPent, "Hemi Pent" },
+	{ scMajPent, "Maj Pent" },
+
+	{ scHarMaj, "Maj Harm" },
+	{ scHarMin, "Min Harm" },
+
+	{ scMelMinUp, "Min Harm Up" },
+	{ scMelMinDown, "Min Harm Down" },
 
 	{ scWholeNote, "Whole Tone" },
 	{ scWholeHalf, "Whole Half" },
 
-	{ scHemiPent, "Hemi Pent" },
-	{ scMajPent, "Maj Pent" },
 	{ scSLoc, "S Loc" },
 	{ scLydian, "Lydian" },
 	{ scMinPent, "Min Pent" },
@@ -1255,10 +1272,6 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 
 	gtk_widget_show(MyFretArea);
 	gtk_widget_show_all(window);
-	/* All GTK applications must have a gtk_main(). Control ends here
-	 * and waits for an event to occur (like a key press or
-	 * mouse event). */
-//   gtk_main ();
 	return 0;
 }
 
@@ -1392,6 +1405,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 		cairo_line_to(cr, XOffset + 30 + FretOffset * MaxDisplayFrets, YOffset + 24 + Loop * StringOffset);
 		cairo_stroke(cr);
 	}
+
 	/* OK here is the real stuff, drawing the dots.
 	 */
 	for (StringLoop = 0; StringLoop < NumStrings; StringLoop++) {
@@ -1453,16 +1467,21 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 
 				}
 			}
+
+			/* Draw the note names here.
+			*/
 			sprintf(StrBuf, "%s", NoteNames[StringLayout[StringLoop][FretLoop + DisplayPosition]]);
 			cairo_set_source_rgb (cr, .7, .7, 1);
-			cairo_move_to(cr, FretOffset * (FretLoop) + 42,
-			              YOffset + 18 + StringOffset * StringLoop);
+			cairo_move_to(cr, FretOffset * (FretLoop) + 14,
+			              YOffset + 4 + StringOffset * StringLoop);
 			cairo_set_font_size (cr, 12);
 
 			cairo_show_text (cr, StrBuf);
 			cairo_stroke(cr);
 		}
 	}
+	gtk_widget_queue_draw(widget);
+
 	return TRUE;
 }
 

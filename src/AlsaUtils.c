@@ -366,7 +366,10 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 //		ev.data.control.param = MIDI_CTL_MSB_MAIN_VOLUME;
 		ev.data.control.value = Value;
 		err = snd_seq_event_output_direct(gMyInfo.SeqPort[Port], &ev);
-//		printd(LogInfo, "** SendMidi expression %d %d Type %d\n", Port, err, Type);
+		if (err <= 0)
+			printd(LogError, "** SendMidi expression ERROR %d %d Type %d\n", Port, err, Type);
+
+		printd(LogInfo, "SendMidi expression %d %d Type %d\n", Port, err, Type);
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
@@ -1727,7 +1730,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			break;
 		}
 
-		printd(LogDebug, "%s %s\n", cc_name, msg_str_ptr);
+		printd(LogDebug, "alsa_midi_thread %s %s\n", cc_name, msg_str_ptr);
 
 	}
 

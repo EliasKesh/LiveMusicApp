@@ -1015,7 +1015,7 @@ void InitHTML(GtkBuilder * gxml) {
 	webkit_web_view_load_uri (web_view, FileName);
 
 	WebKitSettings *settings = webkit_settings_new ();
-	g_object_set(G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
+//	g_object_set(G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
 	g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
 //	g_object_set(G_OBJECT(settings), "enable-frame-flattening", FALSE, NULL);
 
@@ -1296,7 +1296,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 	int Value;
 	char *tokenizer;
 
-	printd(LogInfo, "AssignPreset %d %s\n\n", PresetNum, String);
+	printd(LogDebug, "AssignPreset %d %s\n", PresetNum, String);
 
 	/* If we Start with a quote it's a name lookup.
 	 */
