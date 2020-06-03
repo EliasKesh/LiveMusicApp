@@ -558,8 +558,18 @@ EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
 EXTERN char NewInstall;
+EXTERN float PlayerCurTime;
+EXTERN char PlayerSection[30];
 
+#define MaxSongMarks	20
+#define SongSectionMax	30
+EXTERN int 		NumberSongMarks;
+typedef struct {
+	float SongMark;
+	char SongSection[SongSectionMax];
+} SongMarkType;
 
+EXTERN SongMarkType SongMarkers[MaxSongMarks];
 
 
 void NextDesktop(void);

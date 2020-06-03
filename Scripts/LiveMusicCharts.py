@@ -23,6 +23,8 @@ sSetIndex=0
 sSetNow=[]
 sHREFFile=[]
 sHREFIndex=0
+SongMark=[]
+SongMarkIndex=0
 sTempo=0
 sDrumFile=""
 sLoopFile=""
@@ -55,6 +57,8 @@ def WriteFile(fname, dirname):
   global sBeatsPerMeasure
   global sLoopLength
   global sIntroCount # open file in variable
+  global SongMark
+  global SongMarkIndex
 
 
   theFile = open(fname, 'w+')
@@ -87,6 +91,9 @@ def WriteFile(fname, dirname):
   theFile.write("<meta name=\"BeatsPerMeasure\" content=\""+str(sBeatsPerMeasure)+"\">\n")
   theFile.write("<meta name=\"LoopLength\" content=\""+str(sLoopLength)+"\">\n")
 
+  for x in range(0, SongMarkIndex):
+    theFile.write("<meta name=\"SongMark\" content=\""+SongMark[x]+"\">\n")
+
   theFile.write("<font color=#880000>"+sTitle+"</font>\n")
   theFile.write("<font color=#8800FF>Solo:"+sSolo+"</font>\n")
   # The Logo
@@ -102,9 +109,11 @@ def WriteFile(fname, dirname):
     if (FileRef.find("mp3") > 0):
         theFile.write("<a style=\"color:red\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
     elif (FileRef.find("tg") > 0):
-        theFile.write("<a style=\"color:orange\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
+        theFile.write("<a style=\"color:blue\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
     elif (FileRef.find("mid") > 0):
         theFile.write("<a style=\"color:yellow\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
+    elif (FileRef.find("mscz") > 0):
+        theFile.write("<a style=\"color:orange\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
     else:    
         theFile.write("<a style=\"color:lightgreen\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
 
@@ -168,6 +177,8 @@ def ClearVariables():
   global sSetNow
   global sHREFFile
   global sSrcFile
+  global SongMark
+  global SongMarkIndex
 
   sSetIndex=0
   sPresets=['','','','','','','','','','','','','']
@@ -175,6 +186,8 @@ def ClearVariables():
   sSetIndex=0
   sHREFFile=['','','','','','','','','','','','','']
   sHREFIndex=0
+  SongMark=['','','','','','','','','','','','','']
+  SongMarkIndex=0
   sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSrcIndex=0
   sGlobalNotes=""
@@ -191,6 +204,9 @@ def ClearVariables():
 # ------------------------------------------
 def PrintVariables():
   global sSetIndex
+  global SongMark
+  global SongMarkIndex
+
   print ("*************************")
   print ("sPresets 1", sPresets[1])
   print ("sPresets 2", sPresets[2])
@@ -211,6 +227,8 @@ def PrintVariables():
     print ("sHREFFile ",x, sHREFFile[x])
   for x in range(0, sSrcIndex):
     print ("sSrcFile ",x, sSrcFile[x])
+  for x in range(0, SongMarkIndex):
+    print ("Mark ",x, SongMark[x])
 
   print ("Notes=",sGlobalNotes)
 
@@ -230,6 +248,8 @@ def ParseFile(fname,dirname):
   global sBeatsPerMeasure
   global sLoopLength
   global sIntroCount
+  global SongMark
+  global SongMarkIndex
 
 #  print("Parse Function ",fname, dirname)
   userContStart = 0;
@@ -262,6 +282,15 @@ def ParseFile(fname,dirname):
       contentRes = theLine.find("content=")
     #        print ("contentRes ", PreNumber, theLine[contentRes + 8:-1].replace("\"", ""))
       sPresets[int(PreNumber)]=theLine[contentRes + 8:-2].replace("\"", "")
+
+    # Look for embedded Preset
+    contentRes = theLine.find("SongMark")
+    if (contentRes > 0):
+      contentRes = theLine.find("content=")
+      HoldString=theLine[contentRes + 8:-2].replace("\"", "")
+#      print ("SongMark ", SongMarkIndex, HoldString)
+      SongMark[SongMarkIndex]=HoldString
+      SongMarkIndex=SongMarkIndex+1
 
     contentRes = theLine.find("Tempo")
     if (contentRes > 0):
@@ -347,15 +376,23 @@ def LoadVariables(Files):
     global sBeatsPerMeasure
     global sLoopLength
     global sIntroCount
+    global SongMarkIndex
+    global SongMark
 
 #    print ("Load Variables ",Files)
     sHREFIndex=0
     sSrcIndex=0
+
     Files.sort()
     for filename in Files:
 
         if (filename.endswith("mp3")):
 #            print ("MP3 ", filename)
+            sHREFFile[sHREFIndex]=filename
+            sHREFIndex=sHREFIndex+1
+
+        if (filename.endswith("mscz")):
+#            print ("Midi ", filename)
             sHREFFile[sHREFIndex]=filename
             sHREFIndex=sHREFIndex+1
 
@@ -465,6 +502,8 @@ def CreateNewHTML(fname,dirname,Files):
   global sPresets
   global sSetNow
   global sSetIndex
+  global SongMark
+  global SongMarkIndex
 
 #  print ("In CreateHTML ",fname," in ",dirname)
 #  print ("Files ", Files)
@@ -508,18 +547,34 @@ parser.add_argument("-i", action='store_true', help="Create index.html")
 parser.add_argument("-c", action='store_true', help="Create HTML from folder")
 parser.add_argument("-r", action='store_true', help="Reference on Create")
 parser.add_argument("-p", action='store_true', help="Pdf to JPG")
+parser.add_argument("-a", action='store_true', help="All Options")
 args = parser.parse_args()
 #print args.accumulate(args.integers)
 
 # look for the base directory
-if (args.BaseDir == ""):
-    BaseDir="/home/elias/MySongs/FusionBlue/"
+if (args.BaseDir == "./"):
+    BaseDir=os.getcwd() 
 #    BaseDir="/mnt/Personal/ChartsHTML"
 else:
     BaseDir=args.BaseDir
 
+ConvertPDF=args.p
+FixMetaData=args.f
+CreateHTML=args.c
+CreateIndexFIle=args.i
+ReferenceCreate=args.r
+
+if (args.a):
+  ConvertPDF=1
+  FixMetaData=1
+  CreateHTML=1
+  CreateIndexFIle=1
+  ReferenceCreate=1
+
+# print ("Base Dir = ", BaseDir)
+
 # if we need to convert PDFs to jpg do that first.
-if (args.p):
+if (ConvertPDF):
   for Root, Dir, Files in os.walk(BaseDir):
     FoundHTML=0
     ClearVariables()
@@ -557,22 +612,22 @@ for Root, Dir, Files in os.walk(BaseDir):
                 MySongList.append(Root+"/"+filename)
                 sys.stdout.write("Added ")
 
-                if (args.f):
+                if (FixMetaData):
                     LoadVariables(Files)
                     WriteFile(Root+"/"+filename,Root)
                     sys.stdout.write("Write ")
 
 
 #   If we did find a valid html and were asked to create one.
-    if (args.c and FoundHTML == 0):
+    if (CreateHTML and FoundHTML == 0):
 #      print ("Create file from Directory ", sTitle)
       CreateNewHTML(sTitle,Root,Files)
       MySongList.append(Root+"/"+sTitle+".html")
 
-if (args.i):
+if (CreateIndexFIle):
     MySongList.sort()
 #    print("List ----------------",len(MySongList))
-    GenerateIndex(BaseDir, MySongList,args.r)
+    GenerateIndex(BaseDir, MySongList,ReferenceCreate)
 
 # print("Done")
 

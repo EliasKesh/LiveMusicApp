@@ -135,6 +135,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
 	InPlayerTimer = 0;
 	RestartPlayer = 0;
+	PlayerCurTime = 0.0;
+	strcpy(PlayerSection, "-----");
 
 	sprintf(PlayerString, " rm  %s -rf", InPipeName);
 	system(PlayerString);
@@ -555,6 +557,8 @@ int ResetPlayer(void) {
  *
  *---------------------------------------------------------------------*/
 int LivePlayerClose(void) {
+	PlayerCurTime = 0.0;
+	strcpy(PlayerSection, "-----");
 
 	SaveLoopFile();
 	PlayerWrite("quit\n");
@@ -602,7 +606,7 @@ void OpenSavedLoopFile(char *FileName) {
 
 	if (SavedLoopFD) {
 		fclose(SavedLoopFD);
-		SavedLoopFD=0;
+		SavedLoopFD = 0;
 	}
 
 	NumSavedLoops = 0;
@@ -643,7 +647,7 @@ void OpenSavedLoopFile(char *FileName) {
 			}
 		}
 		fclose(SavedLoopFD);
-		SavedLoopFD=0;
+		SavedLoopFD = 0;
 	}
 }
 /*--------------------------------------------------------------------
@@ -672,14 +676,14 @@ void SaveLoopFile(void) {
 			        mySavedLoops[Loop].Start,
 			        mySavedLoops[Loop].Length);
 			printf("SaveLoop %s %f, %f \n",
-			        mySavedLoops[Loop].LoopName,
-			        mySavedLoops[Loop].Start,
-			        mySavedLoops[Loop].Length);
+			       mySavedLoops[Loop].LoopName,
+			       mySavedLoops[Loop].Start,
+			       mySavedLoops[Loop].Length);
 
 			Loop++;
 		}
 		fclose(SavedLoopFD);
-		SavedLoopFD=0;
+		SavedLoopFD = 0;
 	}
 }
 
@@ -715,6 +719,7 @@ void PlayerPoll(char How) {
 	char *Found;
 	char *Current;
 	char CommandsDone = 0;
+	int Loop;
 
 	/*
 	 * If we were called via a timer interrupt and we were also called directly just leave.
@@ -763,7 +768,7 @@ void PlayerPoll(char How) {
 	 * If we are asking for a value wait until Mplayer responds.
 	 */
 	if (InPlayerTimer)
-		usleep(100);
+		usleep(50);
 
 	/*
 	 * See what has come back from the player.
@@ -784,7 +789,7 @@ void PlayerPoll(char How) {
 				CommandsDone = 0;
 				Found += 11;
 				Current = Found;
-				FValue = atof(Found);
+				FValue = atof(Found) + .5;
 				TotalLength = FValue;
 //			printd(LogDebug, "Found ANS_LENGTH %f\n", FValue);
 				gtk_adjustment_set_upper(PositionAdjustment, FValue);
@@ -803,13 +808,30 @@ void PlayerPoll(char How) {
 				FValue = atof(Found);
 				CurrentLength = FValue;
 				PlayerAsk--;
+				printf("Mpl Time %f - %s\n", FValue, Found );
 
+				/* Set the variables for the
+				SongMarkers.
+				*/
+				if (NumberSongMarks)
+					for (Loop = 0; Loop < NumberSongMarks; Loop++) {
+						if (FValue < SongMarkers[Loop].SongMark) {
+							strcpy(PlayerSection, SongMarkers[Loop].SongSection);
+							PlayerCurTime = SongMarkers[Loop].SongMark - FValue;
+							break;
+						}
+					}
+
+				/* Set the Global.
+				*/
 				if (CurrentLength + 0.5 >= TotalLength) {
 					printd(LogDebug, "Player Stopping\n");
 					PlayerWrite("set_property time_pos 0.000\n");
 
 //					ResetPlayer();
 				}
+
+
 
 //			printd(LogDebug, "Found ANS_TIME_POSITION %f ask %d \n", FValue, PlayerAsk);
 				/*
@@ -928,14 +950,14 @@ void SetBFineSlider_Changed(GtkAdjustment *adj) {
 gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
 	theImageButtons *theButton;
-
+	PlayerPoll(FALSE);
+	plSetA();
 	theButton = (theImageButtons *) user_data;
 	printd(LogDebug, "SetA  %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
-	PlayerPoll(FALSE);
-	plSetA();
+
 
 	return TRUE; /* stop event propagation */
 }
@@ -948,13 +970,13 @@ gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
 gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
 	theImageButtons *theButton;
+	PlayerPoll(FALSE);
+	plSetB();
 
 	theButton = (theImageButtons *) user_data;
 	printd(LogDebug, "SetB %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
-	PlayerPoll(FALSE);
-	plSetB();
 	return TRUE; /* stop event propagation */
 }
 

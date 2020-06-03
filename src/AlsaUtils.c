@@ -954,6 +954,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_FOOT:
 				cc_name = "Foot";
 				printd(LogDebug, "%s \n", cc_name);
+// Not sure this is needed.
 				SetVolume4(event_ptr->data.control.value / 1.28);
 #if 0
 #ifdef EliasPresets
@@ -1000,6 +1001,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_DATA_ENTRY:
 				cc_name = "Data entry";
 				printd(LogDebug, "%s \n", cc_name);
+// Maybe need to change
 #ifdef EliasPresets
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,

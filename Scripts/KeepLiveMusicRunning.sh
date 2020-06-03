@@ -19,7 +19,7 @@ cd /home/Dropbox/LiveEffects
 while true
 do
 systemctl --user reenable dbus-org.jackaudio.service
-pid=`pgrep LiveMusicApp`
+pid=`pgrep -i LiveMusicApp`
 if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
@@ -32,7 +32,7 @@ echo "Launching LiveMusic"
 fi
 
 
-pid=`pgrep guitarix`
+pid=`pgrep -i guitarix`
 if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")

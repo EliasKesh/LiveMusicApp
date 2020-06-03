@@ -1388,6 +1388,7 @@ function StopEverything {
             killall jackd
             KillAll catia
             KillAll a2jmidid
+            KillAll musescore
             
             killall jack-plumbing
             xset s on
@@ -1503,11 +1504,28 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             Hydrogen=true
         ;;
         e)
+
+            # if the script is called
+            # twice exit.
+            pid=`pgrep jackd`
+            if [ -z $pid ]
+            then
+                echo "GuitarEffects Auto 1"
+            else
+                echo "GuitarEffects Auto 2"
+            fi
+
+
             pid=`pgrep LiveMusicApp`
             if [ -z $pid ]
             then
                 MP3Player=true
-            else
+                Rosegarden=false
+                MidiController=true
+                GuitarEffects=true
+                BackroundChecker=true
+                SoundSynth=true
+           else
                 StopEverything
             fi
         ;;
@@ -1527,7 +1545,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             SoundSynth=true
         ;;
         g)
-            LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
+           # LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
             LiveMusicCharts.py /home/elias/MySongs/FusionBlue/ -f -c -i -r
         ;;
         j)
@@ -1589,6 +1607,13 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
     esac
 done
 
+RunCount=`pgrep -c GuitarEffects `
+if [ RunCount -gt 1 ]; then
+    echo "********** Multiple Version running, killing."
+    exit 1
+fi
+
+
 # Keep the computer from screen saving.
 xset s off
 xset -dpms
@@ -1643,7 +1668,6 @@ Delay 1
 a2jmidid -e > $LogFile 2>&1 &
 
 SetUpApplications
-
 Delay 1
 
 echo "***************** Starting SetUpConnections"

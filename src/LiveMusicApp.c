@@ -76,6 +76,7 @@
 
 // The Status Display about what patch was selected.
 GtkWidget* MainStatus;
+GtkWidget* PlayerCurWid;
 guint MainStatusid;
 
 // The structure to hold the custom buttons.
@@ -478,6 +479,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Setup and initialize our status bar and Mode indicator
 	 */
 	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
+	PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
 
 	/*
 	 * Clear the Status bar buffer.
@@ -664,6 +666,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
  * Description: Startup some Gui.
  *---------------------------------------------------------------------*/
 int GTKIdel_cb(gpointer data) {
+char ForString[100];
 
 	/* Can't call this from the thread so the
 	 thread sets the structure and then the action
@@ -820,6 +823,12 @@ int GTKIdel_cb(gpointer data) {
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
 
 	}
+
+	// Update the player time if playing.
+	gtk_widget_override_font(PlayerCurWid,
+	                         pango_font_description_from_string("Sans Bold 16"));
+	sprintf(ForString,"%3.1f\n%s", PlayerCurTime, PlayerSection);
+	gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
 
 #ifdef AcceptTimedKeyboard
 	gMyInfo.TimerCount++;
@@ -1129,6 +1138,7 @@ void UpdateStatus(char *String) {
 	gtk_widget_override_font(MainStatus,
 	                         pango_font_description_from_string("Sans Bold 12"));
 	gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
+
 
 }
 

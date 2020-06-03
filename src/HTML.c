@@ -1079,7 +1079,11 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 	char DrumFile[FileNameMaxLength];
 	char LoopFile[FileNameMaxLength];
 	char StatusString[40];
+	float FValue;
 
+	/* Start at zero song sections.
+	*/
+	NumberSongMarks = 0;
 
 	/* Get passed the file://
 	 */
@@ -1257,6 +1261,21 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			gMyInfo.LoopRecBeats = Value;
 			sprintf(StatusString, "Loop Len  %d", Value);
 			UpdateStatus(StatusString);
+
+		}
+
+		Found = strstr(temp, "SongMark");
+		if (Found != NULL) {
+			Found += 10 + ContentTagLen;
+			printf("SongMark %s\n", Found); 
+			sscanf(Found,"%f,%s\">",&FValue, StatusString);
+			StatusString[strlen(StatusString) -2] = 0;
+			printf("SongMark %f -> %s \n", FValue, StatusString);
+//			if (StatusString[strlen(StatusString)] == '\"')
+
+			SongMarkers[NumberSongMarks].SongMark = FValue;
+			strcpy(SongMarkers[NumberSongMarks++].SongSection,StatusString);
+			// sprintf(StatusString, "Loop Len  %d", Value);
 
 		}
 	}

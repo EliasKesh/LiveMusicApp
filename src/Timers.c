@@ -330,6 +330,8 @@ static void time_handlerRT (union sigval val) {
 //	printf(" IN time_handler\n");
 	}
 
+	/* Queue the GUI idle task to draw.
+	*/
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
 	return;
