@@ -32,13 +32,12 @@
 /*
  * Place Includes here.
  */
-#define MaxSavedLoops 40
+#define MaxSavedLoops 100
 typedef struct {
 	char		LoopName[40];
 	float		Start;
 	float		Length;
 } SavedLoopType;
-
 
 /*
  * Place Global prototypes here.

@@ -79,6 +79,8 @@ theImageButtons SetListButton;
 theImageButtons PlayPauseButton;
 theImageButtons TapTempoButton;
 
+//GtkWidget *scrolled_window;
+
 GtkWidget *ChartGTKView;
 char		SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
@@ -239,27 +241,71 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 	webkit_web_view_go_forward(web_view);
 }
 
+#define MaxChartRepeat 10
 /*--------------------------------------------------------------------
- * Function:		ScrollDown
+ * Function:		ScrollCtrl
  *
  * Description:	Scroll the music
  *
  *---------------------------------------------------------------------*/
-int ScrollDown(int Amount) {
+int ScrollCtrl(int Amount) {
+int Loop;
+
+// xdotool windowactivate 100663307 ; xdotool key Page_Up
+
+printf("ScrollDown %d\n",Amount);
+	switch (Amount) {
+		case 1:
+		system("xdotool key Home");
+		break;
+
+		case 2:
+		system("xdotool key Page_Up");
+		break;
+
+		case 3:
+//		for (Loop = 0; Loop++; Loop < MaxChartRepeat)
+			system("xdotool key Up");
+		break;
+
+		case 4:
+//		for (Loop = 0; Loop++; Loop < MaxChartRepeat)
+			system("xdotool key Down");
+		break;
+
+		case 5:
+		system("xdotool key Page_Down");
+		break;
+
+		case 6:
+		system("xdotool key End");
+		break;
+
+	}
+#if 0
 	GtkAdjustment *Adjust;
 	gint Value, UpperV, VIncrement;
 
+
 	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+	printf("VAdjust %x\n", Adjust);
 	UpperV = gtk_adjustment_get_upper(Adjust);
 	VIncrement = gtk_adjustment_get_page_increment(Adjust);
 	Value = gtk_adjustment_get_value(Adjust);
-	printd(LogDebug, "In ScrollDown %d  %d %d\n", UpperV, VIncrement, Value);
+	printd(LogTest, "In ScrollDown %d  %d %d\n", UpperV, VIncrement, Value);
+	printf("Page Size %d\n",gtk_adjustment_get_value(Adjust));
+
 	if (((VIncrement + Value) + (UpperV / 10)) >= UpperV) {
 		gtk_adjustment_set_value(Adjust, 0);
-		printd(LogDebug, "ScrollDown Rolling Over\n");
+		printd(LogTest, "ScrollDown Rolling Over\n");
 	} else {
 		gtk_adjustment_set_value(Adjust, VIncrement + Value);
 	}
+	
+	gtk_adjustment_set_value(Adjust, 1);
+	gtk_adjustment_changed(Adjust);
+	gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
+#endif
 	return (0);
 }
 
@@ -891,15 +937,17 @@ void InitHTML(GtkBuilder * gxml) {
 
 	}
 
+
+
 	ChartGTKView = GTK_WIDGET(
 	                   gtk_builder_get_object(gxml, "scrolledwindow1"));
 
-	//	gtk_widget_set_name (scrolled_window, "GtkLauncher");
-//	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-//	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-
 
 #if 0
+		gtk_widget_set_name (scrolled_window, "GtkLauncher");
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
+	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+
 // Scroll bar fix to add GtkViewport
 	GtkWidget *viewport;
 	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
@@ -1264,6 +1312,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 
 		}
 
+#if 0
 		Found = strstr(temp, "SongMark");
 		if (Found != NULL) {
 			Found += 10 + ContentTagLen;
@@ -1278,6 +1327,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			// sprintf(StatusString, "Loop Len  %d", Value);
 
 		}
+#endif
 	}
 
 	//Close the file if still open.

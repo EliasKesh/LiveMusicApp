@@ -72,6 +72,10 @@ int StartPlayer(void);
 static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
 gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+void SaveSongMarkers(char *FileName);
+void SaveLoopFile(char *FileName);
+
 void OpenSavedLoopFile(char *FileName);
 int PlayerWrite(char *String);
 
@@ -79,6 +83,7 @@ int PlayerWrite(char *String);
  * Place Static variables here
  */
 FILE *SavedLoopFD;
+FILE *SaveMarksFD;
 static FILE *OutPipe;
 int InPipeFD;
 int PlayPauseState = 1;
@@ -107,6 +112,7 @@ extern theImageButtons PlayPauseButton;
 
 theImageButtons EnterSaveLoop;
 theImageButtons NewSaveLoop;
+theImageButtons NewMarker;
 SavedLoopType mySavedLoops[MaxSavedLoops];
 GtkWidget *SaveCombo;
 int NumSavedLoops;
@@ -114,7 +120,7 @@ GtkWidget *ImageWidget;
 
 char DontUpDateSlider;
 char WeAreLooping;
-char CurrentFile[240];
+char CurrentFile[FileNameMaxLength];
 char InPlayerTimer;
 char RestartPlayer;
 char PlayerString[400];
@@ -130,6 +136,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	GtkWidget *MainBox, *PositionBox, *PlayControlBox, *PositionStartBox, *PositionEndBox, *SaveLoopBox, *SpeedBox;
 	GtkWidget *SetABox, *SetBBox, *SetBPlay, *ResetBox, *LoopBox, *NormalBox, *PrevSegBox, *NextSegBox;
 	GtkWidget *EditLoopBox, *NewLoopBox, *FineABox, *FineBBox;
+	GtkWidget *NewSongMarkBox;
 	GtkWidget *theFrame, *SavedFrame, *SaveFixed, *SavedLabel;
 	int result;
 
@@ -140,6 +147,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
 	sprintf(PlayerString, " rm  %s -rf", InPipeName);
 	system(PlayerString);
+	CurrentFile[0] = 0;
 
 	/*
 	 * Create the fifo for communications with MPlayer.
@@ -394,6 +402,23 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 &NewSaveLoop);
 
 	/*
+	 * Create a new saved loop
+	 */
+	NewSongMarkBox = gtk_event_box_new();
+	MyImageButtonInit(&NewMarker, NewSongMarkBox, MainButtonOnImage,
+	                  MainButtonOffImage);
+	MyImageButtonSetText(&NewMarker, "AddMarker");
+	g_signal_connect(G_OBJECT(NewSongMarkBox),
+	                 "button-press-event",
+	                 G_CALLBACK(NewMarker_click_handler),
+	                 &NewMarker);
+	g_signal_connect(G_OBJECT(NewSongMarkBox),
+	                 "button-release-event",
+	                 G_CALLBACK(normal_release_handler),
+	                 &NewMarker);
+
+
+	/*
 	 * Saved Loops pupup box
 	 */
 	SaveFixed = gtk_fixed_new();
@@ -466,6 +491,10 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EditLoopBox, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, TRUE, 5);
+
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewSongMarkBox, TRUE, TRUE, 5);
+//	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, TRUE, 5);
+
 //	gtk_box_set_homogeneous(GTK_BOX(MainBox), TRUE);
 	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, TRUE, 5);
 
@@ -557,10 +586,13 @@ int ResetPlayer(void) {
  *
  *---------------------------------------------------------------------*/
 int LivePlayerClose(void) {
+
 	PlayerCurTime = 0.0;
 	strcpy(PlayerSection, "-----");
 
-	SaveLoopFile();
+	SaveLoopFile(CurrentFile);
+	SaveSongMarkers(CurrentFile);
+
 	PlayerWrite("quit\n");
 	return (0);
 }
@@ -570,6 +602,14 @@ int LivePlayerClose(void) {
  * Description:		Check for any data from MPlayer..
  *---------------------------------------------------------------------*/
 void SetPlayerFile(char *FileName) {
+
+
+	if (CurrentFile[0]) {
+		SaveLoopFile(CurrentFile);
+		SaveSongMarkers(CurrentFile);
+	}
+
+	strncpy(CurrentFile, FileName, FileNameMaxLength);
 
 	ResetPlayer();
 	// sox Pools.mp3  -n spectrogram  -x 800 -Y 130 -c 1 −−clobber  -a -o spectrogram.png
@@ -650,25 +690,40 @@ void OpenSavedLoopFile(char *FileName) {
 		SavedLoopFD = 0;
 	}
 }
+
 /*--------------------------------------------------------------------
  * Function:		SaveLoopFile
  *
  * Description:		Save the Loop points.
  *---------------------------------------------------------------------*/
-void SaveLoopFile(void) {
-	char SaveLoopName[300];
+void SaveLoopFile(char *FileName) {
+	char SaveLoopName[FileNameMaxLength];
 	int Loop = 0;
 	FILE *SavedLoopFD;
-
+	int i;
+	int j;
+	SavedLoopType temp;
 	/*
 	 * Let's open the Saved Looped file.
 	 */
-	sprintf(SaveLoopName, "%s.Loops", CurrentFile);
+	sprintf(SaveLoopName, "%s.Loops", FileName);
 	printd(LogTest, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
 	errno = 0;
 	SavedLoopFD = fopen(SaveLoopName, "w+");
 //	sprintf(SaveLoopName, "MyTest.loop");
 	printd(LogTest, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+
+	// Soft the list in Time order.
+	for (i = NumSavedLoops - 2; i >= 0; i--) {
+		for (j = 0; j <= i; j++) {
+			if (mySavedLoops[j].Start > mySavedLoops[j + 1].Start) {
+				temp = mySavedLoops[j];
+				mySavedLoops[j] = mySavedLoops[j + 1];
+				mySavedLoops[j + 1] = temp;
+			}
+		}
+	}
+
 	if (SavedLoopFD) {
 		while (Loop < NumSavedLoops) {
 			fprintf(SavedLoopFD, "%s %f, %f \n",
@@ -813,6 +868,16 @@ void PlayerPoll(char How) {
 				/* Set the variables for the
 				SongMarkers.
 				*/
+#if 1
+				if (NumSavedLoops)
+					for (Loop = 0; Loop < NumSavedLoops; Loop++) {
+						if (FValue < mySavedLoops[Loop].Start) {
+							strcpy(PlayerSection, mySavedLoops[Loop].LoopName);
+							PlayerCurTime = mySavedLoops[Loop].Start - FValue;
+							break;
+						}
+					}
+#else
 				if (NumberSongMarks)
 					for (Loop = 0; Loop < NumberSongMarks; Loop++) {
 						if (FValue < SongMarkers[Loop].SongMark) {
@@ -821,7 +886,7 @@ void PlayerPoll(char How) {
 							break;
 						}
 					}
-
+#endif
 				/* Set the Global.
 				*/
 				if (CurrentLength + 0.5 >= TotalLength) {
@@ -1065,9 +1130,108 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	NumSavedLoops++;
 	gtk_widget_destroy(dialog);
 
-	SaveLoopFile();
+	SaveLoopFile(CurrentFile);
 	return TRUE; /* stop event propagation */
 }
+
+
+/*--------------------------------------------------------------------
+ * Function:		NewMarker_click_handler
+ *
+ * Description:		Create a new saved Loop.
+ *---------------------------------------------------------------------*/
+gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
+                                 gpointer user_data) {
+	theImageButtons *theButton;
+	GtkWidget *dialog;
+	GtkWidget *entry;
+	GtkWidget *content_area;
+	char *entry_line;
+
+
+	PlayerPoll(FALSE);
+//	PlayerCurTime
+
+
+
+	theButton = (theImageButtons *) user_data;
+	printd(LogTest, "NewMarker_click_handler %x\n", theButton);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+	                          theButton->ButtonDownImage);
+
+	dialog = gtk_dialog_new();
+	gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
+	gtk_dialog_add_button(GTK_DIALOG(dialog), "CANCEL", 1);
+
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	entry = gtk_entry_new();
+	gtk_container_add(GTK_CONTAINER(content_area), entry);
+
+	gtk_widget_show_all(dialog);
+	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+	switch (result) {
+	case 0:
+		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
+		printd(LogDebug, "Entry Value %s\n", entry_line);
+		break;
+
+	case 1:
+		gtk_widget_destroy(dialog);
+		break;
+	default:
+		break;
+	}
+
+#if 1
+	strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
+	mySavedLoops[NumSavedLoops].Start = PlayerCurTime;
+	mySavedLoops[NumSavedLoops++].Length = -1;
+#else
+	// Add the new tag to the list.
+	strcpy(SongMarkers[NumberSongMarks].SongSection, entry_line);
+	SongMarkers[NumberSongMarks++].SongMark = PlayerCurTime;
+#endif
+
+	gtk_widget_destroy(dialog);
+	return TRUE; /* stop event propagation */
+}
+
+/*--------------------------------------------------------------------
+ * Function:		Save SongMarkers
+ *
+ * Description:
+ *---------------------------------------------------------------------*/
+void SaveSongMarkers(char *FileName) {
+	char SaveMarksName[FileNameMaxLength];
+	int Loop;
+
+	/*
+	 * Let's open the Saved Looped file.
+	 */
+	sprintf(SaveMarksName, "%s.SongMarks", FileName);
+	printd(LogTest, " SaveSongMarkers %s\n", SaveMarksName);
+	SaveMarksFD = fopen(SaveMarksName, "w+");
+	printd(LogTest, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
+	if (SaveMarksFD) {
+		for (Loop = 0; Loop < NumberSongMarks; Loop++) {
+			printf("<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
+			       SongMarkers[Loop].SongMark,
+			       SongMarkers[Loop].SongSection);
+
+			fprintf(SaveMarksFD, "<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
+			        SongMarkers[Loop].SongMark,
+			        SongMarkers[Loop].SongSection);
+		}
+
+
+		fclose(SaveMarksFD);
+		SaveMarksFD = 0;
+	}
+}
+
+
+
 
 /*--------------------------------------------------------------------
  * Function:		EnterLoop_click_handler

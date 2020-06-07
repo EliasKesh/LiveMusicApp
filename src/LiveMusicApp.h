@@ -561,7 +561,7 @@ EXTERN char NewInstall;
 EXTERN float PlayerCurTime;
 EXTERN char PlayerSection[30];
 
-#define MaxSongMarks	20
+#define MaxSongMarks	200
 #define SongSectionMax	30
 EXTERN int 		NumberSongMarks;
 typedef struct {

@@ -54,6 +54,6 @@
 
 void InitHTML(GtkBuilder *gxml);
 void  OpenSetListSong(int SongNumber);
-int ScrollDown(int	Amount);
+int ScrollCtrl(int	Amount);
 
 #endif /* HTML_H_ */

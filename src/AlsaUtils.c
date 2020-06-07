@@ -588,7 +588,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case cmdScroll:
-		ScrollDown(1);
+		ScrollCtrl(thePatch->Patch);
 		break;
 
 	case Controller:
