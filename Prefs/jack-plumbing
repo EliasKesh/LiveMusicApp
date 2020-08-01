@@ -32,3 +32,7 @@
 (disconnect "MPlayer*:out_R" "system:playback_.*")
 (connect "MPlayer*:out_L" "jack-volume:output_1")
 (connect "MPlayer*:out_R" "jack-volume:output_1")
+
+# Connect OBS recorder
+(connect "jack-volume:output_1" "JackRecord:in_1")
+(connect "jack-volume:output_1" "JackRecord:in_2")

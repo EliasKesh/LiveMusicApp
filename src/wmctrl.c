@@ -245,7 +245,6 @@ void RaiseWindows(char *AppName) {
 	Display *disp = NULL;
 	memset(&options, 0, sizeof(options)); /* just for sure */
 
-	printf("RaiseWindows %s\n", AppName);
 	if (!(disp = XOpenDisplay(NULL))) {
 //		printf("Cannot open display. %x\n", stderr);
 //		fputs("Cannot open display. %x\n", stderr);
@@ -321,7 +320,7 @@ int wmctl(int argc, char **argv) { /* {{{ */
 
 	memset(&options, 0, sizeof(options)); /* just for sure */
 
-	printf("wmcrtl Arg %d\n", argc);
+//	printf("wmcrtl Arg %d\n", argc);
 	/* necessary to make g_get_charset() and g_locale_*() work */
 	setlocale(LC_ALL, "");
 
@@ -515,7 +514,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
 	event.xclient.message_type = XInternAtom(disp, msg, False);
 	event.xclient.window = win;
 	event.xclient.format = 32;
-	printf("client_msg %ld\n", data0);
+//	printf("client_msg %ld\n", data0);
 	event.xclient.data.l[0] = data0;
 	event.xclient.data.l[1] = data1;
 	event.xclient.data.l[2] = data2;
@@ -619,6 +618,7 @@ static int wm_info(Display *disp) {/*{{{*/
 		p_verbose("Cannot get the _NET_SHOWING_DESKTOP property.\n");
 	}
 
+#if 0
 	/* print out the info */
 	printf("Name: %s\n", name_out ? name_out : "N/A");
 	printf("Class: %s\n", class_out ? class_out : "N/A");
@@ -635,6 +635,7 @@ static int wm_info(Display *disp) {/*{{{*/
 	} else {
 		printf("Window manager's \"showing the desktop\" mode: N/A\n");
 	}
+#endif
 
 	g_free(name_out);
 	g_free(sup_window);
@@ -1025,7 +1026,7 @@ static int action_window_str(Display *disp, char mode) {/*{{{*/
 	unsigned long client_list_size;
 	int i;
 
-	printf("action_window_str %s %c\n", options.param_window, mode);
+//	printf("action_window_str %s %c\n", options.param_window, mode);
 	if (strcmp(SELECT_WINDOW_MAGIC, options.param_window) == 0) {
 		activate = Select_Window(disp);
 		if (activate) {

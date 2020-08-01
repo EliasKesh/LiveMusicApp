@@ -35,6 +35,7 @@
 #include <gtk/gtk.h>
 #include "LiveMusicApp.h"
 
+#include "HTML.h"
 #include "stdio.h"
 #include "Player.h"
 #include <unistd.h>
@@ -73,7 +74,7 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
 gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-void SaveSongMarkers(char *FileName);
+// void SaveSongMarkers(char *FileName);
 void SaveLoopFile(char *FileName);
 
 void OpenSavedLoopFile(char *FileName);
@@ -117,7 +118,7 @@ SavedLoopType mySavedLoops[MaxSavedLoops];
 GtkWidget *SaveCombo;
 int NumSavedLoops;
 GtkWidget *ImageWidget;
-
+float PlayerCurrentTime;
 char DontUpDateSlider;
 char WeAreLooping;
 char CurrentFile[FileNameMaxLength];
@@ -142,8 +143,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
 	InPlayerTimer = 0;
 	RestartPlayer = 0;
-	PlayerCurTime = 0.0;
-	strcpy(PlayerSection, "-----");
+	PlayerDisTime = 0.0;
+	strcpy(PlayerDisSection, "-----");
 
 	sprintf(PlayerString, " rm  %s -rf", InPipeName);
 	system(PlayerString);
@@ -152,7 +153,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Create the fifo for communications with MPlayer.
 	 */
-	result = mkfifo(InPipeName, 0666);
+	result = mkfifo(InPipeName, S_IRUSR | S_IWUSR);
 	chmod(InPipeName, 0666);
 	if (result < 0) {
 		printd(LogDebug, "Before fopen in %d %s\n", result, strerror(result));
@@ -407,7 +408,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	NewSongMarkBox = gtk_event_box_new();
 	MyImageButtonInit(&NewMarker, NewSongMarkBox, MainButtonOnImage,
 	                  MainButtonOffImage);
-	MyImageButtonSetText(&NewMarker, "AddMarker");
+	MyImageButtonSetText(&NewMarker, "Add Marker");
 	g_signal_connect(G_OBJECT(NewSongMarkBox),
 	                 "button-press-event",
 	                 G_CALLBACK(NewMarker_click_handler),
@@ -419,7 +420,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
 
 	/*
-	 * Saved Loops pupup box
+	 * Saved Loops popup box
 	 */
 	SaveFixed = gtk_fixed_new();
 	SaveCombo = gtk_combo_box_text_new();
@@ -522,6 +523,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	 * Init the Pipe for communications with MPlayer
 	 */
 	InPipeFD = open(InPipeName, O_RDONLY | O_NONBLOCK);
+//	printf("FIFO %d\n", InPipeFD);
 	if (InPipeFD < 1) {
 		int err = errno;
 		printd(LogDebug, "Error in open In pipe %d\n", errno);
@@ -574,8 +576,15 @@ int ResetPlayer(void) {
 	gtk_adjustment_set_value(SpeedAdjustment, 1.0);
 	// gtk_image_set_from_pixbuf(GTK_IMAGE(LoopButton.Image),
 	//              LoopButton.ButtonUpImage);
-	PlayerWrite("set_property time_pos 0.0 \n");
-	WeAreLooping = 0;
+//	plLoopToggle();
+
+	WeAreLooping = 1;
+	plLoopToggle();
+	usleep(150);
+	PlayerWrite("set_property stream_pos 0.000\n");
+	usleep(150);
+	PlayerWrite("set_property time_pos 0.000\n");
+	usleep(150);
 	return (0);
 }
 
@@ -587,11 +596,11 @@ int ResetPlayer(void) {
  *---------------------------------------------------------------------*/
 int LivePlayerClose(void) {
 
-	PlayerCurTime = 0.0;
-	strcpy(PlayerSection, "-----");
+	PlayerDisTime = 0.0;
+	strcpy(PlayerDisSection, "-----");
 
 	SaveLoopFile(CurrentFile);
-	SaveSongMarkers(CurrentFile);
+//	SaveSongMarkers(CurrentFile);
 
 	PlayerWrite("quit\n");
 	return (0);
@@ -606,7 +615,7 @@ void SetPlayerFile(char *FileName) {
 
 	if (CurrentFile[0]) {
 		SaveLoopFile(CurrentFile);
-		SaveSongMarkers(CurrentFile);
+//		SaveSongMarkers(CurrentFile);
 	}
 
 	strncpy(CurrentFile, FileName, FileNameMaxLength);
@@ -623,12 +632,14 @@ void SetPlayerFile(char *FileName) {
 	strcpy(CurrentFile, FileName);
 	sprintf(PlayerString, "load \"%s\"\n", FileName);
 	PlayerWrite(PlayerString);
-	PlayerWrite("stream_time_pos\n");
+//	PlayerWrite("stream_time_pos\n");
 	DontUpDateSlider = FALSE;
 	PlayerAsk = 0;
 	PlayPauseState = 0;
 	plPausePlay();
 	ResetPlayer();
+	PlayerPoll(0);
+
 	printf("*** Open SavedLoop\n");
 	OpenSavedLoopFile(FileName);
 	PlayerWrite("get_time_length\n");
@@ -642,7 +653,6 @@ void SetPlayerFile(char *FileName) {
  *---------------------------------------------------------------------*/
 void OpenSavedLoopFile(char *FileName) {
 	char SaveLoopName[300];
-	NumSavedLoops = 0;
 
 	if (SavedLoopFD) {
 		fclose(SavedLoopFD);
@@ -655,20 +665,22 @@ void OpenSavedLoopFile(char *FileName) {
 	 */
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX(SaveCombo));
 	sprintf(SaveLoopName, "%s.Loops", FileName);
-	printd(LogTest, " OpenSavedLoopFile %s\n", SaveLoopName);
+	printd(LogDebug, " OpenSavedLoopFile %s\n", SaveLoopName);
 	SavedLoopFD = fopen(SaveLoopName, "r");
-	printd(LogTest, " OpenSavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
+	printd(LogDebug, " OpenSavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
 	if (SavedLoopFD) {
 		while (!feof(SavedLoopFD)) {
-			fscanf(SavedLoopFD, "%s %f, %f \n",
+			fscanf(SavedLoopFD, "%s %f, %f, %f\n",
 			       &mySavedLoops[NumSavedLoops].LoopName,
 			       &mySavedLoops[NumSavedLoops].Start,
-			       &mySavedLoops[NumSavedLoops].Length);
+			       &mySavedLoops[NumSavedLoops].Length,
+			       &mySavedLoops[NumSavedLoops].Position);
 #if 1
-			printd(LogTest, "Reading Loop %d %s %f %f\n", NumSavedLoops,
+			printd(LogDebug, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
 			       mySavedLoops[NumSavedLoops].LoopName,
 			       mySavedLoops[NumSavedLoops].Start,
-			       mySavedLoops[NumSavedLoops].Length);
+			       mySavedLoops[NumSavedLoops].Length,
+			       mySavedLoops[NumSavedLoops].Position);
 #endif
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
 			                               mySavedLoops[NumSavedLoops].LoopName);
@@ -707,11 +719,11 @@ void SaveLoopFile(char *FileName) {
 	 * Let's open the Saved Looped file.
 	 */
 	sprintf(SaveLoopName, "%s.Loops", FileName);
-	printd(LogTest, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
+	printd(LogDebug, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
 	errno = 0;
 	SavedLoopFD = fopen(SaveLoopName, "w+");
 //	sprintf(SaveLoopName, "MyTest.loop");
-	printd(LogTest, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+	printd(LogDebug, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
 
 	// Soft the list in Time order.
 	for (i = NumSavedLoops - 2; i >= 0; i--) {
@@ -726,14 +738,16 @@ void SaveLoopFile(char *FileName) {
 
 	if (SavedLoopFD) {
 		while (Loop < NumSavedLoops) {
-			fprintf(SavedLoopFD, "%s %f, %f \n",
+			fprintf(SavedLoopFD, "%20s %0.2f, %0.2f, %0.2f\n",
 			        mySavedLoops[Loop].LoopName,
 			        mySavedLoops[Loop].Start,
-			        mySavedLoops[Loop].Length);
-			printf("SaveLoop %s %f, %f \n",
+			        mySavedLoops[Loop].Length,
+			        mySavedLoops[Loop].Position);
+			printf("SaveLoop %s %0.2f, %0.2f, %0.2f\n",
 			       mySavedLoops[Loop].LoopName,
 			       mySavedLoops[Loop].Start,
-			       mySavedLoops[Loop].Length);
+			        mySavedLoops[Loop].Length,
+			        mySavedLoops[Loop].Position);
 
 			Loop++;
 		}
@@ -869,11 +883,34 @@ void PlayerPoll(char How) {
 				SongMarkers.
 				*/
 #if 1
+				PlayerCurrentTime = FValue;
 				if (NumSavedLoops)
 					for (Loop = 0; Loop < NumSavedLoops; Loop++) {
 						if (FValue < mySavedLoops[Loop].Start) {
-							strcpy(PlayerSection, mySavedLoops[Loop].LoopName);
-							PlayerCurTime = mySavedLoops[Loop].Start - FValue;
+							strcpy(PlayerDisSection, mySavedLoops[Loop].LoopName);
+							PlayerDisTime = mySavedLoops[Loop].Start - FValue;
+
+							if (mySavedLoops[Loop].Position >=0 )
+								ScrollCtrl(mySavedLoops[Loop].Position);
+
+							if (mySavedLoops[Loop].Position == -2)
+								ScrollCtrl(ScrollHome);
+
+							if (mySavedLoops[Loop].Position == -3)
+								ScrollCtrl(ScrollPgUp);
+
+							if (mySavedLoops[Loop].Position == -4)
+								ScrollCtrl(ScrollKeyUp);
+
+							if (mySavedLoops[Loop].Position == -5)
+								ScrollCtrl(ScrollKeyDn);
+
+							if (mySavedLoops[Loop].Position == -6)
+								ScrollCtrl(ScrollPgDn);
+
+							if (mySavedLoops[Loop].Position == -7)
+								ScrollCtrl(ScrollEnd);
+
 							break;
 						}
 					}
@@ -881,8 +918,8 @@ void PlayerPoll(char How) {
 				if (NumberSongMarks)
 					for (Loop = 0; Loop < NumberSongMarks; Loop++) {
 						if (FValue < SongMarkers[Loop].SongMark) {
-							strcpy(PlayerSection, SongMarkers[Loop].SongSection);
-							PlayerCurTime = SongMarkers[Loop].SongMark - FValue;
+							strcpy(PlayerDisSection, SongMarkers[Loop].SongSection);
+							PlayerDisTime = SongMarkers[Loop].SongMark - FValue;
 							break;
 						}
 					}
@@ -1080,11 +1117,6 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	GtkWidget *content_area;
 	char *entry_line;
 
-	theButton = (theImageButtons *) user_data;
-	printd(LogTest, "NextSeg_click_handler %x\n", theButton);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-	                          theButton->ButtonDownImage);
-
 	/*
 	 * Check for errors.
 	 */
@@ -1107,28 +1139,41 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	case 0:
 		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
 		printd(LogDebug, "Entry Value %s\n", entry_line);
+		strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
+		mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value(
+		                                        FineStartAdjustment);
+		mySavedLoops[NumSavedLoops].Length = gtk_adjustment_get_value(
+		        FineEndAdjustment);
+		mySavedLoops[NumSavedLoops].Position = ScrollGetPosition();
+
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
+		                               mySavedLoops[NumSavedLoops].LoopName);
+		printd(LogDebug, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
+		       mySavedLoops[NumSavedLoops].LoopName,
+		       mySavedLoops[NumSavedLoops].Start,
+		       mySavedLoops[NumSavedLoops].Length, 
+		       mySavedLoops[NumSavedLoops].Position);
+
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
+		                               mySavedLoops[NumSavedLoops].LoopName);
+		NumSavedLoops++;
+
+		SaveLoopFile(CurrentFile);
 		break;
 
 	case 1:
-		gtk_widget_destroy(dialog);
 		break;
+
 	default:
 		break;
 	}
 
-	strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
-	mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value(
-	                                        FineStartAdjustment);
-	mySavedLoops[NumSavedLoops].Length = gtk_adjustment_get_value(
-	        FineEndAdjustment);
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
-	                               mySavedLoops[NumSavedLoops].LoopName);
-	printd(LogDebug, "Reading Loop %d %s %f %f\n", NumSavedLoops,
-	       mySavedLoops[NumSavedLoops].LoopName,
-	       mySavedLoops[NumSavedLoops].Start,
-	       mySavedLoops[NumSavedLoops].Length);
-	NumSavedLoops++;
 	gtk_widget_destroy(dialog);
+	theButton = (theImageButtons *) user_data;
+	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+	                          theButton->ButtonUpImage);
+
 
 	SaveLoopFile(CurrentFile);
 	return TRUE; /* stop event propagation */
@@ -1147,17 +1192,12 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
 	GtkWidget *entry;
 	GtkWidget *content_area;
 	char *entry_line;
+	float theTime;
 
 
 	PlayerPoll(FALSE);
-//	PlayerCurTime
-
-
-
-	theButton = (theImageButtons *) user_data;
-	printd(LogTest, "NewMarker_click_handler %x\n", theButton);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-	                          theButton->ButtonDownImage);
+//	PlayerDisTime
+	theTime = PlayerCurrentTime;
 
 	dialog = gtk_dialog_new();
 	gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
@@ -1170,28 +1210,42 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
 	gtk_widget_show_all(dialog);
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
+	theButton = (theImageButtons *) user_data;
+	printd(LogDebug, "NewMarker_click_handler %x\n", theButton);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+	                          theButton->ButtonUpImage);
 	switch (result) {
 	case 0:
 		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
 		printd(LogDebug, "Entry Value %s\n", entry_line);
+#if 1
+		strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
+		mySavedLoops[NumSavedLoops].Start = theTime;
+		mySavedLoops[NumSavedLoops].Length = -1;
+		mySavedLoops[NumSavedLoops].Position = ScrollGetPosition();
+		SaveLoopFile(CurrentFile);
+
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
+		                               mySavedLoops[NumSavedLoops].LoopName);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo), 1);
+		NumSavedLoops++;
+#else
+		// Add the new tag to the list.
+		strcpy(SongMarkers[NumberSongMarks].SongSection, entry_line);
+		SongMarkers[NumberSongMarks++].SongMark = theTime;
+#endif
 		break;
 
 	case 1:
-		gtk_widget_destroy(dialog);
 		break;
 	default:
 		break;
 	}
 
-#if 1
-	strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
-	mySavedLoops[NumSavedLoops].Start = PlayerCurTime;
-	mySavedLoops[NumSavedLoops++].Length = -1;
-#else
-	// Add the new tag to the list.
-	strcpy(SongMarkers[NumberSongMarks].SongSection, entry_line);
-	SongMarkers[NumberSongMarks++].SongMark = PlayerCurTime;
-#endif
+	theButton = (theImageButtons *) user_data;
+	printd(LogDebug, "NewMarker_click_handler %x\n", theButton);
+	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+	                          theButton->ButtonUpImage);
 
 	gtk_widget_destroy(dialog);
 	return TRUE; /* stop event propagation */
@@ -1210,9 +1264,9 @@ void SaveSongMarkers(char *FileName) {
 	 * Let's open the Saved Looped file.
 	 */
 	sprintf(SaveMarksName, "%s.SongMarks", FileName);
-	printd(LogTest, " SaveSongMarkers %s\n", SaveMarksName);
+	printd(LogDebug, " SaveSongMarkers %s\n", SaveMarksName);
 	SaveMarksFD = fopen(SaveMarksName, "w+");
-	printd(LogTest, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
+	printd(LogDebug, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
 	if (SaveMarksFD) {
 		for (Loop = 0; Loop < NumberSongMarks; Loop++) {
 			printf("<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
@@ -1253,6 +1307,8 @@ gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	        FineStartAdjustment);
 	mySavedLoops[CurrentSavedLoop].Length = gtk_adjustment_get_value(
 	        FineEndAdjustment);
+	mySavedLoops[CurrentSavedLoop].Position = ScrollGetPosition();
+
 	printd(LogDebug, "Reading Loop %d %s %f %f\n", CurrentSavedLoop,
 	       mySavedLoops[CurrentSavedLoop].LoopName,
 	       mySavedLoops[CurrentSavedLoop].Start,
@@ -1322,15 +1378,15 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
  *---------------------------------------------------------------------*/
 int StartPlayer(void) {
 
-	system("killall mplayer");
+	system("killall mplayer &>/dev/null");
 	printd(LogDebug, "After Kill\n");
 	sleep(.3);
-	system("killall mplayer");
+	system("killall mplayer &>/dev/null");
 	sleep(.3);
-	system("killall mplayer");
+	system("killall mplayer &>/dev/null");
 
 	sleep(.3);
-	system("killall mplayer");
+	system("killall mplayer &>/dev/null");
 
 
 #if 1
@@ -1343,20 +1399,20 @@ int StartPlayer(void) {
 	if (WeAreLooping) {
 		sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn",
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
 		        gtk_adjustment_get_value(VolumeAdjustment),
 		        gtk_adjustment_get_value(SpeedAdjustment),
 		        CurrentFile);
-		printd(LogTest, "calling  Loop %s\n", PlayerString);
+		printd(LogDebug, "calling  Loop %s\n", PlayerString);
 
 	} else {
 		sprintf(PlayerString,
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn",
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn &>/dev/null",
 		        CurrentLength,
 		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
-		printd(LogTest, "calling %s\n", PlayerString);
+		printd(LogDebug, "calling %s\n", PlayerString);
 	}
 
 	OutPipe = popen(PlayerString, "w");

@@ -585,7 +585,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	                 G_CALLBACK(
 	                     layout_release_handler),
 	                 &LayoutButton);
-
 	/*
 	 * Set up the connections between applications.
 	 */
@@ -621,7 +620,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
 	LivePlayerInit(theMainWindow, PlayerWidget);
-
 	WaitingforMidi = WaitingforMidiHold = 0;
 
 	/*
@@ -713,6 +711,11 @@ char ForString[100];
 	if (gMyInfo.SetMP3PlayVolBool) {
 		SetMP3PlayVol(gMyInfo.SetMP3PlayVolBool);
 		gMyInfo.SetMP3PlayVolBool = 0;
+	}
+
+	if (gMyInfo.ScrollUpdate) {
+		ScrollCtrl(gMyInfo.ScrollUpdate);
+		gMyInfo.ScrollUpdate = 0;
 	}
 
 	/* Check to see if a TAB was switched.
@@ -827,7 +830,7 @@ char ForString[100];
 	// Update the player time if playing.
 	gtk_widget_override_font(PlayerCurWid,
 	                         pango_font_description_from_string("Sans Bold 16"));
-	sprintf(ForString,"%3.1f\n%s", PlayerCurTime, PlayerSection);
+	sprintf(ForString,"%3.1f\n%s", PlayerDisTime, PlayerDisSection);
 	gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
 
 #ifdef AcceptTimedKeyboard
@@ -1032,7 +1035,7 @@ void parse_cmdline(int argc, char *argv[]) {
 	int c;
 	int digit_optind = 0;
 
-	printf("Arg 0 %s\n", argv[0]);
+//	printf("Arg 0 %s\n", argv[0]);
 	while (1)  {
 		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
@@ -1912,7 +1915,6 @@ int FindString(int StringList, char *String) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-	printf("File History %x\n", FileHistory);
 	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");	
 //	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");	
 	printd(LogDebug,"File History %x\n", FileHistory);

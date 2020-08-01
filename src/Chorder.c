@@ -331,7 +331,6 @@ cairo_surface_t *BouncieBallRed;
 cairo_surface_t *BouncieBallYel;
 cairo_t *cr;
 cairo_surface_t *CSurface;
-
 #endif
 
 /*
@@ -361,6 +360,8 @@ static void SetChordCallBack(GtkWidget *widget, gpointer data) {
 	CurPreScale = myPreChordMenu[ScaleIndex].PreChord;
 	SetChord(CurRootNote, CurPreScale);
 	draw_fretboard_background(MyFretArea, NULL);
+	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
+
 }
 
 /*--------------------------------------------------------------------
@@ -376,8 +377,8 @@ static void SetScaleCallBack(GtkWidget *widget, gpointer data) {
 	ScaleIndex = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
 	CurScale = myChordMenu[ScaleIndex].ChordList;
 	SetScale(CurRootNote, CurScale);
-
 	draw_fretboard_background(MyFretArea, NULL);
+	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
 }
 
 /*--------------------------------------------------------------------
@@ -392,6 +393,7 @@ static void SetRootCallBack(GtkWidget *widget, gpointer data) {
 //    CurRootNote = (char *)data;
 	SetScale(CurRootNote, CurScale);
 	draw_fretboard_background(MyFretArea, NULL);
+	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
 }
 
 /*--------------------------------------------------------------------
@@ -405,6 +407,7 @@ static void GetFretPositionCallBack(GtkWidget *widget, GtkWidget *entry) {
 	DisplayPosition = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
 	SetScale(CurRootNote, CurScale);
 	draw_fretboard_background(MyFretArea, NULL);
+	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
 
 //		DisplayPosition = atoi(PositionText);
 }
@@ -1111,7 +1114,6 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	CurRootNote = NValueC;
 	CurScale = chMajor;
 	WindowWidth = Fwidth;
-
 	SetScale(CurRootNote, CurScale);
 
 	printd(LogInfo, "Chorder %x\n", window);
@@ -1231,7 +1233,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
 	BottomBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 10);
 	Fingerboard = gtk_drawing_area_new ();
-	gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);
+// ejk	gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);
 //    gtk_window_get_size(MainWindow, &Cwidth, &Cheight);
 
 	FingerboardDot = cairo_image_surface_create_from_png(
@@ -1254,8 +1256,8 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_box_pack_start(GTK_BOX(rootBox), FretFixed, FALSE, FALSE, 2);
 	gtk_box_pack_start(GTK_BOX(rootBox), PreChordFixed, FALSE, FALSE, 2);
 
-	gtk_box_pack_start(GTK_BOX(vbox), BottomBox, FALSE, FALSE, 2);
-	gtk_box_pack_start(GTK_BOX(BottomBox), button, FALSE, FALSE, 2);
+	gtk_box_pack_start(GTK_BOX(vbox), BottomBox, FALSE, FALSE, 2); 
+//	gtk_box_pack_start(GTK_BOX(BottomBox), button, FALSE, FALSE, 2);
 
 	/* This packs the button into the window (a gtk container). */
 	gtk_container_add(GTK_CONTAINER(window), vbox);
@@ -1289,6 +1291,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 	int StringLoop;
 	GdkPixbuf *theBall;
 
+//	printf("draw_fretboard_background \n");
 	/*
 	 * NEW
 	 */
@@ -1480,9 +1483,17 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 			cairo_stroke(cr);
 		}
 	}
-	gtk_widget_queue_draw(widget);
 
-	return TRUE;
+//	gtk_widget_draw (widget,cr);
+
+
+//	return TRUE;
+//gtk_widget_queue_draw(widget);
+
+	gtk_widget_queue_resize_no_redraw(widget);
+  	cairo_destroy (cr);
+
+return TRUE;
 }
 
 #if 0

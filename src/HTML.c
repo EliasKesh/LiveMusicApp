@@ -35,7 +35,7 @@
  */
 
 #include <gtk/gtk.h>
-
+#include "HTML.h"
 #define WebKit2 1
 #include <webkit2/webkit2.h>
 #include "LiveMusicApp.h"
@@ -205,10 +205,9 @@ char SavePresetChanges(char *FileName) {
  *
  *---------------------------------------------------------------------*/
 void on_Back_clicked(GtkButton * button, gpointer user_data) {
-//		webkit_web_view_set_editable( web_view, false);
 	const gchar *CurrentURI;
 
-
+//	webkit_web_view_set_editable( web_view, FALSE);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(BackButton.Image),
 	                          BackButton.ButtonDownImage);
 	/* Get the currently loaded page.
@@ -225,7 +224,7 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 	SetPatchTitles(&PresetButtons[2], "Preset 3", 3);
 	SetPatchTitles(&PresetButtons[3], "Preset 4", 4);
 	SetPatchTitles(&PresetButtons[4], "Preset 5", 5);
-	SetPatchTitles(&PresetButtons[5], "Preset 6", 6);
+//	SetPatchTitles(&PresetButtons[5], "Preset 6", 6);
 }
 
 /*--------------------------------------------------------------------
@@ -241,72 +240,75 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 	webkit_web_view_go_forward(web_view);
 }
 
-#define MaxChartRepeat 10
+//#define MaxChartRepeat 10
+
 /*--------------------------------------------------------------------
  * Function:		ScrollCtrl
  *
  * Description:	Scroll the music
  *
  *---------------------------------------------------------------------*/
-int ScrollCtrl(int Amount) {
-int Loop;
+int ScrollCtrl(float Amount) {
+	GtkAdjustment *Adjust;
+	gdouble  UpperV, VIncrement;
+	gdouble Value;
 
 // xdotool windowactivate 100663307 ; xdotool key Page_Up
 
-printf("ScrollDown %d\n",Amount);
-	switch (Amount) {
-		case 1:
-		system("xdotool key Home");
-		break;
-
-		case 2:
-		system("xdotool key Page_Up");
-		break;
-
-		case 3:
-//		for (Loop = 0; Loop++; Loop < MaxChartRepeat)
-			system("xdotool key Up");
-		break;
-
-		case 4:
-//		for (Loop = 0; Loop++; Loop < MaxChartRepeat)
-			system("xdotool key Down");
-		break;
-
-		case 5:
-		system("xdotool key Page_Down");
-		break;
-
-		case 6:
-		system("xdotool key End");
-		break;
-
-	}
-#if 0
-	GtkAdjustment *Adjust;
-	gint Value, UpperV, VIncrement;
-
-
 	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
-	printf("VAdjust %x\n", Adjust);
+	gtk_adjustment_set_page_size(Adjust, 100);
+
 	UpperV = gtk_adjustment_get_upper(Adjust);
+	gtk_adjustment_set_page_size(Adjust, 100);
+	gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
 	VIncrement = gtk_adjustment_get_page_increment(Adjust);
 	Value = gtk_adjustment_get_value(Adjust);
-	printd(LogTest, "In ScrollDown %d  %d %d\n", UpperV, VIncrement, Value);
-	printf("Page Size %d\n",gtk_adjustment_get_value(Adjust));
+	printd(LogTest, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+	printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
 
-	if (((VIncrement + Value) + (UpperV / 10)) >= UpperV) {
-		gtk_adjustment_set_value(Adjust, 0);
-		printd(LogTest, "ScrollDown Rolling Over\n");
-	} else {
-		gtk_adjustment_set_value(Adjust, VIncrement + Value);
+	if (Amount == ScrollPgDn)
+		if ((VIncrement + Value) >= UpperV) {
+			gtk_adjustment_set_value(Adjust, 0);
+			printd(LogTest, "ScrollDown Rolling Over\n");
+		} else {
+			gtk_adjustment_set_value(Adjust, VIncrement + Value);
+		}
+
+
+	if (Amount == ScrollPgUp)
+		if ((Value - VIncrement) < 0) {
+			gtk_adjustment_set_value(Adjust, 0);
+			printd(LogTest, "ScrollDown Rolling Over\n");
+		} else {
+			gtk_adjustment_set_value(Adjust, Value - VIncrement);
+		}
+
+	if (Amount >= 0) {
+		gtk_adjustment_set_value(Adjust, Amount);
+
 	}
-	
-	gtk_adjustment_set_value(Adjust, 1);
+
+
 	gtk_adjustment_changed(Adjust);
 	gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
-#endif
 	return (0);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		ScrollGetPosition
+ *
+ * Description:	Get the Current Scolling position
+ *
+ *---------------------------------------------------------------------*/
+float ScrollGetPosition(void) {
+	GtkAdjustment *Adjust;
+	gdouble Value;
+
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+	gtk_adjustment_set_page_size(Adjust, 100);
+	Value = gtk_adjustment_get_value(Adjust);
+	printf("Value %f\n", Value);
+	return ((float)Value);
 }
 
 /*--------------------------------------------------------------------
@@ -316,7 +318,7 @@ printf("ScrollDown %d\n",Amount);
  *
  *---------------------------------------------------------------------*/
 int ScalePage(void) {
-	gint UpperH, UpperV;
+	gfloat UpperH, UpperV;
 	GtkAdjustment *Adjust;
 	gint Horiz, Vert;
 	gfloat ScaleH, ScaleV;
@@ -326,6 +328,7 @@ int ScalePage(void) {
 
 	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
 	UpperV = gtk_adjustment_get_upper(Adjust);
+	printf("ScalePage %x %f\n", Adjust, UpperV );
 
 	if (UpperH != 0)
 		ScaleH = ((gfloat) Horiz) / (gfloat) UpperH;
@@ -395,7 +398,7 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 		sprintf(String, "Tap=??");
 
 	MyImageButtonSetText(&TapTempoButton, String);
-//	webkit_web_view_set_editable(web_view, TRUE);
+//	webkit_web_view_set_editable(web_view, FALSE);
 
 	/*
 	 * Draw the button
@@ -608,7 +611,7 @@ void PageLoaded (WebKitWebView  *web_view,
 		return;
 	}
 
-//	webkit_web_view_set_editable(web_view, 1);
+//	webkit_web_view_set_editable(web_view, FALSE);
 	webkit_web_view_set_zoom_level(web_view, 1);
 }
 
@@ -726,7 +729,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
-	if (strstr(theURI, ".mscz")) {
+	if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
@@ -744,7 +747,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	}
 
 
-	if (strstr(theURI, ".tg") || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
+	if (strstr(theURI, ".tg") ) {
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
@@ -943,11 +946,11 @@ void InitHTML(GtkBuilder * gxml) {
 	                   gtk_builder_get_object(gxml, "scrolledwindow1"));
 
 
-#if 0
-		gtk_widget_set_name (scrolled_window, "GtkLauncher");
-		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
-	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
+//		gtk_widget_set_name (scrolled_window, "GtkLauncher");
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
+	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#if 0
 // Scroll bar fix to add GtkViewport
 	GtkWidget *viewport;
 	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
@@ -1078,8 +1081,8 @@ void InitHTML(GtkBuilder * gxml) {
 	}
 
 	if (ScreenSize == 2) {
-		g_object_set(G_OBJECT(settings), "default-font-size", 24, NULL);
-		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 24, NULL);
+		g_object_set(G_OBJECT(settings), "default-font-size", 28, NULL);
+		g_object_set(G_OBJECT(settings), "default-monospace-font-size", 28, NULL);
 	}
 
 	printd(LogDebug, "Settings for webkit\n");
@@ -1101,6 +1104,8 @@ void InitHTML(GtkBuilder * gxml) {
 	             "hardware-acceleration-policy", WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS
 	            );
 #endif
+//	gtk_widget_set_vexpand(GTK_WIDGET(web_view), true);
+
 
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
@@ -1258,6 +1263,8 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 #endif
 			printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
 			MyOSCLoadFile(gMyInfo.LoopFileName);
+			strncpy(temp, Copy, MAXLINE);
+
 		}
 
 		/* Get the Drum File patch.
@@ -1268,8 +1275,15 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			String = Found;
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogDebug, "DrumFile %s\n", tokenizer);
-			strncpy(temp, Copy, MAXLINE);
 			strcpy(DrumFile, tokenizer);
+			strncpy(temp, Copy, MAXLINE);
+ 			if (DrumFile[0] == 62)
+ 				DrumFile[0] = 0;
+
+ 			if (!strcmp(DrumFile,"/dev/null")) {
+ 				printf("DevNull Found");
+ 				DrumFile[0] = 0;
+ 			}
 		}
 
 		/* Set the current patch to this one.
@@ -1316,14 +1330,14 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		Found = strstr(temp, "SongMark");
 		if (Found != NULL) {
 			Found += 10 + ContentTagLen;
-			printf("SongMark %s\n", Found); 
-			sscanf(Found,"%f,%s\">",&FValue, StatusString);
-			StatusString[strlen(StatusString) -2] = 0;
+			printf("SongMark %s\n", Found);
+			sscanf(Found, "%f,%s\">", &FValue, StatusString);
+			StatusString[strlen(StatusString) - 2] = 0;
 			printf("SongMark %f -> %s \n", FValue, StatusString);
 //			if (StatusString[strlen(StatusString)] == '\"')
 
 			SongMarkers[NumberSongMarks].SongMark = FValue;
-			strcpy(SongMarkers[NumberSongMarks++].SongSection,StatusString);
+			strcpy(SongMarkers[NumberSongMarks++].SongSection, StatusString);
 			// sprintf(StatusString, "Loop Len  %d", Value);
 
 		}
@@ -1344,10 +1358,13 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		/*
 		 * Make sure the the looper is the second argument even of the drum file is the same.
 		 */
-		if (DrumFile[0] == 0)
-			DrumFile[0] = 'A';
-
-		sprintf(Copy, "/home/Dropbox/LiveEffects/LoadDrumFile %s & ", DrumFile);
+//		if (DrumFile[0] == 0)
+//			DrumFile[0] = 'A';
+		
+//		strncpy(&FileName[7], gMyInfo.BasePath, sizeof (FileName) - 7);
+//		sprintf(Copy, "%s/LoadDrumFile %s & ", gMyInfo.BasePath, DrumFile);
+//		printf("Drum File [%s]\n",DrumFile);
+		sprintf(Copy, "LoadDrumFile %s & ", DrumFile);
 		printd(LogDebug, "Calling System with %s\n", Copy);
 		system(Copy);
 	}

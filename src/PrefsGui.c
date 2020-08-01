@@ -293,9 +293,9 @@ void InitGuiPrefs(void) {
 	*/
 	MidiOutput = GTK_WIDGET(gtk_builder_get_object(gxml, "MidiOutputList"));
 	printd (LogDebug, "GTK-WIDGET %x\n", MidiOutput);
-	gtk_list_box_insert(MidiOutput, "One", 0);
-	gtk_list_box_insert(MidiOutput, "Three", 2);
-	gtk_list_box_insert(MidiOutput, "Two", 1);
+	// gtk_list_box_insert(MidiOutput, "One", 0);
+	// gtk_list_box_insert(MidiOutput, "Three", 2);
+	// gtk_list_box_insert(MidiOutput, "Two", 1);
 
 	OSC_Address = GTK_WIDGET(gtk_builder_get_object(gxml, "OSC_Address"));
 	g_signal_connect(G_OBJECT(OSC_Address),
@@ -326,10 +326,10 @@ void InitGuiPrefs(void) {
 	gtk_entry_set_text(OSCHydrogenPort, gMyInfo.OSCPortNumHydrogen);
 
 	About_Close = GTK_WIDGET(gtk_builder_get_object(gxml, "About_Close"));
-	g_signal_connect(G_OBJECT(About_Close),
-	                 "button-press-event",
-	                 G_CALLBACK(Prefs_about_close_handler),
-	                 &About_Box);
+	// g_signal_connect(G_OBJECT(About_Close),
+	//                  "button-press-event",
+	//                  G_CALLBACK(Prefs_about_close_handler),
+	//                  &About_Box);
 
 	Prefs_Regenerate = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_Regenerate"));
 	g_signal_connect(G_OBJECT(Prefs_Regenerate),
@@ -598,7 +598,6 @@ static GtkWidget *CreatePatchViewModel(void) {
 	        NULL);
 	g_object_set_data(G_OBJECT(renderer), "column", GUINT_TO_POINTER(Button_COLUMN));
 #endif
-
 	/* --- Name_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "editable", TRUE, NULL);
@@ -668,7 +667,7 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_object_set_data(G_OBJECT(renderer), "column",
 	                  GUINT_TO_POINTER(Command_COLUMN));
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
-	g_signal_connect(renderer, "clicked", (GCallback ) PatchListEdited, view);
+//	g_signal_connect(renderer, "clicked", (GCallback ) PatchListEdited, view);
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
 	                 G_CALLBACK(text_editing_started), Button_COLUMN);
 

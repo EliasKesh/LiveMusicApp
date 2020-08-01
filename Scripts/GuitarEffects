@@ -365,7 +365,7 @@ function StartJack {
         Delay 1
     fi
     
-    if [ `ps -ew|grep -c jackd` == 0 ] ; then
+    if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd...Again"  >> $LogFile
         Delay 1
     fi
@@ -1042,7 +1042,7 @@ function SetUpApplications {
         echo "Starting Guitar Effects"  >> $LogFile
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb &
         #        nice -15   ${EffectsProcessorName}  --disable-multi-client --sync -p 7000 >> $LogFile 2>&1 &
-        nice -15   ${EffectsProcessorApp} -p 7000 >> $LogFile 2>&1 &
+        MusicApps.sh EffectsProcessorApp >> $LogFile 2>&1 &
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr &
         Delay 2
     fi
@@ -1105,7 +1105,7 @@ function SetUpApplications {
     # This script check for a failed app
     # and will relaunch it
     if test "${BackroundChecker}" = "true"; then
-        KeepLiveMusicRunning.sh &
+        KeepLiveMusicRunning.sh "LiveMusicApp" "${EffectsProcessorApp}"  &
     fi
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
@@ -1230,8 +1230,8 @@ function SetPlacement1920 {
     
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
-    wmctrl -r ${EffectsProcessorName} -e 0,0,0,700,1020
+    wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
+    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1020
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
     wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
@@ -1256,8 +1256,8 @@ function SetPlacement1920 {
     wmctrl -r Patchage -t $PatchageDesktop
     wmctrl -r Patchage -e 0,0,0,1700,1000
     
-    wmctrl -r catia -t $PatchageDesktop
-    wmctrl -r catia -e 0,0,0,1700,1000
+    wmctrl -r ${PatchBay} -t $PatchageDesktop
+    wmctrl -r ${PatchBay} -e 0,0,0,1700,1000
     set +x
 }
 
@@ -1271,8 +1271,8 @@ function SetPlacement1600 {
     
     echo "1600 Placement Offset "$XOffset
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r ${EffectsProcessorName} -e 0,$NewOffset,30,850,650
-    wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
+    wmctrl -r ${EffectsProcessorWM} -e 0,$NewOffset,30,850,650
+    wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
     
     wmctrl -r LiveMusicApp_1 -e 0,`expr $NewOffset + 550`,10,1340,800
     wmctrl -r LiveMusicApp_1 -t $LiveMusicAppDesktop
@@ -1304,8 +1304,8 @@ function SetPlacement1200 {
     
     echo "1200 Placement Offset "$XOffset
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r ${EffectsProcessorName} -e 1,0,30,850,760
-    wmctrl -r ${EffectsProcessorName} -t $AnalogDesktop
+    wmctrl -r ${EffectsProcessorWM} -e 1,0,30,850,760
+    wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
     
     wmctrl -r LiveMusicApp_1 -e 0,0,10,1300,760
     wmctrl -r LiveMusicApp_1 -t $LiveMusicAppDesktop
@@ -1350,8 +1350,8 @@ function StopEverything {
             killall okular
             killall livedings
             killall jack-volume
-            killall catia
-            
+            killall ${PatchBay}
+            killall ${PatchBay}
             killall LiveMusicApp
             killall sooperlooper
             killall slgui
@@ -1386,10 +1386,11 @@ function StopEverything {
             killall jackd
             killall jack-plumbing
             killall jackd
-            KillAll catia
+            KillAll ${PatchBay}
             KillAll a2jmidid
             KillAll musescore
-            
+            sleep 3
+            KillAll guitarix
             killall jack-plumbing
             xset s on
             xset +dpms
@@ -1422,7 +1423,10 @@ echo "Line "$1
 # Set Default values
 GuitarEffects=true
 EffectsProcessorName="Guitarix"
-EffectsProcessorApp="guitarix"
+EffectsProcessorApp="guitarixOld"
+EffectsProcessorWM="Guitarix: gx_head"
+# PatchBay="carla"
+PatchBay="catia"
 
 MidiController=true
 Rosegarden=false
@@ -1614,7 +1618,7 @@ if [ RunCount -gt 1 ]; then
 fi
 
 
-# Keep the computer from screen saving.
+#  the computer from screen saving.
 xset s off
 xset -dpms
 qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
@@ -1637,11 +1641,19 @@ export IAM=`whoami`
 
 # Try and find what device we should use.
 FindDevice
+
 echo -n "System Timer "
 cat /sys/devices/system/clocksource/clocksource0/current_clocksource
 
 echo -n "Timer Speed "
 cat /sys/class/rtc/rtc0/max_user_freq
+
+GXSize=`wc -c /home/elias/.config/guitarix/gx_head_rc | awk '{print $1}'`
+if [ $GXSize -ge 79018 ];
+then
+zenity --warning \
+--text=" gx_head_rc too large "$GXSize
+fi
 
 # Set the definitions for the functions.
 SetDefinitions
@@ -1650,8 +1662,14 @@ SetDefinitions
 StartJack
 
 # If at first you don't succeed ....
-if [ `ps -ew|grep -c jackd` == 0 ] ; then
-    StartJack
+if [ `ps -ew | grep -c jackd` == 0 ] ; then
+    StartJack 
+fi
+
+if [ `ps -ew | grep -c jackd` == 0 ] ; then
+    zenity --warning \
+    --text=" Can\'t Start Jack"
+    exit 1
 fi
 
 # StartJack
@@ -1665,7 +1683,8 @@ fi
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
 Delay 1
-a2jmidid -e > $LogFile 2>&1 &
+# a2jmidid -e > $LogFile 2>&1 &
+a2jmidid > $LogFile 2>&1 &
 
 SetUpApplications
 Delay 1
@@ -1673,13 +1692,6 @@ Delay 1
 echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections
-
-
-#   Patchage takes a while to start so kick it off early.
-# Run the patch bay
-echo "***************** Starting Patch Bay"
-# patchage  > /dev/null 2>&1 &
-catia > $LogFile 2>&1 &
 
 
 echo "***************** Starting SetPlacement"
@@ -1702,9 +1714,19 @@ SetPlacement
 
 sleep 10
 
+#   Patchage takes a while to start so kick it off early.
+# Run the patch bay
+echo "***************** Starting Patch Bay"
+# patchage  > /dev/null 2>&1 &
+# catia > $LogFile 2>&1 &
+${PatchBay} > $LogFile 2>&1 &
+
+
 # Set up the mier levels and the interconnection between devices.
 SetUpConnections
 # Put apps in the right place/desktop
 SetPlacement
 
 exit 0
+# Check for file size on this:
+# /home/elias/.config/guitarix/gx_head_rc

@@ -588,7 +588,8 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		break;
 
 	case cmdScroll:
-		ScrollCtrl(thePatch->Patch);
+		gMyInfo.ScrollUpdate = -1 * thePatch->Patch;
+//		ScrollCtrl(thePatch->Patch);
 		break;
 
 	case Controller:

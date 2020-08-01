@@ -155,7 +155,6 @@ InitPref (void) {
 int PostProcessPrefs(LiveMusicInfo *MyInfo) {
 	int Index;
 
-	printf("Start PostProcessPrefs\n");
 	for (Index = 0; Index < Max_Patches; Index++) {
 		if (MyInfo->MyPatchInfo[Index].CustomCommand == cmdHardSlider)
 			if (MyInfo->MyPatchInfo[Index].Channel < MaxHardSliders) {
@@ -397,7 +396,7 @@ void WritePrefs (void) {
 	int Loop;
 	int PatchLoop;;
 
-	LIBXML_TEST_VERSION;
+//	LIBXML_TEST_VERSION;
 
 	printd (LogDebug, "In Write Prefs\n");
 	doc = xmlNewDoc (BAD_CAST "1.0");
@@ -590,7 +589,7 @@ void LoadXMLPair(ParseData *theData) {
 	int ParseCountL2 = 0;
 	int HoldIndex;
 
-	/* Extract the basic information for tha top level.
+	/* Extract the basic information for the top level.
 	*/
 	name = theData[1].name;
 	value = theData[2].value;
@@ -902,8 +901,11 @@ streamFile(const char *filename) {
 	reader = xmlReaderForFile(filename, NULL,
 	                          XML_PARSE_DTDATTR |  /* default DTD attributes */
 	                          XML_PARSE_NOENT |    /* substitute entities */
-	                          XML_PARSE_DTDVALID); /* validate with the DTD */
-
+							XML_PARSE_NOWARNING |
+							XML_PARSE_PEDANTIC |
+							XML_PARSE_NOERROR
+	                         // XML_PARSE_DTDVALID /* validate with the DTD */
+								);
 	if (reader != NULL) {
 		ret = xmlTextReaderRead(reader);
 		while (ret == 1) {

@@ -17,6 +17,8 @@ import argparse
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from wand.image import Image
 import sys
+from shutil import copyfile
+
 
 sPresets=[]
 sSetIndex=0
@@ -103,8 +105,8 @@ def WriteFile(fname, dirname):
   for x in range(0, sHREFIndex):
     FileName=sHREFFile[x]
     FileRef=sHREFFile[x]
-    if (len(FileName) > 12):
-        FileName=FileName[0:12]
+    if (len(FileName) > 18):
+        FileName=FileName[0:18]
 
     if (FileRef.find("mp3") > 0):
         theFile.write("<a style=\"color:red\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
@@ -134,20 +136,22 @@ def WriteFile(fname, dirname):
 #    if (FileName.find(".pdf") > 0):
     if (FileName.endswith("pdf") > 0):
         print ("PDF Name: ",dirname+"/"+FileName )
-        pdf = PdfFileReader(open(dirname+"/"+FileName,'rb'))
-        pdfPages=pdf.getNumPages()
+#         pdf = PdfFileReader(open(dirname+"/"+FileName,'rb'))
+#         pdfPages=pdf.getNumPages()
 
-#       a Bug in the evince browser plugin
-        if (pdf.getNumPages() == 2):
-          print ("Elias FIX: ",dirname+"/"+FileName )
+# #       a Bug in the evince browser plugin
+#         if (pdf.getNumPages() == 2):
+#           print ("Elias FIX: ",dirname+"/"+FileName )
 
         # If it's a two page PDF set side by side mode
-        if (pdf.getNumPages() == 1):
-          theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" height=\"100%\" continuous=\"false\" width=\"100%\" >\n")
-        else:
-          theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" dual=\"true\" currentpage=\"2\"  continuous=\"false\" height=\"100%\" width=\"100%\" >\n")
+#        if (pdf.getNumPages() == 1):
+        theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" height=\"100%\" continuous=\"false\" width=\"100%\" >\n")
+ #       else:
+  #        theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" dual=\"true\" currentpage=\"2\"  continuous=\"false\" height=\"100%\" width=\"100%\" >\n")
     else:
-        theFile.write("<img alt=\"\" src=\""+FileName+"\"  height=\"100%\" >\n")
+        theFile.write("<img alt=\"\" src=\""+FileName+"\" width=\"100%\" >\n")
+ #       theFile.write("<img alt=\"\" src=\""+FileName+"\" width=\"75%\" >\n")
+ #       theFile.write("<img alt=\"\" src=\""+FileName+"\" >\n")
  #       theFile.write("<img alt=\"\" src=\""+FileName+"\" height=\"100%\" width=\"100%\" >\n")
 
 # Options for evince browser plugin
@@ -181,14 +185,14 @@ def ClearVariables():
   global SongMarkIndex
 
   sSetIndex=0
-  sPresets=['','','','','','','','','','','','','']
-  sSetNow=['','','','','','','','','','','','','']
+  sPresets=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+  sSetNow=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSetIndex=0
-  sHREFFile=['','','','','','','','','','','','','']
+  sHREFFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sHREFIndex=0
-  SongMark=['','','','','','','','','','','','','']
+  SongMark=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   SongMarkIndex=0
-  sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+  sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','', '','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSrcIndex=0
   sGlobalNotes=""
 
@@ -353,6 +357,7 @@ def ParseFile(fname,dirname):
 
     contentRes = theLine.find("src=")
     if (contentRes > 0):
+#      print (theValue[0])
       theValue = theLine[contentRes+5:-2].split("\"")
       sSrcFile[sSrcIndex]=theValue[0]
       sSrcIndex=sSrcIndex+1
@@ -418,18 +423,20 @@ def LoadVariables(Files):
 
         if (filename.endswith("png")):
  #           print ("png ", filename)
-            sSrcFile[sSrcIndex]=filename
-            sSrcIndex=sSrcIndex+1
+            if (filename != "background.png"):
+              sSrcFile[sSrcIndex]=filename
+              sSrcIndex=sSrcIndex+1
 
         if (filename.endswith("jpg")):
  #           print ("jpg ", filename)
+            if (filename != "logo.jpg"):
+              sSrcFile[sSrcIndex]=filename
+              sSrcIndex=sSrcIndex+1
+
+        if (filename.endswith("pdf")):
+#            print ("pdf ", filename)
             sSrcFile[sSrcIndex]=filename
             sSrcIndex=sSrcIndex+1
-
- #       if (filename.endswith("pdf")):
- #           print ("pdf ", filename)
- #           sSrcFile[sSrcIndex]=filename
- #           sSrcIndex=sSrcIndex+1
 
 # Create the main index html page
 # ------------------------------------------
@@ -455,15 +462,19 @@ height: 100%; }\n\
     theFile.write("<p style=\"line-height:135%\">\n<body>\n\n")
     theFile.write("<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt>")
 
+    print ("\n\n")
+    print ("in GenerateIndex ", Base)
     if (Reference):
-      theFile.write("<big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[ __A__ ]</a><a href=\"#Baaa\">[ __B__ ]</a><a href=\"#Caaa\">[ __C__ ]</a><a href=\"#Daaa\">[ __D__ ]</a><a href=\"#Eaaa\">[ __E__ ]</a><a href=\"#Faaa\">[ __F__ ]</a><a href=\"#Gaaa\">[ __G__ ]</a><a href=\"#Haaa\">[ __H__ ]</a><a href=\"#Iaaa\">[ __I__ ]</a><a href=\"#Jaaa\">[ __J__ ]</a><a href=\"#Kaaa\">[ __K__ ]</a><a href=\"#Laaa\">[ __L__ ]</a><a href=\"#Maaa\">[ __M__ ]</a><a href=\"#Naaa\">[ __N__ ]</a><a href=\"#Oaaa\">[ __O__ ]</a><a href=\"#Paaa\">[ __P__ ]</a><a href=\"#Qaaa\">[ __Q__ ]</a><a href=\"#Raaa\">[ __R__ ]</a><a href=\"#Saaa\">[ __S__ ]</a><a href=\"#Taaa\">[ __T__ ]</a><a href=\"#Uaaa\">[ __U__ ]</a><a href=\"#Vaaa\">[ __V__ ]</a><a href=\"#Waaa\">[ __W__ ]</a><a href=\"#Xaaa\">[ __X__ ]</a><a href=\"#Yaaa\">[ __Y__ ]</a><a href=\"#Zaaa\">[ __Z__ ]</a><br>")
+      theFile.write("<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[ __A__ ]</a><a href=\"#Baaa\">[ __B__ ]</a><a href=\"#Caaa\">[ __C__ ]</a><a href=\"#Daaa\">[ __D__ ]</a><a href=\"#Eaaa\">[ __E__ ]</a><a href=\"#Faaa\">[ __F__ ]</a><a href=\"#Gaaa\">[ __G__ ]</a><a href=\"#Haaa\">[ __H__ ]</a><a href=\"#Iaaa\">[ __I__ ]</a><a href=\"#Jaaa\">[ __J__ ]</a><a href=\"#Kaaa\">[ __K__ ]</a><a href=\"#Laaa\">[ __L__ ]</a><a href=\"#Maaa\">[ __M__ ]</a><a href=\"#Naaa\">[ __N__ ]</a><a href=\"#Oaaa\">[ __O__ ]</a><a href=\"#Paaa\">[ __P__ ]</a><a href=\"#Qaaa\">[ __Q__ ]</a><a href=\"#Raaa\">[ __R__ ]</a><a href=\"#Saaa\">[ __S__ ]</a><a href=\"#Taaa\">[ __T__ ]</a><a href=\"#Uaaa\">[ __U__ ]</a><a href=\"#Vaaa\">[ __V__ ]</a><a href=\"#Waaa\">[ __W__ ]</a><a href=\"#Xaaa\">[ __X__ ]</a><a href=\"#Yaaa\">[ __Y__ ]</a><a href=\"#Zaaa\">[ __Z__ ]</a><br>")
 
     PreviousIndex='Z'
     for x in List:
         FileName=os.path.basename(x)
         DirName=os.path.basename(os.path.dirname(x))
+#        DirName=os.path.dirname(x)
         FileNoExt=os.path.splitext(FileName)[0]
-#        print(DirName, FileName)
+#        print (" **** " + DirName+" "+FileName)
+#        print (" ---- " + x)
         Length=len(FileNoExt)
         if (Length > MaxNameLength):
             Length=MaxNameLength
@@ -480,9 +491,10 @@ height: 100%; }\n\
              theFile.write("<p id=\""+CurrentIndex+"aaa\"></p>")
              theFile.write("<a style=\"color:red\" href=\"#TOP\">TOP</a><br>")
 
-        theFile.write("[<a href=./"+DirName+"/"+FileName+">"+FileNoExt+PadString+"</a>]\n")
-
+#        theFile.write("[<a href=./"+DirName+"/"+FileName+">"+FileNoExt+PadString+"</a>]\n")
+        theFile.write("[<a href="+x+">"+FileNoExt+PadString+"</a>]\n")
         PreviousIndex=CurrentIndex
+
     theFile.write("</tr></tt></code></big>\n</code>\n</p>\n</body>\n</html>")
     theFile.close()
 
@@ -514,20 +526,23 @@ def CreateNewHTML(fname,dirname,Files):
 <font color=#ff8002>Chords:  </font> <br>\n\
 <font color=#88ffff>Structure:  </font> <br>\n\
 </code>\n"
-  sPresets=['','Jazz_Pre','Expre Dist','Funky_Pre','','','','','','','','','']
-  sSetNow=['Jazz_Pre','','','','','','','','','','','','']
+  sPresets=['','Str_Pre','Expre Dist','Funky_Pre','','','','','','','','','']
+  sSetNow=['PlaceHolder','','','','','','','','','','','','']
   sSetIndex=1
   WriteFile(dirname+"/"+fname+".html", dirname)
 
 def ExtractPDF(Files, dirname):
 #    print ("Load Variables ",Files)
     for theFile in Files:
+#        if (theFile.endswith("pdf.conv")):
         if (theFile.endswith("pdf")):
             f = dirname+"/"+theFile
-            print ("pdf ", f)
-            with(Image(filename=f, resolution=120)) as source: 
+#            print ("The ** pdf ", f)
+            with(Image(filename=f, resolution=450)) as source: 
                for i, image in enumerate(source.sequence):
-                   newfilename = f[:-4] + str(i + 1) + '.pdf.jpg'
+#                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
+                   # -4 is to remove the .pdf
+                   newfilename = f[:-4] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
                    Image(image).save(filename=newfilename)
                    print ("PDF to ", newfilename)
            
@@ -580,8 +595,8 @@ if (ConvertPDF):
     ClearVariables()
     for filename in Files:
 #        Check for an html file
-        if filename.endswith('.html'):
-            sys.stdout.write("\n"+filename+" ")
+        if filename.endswith('.html') and not filename.startswith('.'):
+#            sys.stdout.write("\n 1-"+filename+" ")
             FoundHTML=1
 #           walk thru a file and pull out meta data.
             if (ParseFile(filename,Root) == 0):
@@ -598,39 +613,60 @@ for Root, Dir, Files in os.walk(BaseDir):
 
     FoundHTML=0
     for filename in Files:
+
 #        Check for an html file
-        if filename.endswith('.html'):
-            sys.stdout.write("\n"+filename+" ")
+        if filename.endswith('.html') and (FoundHTML == 0):
+#            sys.stdout.write("\n "+Root+" ")
+#            sys.stdout.write("\n "+filename+" ")
 
             FoundHTML=1
             ClearVariables()
 #           walk thru a file and pull out meta data.
-            if (ParseFile(filename,Root) == 0):
-#               print ("Adding to list ", filename)
+#           
+            if (ParseFile(filename,Root) == 0  and not filename.startswith('.')):
+                print ("Adding to list ", filename)
 
 #               add the html to the main index list
                 MySongList.append(Root+"/"+filename)
-                sys.stdout.write("Added ")
+#                sys.stdout.write(Root+"/"+filename+" ->Added\n")
+#                sys.stdout.write("Added ")
 
                 if (FixMetaData):
                     LoadVariables(Files)
                     WriteFile(Root+"/"+filename,Root)
                     sys.stdout.write("Write ")
 
+            # Check for Background and logo images.
+            if ( not os.path.exists(Root+"/background.png")):
+              print (Root+"/background.png")
+              copyfile("/home/elias/MySongs/background.png", Root+"/background.png")
+              copyfile("/home/elias/MySongs/logo.jpg", Root+"/logo.jpg")
 
 #   If we did find a valid html and were asked to create one.
-    if (CreateHTML and FoundHTML == 0):
-#      print ("Create file from Directory ", sTitle)
-      CreateNewHTML(sTitle,Root,Files)
-      MySongList.append(Root+"/"+sTitle+".html")
+    if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.') ):
+        print ("Create file from Directory ", sTitle)
+#        ClearVariables()
+        CreateNewHTML(sTitle,Root,Files)
+        MySongList.append(Root+"/"+sTitle+".html")
 
 if (CreateIndexFIle):
     MySongList.sort()
 #    print("List ----------------",len(MySongList))
+#    print(MySongList)
     GenerateIndex(BaseDir, MySongList,ReferenceCreate)
+
+
+
 
 # print("Done")
 
 
 
 # jpdfbookmarks.jar for modify pages
+
+# Remove special char
+# rename 's/#//g; s/\A-*//' *
+# rename 's/ //g; s/\A-*//' *
+# find ./ -type d -exec rename 's/ //g; s/\A-*//' {}"/"* \
+# mscore3 Azra.gp4 -o Azra.mscz
+# find ./ -iname \*.gp? -exec mscore3 {} -o {}".mscz" \;

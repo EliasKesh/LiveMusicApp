@@ -37,6 +37,7 @@ typedef struct {
 	char		LoopName[40];
 	float		Start;
 	float		Length;
+    float       Position;
 } SavedLoopType;
 
 /*

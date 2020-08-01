@@ -18,28 +18,28 @@ sleep 10
 cd /home/Dropbox/LiveEffects
 while true
 do
-systemctl --user reenable dbus-org.jackaudio.service
+# systemctl --user reenable dbus-org.jackaudio.service
 pid=`pgrep -i LiveMusicApp`
 if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 echo "Launching LiveMusic"
 #	cd /home/Dropbox/LiveEffects
- nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 1 -l 1` >> $LogFile 2>&1 &
+ nice -15 `GTK_THEME=LiveMusicTheme $1 -e -v 1 -l 1` >> $LogFile 2>&1 &
 	sleep 3
 	./GuitarEffects -c
 	./GuitarEffects -b
 fi
 
 
-pid=`pgrep -i guitarix`
+pid=`pgrep -i guitarix | head -n1 `
 if [ -z $pid ]
 then
 theDATE=$(date +"%d%H%M%S")
 echo "Launching Guitarix"
 #	cd /home/Dropbox/LiveEffects
-	guitarix  -p 7000 & 
-	sleep 3
+    MusicApps.sh EffectsProcessorApp &
+	sleep 6
 	./GuitarEffects -c
 	./GuitarEffects -b
 fi

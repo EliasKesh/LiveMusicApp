@@ -266,6 +266,7 @@ typedef struct {
 	unsigned int 	IncrementSwitch;
 	unsigned char 	MidiThresholdLevel;
 	unsigned int 	SetMP3PlayVolBool;
+	unsigned int 	ScrollUpdate;
 } LiveMusicInfo;
 
 /* Semophore for UI in GTK not timers.
@@ -558,8 +559,8 @@ EXTERN char TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
 EXTERN char NewInstall;
-EXTERN float PlayerCurTime;
-EXTERN char PlayerSection[30];
+EXTERN float PlayerDisTime;
+EXTERN char PlayerDisSection[30];
 
 #define MaxSongMarks	200
 #define SongSectionMax	30
