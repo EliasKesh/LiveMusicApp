@@ -82,9 +82,12 @@ theImageButtons TapTempoButton;
 //GtkWidget *scrolled_window;
 
 GtkWidget *ChartGTKView;
-char		SetListFileName[FileNameMaxLength];
+char  SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
 char  BasePathName[250];
+int   ScrollPosition;
+int   JavaScrollPosition;
+int  WaitForCallBack;
 
 // ~/.config/mimeapps.list
 
@@ -207,6 +210,7 @@ char SavePresetChanges(char *FileName) {
 void on_Back_clicked(GtkButton * button, gpointer user_data) {
 	const gchar *CurrentURI;
 
+	ScrollPosition = 0;
 //	webkit_web_view_set_editable( web_view, FALSE);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(BackButton.Image),
 	                          BackButton.ButtonDownImage);
@@ -243,6 +247,46 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 //#define MaxChartRepeat 10
 
 /*--------------------------------------------------------------------
+ * Function:		web_view_javascript_finished
+ *
+ * Description:	JavaScript callback
+ *
+ *---------------------------------------------------------------------*/
+static void
+web_view_javascript_finished (GObject      *object,
+                              GAsyncResult *result,
+                              gpointer      user_data) {
+	WebKitJavascriptResult *js_result;
+	JSCValue               *value;
+	GError                 *error = NULL;
+
+	WaitForCallBack = -100;
+
+//	printf("web_view_javascript_finished\n");
+	js_result = webkit_web_view_run_javascript_finish (WEBKIT_WEB_VIEW (object), result, &error);
+	if (!js_result) {
+//		printf ("Error running javascript: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	value = webkit_javascript_result_get_js_value (js_result);
+//	printf(" Return0 %x %s\n", value, value);
+	if (jsc_value_is_string (value)) {
+		JSCException *exception;
+		gchar        *str_value;
+
+		str_value = jsc_value_to_string (value);
+		exception = jsc_context_get_exception (jsc_value_get_context (value));
+		if (user_data == 1) {
+			JavaScrollPosition = atoi(str_value);
+//			printf("Java Scroll %s %d\n", str_value, JavaScrollPosition);
+		}
+	}
+	webkit_javascript_result_unref (js_result);
+}
+
+/*--------------------------------------------------------------------
  * Function:		ScrollCtrl
  *
  * Description:	Scroll the music
@@ -252,46 +296,50 @@ int ScrollCtrl(float Amount) {
 	GtkAdjustment *Adjust;
 	gdouble  UpperV, VIncrement;
 	gdouble Value;
-
-// xdotool windowactivate 100663307 ; xdotool key Page_Up
-
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
-	gtk_adjustment_set_page_size(Adjust, 100);
-
-	UpperV = gtk_adjustment_get_upper(Adjust);
-	gtk_adjustment_set_page_size(Adjust, 100);
-	gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
-	VIncrement = gtk_adjustment_get_page_increment(Adjust);
-	Value = gtk_adjustment_get_value(Adjust);
-	printd(LogTest, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
-	printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
-
-	if (Amount == ScrollPgDn)
-		if ((VIncrement + Value) >= UpperV) {
-			gtk_adjustment_set_value(Adjust, 0);
-			printd(LogTest, "ScrollDown Rolling Over\n");
-		} else {
-			gtk_adjustment_set_value(Adjust, VIncrement + Value);
-		}
+	char Script[500];
 
 
-	if (Amount == ScrollPgUp)
-		if ((Value - VIncrement) < 0) {
-			gtk_adjustment_set_value(Adjust, 0);
-			printd(LogTest, "ScrollDown Rolling Over\n");
-		} else {
-			gtk_adjustment_set_value(Adjust, Value - VIncrement);
-		}
+	ScrollPosition = ScrollGetPosition();
 
-	if (Amount >= 0) {
-		gtk_adjustment_set_value(Adjust, Amount);
-
+	if (Amount == ScrollPgDn) {
+		ScrollPosition += 300;
 	}
 
+	if (Amount == ScrollPgUp) {
+		ScrollPosition -= 300;
+	}
 
-	gtk_adjustment_changed(Adjust);
-	gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
-	return (0);
+	if (Amount == ScrollEnd) {
+		ScrollPosition = 100000;
+	}
+
+	if (Amount == ScrollHome) {
+		ScrollPosition = 0;
+	}
+
+	if (Amount == ScrollKeyDn) {
+		ScrollPosition += 25;
+	}
+
+	if (Amount == ScrollKeyUp) {
+		ScrollPosition -= 25;
+	}
+
+	if (Amount > 20)
+		ScrollPosition = Amount;
+
+	if (ScrollPosition < 0)
+		ScrollPosition = 0;
+
+//	sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
+	sprintf(Script, "window.scrollTo(%d,%d); \n", ScrollPosition, ScrollPosition);
+	webkit_web_view_run_javascript (web_view,
+	                                Script,
+	                                NULL,
+	                                NULL,
+	                                NULL);
+return (0);
+
 }
 
 /*--------------------------------------------------------------------
@@ -301,14 +349,18 @@ int ScrollCtrl(float Amount) {
  *
  *---------------------------------------------------------------------*/
 float ScrollGetPosition(void) {
-	GtkAdjustment *Adjust;
-	gdouble Value;
 
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
-	gtk_adjustment_set_page_size(Adjust, 100);
-	Value = gtk_adjustment_get_value(Adjust);
-	printf("Value %f\n", Value);
-	return ((float)Value);
+	WaitForCallBack = 10000;
+	webkit_web_view_run_javascript (web_view,
+	                                "window.pageYOffset.toString();",
+	                                NULL,
+	                                web_view_javascript_finished,
+	                                1);
+
+	while (--WaitForCallBack > 0);
+//	printf("Scroll J %d-> S %d  Wait %d\n",
+//	       JavaScrollPosition, ScrollPosition, WaitForCallBack);
+	return (JavaScrollPosition);
 }
 
 /*--------------------------------------------------------------------
@@ -545,8 +597,10 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	// Call the text editor.
 //	sprintf(ExecuteString, "gedit %s &\n",
 //	        CurrentURI);
-	sprintf(ExecuteString, "%s %s &\n",
-	        gMyInfo.Apps[HTMLEditor].Name,
+	// sprintf(ExecuteString, "%s %s &\n",
+	//         gMyInfo.Apps[HTMLEditor].Name,
+	//         &CurrentURI[7]);
+	sprintf(ExecuteString, "MusicApps.sh html %s &\n",
 	        &CurrentURI[7]);
 	printd(LogTest, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
@@ -570,7 +624,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	*/
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
-
+	ScrollPosition = 0;
 	/* We only care about the completed event.
 	WEBKIT_LOAD_STARTED, WEBKIT_LOAD_REDIRECTED,
 	WEBKIT_LOAD_COMMITTED, WEBKIT_LOAD_FINISHED
@@ -596,7 +650,6 @@ void PageLoaded (WebKitWebView  *web_view,
 	/* Keep a record
 	*/
 	WriteToHistory(CurrentURI);
-
 //	Pointer = strstr(CurrentURI, ".html");
 
 	/* Let's check to see if this is an HTML file.
@@ -659,6 +712,11 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	char string[150];
 	int Loop;
 	char *mimeType;
+	char *ext;
+	int 	SysRet;
+	char *PageIndex;
+	int	PageNumber;
+
 
 	if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE)
 		return FALSE;
@@ -667,7 +725,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
 	WebKitWebResource *mainResource = webkit_web_view_get_main_resource(web_view);
 	WebKitURIRequest *request = webkit_response_policy_decision_get_request(responseDecision);
-	const char *requestURI = webkit_uri_request_get_uri(request);
+	char *requestURI = webkit_uri_request_get_uri(request);
 	printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource) );
 
 //   webkit_policy_decision_download(decision);
@@ -677,6 +735,50 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	DecodeURI(theOrgURI, theURI);
 	printd(LogDebug, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
 
+
+	ext = strrchr(theURI, '.');
+	// if (!ext) {
+	// 	/* no extension */
+	// } else {
+	// 	printf("extension is %s\n", ext + 1);
+	// }
+
+	/* If it's a web page we want to display,
+	Let the WebKit handle it.
+	*/
+	if (strstr(theURI, ".html") || (ext == NULL)) {
+		return (FALSE);
+	}
+
+	// if (strstr(theURI, "file:")) {
+	// 	return(FALSE);
+	// }
+
+#if 1
+	if (strstr(theURI, ".pdf")) {
+		PageIndex = strstr(theURI, "#page=");
+		if (PageIndex) {
+			webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+			*PageIndex = 0;
+			PageIndex += 6;
+			PageNumber = atoi(PageIndex);
+			sprintf(string, "MusicApps.sh %s \'%s\' %d", ext + 1, &theURI[7], PageNumber);
+		} else
+			sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+	} else
+		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+	SysRet = system(string);
+	printd(LogInfo, "*** systemcall %s\n", string);
+//	printf("Type %s returns %d\n", ext, SysRet);
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	if (!SysRet) {
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		return (true);
+	} else
+		return (false);
+#else
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
 	 * not to deal with it.
 	 */
@@ -701,7 +803,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
+//		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
+		sprintf(string, "MusicApps.sh  mp4 \'%s\' ", &theURI[7]);
 		system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
@@ -717,12 +820,14 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
+//		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
+		sprintf(string, "MusicApps.sh med \'%s\' ", &theURI[7]);
 //		sprintf(string, "muse \'%s\' &", &theURI[7]);
 //		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
-		system(string);
+		SysRet = system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
 
+		printf("Type %s returns %d\n", ext, SysRet);
 		/*
 		 * This tells webkit we are dealing with it.
 		 */
@@ -735,15 +840,20 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 
-		sprintf(string, "musescore \'%s\' &", &theURI[7]);
+//		sprintf(string, "musescore \'%s\' &", &theURI[7]);
+		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
 //		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
-		system(string);
+		SysRet = system(string);
 		printd(LogInfo, "*** systemcall %s\n", string);
+		printf("Type %s returns %d\n", ext, SysRet);
 
 		/*
 		 * This tells webkit we are dealing with it.
 		 */
-		return (true);
+		if (!SysRet)
+			return (true);
+		else
+			return (false);
 	}
 
 
@@ -777,7 +887,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			PageIndex += 6;
 			PageNumber = atoi(PageIndex);
 //			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
-			sprintf(string, "okular \'%s\' --page=%d &", &theURI[7], PageNumber);
+//			sprintf(string, "okular \'%s\' --page=%d &", &theURI[7], PageNumber);
+			sprintf(string, "MusicApps.sh pdf \'%s\' --page=%d ", &theURI[7], PageNumber);
 		} else {
 			return (false);
 		}
@@ -790,7 +901,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		return (true);
 	}
-
+#endif
 	//   webkit_web_policy_decision_use(policy_decision);
 	// Tell Webkit to handle the URI
 	return (false);
@@ -950,24 +1061,6 @@ void InitHTML(GtkBuilder * gxml) {
 //		gtk_widget_set_name (scrolled_window, "GtkLauncher");
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
 	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-#if 0
-// Scroll bar fix to add GtkViewport
-	GtkWidget *viewport;
-	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
-	       gtk_widget_get_margin_right (scrolled_window));
-	viewport =
-	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
-	                      gtk_scrolled_window_get_vadjustment (scrolled_window));
-	gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
-	                                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
-	gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
-	                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
-//      gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
-//	gtk_scrolled_window_set_max_content_width()
-	gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
-
-
-#endif
 
 	/* Create a new webkit view to display our data.
 	 */
@@ -1277,13 +1370,12 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			printd(LogDebug, "DrumFile %s\n", tokenizer);
 			strcpy(DrumFile, tokenizer);
 			strncpy(temp, Copy, MAXLINE);
- 			if (DrumFile[0] == 62)
- 				DrumFile[0] = 0;
+			if (DrumFile[0] == 62)
+				DrumFile[0] = 0;
 
- 			if (!strcmp(DrumFile,"/dev/null")) {
- 				printf("DevNull Found");
- 				DrumFile[0] = 0;
- 			}
+			if (!strcmp(DrumFile, "/dev/null")) {
+				DrumFile[0] = 0;
+			}
 		}
 
 		/* Set the current patch to this one.
@@ -1360,11 +1452,11 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		 */
 //		if (DrumFile[0] == 0)
 //			DrumFile[0] = 'A';
-		
+
 //		strncpy(&FileName[7], gMyInfo.BasePath, sizeof (FileName) - 7);
 //		sprintf(Copy, "%s/LoadDrumFile %s & ", gMyInfo.BasePath, DrumFile);
 //		printf("Drum File [%s]\n",DrumFile);
-		sprintf(Copy, "LoadDrumFile %s & ", DrumFile);
+		sprintf(Copy, "MusicApp.sh DrumFile %s & ", DrumFile);
 		printd(LogDebug, "Calling System with %s\n", Copy);
 		system(Copy);
 	}
@@ -1556,4 +1648,75 @@ PolicyRequestCD (WebKitWebView* view, WebKitWebFrame* frame,
 	return FALSE;
 }
 
+#endif
+#if 0
+	if (Amount == ScrollPgDn)
+		if ((VIncrement + Value) >= UpperV) {
+			gtk_adjustment_set_value(Adjust, 0);
+			printd(LogTest, "ScrollDown Rolling Over\n");
+		} else {
+			gtk_adjustment_set_value(Adjust, VIncrement + Value);
+		}
+
+	if (Amount == ScrollPgUp)
+		if ((Value - VIncrement) < 0) {
+			gtk_adjustment_set_value(Adjust, 0);
+			printd(LogTest, "ScrollDown Rolling Over\n");
+		} else {
+			gtk_adjustment_set_value(Adjust, Value - VIncrement);
+		}
+
+	if (Amount >= 0) {
+		gtk_adjustment_set_value(Adjust, Amount);
+
+	}
+
+	gtk_adjustment_changed(Adjust);
+	gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
+#endif
+#if 0
+// Scroll bar fix to add GtkViewport
+	GtkWidget *viewport;
+	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
+	       gtk_widget_get_margin_right (scrolled_window));
+	viewport =
+	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
+	                      gtk_scrolled_window_get_vadjustment (scrolled_window));
+	gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
+	                                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+	gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
+	                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+//      gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
+//	gtk_scrolled_window_set_max_content_width()
+	gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
+
+
+#endif
+
+
+#if 0
+	GtkAdjustment *Adjust;
+	gdouble Value;
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+	gtk_adjustment_set_page_size(Adjust, 100);
+	Value = gtk_adjustment_get_value(Adjust);
+	printf("Value %f\n", Value);
+	return ((float)Value);
+#endif
+
+// xdotool windowactivate 100663307 ; xdotool key Page_Up
+//web_view
+//ChartGTKView
+#if 0
+	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+	gtk_adjustment_set_page_size(Adjust, 100);
+
+	UpperV = gtk_adjustment_get_upper(Adjust);
+	gtk_adjustment_set_page_size(Adjust, 100);
+	gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
+	VIncrement = gtk_adjustment_get_page_increment(Adjust);
+	Value = gtk_adjustment_get_value(Adjust);
+	printd(LogTest, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+	printf("In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+	printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
 #endif

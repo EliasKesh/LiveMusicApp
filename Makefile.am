@@ -28,9 +28,7 @@ src/PrefsGui.h \
 src/Connections.h \
 src/HTML.h \
 src/Player.h \
-src/SooperOSC.h \
-ChartFixer/ChartFixer.c \
-ChartFixer/ChartFixer.h
+src/SooperOSC.h 
 
 LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result -Wno-deprecated
 LiveMusicApp_CPPFLAGS += $(GTK3_CFLAGS)

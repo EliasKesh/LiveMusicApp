@@ -199,8 +199,10 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
 
 	printd (LogDebug, "Prefs_Regenerate_handler\n");
 //	gtk_widget_destroy(user_data);
-	DoChartFix(gMyInfo.BasePath,
-	           1, 1, 1, 1);
+//	DoChartFix(gMyInfo.BasePath,
+//	           1, 1, 1, 1);
+	system("ReIndex.sh");
+
 }
 
 /*--------------------------------------------------------------------
@@ -473,6 +475,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 
 	case Name_COLUMN:
 		strcpy(gMyInfo.MyPatchInfo[Loop].Name, new_text);
+		CreatePatchPopupMenu();
 		break;
 
 	case Bank_COLUMN:
@@ -503,6 +506,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 		break;
 
 	}
+
 }
 
 /*--------------------------------------------------------------------

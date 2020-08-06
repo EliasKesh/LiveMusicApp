@@ -113,6 +113,11 @@ char String[20];
 void CreatePatchPopupMenu(void) {
 	GtkWidget *menuitem;
 	int	Loop;
+
+	if (PatchPopupMenu) {
+		// Should free something.
+	}
+
 	PatchPopupMenu = gtk_menu_new();
 
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
@@ -121,16 +126,6 @@ void CreatePatchPopupMenu(void) {
 		g_signal_connect(menuitem, "activate",
 		                 (GCallback ) Patch_Popup_CB, Loop);
 	}
-
-#if 0
-	for (Loop = 0; Loop < MaxPresetButtons - 1; Loop++) {
-		menuitem = gtk_menu_item_new_with_label(gMyInfo.MyPatchInfo[Loop].Name);
-		gtk_menu_shell_append(GTK_MENU_SHELL(PatchPopupMenu), menuitem);
-		g_signal_connect(menuitem, "activate",
-		                 (GCallback ) Patch_Popup_CB, Loop);
-	}
-#endif
-
 }
 
 /*--------------------------------------------------------------------

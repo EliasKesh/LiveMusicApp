@@ -586,9 +586,8 @@ int SendMidiPatch(PatchInfo * thePatch) {
 			OpenSetListSong(CurrentSetListSong + 1);
 
 		break;
-
 	case cmdScroll:
-		gMyInfo.ScrollUpdate = -1 * thePatch->Patch;
+		gMyInfo.ScrollUpdate = thePatch->Patch;
 //		ScrollCtrl(thePatch->Patch);
 		break;
 

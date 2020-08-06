@@ -58,12 +58,12 @@ int ScrollCtrl(float Amount);
 float ScrollGetPosition(void);
 
 enum { 
-    ScrollPgDn = -1, 
-    ScrollPgUp = -2, 
-    ScrollEnd = -3,
-    ScrollHome = -4, 
-    ScrollKeyDn = -5, 
-    ScrollKeyUp = -6
+    ScrollPgDn = 1, 
+    ScrollPgUp = 2, 
+    ScrollEnd = 3,
+    ScrollHome = 4, 
+    ScrollKeyDn = 5, 
+    ScrollKeyUp = 6
 };
 
 #endif /* HTML_H_ */

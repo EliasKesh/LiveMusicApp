@@ -906,6 +906,7 @@ streamFile(const char *filename) {
 							XML_PARSE_NOERROR
 	                         // XML_PARSE_DTDVALID /* validate with the DTD */
 								);
+
 	if (reader != NULL) {
 		ret = xmlTextReaderRead(reader);
 		while (ret == 1) {
@@ -963,9 +964,9 @@ streamFile(const char *filename) {
 		/*
 		 * Once the document has been fully parsed check the validation results
 		 */
-		if (xmlTextReaderIsValid(reader) != 1) {
-			fprintf(stderr, "Document %s does not validate\n", filename);
-		}
+		// if (xmlTextReaderIsValid(reader) != 1) {
+		// 	fprintf(stderr, "Document %s does not validate\n", filename);
+		// }
 		xmlFreeTextReader(reader);
 		if (ret != 0) {
 			fprintf(stderr, "%s : failed to parse\n", filename);
@@ -975,7 +976,6 @@ streamFile(const char *filename) {
 	}
 
 	return (ret);
-
 }
 
 /*--------------------------------------------------------------------

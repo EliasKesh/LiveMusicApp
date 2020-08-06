@@ -187,6 +187,7 @@ typedef struct {
 	char BasePath[255];
 	char NumOutPorts;
 	char OutPortName[MaxOutPorts][MaxStringPortName];
+	// Mostly moved to bash script.
 	PortInformation Apps[MaxApps];
 	char TempoMax;
 	char MetronomeOn;
