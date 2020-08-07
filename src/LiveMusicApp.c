@@ -652,7 +652,9 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	MyOSCClose();
 	CloseJackTransport();
 	LivePlayerClose();
-	printd(LogInfo, "Closing LiveApp\n");
+
+	/* No printd after this.
+	*/
 	fclose(LogFile);
 
 	return 0;

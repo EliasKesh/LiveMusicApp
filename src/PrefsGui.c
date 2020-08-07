@@ -362,9 +362,7 @@ void InitGuiPrefs(void) {
 	g_signal_connect_data(G_OBJECT(widget), "changed",
 	                      G_CALLBACK(on_BasePath_changed), NULL, NULL, 0);
 	gtk_entry_set_text(widget, gMyInfo.BasePath);
-
 }
-
 
 /*--------------------------------------------------------------------
  * Function:		CreatePatchModel
@@ -377,13 +375,12 @@ static GtkTreeModel *CreatePatchModel(void) {
 	unsigned int Loop;
 #if 1
 	GtkListStore *treestore;
-
 	treestore = gtk_list_store_new(NumCOLUMN,
 	                               G_TYPE_STRING,
 	                               G_TYPE_STRING,
 	                               G_TYPE_UINT,
-	                               G_TYPE_UINT,
-	                               G_TYPE_CHAR,
+                                   G_TYPE_UINT,
+	                               G_TYPE_STRING,
 	                               G_TYPE_CHAR,
 	                               G_TYPE_STRING,
 	                               G_TYPE_STRING);
@@ -401,6 +398,8 @@ static GtkTreeModel *CreatePatchModel(void) {
 
 #endif
 	for (Loop = 0; Loop < Max_Patches; Loop++) {
+		// printf("%d %d %s\n", Loop, gMyInfo.MyPatchInfo[Loop].OutPort,
+		// 	gMyInfo.OutPortName[gMyInfo.MyPatchInfo[Loop].OutPort]);
 //		gtk_tree_store_append(treestore, &toplevel,NULL);
 		gtk_list_store_append(treestore, &toplevel);
 		gtk_list_store_set(treestore, &toplevel,
@@ -409,7 +408,8 @@ static GtkTreeModel *CreatePatchModel(void) {
 		                   Name_COLUMN, gMyInfo.MyPatchInfo[Loop].Name,
 		                   Bank_COLUMN, gMyInfo.MyPatchInfo[Loop].BankSelect,
 		                   Patch_COLUMN, gMyInfo.MyPatchInfo[Loop].Patch,
-		                   Output_COLUMN, gMyInfo.MyPatchInfo[Loop].OutPort,
+		                   Output_COLUMN, gMyInfo.OutPortName[gMyInfo.MyPatchInfo[Loop].OutPort],
+//		                   Output_COLUMN, gMyInfo.MyPatchInfo[Loop].OutPort,
 		                   Channel_COLUMN, gMyInfo.MyPatchInfo[Loop].Channel,
 		                   Command_COLUMN, CustomCommands[gMyInfo.MyPatchInfo[Loop].CustomCommand],
 		                   Chain_COLUMN, gMyInfo.MyPatchInfo[Loop].Chain, -1);
@@ -458,9 +458,15 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 	switch (column) {
 	case Name_COLUMN:
 	case Command_COLUMN:
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, new_text,
-		                   -1);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, 
+			new_text,-1);
 		break;
+
+	case Output_COLUMN:
+//		printf("IN Output %s\n", new_text);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, 
+			new_text,-1);
+	break;
 
 	default:
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter, column,
@@ -487,7 +493,12 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 		break;
 
 	case Output_COLUMN:
-		gMyInfo.MyPatchInfo[Loop].OutPort = atoi(new_text);
+		// gMyInfo.MyPatchInfo[Loop].OutPort = atoi(new_text);
+		for (Loop1 = 0; Loop1 <= MaxOutPorts; Loop1++) {
+			if (strstr((char *)&gMyInfo.OutPortName[Loop1], new_text)) {
+				gMyInfo.MyPatchInfo[Loop].OutPort = Loop1;
+			}
+		}
 		break;
 
 	case Channel_COLUMN:
@@ -506,7 +517,28 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 		break;
 
 	}
+}
 
+/*--------------------------------------------------------------------
+ * Function:		create_combo_Output_model
+ *
+ * Description:		<Description/Comments>
+ *
+ *---------------------------------------------------------------------*/
+GtkTreeModel *create_combo_Output_model(void) {
+	GtkTreeModel *model1;
+	GtkTreeIter iter;
+	gint i;
+
+	model1 = GTK_TREE_MODEL(gtk_list_store_new(1, G_TYPE_STRING));
+
+	for (i = 0; i < MaxOutPorts; i++) {
+		gtk_list_store_append(GTK_LIST_STORE(model1), &iter);
+		gtk_list_store_set(GTK_LIST_STORE(model1), &iter, 0, 
+			gMyInfo.OutPortName[i], -1);
+	}
+
+	return model1;
 }
 
 /*--------------------------------------------------------------------
@@ -523,10 +555,9 @@ GtkTreeModel *create_combo_model(void) {
 	model = GTK_TREE_MODEL(gtk_list_store_new(1, G_TYPE_STRING));
 
 	for (i = 0; i < MaxCommands; i++) {
-
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, CustomCommands[i],
-		                   -1);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, 
+			CustomCommands[i], -1);
 	}
 
 	return model;
@@ -585,13 +616,14 @@ void row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path,
 static GtkWidget *CreatePatchViewModel(void) {
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
-	GtkTreeModel *model, *combomodel;
+	GtkTreeModel *model, *combomodel, *OutPortModel;
 	GtkWidget *view;
 	GtkTreeSelection *sel;
 
 	view = gtk_tree_view_new();
 
 	combomodel = create_combo_model();
+	OutPortModel = create_combo_Output_model();
 #if 0
 	/* --- Button_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new ();
@@ -639,6 +671,7 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
 
 	/* --- Output_COLUMN --- */
+#if 0
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "editable", TRUE, NULL);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
@@ -647,7 +680,21 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_object_set_data(G_OBJECT(renderer), "column",
 	                  GUINT_TO_POINTER(Output_COLUMN));
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
-
+#else
+	renderer = gtk_cell_renderer_combo_new();
+	g_object_set(renderer, "text-column", 0, "model", OutPortModel, "mode",
+	             GTK_CELL_RENDERER_MODE_ACTIVATABLE, "editable", TRUE, "has-entry",
+	             FALSE,
+	             NULL);
+	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+	        Output_COLUMN, "OutPort", renderer, "text", Output_COLUMN,
+	        NULL);
+	g_object_set_data(G_OBJECT(renderer), "column",
+	                  GUINT_TO_POINTER(Output_COLUMN));
+	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
+	g_signal_connect(G_OBJECT(renderer), "editing-started",
+	                 G_CALLBACK(text_editing_started), Output_COLUMN);
+#endif
 	/* --- Channel_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "editable", TRUE, NULL);
@@ -673,7 +720,7 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
 //	g_signal_connect(renderer, "clicked", (GCallback ) PatchListEdited, view);
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
-	                 G_CALLBACK(text_editing_started), Button_COLUMN);
+	                 G_CALLBACK(text_editing_started), Command_COLUMN);
 
 	/* --- Chain_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();
@@ -705,6 +752,7 @@ static GtkWidget *CreatePatchViewModel(void) {
 	return view;
 }
 
+#if 0
 void  OnPatchSelected(GtkWidget *widget, int	Starting) {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -722,4 +770,4 @@ void  OnPatchSelected(GtkWidget *widget, int	Starting) {
 		g_free(value);
 	}
 }
-
+#endif

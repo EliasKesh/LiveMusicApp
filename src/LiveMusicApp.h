@@ -69,11 +69,13 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 //#define ResourceDirectory	"~/.config/LiveMusicApp/"
 
 #define MaxStringPortName	32
+#if 1
 enum {
 	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
 	TempoPort, ClickPort, PedalPort, InternalPort, 
 	User1, User2, User3, MaxOutPorts
 };
+#endif
 
 // Timer countdown in Miliseconds
 #define Timer1Ticks		250

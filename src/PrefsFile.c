@@ -501,6 +501,7 @@ void WritePrefs (void) {
 //              doc->children = xmlNewDocNode(doc, NULL, gMyInfo.MyPatchInfo[Loop].Button, NULL);
 		sprintf (buff, "Preset%03d", Loop);
 		node = xmlNewChild (node1, NULL, buff, NULL);
+//		printf("%d  %s\n", Loop, gMyInfo.MyPatchInfo[Loop].Name);
 		xmlSetProp (node, "Name", gMyInfo.MyPatchInfo[Loop].Name);
 		sprintf (buff, "%03d", gMyInfo.MyPatchInfo[Loop].Channel);
 		xmlSetProp (node, "Channel", buff);
@@ -596,7 +597,7 @@ void LoadXMLPair(ParseData *theData) {
 
 	/* Let's start by looking for the highest level qualifier.
 	 */
-	if (!strcmp ("MainButtons", name)) {
+	if (!strcmp ("MainButtons", name) && theData[2].name[0]) {
 		sscanf (theData[2].name, "Preset%03d", &HoldIndex);
 
 		if (!strcmp ("Name", theData[3].name))
@@ -646,7 +647,7 @@ void LoadXMLPair(ParseData *theData) {
 		printd (LogDebug, "\n***Number of Strings %d\n", gMyInfo.NumberOfStrings);
 	}
 
-	if (!strcmp ("Strings", name)) {
+	if (!strcmp ("Strings", name)  && theData[2].name[0]) {
 //			TopLevelParse = dTopStrings;
 		sscanf (theData[2].name, "StrNum%03d", &HoldIndex);
 		gMyInfo.BaseStringName[HoldIndex] = atoi(theData[3].value);
@@ -655,7 +656,7 @@ void LoadXMLPair(ParseData *theData) {
 		        gMyInfo.BaseStringName[HoldIndex]);
 	}
 
-	if (!strcmp ("OutPorts", name)) {
+	if (!strcmp ("OutPorts", name) && theData[2].name[0]) {
 		sscanf (theData[2].name, "Port%03d", &HoldIndex);
 		strcpy (gMyInfo.OutPortName[HoldIndex], theData[3].value);
 		printd (LogDebug, "dTopLevelOutPorts %d %s\n",
@@ -687,7 +688,7 @@ void LoadXMLPair(ParseData *theData) {
 
 	}
 
-	if (!strcmp ("ControllerMap", name)) {
+	if (!strcmp ("ControllerMap", name)  && theData[2].name[0]) {
 //			TopLevelParse = dTopLevelControllerMap;
 		sscanf (theData[2].name, "App%03d", &HoldIndex);
 
@@ -730,7 +731,7 @@ void LoadXMLPair(ParseData *theData) {
 		gMyInfo.DrumRest = atoi (value);
 	}
 
-	if (!strcmp ("Layouts", name)) {
+	if (!strcmp ("Layouts", name)  && theData[2].name[0]) {
 		sscanf (theData[2].name, "Layout%03d", &HoldIndex);
 
 		if (!strcmp ("LayoutName", theData[3].name)) {
@@ -738,7 +739,7 @@ void LoadXMLPair(ParseData *theData) {
 			theData[3].value[0] = 0;
 		}
 		else
-		if (!strcmp ("PatchName", theData[4].name)) {
+		if (!strcmp ("PatchName", theData[4].name) && theData[2].name[0]) {
 			sscanf (theData[3].name, "Patch%03d", &ParseCountL2);
 			strcpy (gMyInfo.
 			        LayoutPresets[HoldIndex].Presets[ParseCountL2],
@@ -905,10 +906,13 @@ streamFile(const char *filename) {
 							XML_PARSE_PEDANTIC |
 							XML_PARSE_NOERROR
 	                         // XML_PARSE_DTDVALID /* validate with the DTD */
-								);
+							);
 
 	if (reader != NULL) {
 		ret = xmlTextReaderRead(reader);
+
+		/* Walk thru the preference file.
+		*/
 		while (ret == 1) {
 
 			processNode(reader, &theData1);
@@ -920,8 +924,11 @@ streamFile(const char *filename) {
 #if 1
 			if (theData1.Level < MaxLevels ) {
 				myData[theData1.Level] = theData1;
+				// printd(LogDebug, "theData1.Level < MaxLevels\n");
+				//printf("StreamFile 30\n");
 				if (theData1.Type < MaxLevels)
 					LoadXMLData(myData);
+	
 			}
 #else
 			if (theData1.Level == 2 && theData1.Type == 1) {
