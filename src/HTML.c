@@ -338,7 +338,7 @@ int ScrollCtrl(float Amount) {
 	                                NULL,
 	                                NULL,
 	                                NULL);
-return (0);
+	return (0);
 
 }
 
@@ -602,7 +602,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 	//         &CurrentURI[7]);
 	sprintf(ExecuteString, "MusicApps.sh html %s &\n",
 	        &CurrentURI[7]);
-	printd(LogTest, "Edit: %s\n", ExecuteString);
+	printd(LogDebug, "Edit: %s\n", ExecuteString);
 	system(ExecuteString);
 }
 #endif
@@ -721,11 +721,15 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE)
 		return FALSE;
 
-	WebKitResponsePolicyDecision *responseDecision = WEBKIT_RESPONSE_POLICY_DECISION(decision);
+	WebKitResponsePolicyDecision *responseDecision =
+	    WEBKIT_RESPONSE_POLICY_DECISION(decision);
+	WebKitWebResource *mainResource =
+	    webkit_web_view_get_main_resource(web_view);
+	WebKitURIRequest *request =
+	    webkit_response_policy_decision_get_request(responseDecision);
+	char *requestURI =
+	    webkit_uri_request_get_uri(request);
 
-	WebKitWebResource *mainResource = webkit_web_view_get_main_resource(web_view);
-	WebKitURIRequest *request = webkit_response_policy_decision_get_request(responseDecision);
-	char *requestURI = webkit_uri_request_get_uri(request);
 	printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource) );
 
 //   webkit_policy_decision_download(decision);
@@ -736,12 +740,9 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	printd(LogDebug, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
 
 
+	/* get the extension of the file.
+	*/
 	ext = strrchr(theURI, '.');
-	// if (!ext) {
-	// 	/* no extension */
-	// } else {
-	// 	printf("extension is %s\n", ext + 1);
-	// }
 
 	/* If it's a web page we want to display,
 	Let the WebKit handle it.
@@ -750,11 +751,28 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (FALSE);
 	}
 
-	// if (strstr(theURI, "file:")) {
-	// 	return(FALSE);
-	// }
-
 #if 1
+	/* If we find an MP3 file then handle it ourselves and tell WebKit
+	 * not to deal with it.
+	 */
+	if (strstr(theURI, ".mp3")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		SetPlayerFile((theURI + 7));
+		printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	/* Depending on the PDF call there may be a page number, so
+	we will handle it.
+	*/
 	if (strstr(theURI, ".pdf")) {
 		PageIndex = strstr(theURI, "#page=");
 		if (PageIndex) {
@@ -767,17 +785,23 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
 	} else
 		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+
+	/* Call the bash app and see if there is a handler for the media-type.
+	*/
 	SysRet = system(string);
-	printd(LogInfo, "*** systemcall %s\n", string);
-//	printf("Type %s returns %d\n", ext, SysRet);
+	printd(LogInfo, "*** systemcall %d %s\n", SysRet, string);
+
 	/*
 	 * This tells webkit we are dealing with it.
 	 */
 	if (!SysRet) {
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogInfo, "NavPol return true\n");
 		return (true);
-	} else
+	} else {
+		printd(LogInfo, "NavPol return false\n");
 		return (false);
+	}
 #else
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
 	 * not to deal with it.
@@ -1048,17 +1072,11 @@ void InitHTML(GtkBuilder * gxml) {
 		                 "button-release-event",
 		                 G_CALLBACK(on_patch__release_handler),
 		                 Loop);
-
 	}
-
-
 
 	ChartGTKView = GTK_WIDGET(
 	                   gtk_builder_get_object(gxml, "scrolledwindow1"));
 
-
-
-//		gtk_widget_set_name (scrolled_window, "GtkLauncher");
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
 	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
@@ -1125,43 +1143,19 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(Play_click_handler), &PlayPauseButton);
 
-#if 0
-	g_signal_connect(G_OBJECT(EventBox), "button-release-event",
-	                 G_CALLBACK(normal_release_handler), &PlayPauseButton);
-
-	g_signal_connect(web_view, "load-finished", G_CALLBACK(load_finished_cb), NULL);
-
-	/* Connect to the viewport-attributes-changes signal */
-	WebKitViewportAttributes* attributes = webkit_web_view_get_viewport_attributes (web_view);
-	g_signal_connect (web_view, "viewport-attributes-recompute-requested", G_CALLBACK (viewport_recompute_cb), scrolled_window);
-	g_signal_connect (web_view, "viewport-attributes-changed", G_CALLBACK (viewport_changed_cb), scrolled_window);
-	g_signal_connect (attributes, "notify::valid", G_CALLBACK (viewport_valid_changed_cb), web_view);
-#endif
-
 	/* Register a callback that gets invoked each time that a page is finished downloading */
 
 	g_signal_connect(web_view, "load-changed", G_CALLBACK(PageLoaded), NULL);
-#if 0
-	g_signal_connect(web_view, "load-finished", G_CALLBACK(PageLoaded), NULL);
-
-	g_signal_connect(web_view, "download-requested", G_CALLBACK(DownloadRequestcb), NULL);
-	g_signal_connect(web_view, "mime-type-policy-decision-requested", G_CALLBACK(PolicyRequestCD), NULL);
-#endif
-
 	g_signal_connect(web_view, "decide-policy",
 	                 G_CALLBACK(NavigationPolicy), NULL);
 
 	strncpy(FileName, "file://", 7 );
 	strncpy(&FileName[7], gMyInfo.BasePath, sizeof (FileName) - 7);
 	printd (LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
-	//   strcat(FileName, "/indexCharts.html");
-//	strncpy(FileName, "file:///home/Dropbox/FusionBlue/index.html", 254);
 	webkit_web_view_load_uri (web_view, FileName);
 
 	WebKitSettings *settings = webkit_settings_new ();
-//	g_object_set(G_OBJECT(settings), "auto-shrink-images", FALSE, NULL);
 	g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
-//	g_object_set(G_OBJECT(settings), "enable-frame-flattening", FALSE, NULL);
 
 	if (ScreenSize == 0) {
 		g_object_set(G_OBJECT(settings), "default-font-size", 12, NULL);
@@ -1182,7 +1176,6 @@ void InitHTML(GtkBuilder * gxml) {
 	webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
 	webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
-//	webkit_web_view_set_editable(G_OBJECT(settings), FALSE);
 #if 0
 	webkit_settings_set_enable_accelerated_2d_canvas(G_OBJECT(settings), TRUE);
 	webkit_settings_set_draw_compositing_indicators(G_OBJECT(settings), FALSE);
@@ -1197,12 +1190,8 @@ void InitHTML(GtkBuilder * gxml) {
 	             "hardware-acceleration-policy", WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS
 	            );
 #endif
-//	gtk_widget_set_vexpand(GTK_WIDGET(web_view), true);
-
-
 	/* Apply the result */
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
-
 	gtk_widget_show_all(ChartGTKView);
 }
 
@@ -1250,52 +1239,25 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		temp[MAXLINE] = 0;
 
 		strncpy(Copy, temp, MAXLINE);
-		/* Set up Preset 1 button.
+
+		/* Look for Presets.
 		 */
-		Found = strstr(temp, "Preset1");
+		Found = strstr(temp, "Preset");
 		if (Found != NULL) {
+			Value = Found[6] - '1';
+//			printf("We are in Presets [%d]\n", Value);
+
 			/* skip 8  "preset1 "	*/
 			Found += (8 + ContentTagLen);
-			thePresets->thePreset[0] = AssignPreset(1, Found);
-			printd(LogDebug, "Preset1 %d\n", thePresets->thePreset[0]);
-			strncpy(temp, Copy, MAXLINE);
-		}
 
-		/* Set up Preset 2 Button.
-		 */
-		Found = strstr(temp, "Preset2");
-		if (Found != NULL) {
-			Found +=  (8 + ContentTagLen);
-			thePresets->thePreset[1] = AssignPreset(2, Found);
-			strncpy(temp, Copy, MAXLINE);
-		}
-
-		Found = strstr(temp, "Preset3");
-		if (Found != NULL) {
-			Found +=  (8 + ContentTagLen);
-			thePresets->thePreset[2] = AssignPreset(3, Found);
-			strncpy(temp, Copy, MAXLINE);
-		}
-
-		Found = strstr(temp, "Preset4");
-		if (Found != NULL) {
-			Found +=  (8 + ContentTagLen);
-			thePresets->thePreset[3] = AssignPreset(4, Found);
-			strncpy(temp, Copy, MAXLINE);
-		}
-
-		Found = strstr(temp, "Preset5");
-		if (Found != NULL) {
-			Found +=  (8 + ContentTagLen);
-			thePresets->thePreset[4] = AssignPreset(5, Found);
-			strncpy(temp, Copy, MAXLINE);
-		}
-
-		Found = strstr(temp, "Preset6");
-		if (Found != NULL) {
-			Found += (8 + ContentTagLen);
-			thePresets->thePreset[5] = AssignPreset(6, Found);
-			strncpy(temp, Copy, MAXLINE);
+			/* Validate the index before using it.
+			*/
+			if (Value >= 0 && Value < 10) {
+				thePresets->thePreset[Value] = AssignPreset(Value + 1, Found);
+//				printf("Preset%d %d\n", Value, thePresets->thePreset[Value]);
+				printd(LogDebug, "Preset%d %d\n", Value, thePresets->thePreset[Value]);
+				strncpy(temp, Copy, MAXLINE);
+			}
 		}
 
 		/* Set the Tempo for this tune.
@@ -1322,7 +1284,6 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			/* Since we flash we need twice as many counts.
 			 */
 			gMyInfo.TempoMax = (2 * Value);
-//			SetTempo(Value);
 			printd(LogInfo, "Time %d\n", Value);
 		}
 
@@ -1331,8 +1292,6 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		Found = strstr(temp, "SetNow");
 		if (Found != NULL) {
 			Found +=  (7 + ContentTagLen);
-//			String = Found;
-//			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogInfo, "SetNow %s\n", Found);
 			AssignPreset(0, Found);
 			strncpy(temp, Copy, MAXLINE);
@@ -1347,13 +1306,9 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogDebug, "LoopFile %s\n", tokenizer);
 
-#if 1
 			strcpy(gMyInfo.LoopFileName, BasePathName);
 			strcat(gMyInfo.LoopFileName, tokenizer);
-#else
-			strcpy(LoopFile, tokenizer);
-			strcpy(gMyInfo.LoopFileName, tokenizer);
-#endif
+
 			printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
 			MyOSCLoadFile(gMyInfo.LoopFileName);
 			strncpy(temp, Copy, MAXLINE);
@@ -1417,23 +1372,6 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			UpdateStatus(StatusString);
 
 		}
-
-#if 0
-		Found = strstr(temp, "SongMark");
-		if (Found != NULL) {
-			Found += 10 + ContentTagLen;
-			printf("SongMark %s\n", Found);
-			sscanf(Found, "%f,%s\">", &FValue, StatusString);
-			StatusString[strlen(StatusString) - 2] = 0;
-			printf("SongMark %f -> %s \n", FValue, StatusString);
-//			if (StatusString[strlen(StatusString)] == '\"')
-
-			SongMarkers[NumberSongMarks].SongMark = FValue;
-			strcpy(SongMarkers[NumberSongMarks++].SongSection, StatusString);
-			// sprintf(StatusString, "Loop Len  %d", Value);
-
-		}
-#endif
 	}
 
 	//Close the file if still open.
@@ -1442,7 +1380,6 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 	}
 
 
-#if 1
 	/*
 	 * Check to see if we have requested a new file for the drum or the looper.
 	 */
@@ -1450,17 +1387,11 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		/*
 		 * Make sure the the looper is the second argument even of the drum file is the same.
 		 */
-//		if (DrumFile[0] == 0)
-//			DrumFile[0] = 'A';
-
-//		strncpy(&FileName[7], gMyInfo.BasePath, sizeof (FileName) - 7);
-//		sprintf(Copy, "%s/LoadDrumFile %s & ", gMyInfo.BasePath, DrumFile);
-//		printf("Drum File [%s]\n",DrumFile);
 		sprintf(Copy, "MusicApp.sh DrumFile %s & ", DrumFile);
 		printd(LogDebug, "Calling System with %s\n", Copy);
 		system(Copy);
 	}
-#endif
+
 	return (0);
 }
 
@@ -1481,7 +1412,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 	if (*String == '"') {
 		String++;
 		tokenizer = strtok(String, "\""); //break up by spaces
-		printd(LogDebug, "Token1 %s\n", tokenizer);
+		printd(LogDebug, "Token1 [%s]\n", tokenizer);
 		Value = FindString(fsPatchNames, tokenizer);
 
 	} else {
@@ -1497,6 +1428,16 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 	if (Value < 0 || Value >= Max_Patches)
 		return (Value);
 
+
+	if (PresetNum == 0)
+		DoPatch(&gMyInfo.MyPatchInfo[Value]);
+
+	if (PresetNum > 0 && PresetNum < 9) {
+		printd(LogDebug, "*********PresetNum Case %d\n", PresetNum);
+		SetPatchTitles(&PresetButtons[PresetNum-1], gMyInfo.MyPatchInfo[Value].Name, PresetNum);
+	}
+
+#if 0
 	/* If it's a preset button or a set now.	*/
 	switch (PresetNum) {
 	case 0:
@@ -1531,7 +1472,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 	default:
 		break;
 	}
-
+#endif
 	return (Value);
 }
 
@@ -1650,73 +1591,73 @@ PolicyRequestCD (WebKitWebView* view, WebKitWebFrame* frame,
 
 #endif
 #if 0
-	if (Amount == ScrollPgDn)
-		if ((VIncrement + Value) >= UpperV) {
-			gtk_adjustment_set_value(Adjust, 0);
-			printd(LogTest, "ScrollDown Rolling Over\n");
-		} else {
-			gtk_adjustment_set_value(Adjust, VIncrement + Value);
-		}
-
-	if (Amount == ScrollPgUp)
-		if ((Value - VIncrement) < 0) {
-			gtk_adjustment_set_value(Adjust, 0);
-			printd(LogTest, "ScrollDown Rolling Over\n");
-		} else {
-			gtk_adjustment_set_value(Adjust, Value - VIncrement);
-		}
-
-	if (Amount >= 0) {
-		gtk_adjustment_set_value(Adjust, Amount);
-
+if (Amount == ScrollPgDn)
+	if ((VIncrement + Value) >= UpperV) {
+		gtk_adjustment_set_value(Adjust, 0);
+		printd(LogDebug, "ScrollDown Rolling Over\n");
+	} else {
+		gtk_adjustment_set_value(Adjust, VIncrement + Value);
 	}
 
-	gtk_adjustment_changed(Adjust);
-	gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
+if (Amount == ScrollPgUp)
+	if ((Value - VIncrement) < 0) {
+		gtk_adjustment_set_value(Adjust, 0);
+		printd(LogDebug, "ScrollDown Rolling Over\n");
+	} else {
+		gtk_adjustment_set_value(Adjust, Value - VIncrement);
+	}
+
+if (Amount >= 0) {
+	gtk_adjustment_set_value(Adjust, Amount);
+
+}
+
+gtk_adjustment_changed(Adjust);
+gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW(ChartGTKView), Adjust);
 #endif
 #if 0
 // Scroll bar fix to add GtkViewport
-	GtkWidget *viewport;
-	printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
-	       gtk_widget_get_margin_right (scrolled_window));
-	viewport =
-	    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
-	                      gtk_scrolled_window_get_vadjustment (scrolled_window));
-	gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
-	                                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
-	gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
-	                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+GtkWidget *viewport;
+printf("Adjustment %d %d\n", gtk_widget_get_margin_left (scrolled_window),
+       gtk_widget_get_margin_right (scrolled_window));
+viewport =
+    gtk_viewport_new (gtk_scrolled_window_get_hadjustment (scrolled_window),
+                      gtk_scrolled_window_get_vadjustment (scrolled_window));
+gtk_container_set_focus_hadjustment (GTK_CONTAINER (viewport),
+                                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
+gtk_container_set_focus_vadjustment (GTK_CONTAINER (viewport),
+                                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window)));
 //      gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
 //	gtk_scrolled_window_set_max_content_width()
-	gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
+gtk_scrolled_window_add_with_viewport (GTK_CONTAINER (scrolled_window), viewport);
 
 
 #endif
 
 
 #if 0
-	GtkAdjustment *Adjust;
-	gdouble Value;
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
-	gtk_adjustment_set_page_size(Adjust, 100);
-	Value = gtk_adjustment_get_value(Adjust);
-	printf("Value %f\n", Value);
-	return ((float)Value);
+GtkAdjustment *Adjust;
+gdouble Value;
+Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+gtk_adjustment_set_page_size(Adjust, 100);
+Value = gtk_adjustment_get_value(Adjust);
+printf("Value %f\n", Value);
+return ((float)Value);
 #endif
 
 // xdotool windowactivate 100663307 ; xdotool key Page_Up
 //web_view
 //ChartGTKView
 #if 0
-	Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
-	gtk_adjustment_set_page_size(Adjust, 100);
+Adjust = gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
+gtk_adjustment_set_page_size(Adjust, 100);
 
-	UpperV = gtk_adjustment_get_upper(Adjust);
-	gtk_adjustment_set_page_size(Adjust, 100);
-	gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
-	VIncrement = gtk_adjustment_get_page_increment(Adjust);
-	Value = gtk_adjustment_get_value(Adjust);
-	printd(LogTest, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
-	printf("In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
-	printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
+UpperV = gtk_adjustment_get_upper(Adjust);
+gtk_adjustment_set_page_size(Adjust, 100);
+gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
+VIncrement = gtk_adjustment_get_page_increment(Adjust);
+Value = gtk_adjustment_get_value(Adjust);
+printd(LogDebug, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+printf("In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
 #endif

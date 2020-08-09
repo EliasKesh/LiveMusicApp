@@ -633,7 +633,7 @@ void SetPlayerFile(char *FileName) {
 	sprintf(PlayerString, "load \"%s\"\n", FileName);
 	PlayerWrite(PlayerString);
 //	PlayerWrite("stream_time_pos\n");
-	DontUpDateSlider = FALSE;
+	DontUpDateSlider = 0;
 	PlayerAsk = 0;
 	PlayPauseState = 0;
 	plPausePlay();
@@ -790,6 +790,8 @@ void PlayerPoll(char How) {
 	char CommandsDone = 0;
 	int Loop;
 
+	printd(LogDebug, "PlayerPoll\n");
+
 	/*
 	 * If we were called via a timer interrupt and we were also called directly just leave.
 	 */
@@ -797,6 +799,7 @@ void PlayerPoll(char How) {
 		InPlayerTimer--;
 		return;
 	}
+	printd(LogDebug, "PlayerPoll After InPlayerTimer\n");
 
 	/*
 	 * If we were called directly then lock out the interrupt call
@@ -809,7 +812,7 @@ void PlayerPoll(char How) {
 	 * Don't update the slider.
 	 */
 	if (DontUpDateSlider) {
-		printd(LogDebug, "Decrement Slider\n");
+		printd(LogDebug, "Decrement Slider %d\n",DontUpDateSlider);
 		DontUpDateSlider--;
 	}
 
@@ -819,6 +822,7 @@ void PlayerPoll(char How) {
 	if (RestartPlayer == 3) {
 		StartPlayer();
 	}
+
 	if (RestartPlayer) {
 		RestartPlayer--;
 		return;
@@ -832,20 +836,24 @@ void PlayerPoll(char How) {
 	 */
 	PlayerWrite("get_time_pos\n");
 	PlayerAsk++;
+	printd(LogDebug, "get_time_pos %d\n",PlayerAsk);
 
 	/*
 	 * If we are asking for a value wait until Mplayer responds.
 	 */
-	if (InPlayerTimer)
-		usleep(50);
+	if (InPlayerTimer) {
+		usleep(25);
+	}
 
 	/*
 	 * See what has come back from the player.
 	 */
 	ReturnCount = read(InPipeFD, Buffer, sizeof(Buffer));
 	Current = Buffer;
+	printd(LogDebug, "**V**  %d  [%s]\n",ReturnCount,  Current);
+
 	if (ReturnCount > 0) {
-//		printd(LogDebug, "**V**  %d  %s\n",ReturnCount,  Current);
+		printd(LogDebug, "**V**  %d  %s\n",ReturnCount,  Current);
 
 		while (CommandsDone == 0) {
 			CommandsDone = 1;
@@ -860,7 +868,7 @@ void PlayerPoll(char How) {
 				Current = Found;
 				FValue = atof(Found) + .5;
 				TotalLength = FValue;
-//			printd(LogDebug, "Found ANS_LENGTH %f\n", FValue);
+			printd(LogDebug, "Found ANS_LENGTH %f\n", FValue);
 				gtk_adjustment_set_upper(PositionAdjustment, FValue);
 				gtk_adjustment_set_upper(FineStartAdjustment, FValue);
 				gtk_adjustment_set_upper(FineEndAdjustment, FValue);
@@ -940,6 +948,7 @@ void PlayerPoll(char How) {
 				 * If someone is moving the position slider don't update it.
 				 */
 				if (!DontUpDateSlider) {
+					DontUpDateSlider = 3;
 					gtk_adjustment_set_value(PositionAdjustment, FValue);
 				}
 			}
@@ -965,7 +974,6 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
 	printd(LogDebug, "PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
-	DontUpDateSlider = 2;
 	sprintf(PlayerString, "set_property time_pos %f\n",
 	        gtk_adjustment_get_value(PositionAdjustment));
 	PlayerWrite(PlayerString);
@@ -1399,7 +1407,8 @@ int StartPlayer(void) {
 	if (WeAreLooping) {
 		sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle  -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null" ,
+//		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
 		        gtk_adjustment_get_value(VolumeAdjustment),
@@ -1409,7 +1418,7 @@ int StartPlayer(void) {
 
 	} else {
 		sprintf(PlayerString,
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer  -slave -hr-mp3-seek -quiet -idle  -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn &>/dev/null",
+		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
 		        CurrentLength,
 		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogDebug, "calling %s\n", PlayerString);

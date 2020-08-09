@@ -798,6 +798,10 @@ char ForString[100];
 		}
 		gMyInfo.SliderUpdate = 0;
 	}
+	
+	/* Needs to update more quickly.
+	*/
+	PlayerPoll(TRUE);
 
 	/* If the timer went off, update the metronome.
 	*/
@@ -816,7 +820,6 @@ char ForString[100];
 			jack_poll();
 
 		MyOSCPoll(FALSE);
-		PlayerPoll(TRUE);
 //		HIDPoll();
 
 		/*  Turn Pedal lights off
