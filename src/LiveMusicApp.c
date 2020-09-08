@@ -58,7 +58,6 @@
 #define GLADE_FILE "LiveMusicApp.glade"
 #endif
 #define Icon_FILE GetResourceDir("LiveIcon.png",FileLocConfig)
-#define MaxTabs	5
 #define UsingImageButtons
 
 /* Max number of history messages.
@@ -82,7 +81,7 @@ guint MainStatusid;
 // The structure to hold the custom buttons.
 theImageButtons LayoutButton;
 theImageButtons MainButtons[Max_Main_Buttons];
-theImageButtons TabButtons[MaxTabs];
+theImageButtons TabButtons[tabpageMAX];
 
 // The Scale widgets.
 GtkWidget *VScale1, *VScale2, *VScale3, *VScale4;
@@ -191,7 +190,7 @@ char *printd(char LogLevel, const char *fmt, ...) {
 	if (RunLogLevel >= LogLevel || (LogLevel == LogTest) )
 		printf( "L%d %s", LogLevel, p);
 
-	fprintf(LogFile,"L%d %s", LogLevel, p);
+	fprintf(LogFile, "L%d %s", LogLevel, p);
 
 	return NULL;
 }
@@ -271,6 +270,163 @@ void CheckForStartupDirs(void) {
 }
 
 /*--------------------------------------------------------------------
+ * Function:            my_keypress_function
+ *
+ * Description: Get keyboard events.
+ *---------------------------------------------------------------------*/
+gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data) {
+
+	printf("Event %x %x\n",
+	       event->keyval,
+	       event->state);
+
+	if (DisableTextInput) {
+		printf("Key Disabled\n");
+		return (FALSE);
+	}
+
+	if (event->keyval >= 0x31 &&
+	        event->keyval <= 0x39) {
+		printf("Patch\n");
+		LayoutSwitchPatch(event->keyval - 0x31, true);
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_q && event->state == 4) {
+		printf("Found quit\n");
+		gtk_window_close(GTK_WINDOW(theMainWindow));
+	}
+
+	if (event->keyval == GDK_KEY_l && event->state == 0) {
+		printf("Loop\n");
+		plLoopToggle();
+	}
+
+//	if (event->keyval == GDK_KEY_p && event->state == 0) {
+	if (event->keyval == GDK_KEY_space && event->state == 0) {
+		printf("Loop\n");
+		plPausePlay();
+	}
+
+	if (event->keyval == GDK_KEY_a && event->state == 0) {
+		printf("Loop\n");
+		plSetA();
+	}
+
+	if (event->keyval == GDK_KEY_b && event->state == 0) {
+		printf("Loop\n");
+		plSetB();
+	}
+
+	if (event->keyval == GDK_KEY_Return) {
+		printf("GDK_KEY_Return\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_BackSpace) {
+		printf("GDK_KEY_BackSpace\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Tab) {
+		printf("GDK_KEY_Tab\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Multi_key) {
+		printf("GDK_KEY_Multi_key\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Page_Up) {
+		printf("GDK_KEY_Page_Up\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Next) {
+		printf("GDK_KEY_Next\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Page_Down) {
+		printf("GDK_KEY_Page_Down\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Return) {
+		printf("GDK_KEY_End\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_F1) {
+		printf("GDK_KEY_F1\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Control_L) {
+		printf("GDK_KEY_Control_L\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Meta_L) {
+		printf("GDK_KEY_Meta_L\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Super_L) {
+		printf("GDK_KEY_Super_L\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Begin) {
+		printf("GDK_KEY_Begin\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Alt_L) {
+		printf("GDK_KEY_Alt_L\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Down) {
+		printf("GDK_KEY_Down\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Up) {
+		printf("GDK_KEY_Up\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Right) {
+		printf("GDK_KEY_Right\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Left) {
+		printf("GDK_KEY_Left\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Left) {
+		printf("GDK_KEY_Left\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_Left) {
+		printf("GDK_KEY_Left\n");
+		return (TRUE);
+	}
+
+	if (event->keyval == GDK_KEY_space) {
+		printf("SPACE KEY PRESSED!");
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+/*--------------------------------------------------------------------
  * Function:            main
  *
  * Description:         This is where it all starts.
@@ -292,6 +448,7 @@ int main(int argc, char *argv[]) {
 	int BButtonX, BButtonY, MButtonX, MButtonY;
 	int Loop;
 	GdkScreen *myScreen;
+	WeAreRunning = FALSE;
 
 	/*
 	 * Let's setup some variables.
@@ -315,7 +472,7 @@ int main(int argc, char *argv[]) {
 	*/
 	CheckForStartupDirs();
 	GetResourceDir("./MyFile.png", FileLocConfig);
-	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");	
+	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");
 
 
 	/* Default name for the jack client.
@@ -632,6 +789,18 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	CreatePatchPopupMenu ();
 
+
+	gtk_widget_add_events(
+	    theMainWindow, GDK_KEY_PRESS_MASK);
+
+	g_signal_connect (
+	    G_OBJECT (theMainWindow),
+	    "key_press_event",
+	    G_CALLBACK (my_keypress_function),
+	    NULL);
+
+	DisableTextInput = FALSE;
+
 	/*
 	 * Show the main window and let the show begin.
 	 */
@@ -641,7 +810,10 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * And they're off.
 	 */
 	printd(LogInfo, "And we're off \n");
+	WeAreRunning = TRUE;
 	gtk_main();
+	WeAreRunning = FALSE;
+
 
 	/*
 	 * After we quit we should write back the changes.
@@ -666,7 +838,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
  * Description: Startup some Gui.
  *---------------------------------------------------------------------*/
 int GTKIdel_cb(gpointer data) {
-char ForString[100];
+	char ForString[100];
 
 	/* Can't call this from the thread so the
 	 thread sets the structure and then the action
@@ -676,25 +848,26 @@ char ForString[100];
 	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
-	printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
+		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
+
 		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
-			printd(LogDebug, "GTKIdel_cb Slider1 %d \n", Slider1);
+			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
 			SetVolume1(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider2:
-			printd(LogDebug, "GTKIdel_cb Slider2 %d \n", Slider2);
+			printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
 			SetVolume2(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider3:
-			printd(LogDebug, "GTKIdel_cb Slider3 %d \n", Slider3);
+			printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
 			SetVolume3(AlsaEvent.data.control.value / 1.28);
 			break;
 
 		case Slider4:
-			printd(LogDebug, "GTKIdel_cb Slider4 %d \n", Slider4);
+			printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
 //			SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
 
 		default:
@@ -798,7 +971,7 @@ char ForString[100];
 		}
 		gMyInfo.SliderUpdate = 0;
 	}
-	
+
 	/* Needs to update more quickly.
 	*/
 	PlayerPoll(TRUE);
@@ -813,6 +986,7 @@ char ForString[100];
 		/* Make sure the buttons are all up after being pressed.
 		*/
 		ClearMainButtons();
+
 		/* With these off doesn't
 		seem to lock up.
 		*/
@@ -826,16 +1000,25 @@ char ForString[100];
 		*/
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED3Off );
-
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
 
-	}
+		// LPD8 Lights
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
+		         1, 00, (int) 36);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
+		         1, 00, (int) 38);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
+		         1, 00, (int) 40);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
+		         1, 00, (int) 41);
+
+	} 
 
 	// Update the player time if playing.
 	gtk_widget_override_font(PlayerCurWid,
 	                         pango_font_description_from_string("Sans Bold 16"));
-	sprintf(ForString,"%3.1f\n%s", PlayerDisTime, PlayerDisSection);
+	sprintf(ForString, "%3.1f\n%s", PlayerDisTime, PlayerDisSection);
 	gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
 
 #ifdef AcceptTimedKeyboard
@@ -866,7 +1049,8 @@ char ForString[100];
 	}
 #endif
 //	printd(LogDebug, "GTKIdel_cb out\n");
-	return (FALSE);
+//	return (FALSE);
+	return (TRUE);
 }
 
 /*--------------------------------------------------------------------
@@ -879,11 +1063,16 @@ void SwitchToTab(char Tab) {
 	int Loop;
 
 	// Check for a valid tab number
-	if (Tab < 0 || Tab >= MaxApps)
+	if (Tab < 0 || Tab >= tabpageMAX)
 		return;
 
+	if (Tab == tabpagePrefs)
+		DisableTextInput = TRUE;
+	else
+		DisableTextInput = FALSE;
+
 	// Clear all of the tab buttons.
-	for (Loop = 0; Loop < MaxTabs; Loop++) {
+	for (Loop = 0; Loop < tabpageMAX; Loop++) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
 		                          TabButtons[Loop].ButtonUpImage);
 	}
@@ -1225,7 +1414,7 @@ void CreateTabButtons(void) {
 	GtkWidget *MainButtonImage;
 	GtkWidget *EventBox;
 
-	for (Loop = 0; Loop < MaxTabs; Loop++) {
+	for (Loop = 0; Loop < tabpageMAX; Loop++) {
 		sprintf(Buffer, "NTab%d", Loop + 1);
 		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
 		MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage, NoteBButtonOffImage);
@@ -1440,8 +1629,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
 
 	if (ThisPatch->OutPort == InternalPort) {
 		MyOSCJackVol(NewValue, 0);
-	}
-	else {
+	} else {
 		SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		         ThisPatch->OutPort,
 		         ThisPatch->Channel,
@@ -1580,10 +1768,9 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 
 			if (NextCommand != -1)
 				usleep(150000);
-		}
-		else
+		} else
 			NextCommand = -1;
-		
+
 
 	} while (NextCommand != -1);
 
@@ -1799,12 +1986,12 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 
 	if (WaitingforMidiHold == 0) {
 		WaitingforMidi = 0;
-	printd(LogTest, "WaitingforMidiHold \n");
+		printd(LogTest, "WaitingforMidiHold \n");
 		/* In case the note rings.
 		*/
 		RemoveMuteCount = MuteCountDelay;
 	} else if (MidiNote >= Max_Patches) {
-	printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
+		printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
 		WaitingforMidi = 0;
 		MyOSCJackMute(0, 0);
 		WaitingforMidiHold = 0;
@@ -1882,14 +2069,14 @@ int FindString(int StringList, char *String) {
 
 //	if (String[0] == 0)
 //		return(-1);
-	printd(LogDebug,"FindString %d %s\n",
-			StringList, String);
+	printd(LogDebug, "FindString %d %s\n",
+	       StringList, String);
 
 	if (StringList == fsPatchNames) {
 		for (Loop = 0; Loop < Max_Patches; Loop++) {
-	// printd(LogDebug,"FindString %d %s %s\n",
-	// 		Loop, String,
-	// 		gMyInfo.MyPatchInfo[Loop].Name);
+			// printd(LogDebug,"FindString %d %s %s\n",
+			// 		Loop, String,
+			// 		gMyInfo.MyPatchInfo[Loop].Name);
 
 			if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String))
 				return (Loop);
@@ -1920,9 +2107,9 @@ int FindString(int StringList, char *String) {
  *---------------------------------------------------------------------*/
 int InitHistoryFile(void) {
 
-	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");	
-//	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");	
-	printd(LogDebug,"File History %x\n", FileHistory);
+	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");
+//	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");
+	printd(LogDebug, "File History %x\n", FileHistory);
 
 	if (FileHistory) {
 		fseek(FileHistory, 0, SEEK_END);

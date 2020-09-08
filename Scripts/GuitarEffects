@@ -491,6 +491,7 @@ function SetUpConnections {
     echo "Drum Mac In "$DrummerIn" Out "$DrummerOut
     
     LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
+    LPADIn=`aconnect -o | grep -m 1 "LPD8" | awk '{ print $2}'`
     #   LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
     echo "LPADOut="$LPADOut
     
@@ -535,6 +536,7 @@ function SetUpConnections {
     
     # Connect LiveMusic Click to Pedal
     aconnect $LiveMusicOutput"6" $PedalBoardIn
+    aconnect $LiveMusicOutput"6" $LPADIn"0"
     
     # Live Music to Fluid
     aconnect $LiveMusicOutput"0" $FluidSoundIn
@@ -630,7 +632,7 @@ function SetUpConnections {
     jack_connect "${LoopCapture}" "${LoopPlayback}"
     
     # Connect Midi Pedal to Guitarix
-    RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Guitarix" | grep "capture"`
+    RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "GuitarEffects" | grep "capture"`
     GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
     echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn}
     jack_connect "${RouterLiveOut}" "${GuitarixIn}"
@@ -1338,6 +1340,7 @@ function StopEverything {
             killall ardour2
             killall jack-volume
             killall KeepLiveMusicRunning.sh
+            killall kmetronome
             
             killall qmidiroute
             killall mididings
@@ -1437,7 +1440,7 @@ MusePlayer=false
 MuseScore=false
 Looper=false
 MusicViewer=false
-LogFile=~/LogGuitar.txt
+LogFile=~/.config/LiveMusicApp/LogGuitar.txt
 #LogFile=/dev/tty
 JackFile=LogJack
 TabPlayer=false
@@ -1649,10 +1652,12 @@ echo -n "Timer Speed "
 cat /sys/class/rtc/rtc0/max_user_freq
 
 GXSize=`wc -c /home/elias/.config/guitarix/gx_head_rc | awk '{print $1}'`
-if [ $GXSize -ge 79018 ];
+if [ $GXSize -ge 150000 ];
 then
 zenity --warning \
 --text=" gx_head_rc too large "$GXSize
+# The end (connections) of the gx_head_rc file get's large.
+# jack_connections remove.
 fi
 
 # Set the definitions for the functions.
@@ -1730,3 +1735,6 @@ SetPlacement
 exit 0
 # Check for file size on this:
 # /home/elias/.config/guitarix/gx_head_rc
+# 
+# lsp-plugins-loud-comp-mono -c /home/elias/LoudCompensation.cfg
+# 

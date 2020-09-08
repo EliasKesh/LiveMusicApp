@@ -59,6 +59,9 @@ void plSeekBk(void) ;
 int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window);
 int LivePlayerClose(void);
 int SetMP3PlayVol(int Value);
+void plPlay(void);
+void plStop(void);
+void plSetPosition(float position);
 
 /*
  * Place Static variables here.

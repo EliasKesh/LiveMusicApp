@@ -625,6 +625,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	CurrentURI = webkit_web_view_get_uri(web_view);
 	printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
 	ScrollPosition = 0;
+
 	/* We only care about the completed event.
 	WEBKIT_LOAD_STARTED, WEBKIT_LOAD_REDIRECTED,
 	WEBKIT_LOAD_COMMITTED, WEBKIT_LOAD_FINISHED
@@ -643,6 +644,7 @@ void PageLoaded (WebKitWebView  *web_view,
 			Loop = -1;
 		}
 
+
 //	printd(LogDebug, "Base Name %s \n", BasePathName);
 #endif
 	printd(LogDebug, "After Basename %s \n", BasePathName);
@@ -654,8 +656,18 @@ void PageLoaded (WebKitWebView  *web_view,
 
 	/* Let's check to see if this is an HTML file.
 	*/
-	if (strstr(CurrentURI, ".html"))
+	if (strstr(CurrentURI, ".html")) {
 		Search_in_File(CurrentURI, &gMyInfo.WebPresets);
+
+		// Pointer = webkit_web_view_get_title(web_view);
+		// if (Pointer)
+		// 	printf("%s\n", Pointer);
+
+		/* Add the file to the status.
+		*/
+		if (!strstr(CurrentURI, "index"))
+			UpdateStatus("---Load---");
+	}
 	else if (strstr(CurrentURI, ".mp3")) {
 		printd(LogDebug, "*** MP3 file.\n");
 		return;

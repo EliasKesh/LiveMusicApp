@@ -265,7 +265,6 @@ void SetTempo(unsigned int NewTempo) {
 	gMyInfo.Tempo = NewTempo;
 
 	printd(LogDebug, "***** RT Timer init ****\n");
-
 	if (gMyInfo.TempoTimerID) {
 		printd(LogDebug, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
 //        memset((void*)&in, 0, sizeof(in));
@@ -289,6 +288,7 @@ void SetTempo(unsigned int NewTempo) {
 	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
 	printd(LogDebug, "***** RT Timer Create **** %d %d\n", Ret, timerid);
 	if (Ret == 0) {
+        memset(&in, 0, sizeof(in));
 		// Can't be zero.
 		in.it_value.tv_sec = 1;
 		in.it_value.tv_nsec = 0;
@@ -299,7 +299,8 @@ void SetTempo(unsigned int NewTempo) {
 		in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
 		//issue the periodic timer request here.
-		Ret = timer_settime(timerid, 0, &in, &out);
+//		Ret = timer_settime(timerid, 0, &in, &out);
+		Ret = timer_settime(timerid, 0, &in, 0);
 		printd(LogDebug, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 		if (Ret != 0) {
 			printd(LogDebug, "timer_settime() failed with %d\n", errno);
@@ -324,10 +325,8 @@ static void time_handlerRT (union sigval val) {
 	printd(LogRealTime, " IN time_handler %d\n", SubBeats);
 
 	if (++SubBeats > 7) {
-//	if (++SubBeats > 1) {
 		ToggleTempo();
 		SubBeats = 0;
-//	printf(" IN time_handler\n");
 	}
 
 	/* Queue the GUI idle task to draw.
@@ -352,8 +351,7 @@ void ToggleTempo(void) {
 	struct timeval Time0;
 
 	// gettimeofday(&Time0, NULL);
-	// printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
-	printd(LogRealTime, "Tempo %d %d\n", TempoState,  TempoState);
+	printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -370,11 +368,34 @@ void ToggleTempo(void) {
 			         DrumMidiChannel, 04, (int) PedalLED3On);
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+
+			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         1, 00, (int) 36);
+
+
 		} else {
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 			         DrumMidiChannel, 04, (int) PedalLED4On );
+
+			switch(BeatCount) {
+			case 2:
+				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         1, 00, (int) 38);
+			break;
+			
+			case 3:
+				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         1, 00, (int) 40);
+			break;
+			
+			case 4:
+				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         1, 00, (int) 41);
+			break;
+			
+			}
 		}
 
 		/* Handle any recording for the looper.
@@ -493,10 +514,7 @@ void ToggleTempo(void) {
 		} else
 			sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
 
-
-
 		UIUpdateFromTimer = TRUE;
-
 	}
 #if 0
 	else {

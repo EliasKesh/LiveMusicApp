@@ -134,16 +134,17 @@ gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
 	}
 
 	if (widget == Tempo_pref) {
-// ejk segfault 	SetTempo(value);
-//   		gMyInfo.Tempo = value;
+		gMyInfo.Tempo = value;
 		printd(LogDebug, "Tempo_pref  %x %d\n", widget, value);
+
+		// if (WeAreRunning)
+		// 	SetTempo(value);
 	}
 
 	if (widget == Midi_Base) {
 		gMyInfo.MidiBaseNote = value;
 		printd(LogDebug, "Midi_Base  %x %d\n", widget, value);
 	}
-
 
 	return TRUE; /* stop event propagation */
 }
@@ -517,6 +518,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 		break;
 
 	}
+
 }
 
 /*--------------------------------------------------------------------
@@ -572,12 +574,26 @@ GtkTreeModel *create_combo_model(void) {
 static void text_editing_started(GtkCellRenderer ATTRIBUTE_UNUSED *cell,
                                  GtkCellEditable *editable, const gchar *path, GCallback data) {
 	printd(LogDebug, "text_editing_started\n");
+
 	if (GTK_IS_ENTRY(editable)) {
 		GtkEntry *entry = GTK_ENTRY(editable);
 		GCallback cb_func = data;
 		//               g_signal_connect(GTK_OBJECT(entry), "activate", (GCallback)cb_func, (char *)xstrdup(path));
 	}
 }
+
+#if 0
+/*--------------------------------------------------------------------
+* Function:		text_editing_cancelled
+*
+* Description:		<Description/Comments>
+*
+*---------------------------------------------------------------------*/
+static void text_editing_cancelled(GtkCellEditable *editable,
+	gpointer user_data) {
+	printd(LogDebug, "text_editing_cancelled\n");
+}
+#endif
 
 /*--------------------------------------------------------------------
 * Function:		row_activated_cb
@@ -650,6 +666,10 @@ static GtkWidget *CreatePatchViewModel(void) {
 	                  GUINT_TO_POINTER(Name_COLUMN));
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
 	                 G_CALLBACK(text_editing_started), Button_COLUMN);
+	// g_signal_connect(G_OBJECT(renderer), "editing-done",
+	//                  G_CALLBACK(text_editing_cancelled), Button_COLUMN);
+
+
 
 	/* --- Bank_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();
@@ -699,6 +719,11 @@ static GtkWidget *CreatePatchViewModel(void) {
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
 	                 G_CALLBACK(text_editing_started), Output_COLUMN);
+
+	// g_signal_connect(G_OBJECT(renderer), "editing-done",
+	//                  G_CALLBACK(text_editing_cancelled), Output_COLUMN);
+
+
 #endif
 	/* --- Channel_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();
@@ -742,6 +767,8 @@ static GtkWidget *CreatePatchViewModel(void) {
 	//                  (GCallback ) PatchListEdited, view);
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
 	                 G_CALLBACK(text_editing_started), Command_COLUMN);
+	// g_signal_connect(G_OBJECT(renderer), "editing-done",
+	//                  G_CALLBACK(text_editing_cancelled), Command_COLUMN);
 
 	/* --- Chain_COLUMN --- */
 	renderer = gtk_cell_renderer_text_new();

@@ -337,6 +337,14 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	unsigned long adjbpm;
 	snd_seq_queue_tempo_t *queue_tempo;
 
+	/* Make sure we send a valid value.
+	*/
+	if (Value < 0)
+		Value = 0;
+
+	if (Value > 125)
+		Value = 125;
+
 	Port = Port1;
 	snd_seq_ev_clear(&ev);
 	snd_seq_ev_set_source(&ev, Port);
@@ -369,7 +377,7 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 		if (err <= 0)
 			printd(LogError, "** SendMidi expression ERROR %d %d Type %d\n", Port, err, Type);
 
-		printd(LogInfo, "SendMidi expression %d %d Type %d\n", Port, err, Type);
+		printd(LogRealTime, "SendMidi Event expression %d %d Type %d\n", Port, err, Type);
 	}
 
 	if (Type == SND_SEQ_EVENT_NOTEON) {
@@ -1173,12 +1181,15 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE1:
 				cc_name = "General purpose 1";
+				plPausePlay();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE2:
 				cc_name = "General purpose 2";
+				plPlay();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE3:
 				cc_name = "General purpose 3";
+				plStop();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE4:
 				cc_name = "General purpose 4";
@@ -1472,6 +1483,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			break;
 		case SND_SEQ_EVENT_SONGPOS:
 			sprintf(msg_str_ptr, "Song position");
+			plSetPosition(event_ptr->data.control.value);
 			break;
 		case SND_SEQ_EVENT_SONGSEL:
 			sprintf(msg_str_ptr, "Song select");
@@ -1492,15 +1504,27 @@ void *alsa_midi_thread(void * context_ptr) {
 		case SND_SEQ_EVENT_KEYSIGN:
 			sprintf(msg_str_ptr, "SMF Key Signature event");
 			break;
+
+		// Real Time Start
 		case SND_SEQ_EVENT_START:
 			sprintf(msg_str_ptr, "MIDI Real Time Start message");
+			printf("%s\n",msg_str_ptr);
+			plPlay();
 			break;
+
 		case SND_SEQ_EVENT_CONTINUE:
 			sprintf(msg_str_ptr, "MIDI Real Time Continue message");
+			printf("%s\n",msg_str_ptr);
+			plPausePlay();
 			break;
+
+		// Real Time Stop
 		case SND_SEQ_EVENT_STOP:
 			sprintf(msg_str_ptr, "MIDI Real Time Stop message");
+			printf("%s\n",msg_str_ptr);
+			plStop();
 			break;
+
 		case SND_SEQ_EVENT_SETPOS_TICK:
 			sprintf(msg_str_ptr, "Set tick queue position");
 			break;
@@ -1552,6 +1576,7 @@ void *alsa_midi_thread(void * context_ptr) {
 			break;
 		case SND_SEQ_EVENT_RESET:
 			sprintf(msg_str_ptr, "Reset");
+			ResetPlayer();
 			break;
 		case SND_SEQ_EVENT_SENSING:
 			continue; /* disable */

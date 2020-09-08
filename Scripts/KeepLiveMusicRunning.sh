@@ -47,4 +47,6 @@ fi
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 
 sleep 5
+jack_disconnect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"
+jack_connect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"
 done

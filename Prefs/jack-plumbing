@@ -36,3 +36,5 @@
 # Connect OBS recorder
 (connect "jack-volume:output_1" "JackRecord:in_1")
 (connect "jack-volume:output_1" "JackRecord:in_2")
+
+

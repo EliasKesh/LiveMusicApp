@@ -156,7 +156,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	result = mkfifo(InPipeName, S_IRUSR | S_IWUSR);
 	chmod(InPipeName, 0666);
 	if (result < 0) {
-		printd(LogDebug, "Before fopen in %d %s\n", result, strerror(result));
+		printd(LogRealTime, "Before fopen in %d %s\n", result, strerror(result));
 	}
 
 	/*
@@ -181,7 +181,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Main Box
 	 */
-	printd(LogDebug, " Init Player %x %x\n", MainBox, window);
+	printd(LogRealTime, " Init Player %x %x\n", MainBox, window);
 	PositionAdjustment = gtk_adjustment_new(0, 0, 400, 1, 20, 0);
 	PositionSlider = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,
 	                               GTK_ADJUSTMENT(PositionAdjustment));
@@ -526,7 +526,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //	printf("FIFO %d\n", InPipeFD);
 	if (InPipeFD < 1) {
 		int err = errno;
-		printd(LogDebug, "Error in open In pipe %d\n", errno);
+		printd(LogRealTime, "Error in open In pipe %d\n", errno);
 		exit(1);
 	}
 	return (0);
@@ -539,7 +539,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
  *---------------------------------------------------------------------*/
 int SetMP3PlayVol(int Value) {
 	gtk_adjustment_set_value(VolumeAdjustment, Value);
-	printd(LogDebug, "Player Volume %d\n", Value);
+	printd(LogRealTime, "Player Volume %d\n", Value);
 	gtk_range_set_adjustment(VolumeSpin, VolumeAdjustment);
 
 	return (Value);
@@ -625,7 +625,7 @@ void SetPlayerFile(char *FileName) {
 	sprintf(PlayerString,
 	        "sox \"%s\"  -n spectrogram  -x 900 -Y 130 -c 1  -r -a -o ./spectrogram.png\n",
 	        FileName);
-	printd(LogDebug, "%s", PlayerString);
+	printd(LogRealTime, "%s", PlayerString);
 	system(PlayerString);
 	gtk_image_clear((GtkImage *)ImageWidget);
 	gtk_image_set_from_file((GtkImage *)ImageWidget, "spectrogram.png");
@@ -665,9 +665,9 @@ void OpenSavedLoopFile(char *FileName) {
 	 */
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX(SaveCombo));
 	sprintf(SaveLoopName, "%s.Loops", FileName);
-	printd(LogDebug, " OpenSavedLoopFile %s\n", SaveLoopName);
+	printd(LogRealTime, " OpenSavedLoopFile %s\n", SaveLoopName);
 	SavedLoopFD = fopen(SaveLoopName, "r");
-	printd(LogDebug, " OpenSavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
+	printd(LogRealTime, " OpenSavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
 	if (SavedLoopFD) {
 		while (!feof(SavedLoopFD)) {
 			fscanf(SavedLoopFD, "%s %f, %f, %f\n",
@@ -676,7 +676,7 @@ void OpenSavedLoopFile(char *FileName) {
 			       &mySavedLoops[NumSavedLoops].Length,
 			       &mySavedLoops[NumSavedLoops].Position);
 #if 1
-			printd(LogDebug, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
+			printd(LogRealTime, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
 			       mySavedLoops[NumSavedLoops].LoopName,
 			       mySavedLoops[NumSavedLoops].Start,
 			       mySavedLoops[NumSavedLoops].Length,
@@ -689,7 +689,7 @@ void OpenSavedLoopFile(char *FileName) {
 			 * Check for errors.
 			 */
 			if (NumSavedLoops >= MaxSavedLoops) {
-				printd(LogDebug, "Error, too many Loops\n");
+				printd(LogRealTime, "Error, too many Loops\n");
 				return;
 			}
 
@@ -719,11 +719,11 @@ void SaveLoopFile(char *FileName) {
 	 * Let's open the Saved Looped file.
 	 */
 	sprintf(SaveLoopName, "%s.Loops", FileName);
-	printd(LogDebug, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
+	printd(LogRealTime, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
 	errno = 0;
 	SavedLoopFD = fopen(SaveLoopName, "w+");
 //	sprintf(SaveLoopName, "MyTest.loop");
-	printd(LogDebug, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+	printd(LogRealTime, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
 
 	// Soft the list in Time order.
 	for (i = NumSavedLoops - 2; i >= 0; i--) {
@@ -770,7 +770,7 @@ int PlayerWrite(char *String) {
 	printd(LogRealTime, "Player Write %x %d  %s", OutPipe, Val, String);
 
 	if (Val < 0)
-		printd(LogDebug, "Error **Player Write %d  %s", Val, String);
+		printd(LogRealTime, "Error **Player Write %d  %s", Val, String);
 
 	return (0);
 }
@@ -790,7 +790,7 @@ void PlayerPoll(char How) {
 	char CommandsDone = 0;
 	int Loop;
 
-	printd(LogDebug, "PlayerPoll\n");
+	printd(LogRealTime, "PlayerPoll\n");
 
 	/*
 	 * If we were called via a timer interrupt and we were also called directly just leave.
@@ -799,7 +799,7 @@ void PlayerPoll(char How) {
 		InPlayerTimer--;
 		return;
 	}
-	printd(LogDebug, "PlayerPoll After InPlayerTimer\n");
+	printd(LogRealTime, "PlayerPoll After InPlayerTimer\n");
 
 	/*
 	 * If we were called directly then lock out the interrupt call
@@ -812,7 +812,7 @@ void PlayerPoll(char How) {
 	 * Don't update the slider.
 	 */
 	if (DontUpDateSlider) {
-		printd(LogDebug, "Decrement Slider %d\n",DontUpDateSlider);
+		printd(LogRealTime, "Decrement Slider %d\n",DontUpDateSlider);
 		DontUpDateSlider--;
 	}
 
@@ -836,7 +836,7 @@ void PlayerPoll(char How) {
 	 */
 	PlayerWrite("get_time_pos\n");
 	PlayerAsk++;
-	printd(LogDebug, "get_time_pos %d\n",PlayerAsk);
+	printd(LogRealTime, "get_time_pos %d\n",PlayerAsk);
 
 	/*
 	 * If we are asking for a value wait until Mplayer responds.
@@ -850,10 +850,10 @@ void PlayerPoll(char How) {
 	 */
 	ReturnCount = read(InPipeFD, Buffer, sizeof(Buffer));
 	Current = Buffer;
-	printd(LogDebug, "**V**  %d  [%s]\n",ReturnCount,  Current);
+	printd(LogRealTime, "**V**  %d  [%s]\n",ReturnCount,  Current);
 
 	if (ReturnCount > 0) {
-		printd(LogDebug, "**V**  %d  %s\n",ReturnCount,  Current);
+		printd(LogRealTime, "**V**  %d  %s\n",ReturnCount,  Current);
 
 		while (CommandsDone == 0) {
 			CommandsDone = 1;
@@ -868,7 +868,7 @@ void PlayerPoll(char How) {
 				Current = Found;
 				FValue = atof(Found) + .5;
 				TotalLength = FValue;
-			printd(LogDebug, "Found ANS_LENGTH %f\n", FValue);
+			printd(LogRealTime, "Found ANS_LENGTH %f\n", FValue);
 				gtk_adjustment_set_upper(PositionAdjustment, FValue);
 				gtk_adjustment_set_upper(FineStartAdjustment, FValue);
 				gtk_adjustment_set_upper(FineEndAdjustment, FValue);
@@ -935,7 +935,7 @@ void PlayerPoll(char How) {
 				/* Set the Global.
 				*/
 				if (CurrentLength + 0.5 >= TotalLength) {
-					printd(LogDebug, "Player Stopping\n");
+					printd(LogRealTime, "Player Stopping\n");
 					PlayerWrite("set_property time_pos 0.000\n");
 
 //					ResetPlayer();
@@ -943,7 +943,7 @@ void PlayerPoll(char How) {
 
 
 
-//			printd(LogDebug, "Found ANS_TIME_POSITION %f ask %d \n", FValue, PlayerAsk);
+//			printd(LogRealTime, "Found ANS_TIME_POSITION %f ask %d \n", FValue, PlayerAsk);
 				/*
 				 * If someone is moving the position slider don't update it.
 				 */
@@ -973,7 +973,7 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 	float NewValue;
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
-	printd(LogDebug, "PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
+	printd(LogRealTime, "PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
 	sprintf(PlayerString, "set_property time_pos %f\n",
 	        gtk_adjustment_get_value(PositionAdjustment));
 	PlayerWrite(PlayerString);
@@ -985,7 +985,7 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void SetASlider_Changed(GtkAdjustment *adj) {
-	printd(LogDebug, "SetASlider_Changed %f\n",
+	printd(LogRealTime, "SetASlider_Changed %f\n",
 	       gtk_adjustment_get_value(StartAdjustment));
 }
 /*--------------------------------------------------------------------
@@ -994,7 +994,7 @@ void SetASlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void SetBSlider_Changed(GtkAdjustment *adj) {
-	printd(LogDebug, "SetBSlider_Changed %f\n", gtk_adjustment_get_value(EndAdjustment));
+	printd(LogRealTime, "SetBSlider_Changed %f\n", gtk_adjustment_get_value(EndAdjustment));
 }
 /*--------------------------------------------------------------------
  * Function:		SetAFineSlider_Changed
@@ -1002,7 +1002,7 @@ void SetBSlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void SetAFineSlider_Changed(GtkAdjustment *adj) {
-//	printd(LogDebug, "SetAFineSlider_Changed %f\n",
+//	printd(LogRealTime, "SetAFineSlider_Changed %f\n",
 
 	if (WeAreLooping)
 		RestartPlayer = RestartPlayerValue;
@@ -1015,10 +1015,10 @@ void SetAFineSlider_Changed(GtkAdjustment *adj) {
  *---------------------------------------------------------------------*/
 void SpeedSlider_Changed(GtkAdjustment *adj) {
 
-//	printd(LogDebug, "SpeedSlider_Changed %f\n", gtk_adjustment_get_value(SpeedAdjustment));
+//	printd(LogRealTime, "SpeedSlider_Changed %f\n", gtk_adjustment_get_value(SpeedAdjustment));
 	sprintf(PlayerString, "speed_set %f\n",
 	        gtk_adjustment_get_value(SpeedAdjustment));
-	printd(LogDebug, "%s \n", PlayerString);
+	printd(LogRealTime, "%s \n", PlayerString);
 
 	if (!WeAreLooping)
 		PlayerWrite(PlayerString);
@@ -1032,7 +1032,7 @@ void SpeedSlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void VolumeSlider_Changed(GtkAdjustment *adj) {
-	printd(LogDebug, "VolumeSlider_Changed %f\n",
+	printd(LogRealTime, "VolumeSlider_Changed %f\n",
 	       gtk_adjustment_get_value(VolumeAdjustment));
 	sprintf(PlayerString, "volume %f 1 \n",
 	        gtk_adjustment_get_value(VolumeAdjustment));
@@ -1045,7 +1045,7 @@ void VolumeSlider_Changed(GtkAdjustment *adj) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void SetBFineSlider_Changed(GtkAdjustment *adj) {
-	printd(LogDebug, "SetAFineSlider_Changed %f\n",
+	printd(LogRealTime, "SetAFineSlider_Changed %f\n",
 	       gtk_adjustment_get_value(FineEndAdjustment));
 
 	if (WeAreLooping)
@@ -1063,7 +1063,7 @@ gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
 	PlayerPoll(FALSE);
 	plSetA();
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "SetA  %x\n", theButton);
+	printd(LogRealTime, "SetA  %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1084,7 +1084,7 @@ gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event,
 	plSetB();
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "SetB %x\n", theButton);
+	printd(LogRealTime, "SetB %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 	return TRUE; /* stop event propagation */
@@ -1100,7 +1100,7 @@ gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
 	theImageButtons *theButton;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "Speed_click_handler %x\n", theButton);
+	printd(LogRealTime, "Speed_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1129,7 +1129,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	 * Check for errors.
 	 */
 	if (NumSavedLoops >= MaxSavedLoops) {
-		printd(LogDebug, "Error, too many Loops\n");
+		printd(LogRealTime, "Error, too many Loops\n");
 		return (FALSE);
 	}
 	dialog = gtk_dialog_new();
@@ -1146,7 +1146,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	switch (result) {
 	case 0:
 		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
-		printd(LogDebug, "Entry Value %s\n", entry_line);
+		printd(LogRealTime, "Entry Value %s\n", entry_line);
 		strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
 		mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value(
 		                                        FineStartAdjustment);
@@ -1156,7 +1156,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
 		                               mySavedLoops[NumSavedLoops].LoopName);
-		printd(LogDebug, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
+		printd(LogRealTime, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
 		       mySavedLoops[NumSavedLoops].LoopName,
 		       mySavedLoops[NumSavedLoops].Start,
 		       mySavedLoops[NumSavedLoops].Length, 
@@ -1178,7 +1178,7 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 
 	gtk_widget_destroy(dialog);
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
+	printd(LogRealTime, "NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonUpImage);
 
@@ -1219,13 +1219,13 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NewMarker_click_handler %x\n", theButton);
+	printd(LogRealTime, "NewMarker_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonUpImage);
 	switch (result) {
 	case 0:
 		entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
-		printd(LogDebug, "Entry Value %s\n", entry_line);
+		printd(LogRealTime, "Entry Value %s\n", entry_line);
 #if 1
 		strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
 		mySavedLoops[NumSavedLoops].Start = theTime;
@@ -1251,7 +1251,7 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
 	}
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NewMarker_click_handler %x\n", theButton);
+	printd(LogRealTime, "NewMarker_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonUpImage);
 
@@ -1272,9 +1272,9 @@ void SaveSongMarkers(char *FileName) {
 	 * Let's open the Saved Looped file.
 	 */
 	sprintf(SaveMarksName, "%s.SongMarks", FileName);
-	printd(LogDebug, " SaveSongMarkers %s\n", SaveMarksName);
+	printd(LogRealTime, " SaveSongMarkers %s\n", SaveMarksName);
 	SaveMarksFD = fopen(SaveMarksName, "w+");
-	printd(LogDebug, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
+	printd(LogRealTime, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
 	if (SaveMarksFD) {
 		for (Loop = 0; Loop < NumberSongMarks; Loop++) {
 			printf("<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
@@ -1306,7 +1306,7 @@ gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	int CurrentSavedLoop;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "EnterLoop_click_handler %x\n", theButton);
+	printd(LogRealTime, "EnterLoop_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1317,7 +1317,7 @@ gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 	        FineEndAdjustment);
 	mySavedLoops[CurrentSavedLoop].Position = ScrollGetPosition();
 
-	printd(LogDebug, "Reading Loop %d %s %f %f\n", CurrentSavedLoop,
+	printd(LogRealTime, "Reading Loop %d %s %f %f\n", CurrentSavedLoop,
 	       mySavedLoops[CurrentSavedLoop].LoopName,
 	       mySavedLoops[CurrentSavedLoop].Start,
 	       mySavedLoops[CurrentSavedLoop].Length);
@@ -1335,7 +1335,7 @@ gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event,
 	theImageButtons *theButton;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "NextSeg_click_handler %x\n", theButton);
+	printd(LogRealTime, "NextSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1354,7 +1354,7 @@ gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event,
 	theImageButtons *theButton;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "PrevSeg_click_handler %x\n", theButton);
+	printd(LogRealTime, "PrevSeg_click_handler %x\n", theButton);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonDownImage);
 
@@ -1372,7 +1372,7 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
 	theImageButtons *theButton;
 
 	theButton = (theImageButtons *) user_data;
-	printd(LogDebug, "Loop %x\n", theButton);
+	printd(LogRealTime, "Loop %x\n", theButton);
 
 	plLoopToggle();
 
@@ -1387,7 +1387,7 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
 int StartPlayer(void) {
 
 	system("killall mplayer &>/dev/null");
-	printd(LogDebug, "After Kill\n");
+	printd(LogRealTime, "After Kill\n");
 	sleep(.3);
 	system("killall mplayer &>/dev/null");
 	sleep(.3);
@@ -1399,7 +1399,7 @@ int StartPlayer(void) {
 
 #if 1
 	if (OutPipe) {
-		printd(LogDebug, "About to close pipe %x\n", OutPipe);
+		printd(LogRealTime, "About to close pipe %x\n", OutPipe);
 		pclose(OutPipe);
 		OutPipe = NULL;
 	}
@@ -1414,21 +1414,21 @@ int StartPlayer(void) {
 		        gtk_adjustment_get_value(VolumeAdjustment),
 		        gtk_adjustment_get_value(SpeedAdjustment),
 		        CurrentFile);
-		printd(LogDebug, "calling  Loop %s\n", PlayerString);
+		printd(LogRealTime, "calling  Loop %s\n", PlayerString);
 
 	} else {
 		sprintf(PlayerString,
 		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
 		        CurrentLength,
 		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
-		printd(LogDebug, "calling %s\n", PlayerString);
+		printd(LogRealTime, "calling %s\n", PlayerString);
 	}
 
 	OutPipe = popen(PlayerString, "w");
 	if (!OutPipe) {
 		RestartPlayer = RestartPlayerValue;
 	}
-	printd(LogDebug, "After Loop open %x\n", OutPipe);
+	printd(LogRealTime, "After Loop open %x\n", OutPipe);
 
 	return (0);
 }
@@ -1502,7 +1502,7 @@ void plLoopToggle(void) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(LoopButton.Image),
 		                          LoopButton.ButtonDownImage);
 		WeAreLooping = 1;
-		printd(LogDebug, "After Close\n");
+		printd(LogRealTime, "After Close\n");
 		StartPlayer();
 
 	} else {
@@ -1512,7 +1512,30 @@ void plLoopToggle(void) {
 		StartPlayer();
 //		PlayerWrite("loop -1\n");
 	}
+}
 
+/*--------------------------------------------------------------------
+ * Function:		plPlay
+ *
+ * Description:		Start Player.
+ *---------------------------------------------------------------------*/
+void plPlay(void) {
+
+	// Set current state to no-playing.
+	PlayPauseState=0;
+	plPausePlay();
+}
+
+/*--------------------------------------------------------------------
+ * Function:		plStop
+ *
+ * Description:		Stop Player.
+ *---------------------------------------------------------------------*/
+void plStop(void) {
+
+	// Set current state to no-playing.
+	PlayPauseState=1;
+	plPausePlay();
 }
 
 /*--------------------------------------------------------------------
@@ -1530,7 +1553,7 @@ void plPausePlay(void) {
 		                          PlayPauseButton.ButtonUpImage);
 		MyImageButtonSetText(&PlayPauseButton, "Play");
 		PlayerWrite("stop\n");
-		printd(LogDebug, "Mplayer Pause\n");
+		printd(LogRealTime, "Mplayer Pause\n");
 		PlayPauseState = 0;
 	} else {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(PlayPause.Image),
@@ -1542,7 +1565,7 @@ void plPausePlay(void) {
 
 //		PlayerWrite("pause\n");
 		StartPlayer();
-		printd(LogDebug, "Mplayer Play\n");
+		printd(LogRealTime, "Mplayer Play\n");
 		PlayPauseState = 1;
 	}
 }
@@ -1586,7 +1609,7 @@ void plSpeedUp(void) {
 	                         gtk_adjustment_get_value(SpeedAdjustment) + 0.05);
 	sprintf(PlayerString, "speed_set %f\n",
 	        gtk_adjustment_get_value(SpeedAdjustment));
-	printd(LogDebug, "%s \n", PlayerString);
+	printd(LogRealTime, "%s \n", PlayerString);
 
 	if (!WeAreLooping)
 		PlayerWrite(PlayerString);
@@ -1606,13 +1629,23 @@ void plSpeedDown(void) {
 	                         gtk_adjustment_get_value(SpeedAdjustment) - 0.05);
 	sprintf(PlayerString, "speed_set %f\n",
 	        gtk_adjustment_get_value(SpeedAdjustment));
-	printd(LogDebug, "%s \n", PlayerString);
+	printd(LogRealTime, "%s \n", PlayerString);
 
 	if (!WeAreLooping)
 		PlayerWrite(PlayerString);
 	else
 		StartPlayer();
 
+}
+
+/*--------------------------------------------------------------------
+ * Function:		plSeekFw
+ *
+ * Description:		.
+ *---------------------------------------------------------------------*/
+void plSetPosition(float position) {
+	sprintf(PlayerString, "set_property time_pos %f\n",position);
+	PlayerWrite(PlayerString);
 }
 
 /*--------------------------------------------------------------------

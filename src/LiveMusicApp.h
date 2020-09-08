@@ -76,6 +76,15 @@ enum {
 	User1, User2, User3, MaxOutPorts
 };
 #endif
+// Notebook tabs page.
+enum {
+	tabpagePatch=0,
+	tabpageChart,
+	tabpagePlayer,
+	tabpageChords,
+	tabpagePrefs,
+	tabpageMAX
+};
 
 // Timer countdown in Miliseconds
 #define Timer1Ticks		250
@@ -525,13 +534,13 @@ EXTERN PortsInfo theOutPorts;
 //int		ModeArray[ModeLastItem][Max_Patches];
 
 //int		preModeSwitch[Max_Patches];
-EXTERN int WaitingforMidi;
-EXTERN int WaitingforMidiHold;
+EXTERN int 		WaitingforMidi;
+EXTERN int 		WaitingforMidiHold;
 EXTERN GtkBuilder *gxml;
-EXTERN int CountInCount;
-EXTERN int LoopRecBeats;
-EXTERN char CountInActiveState;
-EXTERN char	SysCallString[200];
+EXTERN int 		CountInCount;
+EXTERN int 		LoopRecBeats;
+EXTERN char 	CountInActiveState;
+EXTERN char		SysCallString[200];
 EXTERN GdkPixbuf *MainButtonOnImage;
 EXTERN GdkPixbuf *MainButtonOffImage;
 EXTERN GdkPixbuf *PatchButtonOnImage;
@@ -555,15 +564,17 @@ EXTERN theImageButtons TempoDraw;
 // Standard font description we use across the program
 EXTERN PangoFontDescription *Tempofont_desc;
 // Hold the tempo string so we do not draw at inturrupt time.
-EXTERN char TempoUpdateString[100];
-EXTERN int 	BeatCount;
-EXTERN int 	UIUpdateFromTimer;
-EXTERN char TempStrBuf[100];
+EXTERN char 	TempoUpdateString[100];
+EXTERN int 		BeatCount;
+EXTERN int 		UIUpdateFromTimer;
+EXTERN char 	TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
 EXTERN char 	JackRunning;
-EXTERN char NewInstall;
-EXTERN float PlayerDisTime;
-EXTERN char PlayerDisSection[30];
+EXTERN char 	NewInstall;
+EXTERN float 	PlayerDisTime;
+EXTERN char 	PlayerDisSection[30];
+EXTERN char 	DisableTextInput;
+EXTERN char 	WeAreRunning;
 
 #define MaxSongMarks	200
 #define SongSectionMax	30
