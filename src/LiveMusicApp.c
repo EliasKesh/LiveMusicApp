@@ -49,6 +49,7 @@
 #include "config.h"
 #include <pwd.h>
 #include "libgen.h"
+#include <linux/stat.h>
 
 //#define UsingNewButtons	1
 
@@ -180,14 +181,14 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
  * Description:		Loggable print command.
  *
  *---------------------------------------------------------------------*/
-char *printd(char LogLevel, const char *fmt, ...) {
+char *printd(int LogLevel, const char *fmt, ...) {
 	va_list ap;
 	char p[512]; /* check for null in real code */
 	va_start(ap, fmt);
 	vsnprintf(p, 512, fmt, ap);
 	va_end(ap);
 
-	if (RunLogLevel >= LogLevel || (LogLevel == LogTest) )
+	if (RunLogLevel & LogLevel)
 		printf( "L%d %s", LogLevel, p);
 
 	fprintf(LogFile, "L%d %s", LogLevel, p);
@@ -292,136 +293,296 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 		return (TRUE);
 	}
 
-	if (event->keyval == GDK_KEY_q && event->state == 4) {
-		printf("Found quit\n");
-		gtk_window_close(GTK_WINDOW(theMainWindow));
-	}
+	switch (event->keyval) {
 
-	if (event->keyval == GDK_KEY_l && event->state == 0) {
-		printf("Loop\n");
-		plLoopToggle();
-	}
+	case GDK_KEY_q:
+		if (event->state == 4) {
+			printf("Found quit\n");
+			gtk_window_close(GTK_WINDOW(theMainWindow));
+		}
+
+	case GDK_KEY_l:
+		if (event->state == 4) {
+			printf("GDK_KEY_l\n");
+			plLoopToggle();
+		}
 
 //	if (event->keyval == GDK_KEY_p && event->state == 0) {
-	if (event->keyval == GDK_KEY_space && event->state == 0) {
-		printf("Loop\n");
-		plPausePlay();
-	}
+	case GDK_KEY_space:
+		if (event->state == 4) {
+			printf("GDK_KEY_space\n");
+			plPausePlay();
+		}
 
-	if (event->keyval == GDK_KEY_a && event->state == 0) {
-		printf("Loop\n");
-		plSetA();
-	}
+	case GDK_KEY_a:
+		if (event->state == 4) {
+			printf("GDK_KEY_a\n");
+			plSetA();
+		}
 
-	if (event->keyval == GDK_KEY_b && event->state == 0) {
-		printf("Loop\n");
-		plSetB();
-	}
+	case GDK_KEY_b:
+		if (event->state == 4) {
+			printf("GDK_KEY_b\n");
+			plSetB();
+		}
 
-	if (event->keyval == GDK_KEY_Return) {
+	case GDK_KEY_Return:
 		printf("GDK_KEY_Return\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_BackSpace) {
+	case GDK_KEY_BackSpace:
 		printf("GDK_KEY_BackSpace\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Tab) {
+	case GDK_KEY_Tab:
 		printf("GDK_KEY_Tab\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Multi_key) {
+	case GDK_KEY_Multi_key:
 		printf("GDK_KEY_Multi_key\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Page_Up) {
+	case GDK_KEY_Page_Up:
 		printf("GDK_KEY_Page_Up\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Next) {
-		printf("GDK_KEY_Next\n");
-		return (TRUE);
-	}
-
-	if (event->keyval == GDK_KEY_Page_Down) {
+	case GDK_KEY_Page_Down:
 		printf("GDK_KEY_Page_Down\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Return) {
-		printf("GDK_KEY_End\n");
-		return (TRUE);
-	}
-
-	if (event->keyval == GDK_KEY_F1) {
+	case GDK_KEY_F1:
 		printf("GDK_KEY_F1\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Control_L) {
+	case GDK_KEY_Control_L:
 		printf("GDK_KEY_Control_L\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Meta_L) {
+	case GDK_KEY_Meta_L:
 		printf("GDK_KEY_Meta_L\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Super_L) {
+	case GDK_KEY_Super_L:
 		printf("GDK_KEY_Super_L\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Begin) {
+	case GDK_KEY_Begin:
 		printf("GDK_KEY_Begin\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Alt_L) {
+	case GDK_KEY_Alt_L:
 		printf("GDK_KEY_Alt_L\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Down) {
+	case GDK_KEY_Down:
 		printf("GDK_KEY_Down\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Up) {
+	case GDK_KEY_Up:
 		printf("GDK_KEY_Up\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Right) {
+	case GDK_KEY_Right:
 		printf("GDK_KEY_Right\n");
 		return (TRUE);
-	}
+		break;
 
-	if (event->keyval == GDK_KEY_Left) {
-		printf("GDK_KEY_Left\n");
-		return (TRUE);
-	}
-
-	if (event->keyval == GDK_KEY_Left) {
-		printf("GDK_KEY_Left\n");
-		return (TRUE);
-	}
-
-	if (event->keyval == GDK_KEY_Left) {
-		printf("GDK_KEY_Left\n");
-		return (TRUE);
-	}
-
-	if (event->keyval == GDK_KEY_space) {
-		printf("SPACE KEY PRESSED!");
+	case GDK_KEY_Num_Lock:
+		printf("GDK_KEY_Num_Lock\n");
 		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Space:
+		printf("GDK_KEY_KP_Space\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Tab:
+		printf("GDK_KEY_KP_Tab\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Enter:
+		printf("GDK_KEY_KP_Enter\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_F1:
+		printf("GDK_KEY_KP_F1\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_F2:
+		printf("GDK_KEY_KP_F2\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_F3:
+		printf("GDK_KEY_KP_F3\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_F4:
+		printf("GDK_KEY_KP_F4\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Home:
+		printf("GDK_KEY_KP_Home\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Left:
+		printf("GDK_KEY_KP_Left\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Up:
+		printf("GDK_KEY_KP_Up\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Right:
+		printf("GDK_KEY_KP_Right\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Down:
+		printf("GDK_KEY_KP_Down\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Page_Up:
+		printf("GDK_KEY_KP_Page_Up\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Page_Down:
+		printf("GDK_KEY_KP_Page_Down\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_End:
+		printf("GDK_KEY_KP_End\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Begin:
+		printf("GDK_KEY_KP_Begin\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Insert:
+		printf("GDK_KEY_KP_Insert\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Delete:
+		printf("GDK_KEY_KP_Delete\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Equal:
+		printf("GDK_KEY_KP_Equal\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Multiply:
+		printf("GDK_KEY_KP_Multiply\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Add:
+		printf("GDK_KEY_KP_Add\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Separator:
+		printf("GDK_KEY_KP_Separator\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Subtract:
+		printf("GDK_KEY_KP_Subtract\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Decimal:
+		printf("GDK_KEY_KP_Decimal\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_Divide:
+		printf("GDK_KEY_KP_Divide\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_0:
+		printf("GDK_KEY_KP_0\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_1:
+		printf("GDK_KEY_KP_1\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_2:
+		printf("GDK_KEY_KP_2\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_3:
+		printf("GDK_KEY_KP_3\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_4:
+		printf("GDK_KEY_KP_4\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_5:
+		printf("GDK_KEY_KP_5\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_6:
+		printf("GDK_KEY_KP_6\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_7:
+		printf("GDK_KEY_KP_7\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_8:
+		printf("GDK_KEY_KP_8\n");
+		return TRUE;
+		break;
+
+	case GDK_KEY_KP_9:
+		printf("GDK_KEY_KP_9\n");
+		return TRUE;
+		break;
 	}
+
+	g_idle_add(GTKIdel_cb, theMainWindow);
 
 	return FALSE;
 }
@@ -837,6 +998,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
  *
  * Description: Startup some Gui.
  *---------------------------------------------------------------------*/
+unsigned long int IdleCounter;
 int GTKIdel_cb(gpointer data) {
 	char ForString[100];
 
@@ -845,7 +1007,14 @@ int GTKIdel_cb(gpointer data) {
 	 gets performed here.
 	 Expression control of active GUI sliders.
 	*/
+	IdleCounter++;
+	if ((IdleCounter > 100)) {
+		printf("*** Timer Problem %d\n",
+		       IdleCounter);
+	}
+
 	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+//	printf("GTKIdel_cb %d %d %d\n", IdleCounter, AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
 		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
@@ -980,6 +1149,8 @@ int GTKIdel_cb(gpointer data) {
 	*/
 	if (UIUpdateFromTimer == TRUE) {
 		UIUpdateFromTimer = FALSE;
+		printd(LogRealTime, "Reset *** %d\n", IdleCounter);
+		IdleCounter = 0;
 		printd(LogRealTime, "UIUpdateFromTimer 1\n");
 		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 
@@ -1013,7 +1184,9 @@ int GTKIdel_cb(gpointer data) {
 		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
 		         1, 00, (int) 41);
 
-	} 
+	} else {
+		printd(LogRealTime, "No Timer %d\n", IdleCounter);
+	}
 
 	// Update the player time if playing.
 	gtk_widget_override_font(PlayerCurWid,
@@ -1049,8 +1222,8 @@ int GTKIdel_cb(gpointer data) {
 	}
 #endif
 //	printd(LogDebug, "GTKIdel_cb out\n");
-//	return (FALSE);
-	return (TRUE);
+	return (FALSE);
+//	return (TRUE);
 }
 
 /*--------------------------------------------------------------------
@@ -1086,6 +1259,7 @@ void SwitchToTab(char Tab) {
 	printd(LogDebug, "Switch to Tab %x %d %d\n", NoteBookPane, PreviousTab, Tab);
 }
 
+#if 0
 /*--------------------------------------------------------------------
  * Function:		on_button_clicked
  *
@@ -1099,7 +1273,10 @@ void on_button_clicked(GtkButton *button, gpointer user_data) {
 	printd(LogInfo, "on_button_clicked %d\n", (int) user_data);
 //	PatchIndex = LayoutSwitchPatch(user_data, true);
 	LayoutSwitchPatch(user_data, true);
+	g_idle_add(GTKIdel_cb, theMainWindow);
+
 }
+#endif
 
 /*--------------------------------------------------------------------
  * Function:		on_layoutbutton_clicked
@@ -1118,6 +1295,9 @@ gboolean layout_click_handler(GtkWidget *widget,
 	IncrementMode();
 	MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonDownImage);
+
+	g_idle_add(GTKIdel_cb, theMainWindow);
+
 	return TRUE; /* stop event propagation */
 }
 
@@ -1133,6 +1313,7 @@ gboolean layout_release_handler(GtkWidget *widget,
 	theImageButtons *theButton;
 	theButton = (theImageButtons *) user_data;
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
+	g_idle_add(GTKIdel_cb, theMainWindow);
 	return TRUE; /* stop event propagation */
 }
 
@@ -1173,6 +1354,9 @@ void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 
 	// Put Dialog here.
 	if (event->button.state & GDK_CONTROL_MASK) {
+		printf("CTRL and Tempo\n");
+//		SetTempo(132);
+		gMyInfo.Tempo = 132;
 	}
 
 	if (gMyInfo.MetronomeOn) {
@@ -1184,6 +1368,7 @@ void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 		                          TempoDraw.ButtonDownImage);
 		gMyInfo.MetronomeOn = 1;
 	}
+	g_idle_add(GTKIdel_cb, theMainWindow);
 }
 
 /*--------------------------------------------------------------------
@@ -1271,7 +1456,8 @@ void parse_cmdline(int argc, char *argv[]) {
 			break;
 
 		case 'v':
-			RunLogLevel = atoi(optarg);
+//			RunLogLevel = atoi(optarg);
+			sscanf(optarg, "%x", &RunLogLevel);
 			printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
 			break;
 
@@ -1381,6 +1567,9 @@ gboolean release_handler(GtkWidget *widget,
 	Loop = (int) user_data;
 	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
 	                          MainButtons[Loop].ButtonUpImage);
+
+	g_idle_add(GTKIdel_cb, theMainWindow);
+
 	return TRUE; /* stop event propagation */
 }
 
@@ -1400,6 +1589,7 @@ gboolean Notebook_click_handler(GtkWidget *widget,
 	PreviousTab = CurrentTab;
 	CurrentTab = Loop;
 
+	g_idle_add(GTKIdel_cb, theMainWindow);
 	return TRUE; /* stop event propagation */
 }
 

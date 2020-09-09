@@ -1258,8 +1258,8 @@ function SetPlacement1920 {
     wmctrl -r Patchage -t $PatchageDesktop
     wmctrl -r Patchage -e 0,0,0,1700,1000
     
-    wmctrl -r ${PatchBay} -t $PatchageDesktop
-    wmctrl -r ${PatchBay} -e 0,0,0,1700,1000
+    wmctrl -r ${PatchBayName} -t $PatchageDesktop
+    wmctrl -r ${PatchBayName} -e 0,0,0,1700,1000
     set +x
 }
 
@@ -1430,6 +1430,7 @@ EffectsProcessorApp="guitarixOld"
 EffectsProcessorWM="Guitarix: gx_head"
 # PatchBay="carla"
 PatchBay="catia"
+PatchBayName="Catia"
 
 MidiController=true
 Rosegarden=false

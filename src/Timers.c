@@ -209,7 +209,7 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 	g_idle_add(GTKIdel_cb, theMainWindow);
 
-//printd(LogDebug, "Call Toggle from tempo\n");
+//printd(LogTimer, "Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
 	return TRUE;
 }
@@ -234,6 +234,7 @@ void MyTimerInit(void) {
 	gMyInfo.TimerCount = 0;
 	gMyInfo.AlsaTimerHandle = 0;
 // ejk segfault 	SetTempo(130);
+
 }
 
 /*--------------------------------------------------------------------
@@ -242,6 +243,7 @@ void MyTimerInit(void) {
  * 	interrupts to handle double the tempo.
  *
  *---------------------------------------------------------------------*/
+unsigned int OldTempo;
 void SetTempo(unsigned int NewTempo) {
 	int Ret;
 	pthread_attr_t attr;
@@ -258,15 +260,16 @@ void SetTempo(unsigned int NewTempo) {
 		return;
 
 	timerid = 0;
+	OldTempo = NewTempo;
 
 	/* Set the jack transport for timers.
 	*/
 	com_tempo(NewTempo);
 	gMyInfo.Tempo = NewTempo;
 
-	printd(LogDebug, "***** RT Timer init ****\n");
+	printd(LogTimer, "***** RT Timer init ****\n");
 	if (gMyInfo.TempoTimerID) {
-		printd(LogDebug, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
+		printd(LogTimer, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
 //        memset((void*)&in, 0, sizeof(in));
 //		timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
 		timer_delete(gMyInfo.TempoTimerID);
@@ -286,7 +289,7 @@ void SetTempo(unsigned int NewTempo) {
 	sig.sigev_value.sival_int = 20;
 
 	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
-	printd(LogDebug, "***** RT Timer Create **** %d %d\n", Ret, timerid);
+	printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
 	if (Ret == 0) {
         memset(&in, 0, sizeof(in));
 		// Can't be zero.
@@ -301,15 +304,15 @@ void SetTempo(unsigned int NewTempo) {
 		//issue the periodic timer request here.
 //		Ret = timer_settime(timerid, 0, &in, &out);
 		Ret = timer_settime(timerid, 0, &in, 0);
-		printd(LogDebug, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
+		printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 		if (Ret != 0) {
-			printd(LogDebug, "timer_settime() failed with %d\n", errno);
+			printd(LogTimer, "timer_settime() failed with %d\n", errno);
 			//delete the timer.
 			timer_delete(timerid);
 			timerid = 0;
 		}
 	} else
-		printd(LogDebug, "timer_create() failed with %d\n", errno);
+		printd(LogTimer, "timer_create() failed with %d\n", errno);
 
 	gMyInfo.TempoTimerID = timerid;
 }
@@ -322,7 +325,7 @@ void SetTempo(unsigned int NewTempo) {
  *---------------------------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
 
-	printd(LogRealTime, " IN time_handler %d\n", SubBeats);
+	printd(LogTimer, " IN time_handler %d\n", SubBeats);
 
 	if (++SubBeats > 7) {
 		ToggleTempo();
@@ -351,7 +354,7 @@ void ToggleTempo(void) {
 	struct timeval Time0;
 
 	// gettimeofday(&Time0, NULL);
-	printd(LogDebug, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
+	printd(LogTimer, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -402,7 +405,7 @@ void ToggleTempo(void) {
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
-			printd(LogDebug, "cntStateWaitingforRecCount %d\n", BeatCount);
+			printd(LogTimer, "cntStateWaitingforRecCount %d\n", BeatCount);
 			/* Wait for the downbeat.
 			*/
 			if (BeatCount == 1)
@@ -411,14 +414,14 @@ void ToggleTempo(void) {
 			break;
 
 		case cntStateWaitingforRecCount:
-			printd(LogDebug, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+			printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 			if (CountInCount-- == gMyInfo.CountInBeats) {
 
 				/* Tell Drums to start.
 				*/
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
-				printd(LogDebug, "Start %d %d\n", CountInCount,  TempoState);
+				printd(LogTimer, "Start %d %d\n", CountInCount,  TempoState);
 				/* Set sync source to Internal
 				*/
 				OSCCommand(OSCSyncSource, typeSyncjack);
@@ -436,7 +439,7 @@ void ToggleTempo(void) {
 				com_play();
 				//		OSCCommand(OSCStartRecord, 0);
 				gMyInfo.MetronomeOn = FALSE;
-				printd(LogDebug, "Loop Start 1\n\n");
+				printd(LogTimer, "Loop Start 1\n\n");
 			}
 
 			break;
@@ -444,7 +447,7 @@ void ToggleTempo(void) {
 		/* If we are recording and still not done.
 		*/
 		case cntStateRecording:
-			printd(LogDebug, "cntStateRecording %d\n", LoopRecBeats);
+			printd(LogTimer, "cntStateRecording %d\n", LoopRecBeats);
 			if (LoopRecBeats == gMyInfo.LoopRecBeats)
 				OSCCommand(OSCStartRecord, 0);
 
@@ -469,14 +472,14 @@ void ToggleTempo(void) {
 				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
 				         0, 0);
 
-				printd(LogDebug, "Loop Off\n\n");
+				printd(LogTimer, "Loop Off\n\n");
 
 				CountInActiveState = cntStatePostRecord;
 			}
 			break;
 
 		case cntStatePostRecord:
-			printd(LogDebug, "Record Post\n\n");
+			printd(LogTimer, "Record Post\n\n");
 			CountInActiveState = cntStateWaitingIdle;
 			OSCCommand(OSCSyncSource, 1);
 			OSCCommand(OSCSyncOn, 0);
@@ -529,5 +532,10 @@ void ToggleTempo(void) {
 //		}
 	}
 #endif
+	/* This is BAD FIXME
+	*/
+	if (gMyInfo.Tempo != OldTempo) {
+		SetTempo(gMyInfo.Tempo);
+	}
 }
 

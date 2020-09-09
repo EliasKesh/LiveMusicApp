@@ -44,15 +44,16 @@
  * Place Global prototypes here.
  */
 
-#define LogTest 10
+#define LogTest 0x1000
 
-#define LogRealTime 7
-#define LogDebug 6
-#define LogError 5
-#define LogAlert 4
-#define LogWarn 3
-#define LogInfo 2
-#define LogNone 1
+#define LogRealTime 0x100
+#define LogTimer 0x40
+#define LogDebug 0x20
+#define LogError 0x10
+#define LogAlert 0x08
+#define LogWarn 0x04
+#define LogInfo 0x02
+#define LogNone 0x01
 #define MyLogLevel	LogNone
 
 #define PatchNameSize 60
@@ -61,7 +62,7 @@
 
 #define EliasPresets 1
 
-char *printd(char LogLevel, const char *fmt, ...);
+char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
 int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 

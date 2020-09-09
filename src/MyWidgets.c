@@ -110,6 +110,7 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 
 	gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 
+//	g_idle_add(GTKIdel_cb, theMainWindow);
 	return (0);
 }
 
@@ -122,5 +123,6 @@ gboolean normal_release_handler(GtkWidget *widget,
 
 	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
 	                          theButton->ButtonUpImage);
+
 	return TRUE; /* stop event propagation */
 }

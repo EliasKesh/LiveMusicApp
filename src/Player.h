@@ -62,6 +62,10 @@ int SetMP3PlayVol(int Value);
 void plPlay(void);
 void plStop(void);
 void plSetPosition(float position);
+void plScrub(int Amount);
+int ResetPlayer(void);
+int StartPlayer(void);
+
 
 /*
  * Place Static variables here.

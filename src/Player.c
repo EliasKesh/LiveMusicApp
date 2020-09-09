@@ -68,8 +68,6 @@ gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user
 gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void VolumeSlider_Changed(GtkAdjustment *adj);
-int ResetPlayer(void);
-int StartPlayer(void);
 static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
 gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
@@ -1431,6 +1429,15 @@ int StartPlayer(void) {
 	printd(LogRealTime, "After Loop open %x\n", OutPipe);
 
 	return (0);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		plScrub
+ *
+ * Description:		Scrub 
+ *---------------------------------------------------------------------*/
+void plScrub(int Amount) {
+
 }
 
 /*--------------------------------------------------------------------

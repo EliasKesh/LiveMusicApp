@@ -903,7 +903,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				cc_name = "Bank selection";
 				printd(LogDebug, "%s \n", cc_name);
 				break;
-			/* 01 */
+			/* 01 Guitar Volume */
 			case MIDI_CTL_MSB_MODWHEEL:
 				cc_name = "Modulation";
 				printd(LogDebug, "%s \n", cc_name);
@@ -920,7 +920,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				    FindString(fsPatchNames, "Expr P");
 #endif
 				break;
-			/* 02 */
+			/* 02  Midi Volume */
 			case MIDI_CTL_MSB_BREATH:
 				cc_name = "Breath";
 				printd(LogDebug, "%s \n", cc_name);
@@ -941,7 +941,7 @@ void *alsa_midi_thread(void * context_ptr) {
 #endif
 #endif
 				break;
-			/* 03 */
+			/* 03 Master */
 			case 0x03:
 				cc_name = "Unknown 0x03";
 				printd(LogDebug, "%s \n", cc_name);
@@ -958,12 +958,15 @@ void *alsa_midi_thread(void * context_ptr) {
 #endif
 #endif
 				break;
-			/* 04 */
+			/* 04 Tempo */
 			case MIDI_CTL_MSB_FOOT:
 				cc_name = "Foot";
 				printd(LogDebug, "%s \n", cc_name);
+				gMyInfo.Tempo = 
+				event_ptr->data.control.value/2+60;
+
 // Not sure this is needed.
-				SetVolume4(event_ptr->data.control.value / 1.28);
+//				SetVolume4(event_ptr->data.control.value / 1.28);
 #if 0
 #ifdef EliasPresets
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -991,7 +994,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				         event_ptr->data.control.value);
 #endif
 				break;
-			/* 0x05 */
+			/* 0x05 MP3 Volume */
 			case MIDI_CTL_MSB_PORTAMENTO_TIME:
 				cc_name = "Portamento time";
 				printd(LogTest, "%s \n", cc_name);
@@ -1005,7 +1008,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 #endif
 				break;
-			/* 0x06 */
+			/* 0x06 Nothing */
 			case MIDI_CTL_MSB_DATA_ENTRY:
 				cc_name = "Data entry";
 				printd(LogDebug, "%s \n", cc_name);
@@ -1021,7 +1024,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 
 			/* Here is the main Volume Pedal.
-			 0x07 */
+			 0x07 Pedal */
 			case MIDI_CTL_MSB_MAIN_VOLUME:
 				// ejk SEND
 				cc_name = "Main volume";
@@ -1069,7 +1072,7 @@ void *alsa_midi_thread(void * context_ptr) {
 				       event_ptr->data.control.value);
 
 				break;
-			/* 0x08 */
+			/* 0x08 Midi Threshold */
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
 				printd(LogDebug, "%s \n", cc_name);
@@ -1181,18 +1184,23 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE1:
 				cc_name = "General purpose 1";
+				printf("plPausePlay\n");
 				plPausePlay();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE2:
 				cc_name = "General purpose 2";
-				plPlay();
+				printf("plLoopToggle\n");
+				plLoopToggle();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE3:
 				cc_name = "General purpose 3";
-				plStop();
+				printf("plSetA\n");
+				plSetA();
 				break;
 			case MIDI_CTL_LSB_GENERAL_PURPOSE4:
 				cc_name = "General purpose 4";
+				printf("plSetB\n");
+				plSetB();
 				break;
 			case MIDI_CTL_SUSTAIN:
 				cc_name = "Sustain pedal";
@@ -1244,15 +1252,23 @@ void *alsa_midi_thread(void * context_ptr) {
 				break;
 			case MIDI_CTL_GENERAL_PURPOSE5:
 				cc_name = "General purpose 5";
+				printf("plScrub -7\n");
+				plScrub(-7);
 				break;
 			case MIDI_CTL_GENERAL_PURPOSE6:
 				cc_name = "General purpose 6";
+				printf("plScrub 7\n");
+				plScrub(7);
 				break;
 			case MIDI_CTL_GENERAL_PURPOSE7:
 				cc_name = "General purpose 7";
+				printf("plScrub -40\n");
+				plScrub(-40);
 				break;
 			case MIDI_CTL_GENERAL_PURPOSE8:
 				cc_name = "General purpose 8";
+				printf("plScrub 40\n");
+				plScrub(40);
 				break;
 			case MIDI_CTL_PORTAMENTO_CONTROL:
 				cc_name = "Portamento control";
