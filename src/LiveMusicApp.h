@@ -45,7 +45,7 @@
  */
 
 #define LogTest 0x1000
-
+#define LogMidi 0x200
 #define LogRealTime 0x100
 #define LogTimer 0x40
 #define LogDebug 0x20
@@ -72,9 +72,19 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 #define MaxStringPortName	32
 #if 1
 enum {
-	FluidPort = 0, GuitarixPort, LooperPort, TransportPort,
-	TempoPort, ClickPort, PedalPort, InternalPort, 
-	User1, User2, User3, MaxOutPorts
+	FluidPort = 0, 
+	GuitarixPort, 
+	LooperPort, 
+	TransportPort,
+	TempoPort, 
+	ClickPort, 
+	PedalPort, 
+	DAWPort,
+	InternalPort, 
+	User1, 
+	User2, 
+	User3, 
+	MaxOutPorts
 };
 #endif
 // Notebook tabs page.
@@ -163,10 +173,10 @@ typedef struct {
 	char Presets[Max_Patches][PatchNameSize];
 } LayoutType;
 
-#define Slider1		0
-#define Slider2		1
-#define Slider3		2
-#define Slider4		3
+#define Slider1		1
+#define Slider2		2
+#define Slider3		3
+#define Slider4		4
 
 typedef struct {
 	char Name[255];
@@ -193,6 +203,13 @@ enum {
 	MaxApps
 };
 
+enum {
+	dLEDBeat1 = 36,
+	dLEDBeat2,
+	dLEDBeat3,
+	dLEDBeat4
+};
+
 typedef struct {
 	// Preferences
 	PatchInfo MyPatchInfo[Max_Patches];
@@ -214,6 +231,7 @@ typedef struct {
 	unsigned int BeatsPerMeasure;
 	unsigned int AnalogVolume;
 	unsigned int MidiVolume;
+
 	/*
 	 * Colors
 	*/
@@ -280,6 +298,12 @@ typedef struct {
 	unsigned char 	MidiThresholdLevel;
 	unsigned int 	SetMP3PlayVolBool;
 	unsigned int 	ScrollUpdate;
+	unsigned int    V3Volume;
+	unsigned int    V4Volume;
+	unsigned int    V6Volume;
+	char    PatchUpdate;
+	char    SliderGUIUpdate;
+
 } LiveMusicInfo;
 
 /* Semophore for UI in GTK not timers.
@@ -470,6 +494,7 @@ char *CustomPorts[] = {
 	"TempoPort",
 	"ClickPort",
 	"PedalPort",
+	"DAWPort",
 	"InternalPort"
 };
 
@@ -619,4 +644,7 @@ void SetScale4Label(char *String);
 int GTKIdel_cb(gpointer data);
 enum {FileLocConfig = 0, FileLocTunes, FileLocUser };
 char *GetResourceDir(char *FileName, char WhichLoc);
+int SetVolumeControl(int Controller,int Value);
+int GetVolumeControl(int Controller);
+
 #endif

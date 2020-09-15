@@ -188,7 +188,9 @@ char *printd(int LogLevel, const char *fmt, ...) {
 	vsnprintf(p, 512, fmt, ap);
 	va_end(ap);
 
-	if (RunLogLevel & LogLevel)
+	/* Always print LogTest messages.
+	*/
+	if ((RunLogLevel | LogTest) & LogLevel)
 		printf( "L%d %s", LogLevel, p);
 
 	fprintf(LogFile, "L%d %s", LogLevel, p);
@@ -269,6 +271,7 @@ void CheckForStartupDirs(void) {
 		NewInstall = 1;
 	}
 }
+int VolumeControllerNum;
 
 /*--------------------------------------------------------------------
  * Function:            my_keypress_function
@@ -508,6 +511,8 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_KP_Add:
 		printf("GDK_KEY_KP_Add\n");
+		SetVolumeControl(VolumeControllerNum,
+			GetVolumeControl(VolumeControllerNum) + 5);
 		return TRUE;
 		break;
 
@@ -518,6 +523,8 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_KP_Subtract:
 		printf("GDK_KEY_KP_Subtract\n");
+		SetVolumeControl(VolumeControllerNum,
+			GetVolumeControl(VolumeControllerNum) - 5);
 		return TRUE;
 		break;
 
@@ -533,41 +540,49 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_KP_0:
 		printf("GDK_KEY_KP_0\n");
+		VolumeControllerNum = 1;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_1:
 		printf("GDK_KEY_KP_1\n");
+		VolumeControllerNum = 2;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_2:
 		printf("GDK_KEY_KP_2\n");
+		VolumeControllerNum = 3;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_3:
 		printf("GDK_KEY_KP_3\n");
+		VolumeControllerNum = 4;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_4:
 		printf("GDK_KEY_KP_4\n");
+		VolumeControllerNum = 5;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_5:
 		printf("GDK_KEY_KP_5\n");
+		VolumeControllerNum = 6;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_6:
 		printf("GDK_KEY_KP_6\n");
+		VolumeControllerNum = 7;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_7:
 		printf("GDK_KEY_KP_7\n");
+		VolumeControllerNum = 8;
 		return TRUE;
 		break;
 
@@ -1016,9 +1031,11 @@ int GTKIdel_cb(gpointer data) {
 	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 //	printf("GTKIdel_cb %d %d %d\n", IdleCounter, AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
-	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+// gMyInfo.SliderGUIUpdate
+//	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+	if (gMyInfo.SliderGUIUpdate) {
 		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
-
+		gMyInfo.SliderGUIUpdate = FALSE;
 		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
 			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
@@ -1119,7 +1136,14 @@ int GTKIdel_cb(gpointer data) {
 
 	if (gMyInfo.IncrementSwitch) {
 		IncrementMode();
-		gMyInfo.IncrementSwitch = NULL;
+		gMyInfo.IncrementSwitch = 0;
+		MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
+		gtk_image_set_from_pixbuf(GTK_IMAGE(LayoutButton.Image), LayoutButton.ButtonDownImage);
+	}
+
+	if (gMyInfo.PatchUpdate) {
+		LayoutSwitchPatch(gMyInfo.PatchUpdate - 1, true);
+		gMyInfo.PatchUpdate = NULL;
 	}
 
 	if (RemoveMuteCount) {
@@ -1167,23 +1191,30 @@ int GTKIdel_cb(gpointer data) {
 		MyOSCPoll(FALSE);
 //		HIDPoll();
 
+		// LPD8 Lights
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
+		         1, 00, (int) dLEDBeat1);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
+		         1, 00, (int) dLEDBeat2);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
+		         1, 00, (int) dLEDBeat3);
+		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
+		         1, 00, (int) dLEDBeat4);
+
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 0 );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 0 );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 0 );
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 0 );
 		/*  Turn Pedal lights off
 		*/
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED3Off );
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED4Off );
-
-		// LPD8 Lights
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
-		         1, 00, (int) 36);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
-		         1, 00, (int) 38);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
-		         1, 00, (int) 40);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, PedalPort,
-		         1, 00, (int) 41);
-
 	} else {
 		printd(LogRealTime, "No Timer %d\n", IdleCounter);
 	}
@@ -1469,7 +1500,7 @@ void parse_cmdline(int argc, char *argv[]) {
 		default:
 		case 'h':
 			printf("Live Music CLI Usage\n");
-			printf(" v verbose - Debug output level\n");
+			printf(" v verbose - Debug output level hex 0xfff \n");
 			printf(" f FontSize - Font Size for smaller screens.\n");
 			printf(" j jack - Jack master name.\n");
 			printf(" e enable-jack - Connect to jackserver.\n");
@@ -1866,6 +1897,7 @@ int SetVolume3(int Value) {
 	printd(LogDebug, "Slider 3 %x %d\n",
 	       Adjustment2, Value);
 	gtk_adjustment_set_value(Adjustment3, Value);
+	gMyInfo.V3Volume = Value;
 	gtk_range_set_adjustment(VScale3, Adjustment3);
 	return (Value);
 }
@@ -1879,6 +1911,7 @@ int SetVolume4(int Value) {
 	printd(LogTest, "Slider 4 %x %d\n",
 	       Adjustment2, Value);
 	gtk_adjustment_set_value(Adjustment4, Value);
+	gMyInfo.V4Volume = Value;
 	gtk_range_set_adjustment(VScale4, Adjustment4);
 	return (Value);
 }
@@ -2324,6 +2357,117 @@ int CloseHistoryFile(void) {
 	fclose(FileHistory);
 }
 
+/*--------------------------------------------------------------------
+ * Function:		SetVolumeControl
+ *
+ * Description:		Control multiple volumes/expression
+ *
+ *---------------------------------------------------------------------*/
+int SetVolumeControl(int Controller, int Value) {
+int ReturnVal = 0;
+
+	if (Value < 0)
+		Value = 0;
+
+	if (Value > 126 )
+		Value = 127;
+
+	switch (Controller) {
+	case 1:
+		// Guitar Volume
+		ReturnVal = gMyInfo.AnalogVolume;
+		SetVolume1(Value);
+		break;
+
+	case 2:
+		// Midi Volume
+		ReturnVal = gMyInfo.MidiVolume;
+		SetVolume2(Value);
+		break;
+
+	case 3:
+		// Master Volume (OSC)
+		ReturnVal = gMyInfo.V3Volume;
+		SetVolume3(Value);
+		break;
+
+	case 4:
+		// Tempo
+		ReturnVal = gMyInfo.Tempo;
+		gMyInfo.Tempo = Value + 50;
+		break;
+
+	case 5:
+		// MPS volume
+		ReturnVal = gMyInfo.SetMP3PlayVolBool;
+		gMyInfo.SetMP3PlayVolBool = Value;
+		break;
+
+	case 6:
+		ReturnVal = gMyInfo.V6Volume;
+		gMyInfo.V6Volume = Value;
+		break;
+
+	case 7:
+		// Pedal Volume
+		ReturnVal = gMyInfo.V4Volume;
+		SetVolume4(Value);
+		break;
+
+	case 8:
+		ReturnVal = gMyInfo.MidiThresholdLevel;
+		gMyInfo.MidiThresholdLevel = Value;
+		break;
+	}
+return(ReturnVal);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		GetVolumeControl
+ *
+ * Description:		Control multiple volumes/expression
+ *
+ *---------------------------------------------------------------------*/
+int GetVolumeControl(int Controller) {
+int ReturnVal = 0;
+
+	switch (Controller) {
+	case 1:
+		ReturnVal = gMyInfo.AnalogVolume;
+		break;
+
+	case 2:
+		ReturnVal = gMyInfo.MidiVolume;
+		break;
+
+	case 3:
+		ReturnVal = gMyInfo.V3Volume;
+		break;
+
+	case 4:
+		ReturnVal = gMyInfo.Tempo;
+		break;
+
+	case 5:
+		ReturnVal = gMyInfo.SetMP3PlayVolBool;
+		break;
+
+	case 6:
+		ReturnVal = gMyInfo.V6Volume;
+		break;
+
+	case 7:
+		ReturnVal = gMyInfo.V4Volume;
+		break;
+
+	case 8:
+		ReturnVal = gMyInfo.MidiThresholdLevel;
+		break;
+	}
+
+return(ReturnVal);
+}
+
 #if 0
 /*--------------------------------------------------------------------
  * Function:		show_motion_notify_cb
@@ -2461,7 +2605,7 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 	if (GTK_IS_LABEL(widget))
 		gtk_widget_override_font(widget, pfd);
 	else
-		gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
+		gtk_widget_override_fo(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
 		                         pfd);
 
 	pango_font_description_free(pfd);

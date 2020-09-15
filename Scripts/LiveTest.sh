@@ -15,232 +15,251 @@
 
 
 Ramp() {
-
-sleep .1; sendmidi dev "LiveMusic input" cc 07 0
-sleep .1; sendmidi dev "LiveMusic input" cc 07 10
-sleep .1; sendmidi dev "LiveMusic input" cc 07 20
-sleep .1; sendmidi dev "LiveMusic input" cc 07 30
-sleep .1; sendmidi dev "LiveMusic input" cc 07 40
-sleep .1; sendmidi dev "LiveMusic input" cc 07 50
-sleep .1; sendmidi dev "LiveMusic input" cc 07 60
-sleep .1; sendmidi dev "LiveMusic input" cc 07 70
-sleep .1; sendmidi dev "LiveMusic input" cc 07 80
-sleep .1; sendmidi dev "LiveMusic input" cc 07 90
-sleep .1; sendmidi dev "LiveMusic input" cc 07 100
-sleep .1; sendmidi dev "LiveMusic input" cc 07 100
-sleep .1; sendmidi dev "LiveMusic input" cc 07 120
-sleep .1; sendmidi dev "LiveMusic input" cc 07 110
-sleep .1; sendmidi dev "LiveMusic input" cc 07 100
-sleep .1; sendmidi dev "LiveMusic input" cc 07 90
-sleep .1; sendmidi dev "LiveMusic input" cc 07 80
-sleep .1; sendmidi dev "LiveMusic input" cc 07 70
-sleep .1; sendmidi dev "LiveMusic input" cc 07 60
-sleep .1; sendmidi dev "LiveMusic input" cc 07 50
-sleep .1; sendmidi dev "LiveMusic input" cc 07 40
-sleep .1; sendmidi dev "LiveMusic input" cc 07 30
-sleep .1; sendmidi dev "LiveMusic input" cc 07 20
-sleep .1; sendmidi dev "LiveMusic input" cc 07 10
-sleep .1; sendmidi dev "LiveMusic input" cc 07 0
+echo "---DEB--------> Ramp Start "$RampCTR
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 0
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 10
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 20
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 30
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 40
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 50
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 60
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 70
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 80
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 90
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 100
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 120
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 110
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 100
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 90
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 80
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 70
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 60
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 50
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 40
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 30
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 20
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 10
+sleep $RDly; sendmidi dev "LiveMusic input" cc $RampCTR 0
+echo "---DEB--------> Ramp Stop"
 }
 
 DoAll() {
-sleep .1; sendmidi dev "LiveMusic input" pc 00
-sleep .1; sendmidi dev "LiveMusic input" pc 01
-sleep .1; sendmidi dev "LiveMusic input" pc 02
-sleep .1; sendmidi dev "LiveMusic input" pc 03
-sleep .1; sendmidi dev "LiveMusic input" pc 04
-sleep .1; sendmidi dev "LiveMusic input" pc 05
-sleep .1; sendmidi dev "LiveMusic input" pc 06
-sleep .1; sendmidi dev "LiveMusic input" pc 07
-sleep .1; sendmidi dev "LiveMusic input" pc 08
-sleep .1; sendmidi dev "LiveMusic input" pc 09
+echo "---DEB--------> DoAll "$RampCTR
+sleep $RDly; sendmidi dev "LiveMusic input" pc 00
+sleep $RDly; sendmidi dev "LiveMusic input" pc 01
+sleep $RDly; sendmidi dev "LiveMusic input" pc 02
+sleep $RDly; sendmidi dev "LiveMusic input" pc 03
+sleep $RDly; sendmidi dev "LiveMusic input" pc 04
+sleep $RDly; sendmidi dev "LiveMusic input" pc 05
+sleep $RDly; sendmidi dev "LiveMusic input" pc 06
+sleep $RDly; sendmidi dev "LiveMusic input" pc 07
+sleep $RDly; sendmidi dev "LiveMusic input" pc 08
+sleep $RDly; sendmidi dev "LiveMusic input" pc 09
 
-sleep .1; sendmidi dev "LiveMusic input" pc 10
-sleep .1; sendmidi dev "LiveMusic input" pc 11
-sleep .1; sendmidi dev "LiveMusic input" pc 12
-sleep .1; sendmidi dev "LiveMusic input" pc 13
-sleep .1; sendmidi dev "LiveMusic input" pc 14
-sleep .1; sendmidi dev "LiveMusic input" pc 15
-sleep .1; sendmidi dev "LiveMusic input" pc 16
-sleep .1; sendmidi dev "LiveMusic input" pc 17
-sleep .1; sendmidi dev "LiveMusic input" pc 18
-sleep .1; sendmidi dev "LiveMusic input" pc 19
+sleep $RDly; sendmidi dev "LiveMusic input" pc 10
+sleep $RDly; sendmidi dev "LiveMusic input" pc 11
+sleep $RDly; sendmidi dev "LiveMusic input" pc 12
+sleep $RDly; sendmidi dev "LiveMusic input" pc 13
+sleep $RDly; sendmidi dev "LiveMusic input" pc 14
+sleep $RDly; sendmidi dev "LiveMusic input" pc 15
+sleep $RDly; sendmidi dev "LiveMusic input" pc 16
+sleep $RDly; sendmidi dev "LiveMusic input" pc 17
+sleep $RDly; sendmidi dev "LiveMusic input" pc 18
+sleep $RDly; sendmidi dev "LiveMusic input" pc 19
 
-sleep .1; sendmidi dev "LiveMusic input" pc 20
-sleep .1; sendmidi dev "LiveMusic input" pc 21
-sleep .1; sendmidi dev "LiveMusic input" pc 22
-sleep .1; sendmidi dev "LiveMusic input" pc 23
-sleep .1; sendmidi dev "LiveMusic input" pc 24
-sleep .1; sendmidi dev "LiveMusic input" pc 25
-sleep .1; sendmidi dev "LiveMusic input" pc 26
-sleep .1; sendmidi dev "LiveMusic input" pc 27
-sleep .1; sendmidi dev "LiveMusic input" pc 28
-sleep .1; sendmidi dev "LiveMusic input" pc 29
+sleep $RDly; sendmidi dev "LiveMusic input" pc 20
+sleep $RDly; sendmidi dev "LiveMusic input" pc 21
+sleep $RDly; sendmidi dev "LiveMusic input" pc 22
+sleep $RDly; sendmidi dev "LiveMusic input" pc 23
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 24
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 25
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 26
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 27
+sleep $RDly; sendmidi dev "LiveMusic input" pc 28
+sleep $RDly; sendmidi dev "LiveMusic input" pc 29
 
-sleep .1; sendmidi dev "LiveMusic input" pc 30
-sleep .1; sendmidi dev "LiveMusic input" pc 31
-sleep .1; sendmidi dev "LiveMusic input" pc 32
-sleep .1; sendmidi dev "LiveMusic input" pc 33
-sleep .1; sendmidi dev "LiveMusic input" pc 34
-sleep .1; sendmidi dev "LiveMusic input" pc 35
-sleep .1; sendmidi dev "LiveMusic input" pc 36
-sleep .1; sendmidi dev "LiveMusic input" pc 37
-sleep .1; sendmidi dev "LiveMusic input" pc 38
-sleep .1; sendmidi dev "LiveMusic input" pc 39
+sleep $RDly; sendmidi dev "LiveMusic input" pc 30
+sleep $RDly; sendmidi dev "LiveMusic input" pc 31
+sleep $RDly; sendmidi dev "LiveMusic input" pc 32
+sleep $RDly; sendmidi dev "LiveMusic input" pc 33
+sleep $RDly; sendmidi dev "LiveMusic input" pc 34
+sleep $RDly; sendmidi dev "LiveMusic input" pc 35
+sleep $RDly; sendmidi dev "LiveMusic input" pc 36
+sleep $RDly; sendmidi dev "LiveMusic input" pc 37
+sleep $RDly; sendmidi dev "LiveMusic input" pc 38
+sleep $RDly; sendmidi dev "LiveMusic input" pc 39
 
-sleep .1; sendmidi dev "LiveMusic input" pc 40
-sleep .1; sendmidi dev "LiveMusic input" pc 41
-sleep .1; sendmidi dev "LiveMusic input" pc 42
-sleep .1; sendmidi dev "LiveMusic input" pc 43
-sleep .1; sendmidi dev "LiveMusic input" pc 44
-sleep .1; sendmidi dev "LiveMusic input" pc 45
-# sleep .1; sendmidi dev "LiveMusic input" pc 46
-# sleep .1; sendmidi dev "LiveMusic input" pc 47
-# sleep .1; sendmidi dev "LiveMusic input" pc 48
-sleep .1; sendmidi dev "LiveMusic input" pc 49
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 40
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 41
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 42
+sleep $RDly; sendmidi dev "LiveMusic input" pc 43
+sleep $RDly; sendmidi dev "LiveMusic input" pc 44
+sleep $RDly; sendmidi dev "LiveMusic input" pc 45
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 46
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 47
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 48
+sleep $RDly; sendmidi dev "LiveMusic input" pc 49
 
-sleep .1; sendmidi dev "LiveMusic input" pc 50
-sleep .1; sendmidi dev "LiveMusic input" pc 51
-sleep .1; sendmidi dev "LiveMusic input" pc 52
-sleep .1; sendmidi dev "LiveMusic input" pc 53
-sleep .1; sendmidi dev "LiveMusic input" pc 54
-sleep .1; sendmidi dev "LiveMusic input" pc 55
-sleep .1; sendmidi dev "LiveMusic input" pc 56
-sleep .1; sendmidi dev "LiveMusic input" pc 57
-sleep .1; sendmidi dev "LiveMusic input" pc 58
-sleep .1; sendmidi dev "LiveMusic input" pc 59
+sleep $RDly; sendmidi dev "LiveMusic input" pc 50
+sleep $RDly; sendmidi dev "LiveMusic input" pc 51
+sleep $RDly; sendmidi dev "LiveMusic input" pc 52
+sleep $RDly; sendmidi dev "LiveMusic input" pc 53
+sleep $RDly; sendmidi dev "LiveMusic input" pc 54
+sleep $RDly; sendmidi dev "LiveMusic input" pc 55
+sleep .2; sendmidi dev "LiveMusic input" pc 56
+sleep $SDly; sendmidi dev "LiveMusic input" pc 57
+sleep .4; sendmidi dev "LiveMusic input" pc 58
+sleep $SDly; sendmidi dev "LiveMusic input" pc 59
 
-sleep .1; sendmidi dev "LiveMusic input" pc 60
-sleep .1; sendmidi dev "LiveMusic input" pc 61
-sleep .1; sendmidi dev "LiveMusic input" pc 62
-sleep .1; sendmidi dev "LiveMusic input" pc 63
-sleep .1; sendmidi dev "LiveMusic input" pc 64
-sleep .1; sendmidi dev "LiveMusic input" pc 65
-sleep .1; sendmidi dev "LiveMusic input" pc 66
-sleep .1; sendmidi dev "LiveMusic input" pc 67
-sleep .1; sendmidi dev "LiveMusic input" pc 68
-sleep .1; sendmidi dev "LiveMusic input" pc 69
+sleep $SDly; sendmidi dev "LiveMusic input" pc 60
+sleep $SDly; sendmidi dev "LiveMusic input" pc 61
+sleep $SDly; sendmidi dev "LiveMusic input" pc 62
+sleep $LDly; sendmidi dev "LiveMusic input" pc 63
+sleep $RDly; sendmidi dev "LiveMusic input" pc 64
+sleep $RDly; sendmidi dev "LiveMusic input" pc 65
+sleep $RDly; sendmidi dev "LiveMusic input" pc 66
+sleep $RDly; sendmidi dev "LiveMusic input" pc 67
+sleep $RDly; sendmidi dev "LiveMusic input" pc 68
+sleep $RDly; sendmidi dev "LiveMusic input" pc 69
 
-sleep .1; sendmidi dev "LiveMusic input" pc 70
-sleep .1; sendmidi dev "LiveMusic input" pc 71
-sleep .1; sendmidi dev "LiveMusic input" pc 72
-sleep .1; sendmidi dev "LiveMusic input" pc 73
-sleep .1; sendmidi dev "LiveMusic input" pc 74
-sleep .1; sendmidi dev "LiveMusic input" pc 75
-sleep .1; sendmidi dev "LiveMusic input" pc 76
-sleep .1; sendmidi dev "LiveMusic input" pc 77
-sleep .1; sendmidi dev "LiveMusic input" pc 78
-sleep .1; sendmidi dev "LiveMusic input" pc 79
+sleep $RDly; sendmidi dev "LiveMusic input" pc 70
+sleep $RDly; sendmidi dev "LiveMusic input" pc 71
+sleep $RDly; sendmidi dev "LiveMusic input" pc 72
+sleep $RDly; sendmidi dev "LiveMusic input" pc 73
+sleep $RDly; sendmidi dev "LiveMusic input" pc 74
+sleep $RDly; sendmidi dev "LiveMusic input" pc 75
+sleep $RDly; sendmidi dev "LiveMusic input" pc 76
+sleep $RDly; sendmidi dev "LiveMusic input" pc 77
+sleep $RDly; sendmidi dev "LiveMusic input" pc 78
+sleep 1; sendmidi dev "LiveMusic input" pc 79
+sleep $SDly; sendmidi dev "LiveMusic input" pc 79
+sleep .4; sendmidi dev "LiveMusic input" pc 79
+sleep .4; sendmidi dev "LiveMusic input" pc 79
+sleep 1; sendmidi dev "LiveMusic input" pc 79
+echo "---DEB--------> DoAll Stop "$RampCTR
 
-# sleep .1; sendmidi dev "LiveMusic input" pc 80
-# sleep .1; sendmidi dev "LiveMusic input" pc 81
-# sleep .1; sendmidi dev "LiveMusic input" pc 82
-# sleep .1; sendmidi dev "LiveMusic input" pc 83
-# sleep .1; sendmidi dev "LiveMusic input" pc 84
-# sleep .1; sendmidi dev "LiveMusic input" pc 85
-# sleep .1; sendmidi dev "LiveMusic input" pc 86
-# sleep .1; sendmidi dev "LiveMusic input" pc 87
-# sleep .1; sendmidi dev "LiveMusic input" pc 88
-# sleep .1; sendmidi dev "LiveMusic input" pc 89
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 80
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 81
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 82
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 83
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 84
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 85
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 86
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 87
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 88
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 89
 
-# sleep .1; sendmidi dev "LiveMusic input" pc 90
-# sleep .1; sendmidi dev "LiveMusic input" pc 91
-# sleep .1; sendmidi dev "LiveMusic input" pc 92
-# sleep .1; sendmidi dev "LiveMusic input" pc 93
-# sleep .1; sendmidi dev "LiveMusic input" pc 94
-# sleep .1; sendmidi dev "LiveMusic input" pc 95
-# sleep .1; sendmidi dev "LiveMusic input" pc 96
-# sleep .1; sendmidi dev "LiveMusic input" pc 97
-# sleep .1; sendmidi dev "LiveMusic input" pc 98
-# sleep .1; sendmidi dev "LiveMusic input" pc 99
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 90
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 91
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 92
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 93
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 94
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 95
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 96
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 97
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 98
+# sleep $RDly; sendmidi dev "LiveMusic input" pc 99
 
 }
 
 # amidi -p hw:1,1 -S 'B0 00 00 C0 07'
 # amidi -p hw:1,0 --recieve
 
-#sleep .1; sendmidi dev "LiveMusic input" ch 1
+#sleep $RDly; sendmidi dev "LiveMusic input" ch 1
 
-#sleep .1; sendmidi dev "LiveMusic input" cc 4 1
+#sleep $RDly; sendmidi dev "LiveMusic input" cc 4 1
 
-#sleep .1; sendmidi dev "LiveMusic input" pc 3
+#sleep $RDly; sendmidi dev "LiveMusic input" pc 3
+
+# Program Change triggers one more.
+SDly=.2
+RDly=0
+LDly=1
+ulimit -c unlimited
 
 
 while true
 do
 
-echo "Patch "
+echo "---DEB--------> Patch "
 sendmidi dev "LiveMusic input" pc 55
-sleep .3
+sleep $SDly;
 
-echo "Live "
+echo "---DEB--------> Live "
 sendmidi dev "LiveMusic input" pc 21
 sleep .6
 
+RampCTR=01
+Ramp
+RampCTR=02
+Ramp
+RampCTR=03
+Ramp
+RampCTR=07
 
 # Master Volume
-echo "Master Volume"
-sleep .3
-sendmidi dev "LiveMusic input" pc 18
+echo "---DEB--------> Master Volume"
+sleep $SDly;
+sendmidi dev "LiveMusic input" pc 21
 Ramp
 
-echo "Midi Volume"
-sleep .3
-sendmidi dev "LiveMusic input" pc 17
+echo "---DEB--------> Midi Volume"
+sleep $SDly;
+sendmidi dev "LiveMusic input" pc 20
 Ramp
 
-echo "Guitar Volume"
-sleep .3
+echo "---DEB--------> Guitar Volume"
+sleep $SDly;
+sendmidi dev "LiveMusic input" pc 19
+Ramp
+
+echo "---DEB--------> Expression Dist"
+sleep $SDly;
 sendmidi dev "LiveMusic input" pc 16
 Ramp
 
-echo "Expression Dist"
-sleep .3
-sendmidi dev "LiveMusic input" pc 15
+echo "---DEB--------> Expression Wah"
+sleep $SDly;
+sendmidi dev "LiveMusic input" pc 17
 Ramp
 
-echo "Expression Wah"
-sleep .3
-sendmidi dev "LiveMusic input" pc 14
-Ramp
-
-echo "Expression Volume"
-sleep .3
-sendmidi dev "LiveMusic input" pc 13
+echo "---DEB--------> Expression Volume"
+sleep $SDly;
+sendmidi dev "LiveMusic input" pc 18
 Ramp
 
 # Back to patch screen.
 
-echo "Chords"
-sendmidi dev "LiveMusic input" pc 58
-sleep .6
-
-echo "Player"
+echo "---DEB--------> Chords"
 sendmidi dev "LiveMusic input" pc 57
+sleep .6
+
+echo "---DEB--------> Player"
+sendmidi dev "LiveMusic input" pc 59
 sleep 1
 
-echo "Score"
-sendmidi dev "LiveMusic input" pc 56
+echo "---DEB--------> Score"
+sendmidi dev "LiveMusic input" pc 58
 sleep 1
 
-echo "Patch "
-sendmidi dev "LiveMusic input" pc 55
+echo "---DEB--------> Patch "
+sendmidi dev "LiveMusic input" pc 60
 sleep 1
 
-echo "Looper "
+echo "---DEB--------> Looper "
+sendmidi dev "LiveMusic input" pc 27
+sleep .6
+
+echo "---DEB--------> Drums "
+sendmidi dev "LiveMusic input" pc 26
+sleep .6
+
+echo "---DEB--------> analog "
+sendmidi dev "LiveMusic input" pc 25
+sleep .6
+
+echo "---DEB--------> Live "
 sendmidi dev "LiveMusic input" pc 24
-sleep .6
-
-echo "Drums "
-sendmidi dev "LiveMusic input" pc 23
-sleep .6
-
-echo "analog "
-sendmidi dev "LiveMusic input" pc 22
-sleep .6
-
-echo "Live "
-sendmidi dev "LiveMusic input" pc 21
 sleep .6
 
 DoAll

@@ -259,6 +259,9 @@ void SetTempo(unsigned int NewTempo) {
 	if (NewTempo <= 30)
 		return;
 
+	if (gMyInfo.Tempo == OldTempo)
+		return;
+
 	timerid = 0;
 	OldTempo = NewTempo;
 
@@ -355,6 +358,11 @@ void ToggleTempo(void) {
 
 	// gettimeofday(&Time0, NULL);
 	printd(LogTimer, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
+	if (gMyInfo.Tempo != OldTempo) {
+		SetTempo(gMyInfo.Tempo);
+		// Must return or SegFault.
+		return;
+	}
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -367,38 +375,46 @@ void ToggleTempo(void) {
 		if (++BeatCount > gMyInfo.BeatsPerMeasure) {
 			BeatCount = 1;
 			TempoState = 0;
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED3On);
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         1, 00, (int) 36);
+			SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
+			         1, 100, (int) dLEDBeat1);
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+			         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 1 );
 
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED4On);
 
 		} else {
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED4On );
-
 			switch(BeatCount) {
 			case 2:
-				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         1, 00, (int) 38);
+				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
+			         1, 100, (int) dLEDBeat2);
+				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+			         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
+
 			break;
 			
 			case 3:
-				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         1, 00, (int) 40);
+				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
+			         1, 100, (int) dLEDBeat3);
+				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+			         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
 			break;
 			
 			case 4:
-				SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         1, 00, (int) 41);
+				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
+			         1, 100, (int) dLEDBeat4);
+				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+			         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
 			break;
 			
 			}
+			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+			         DrumMidiChannel, 04, (int) PedalLED3On );
 		}
 
 		/* Handle any recording for the looper.
@@ -534,8 +550,7 @@ void ToggleTempo(void) {
 #endif
 	/* This is BAD FIXME
 	*/
-	if (gMyInfo.Tempo != OldTempo) {
-		SetTempo(gMyInfo.Tempo);
-	}
+//	SetTempo(gMyInfo.Tempo);
+
 }
 

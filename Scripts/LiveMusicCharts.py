@@ -817,3 +817,6 @@ if (CreateIndexFIle):
 # find ./ -type d -exec rename 's/ //g; s/\A-*//' {}"/"* \
 # mscore3 Azra.gp4 -o Azra.mscz
 # find ./ -iname \*.gp? -exec mscore3 {} -o {}".mscz" \;
+# # lame --scale 4 BKContigo.mp3 BKContigo1.mp3
+# 
+# 

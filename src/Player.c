@@ -638,7 +638,6 @@ void SetPlayerFile(char *FileName) {
 	ResetPlayer();
 	PlayerPoll(0);
 
-	printf("*** Open SavedLoop\n");
 	OpenSavedLoopFile(FileName);
 	PlayerWrite("get_time_length\n");
 
@@ -741,12 +740,6 @@ void SaveLoopFile(char *FileName) {
 			        mySavedLoops[Loop].Start,
 			        mySavedLoops[Loop].Length,
 			        mySavedLoops[Loop].Position);
-			printf("SaveLoop %s %0.2f, %0.2f, %0.2f\n",
-			       mySavedLoops[Loop].LoopName,
-			       mySavedLoops[Loop].Start,
-			        mySavedLoops[Loop].Length,
-			        mySavedLoops[Loop].Position);
-
 			Loop++;
 		}
 		fclose(SavedLoopFD);
@@ -761,6 +754,7 @@ void SaveLoopFile(char *FileName) {
  *---------------------------------------------------------------------*/
 int PlayerWrite(char *String) {
 	int Val;
+
 
 	Val = fputs(String, OutPipe);
 	fflush(OutPipe);
@@ -883,7 +877,7 @@ void PlayerPoll(char How) {
 				FValue = atof(Found);
 				CurrentLength = FValue;
 				PlayerAsk--;
-				printf("Mpl Time %f - %s\n", FValue, Found );
+				printd(LogRealTime, "Mpl Time %f - %s\n", FValue, Found );
 
 				/* Set the variables for the
 				SongMarkers.
@@ -934,7 +928,7 @@ void PlayerPoll(char How) {
 				*/
 				if (CurrentLength + 0.5 >= TotalLength) {
 					printd(LogRealTime, "Player Stopping\n");
-					PlayerWrite("set_property time_pos 0.000\n");
+					plSetPosition(0.0);
 
 //					ResetPlayer();
 				}
@@ -972,9 +966,7 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
 	printd(LogRealTime, "PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
-	sprintf(PlayerString, "set_property time_pos %f\n",
-	        gtk_adjustment_get_value(PositionAdjustment));
-	PlayerWrite(PlayerString);
+	plSetPosition(gtk_adjustment_get_value(PositionAdjustment));
 }
 
 /*--------------------------------------------------------------------
@@ -1275,10 +1267,6 @@ void SaveSongMarkers(char *FileName) {
 	printd(LogRealTime, " SaveSongMarkers FD %d %s\n", SaveMarksFD, strerror(errno));
 	if (SaveMarksFD) {
 		for (Loop = 0; Loop < NumberSongMarks; Loop++) {
-			printf("<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
-			       SongMarkers[Loop].SongMark,
-			       SongMarkers[Loop].SongSection);
-
 			fprintf(SaveMarksFD, "<meta name=\"SongMark\" content=\"%.2f,%s\"> %f->%s\n",
 			        SongMarkers[Loop].SongMark,
 			        SongMarkers[Loop].SongSection);
@@ -1405,7 +1393,7 @@ int StartPlayer(void) {
 	if (WeAreLooping) {
 		sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null" ,
+		        "mplayer -nocache -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null" ,
 //		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
@@ -1416,7 +1404,7 @@ int StartPlayer(void) {
 
 	} else {
 		sprintf(PlayerString,
-		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
+		        "mplayer -nocache -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -ss %f -volume %f  -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
 		        CurrentLength,
 		        gtk_adjustment_get_value(VolumeAdjustment), CurrentFile);
 		printd(LogRealTime, "calling %s\n", PlayerString);
@@ -1436,8 +1424,10 @@ int StartPlayer(void) {
  *
  * Description:		Scrub 
  *---------------------------------------------------------------------*/
-void plScrub(int Amount) {
+void plScrub(float Amount) {
 
+	sprintf(PlayerString, "seek %4.2f\n", Amount);
+	PlayerWrite(PlayerString);
 }
 
 /*--------------------------------------------------------------------
@@ -1651,7 +1641,7 @@ void plSpeedDown(void) {
  * Description:		.
  *---------------------------------------------------------------------*/
 void plSetPosition(float position) {
-	sprintf(PlayerString, "set_property time_pos %f\n",position);
+	sprintf(PlayerString, "set_property time_pos %4.2f\n",position);
 	PlayerWrite(PlayerString);
 }
 
@@ -1662,9 +1652,7 @@ void plSetPosition(float position) {
  *---------------------------------------------------------------------*/
 void plSeekFw(void) {
 
-	sprintf(PlayerString, "set_property time_pos %f\n",
-	        gtk_adjustment_get_value(PositionAdjustment) + 10);
-	PlayerWrite(PlayerString);
+	plSetPosition(gtk_adjustment_get_value(PositionAdjustment) + 10);
 }
 
 /*--------------------------------------------------------------------
@@ -1674,7 +1662,5 @@ void plSeekFw(void) {
  *---------------------------------------------------------------------*/
 void plSeekBk(void) {
 
-	sprintf(PlayerString, "set_property time_pos %f\n",
-	        gtk_adjustment_get_value(PositionAdjustment) - 10);
-	PlayerWrite(PlayerString);
+	plSetPosition(gtk_adjustment_get_value(PositionAdjustment) - 10);
 }

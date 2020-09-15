@@ -62,7 +62,7 @@ int SetMP3PlayVol(int Value);
 void plPlay(void);
 void plStop(void);
 void plSetPosition(float position);
-void plScrub(int Amount);
+void plScrub(float Amount);
 int ResetPlayer(void);
 int StartPlayer(void);
 
