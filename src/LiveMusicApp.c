@@ -7,9 +7,9 @@
 |
 |      Date:           Jan 15, 2012
 |
-|		Version:        1.3.4
+|		Version:        1.6.2
 |
-|      Copyright © 2012 Elias Keshishoglou.  All rights reserved.
+|      Copyright  2012-2021 Elias Keshishoglou.  All rights reserved.
 |
 |	This program is free software; you can redistribute it and/or
 |	modify it under the terms of the GNU General Public License
@@ -28,6 +28,9 @@
 |
 |---------------------------------------------------------------------*/
 
+/* Used for allocating storage in the
+include file.
+*/
 #define LiveMusicApp_c
 
 #include "LiveMusicApp.h"
@@ -51,13 +54,7 @@
 #include "libgen.h"
 #include <linux/stat.h>
 
-//#define UsingNewButtons	1
-
-#ifdef UsingNewButtons
-#define GLADE_FILE GetResourceDir("LiveMusicApp.glade.Buttons",FileLocConfig)
-#else
 #define GLADE_FILE "LiveMusicApp.glade"
-#endif
 #define Icon_FILE GetResourceDir("LiveIcon.png",FileLocConfig)
 #define UsingImageButtons
 
@@ -66,7 +63,6 @@
 #define MaxStatusHold 8
 #define CSSFileName GetResourceDir("LiveMusicApp.css",FileLocConfig)
 #define HistoryFileName	"/LiveMusicHistory.txt"
-#define MaxKeyTimeout	3
 
 // export LIBGL_ALWAYS_SOFTWARE=1
 
@@ -107,7 +103,7 @@ int KeyLayout = 1;
 
 /* Printf Level.
 */
-int RunLogLevel = LogNone;
+int RunLogLevel;
 
 /* Array to hold the recent status messages.
 */
@@ -123,7 +119,6 @@ at rehearsal.
 */
 FILE 	*FileHistory;
 char ResourceFileName[250];
-
 FILE 	*LogFile;
 
 /* Update the Tabs in GTK context.
@@ -132,6 +127,7 @@ FILE 	*LogFile;
 #define MuteCountDelay  8;
 char  RemoveMuteCount;
 char *homedir;
+int VolumeControllerNum;
 
 /*
  * Place Local prototypes here
@@ -149,7 +145,6 @@ void VScale4_Changed(GtkAdjustment *adj);
 tPatchIndex GetModePreset(tPatchIndex Value);
 int CloseHistoryFile(void);
 int InitHistoryFile(void);
-gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data);
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data);
 void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void on_About_clicked(GtkButton *button, gpointer user_data);
@@ -163,17 +158,7 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data);
 
 int InitJackTransport(void);
 int CloseJackTransport(void);
-
-#if 0
-GdkPixbuf *create_pixbuf(const gchar * filename);
-//void PrintDataStructure(LiveMusicInfo *myInfo);
-void CheckConnectionData(LiveMusicInfo *myInfo);
-void apply_font_to_widget(GtkWidget *widget, gchar *fload);
-void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data);
-void CreateHTMLGuide(LiveMusicInfo *myInfo);
-gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
-                            GtkWidget *widget);
-#endif
+gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 /*--------------------------------------------------------------------
  * Function:		printd
@@ -196,6 +181,409 @@ char *printd(int LogLevel, const char *fmt, ...) {
 	fprintf(LogFile, "L%d %s", LogLevel, p);
 
 	return NULL;
+}
+
+
+/*--------------------------------------------------------------------
+ * Function:            main
+ *
+ * Description:         This is where it all starts.
+ *
+ *---------------------------------------------------------------------*/
+int main(int argc, char *argv[]) {
+	// GtkWidget *theMainWindow;
+	GtkWidget *widget;
+	GError *error = NULL;
+	GtkWidget *ChordWidget;
+	GtkWidget *PlayerWidget;
+	GtkWidget *EventBox;
+	GError *err = NULL;
+	/*----- CSS ----------- */
+	GtkCssProvider *provider;
+	GdkDisplay *display;
+	GdkScreen *screen;
+	/*-----------------------*/
+	int BButtonX, BButtonY, MButtonX, MButtonY;
+	int Loop;
+	GdkScreen *myScreen;
+	WeAreRunning = FALSE;
+
+	/*
+	 * Let's setup some variables.
+	 * CurrentLayout is the default to start with
+	 * When we start are
+	 */
+	CurrentLayout = 0;
+	WaitingforMidi = 0;
+	GenerateHFile = 0;
+	KeyLayout = 1;
+	JackMaster = 0;
+	RemoveMuteCount = 0;
+	RunLogLevel = 0;
+	gMyInfo.TimerCount = 0;
+	gMyInfo.TabSwitch = NULLSwitch;
+	gMyInfo.RaiseSwitch = NULLSwitch;
+	gMyInfo.NextDeskSwitch = NULLSwitch;
+	gMyInfo.PrevDeskSwitch = NULLSwitch;
+	gMyInfo.GoToDeskSwitch = Max_Patches;
+
+	/* Let's see what's already installed.
+	*/
+	CheckForStartupDirs();
+	GetResourceDir("./MyFile.png", FileLocConfig);
+	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");
+
+
+	/* Default name for the jack client.
+	*/
+	strcpy(JackName, "default");
+
+	parse_cmdline(argc, argv);
+
+	printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
+	printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
+
+	/* Handle any HID pedals,
+	Must be called before gtk_init
+	*/
+//	InitHIDGrab();
+
+	/* initialize the GTK+ library */
+	gtk_init(&argc, &argv);
+
+	myScreen = gdk_screen_get_default();
+	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
+	ScreenSize = 0;
+	ButtonSize = 95;
+
+	/* Based on the sreen, size the buttons.
+	*/
+	if (gdk_screen_get_width(myScreen) > 1400) {
+		ScreenSize = 1;
+		ButtonSize = 115;
+	}
+
+	if (gdk_screen_get_width(myScreen) > 1800) {
+		ScreenSize = 2;
+		ButtonSize = 130;
+	}
+	printd(LogInfo, "Button Size %d %d\n", ButtonSize);
+
+#if 0
+	GtkCssProvider *provider = gtk_css_provider_new();
+//	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
+	gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
+	                                 "* {border-color: #CC0000}",
+	                                 -1, NULL);
+	gtk_css_provider_load_from_data (provider,
+	                                 "}\n", -1, NULL);
+	FaderControl.png
+	.scale.slider,
+	.scale.slider.horizontal {
+background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url("assets/scale-slider-horz-dark@2.png"));
+	}
+
+	/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
+	provider = gtk_css_provider_new ();
+	display = gdk_display_get_default ();
+	screen = gdk_display_get_default_screen (display);
+	gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+	gsize bytes_written, bytes_read;
+
+	const gchar* home = "YourPathHere"; // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
+
+	GError *error = 0;
+
+	gtk_css_provider_load_from_path (provider,
+	                                 g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
+	                                 NULL);
+	g_object_unref (provider);
+	/*-------------------------------------------------------------------------------------------------------------------------*/
+
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+#endif
+
+	/*
+	 * Initialize the XML reader/writer and set some basic values here.
+	 */
+	InitPref();
+
+	/* History saves the charts you open.
+	I forget what I worked on at rehearsal,
+	this helps me remeber.
+	*/
+	InitHistoryFile();
+
+
+	/*
+	 create an instance of the GladeXML object and build widgets within
+	 the window1 root node.
+	 */
+	gxml = gtk_builder_new();
+
+	/* Choose the glad file based on the layout we are using.
+	*/
+	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
+	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf, FileLocConfig), &error)) {
+		g_warning("Couldn't load builder file: %s", error->message);
+		g_error_free(error);
+	}
+
+	/*
+	 * get the window widget from the glade XML file
+	 */
+	theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
+
+	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
+	provider = gtk_css_provider_new();
+	display = gdk_display_get_default();
+	screen = gdk_display_get_default_screen(display);
+
+	gtk_style_context_add_provider_for_screen(screen,
+	        GTK_STYLE_PROVIDER(provider),
+	        GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+	printd(LogInfo, "ejk About to load\n");
+//	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
+
+//	g_object_unref(provider);
+
+
+	/* Connect the close button.
+	*/
+	g_signal_connect(G_OBJECT (theMainWindow), "destroy", G_CALLBACK (on_window1_destroy), NULL);
+	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
+//	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
+	gtk_window_set_icon(GTK_WINDOW(theMainWindow), NULL);
+
+
+	/* Get the button sizes.
+	*/
+	BButtonX = ButtonSize;
+	BButtonY = (int) ((float) ButtonSize * 0.65);
+	MButtonX = (int) ((float) ButtonSize * 0.80);
+	MButtonY = (int) ((float) ButtonSize * 0.6);
+
+	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+	                        GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+	                         GetResourceDir("MainSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+	                         GetResourceDir("PatchSwitchOn.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
+	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+	                          GetResourceDir("PatchSwitchOff.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
+	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+	                         GetResourceDir("NoteBSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+	                          GetResourceDir("NoteBSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+//	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
+	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
+
+	/*
+	 * Open the persistent main tab.
+	 */
+	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
+	                 (GCallback ) tab_focus_callback, gxml);
+
+	/*
+	 * Setup and initialize our status bar and Mode indicator
+	 */
+	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
+	PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
+
+	/*
+	 * Clear the Status bar buffer.
+	 */
+	HoldStatusIndex = 0;
+	memset(HoldStatus, 0, sizeof(HoldStatus));
+
+	/*
+	 * Get the metronome button loaded and displayed.
+	 */
+	EventBox = GTK_WIDGET(
+	               gtk_builder_get_object(gxml, "Tempo"));
+
+
+	/* Set up my buttons.
+	*/
+	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
+
+	/* Update the metronome button.
+	*/
+	if (gMyInfo.MetronomeOn) {
+		MyImageButtonSetText(&TempoDraw, "On");
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+		                          TempoDraw.ButtonDownImage);
+	} else {
+		MyImageButtonSetText(&TempoDraw, "Off");
+		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+		                          TempoDraw.ButtonUpImage);
+	}
+
+	g_signal_connect(G_OBJECT(EventBox),
+	                 "button-press-event",
+	                 G_CALLBACK(on_Tempo_Button),
+	                 &TempoDraw);
+
+	/*
+	 * The about window.
+	 */
+	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
+	g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
+
+#if 0
+	/*
+	 * The OK Button on the About Box
+	 */
+	g_signal_connect(G_OBJECT(theMainWindow),
+	                 "key_press_event",
+	                 G_CALLBACK(
+	                     button_press_notify_cb),
+	                 NULL);
+	/*
+	 * Create the HTML page from our preferences.
+	 */
+	CreateHTMLGuide(&gMyInfo);
+#endif
+
+	/*
+	 * Initialize the WebKit (HTML) engine
+	 */
+	InitHTML(gxml);
+	printd(LogInfo, "After InitHTML\n");
+
+	/*
+	 * Set up the Midi Sequencer ports
+	 */
+	MyAlsaInit();
+	printd(LogInfo, "After MyAlsaInit\n");
+
+	/* OSC controls sooperlooper and jack-volume.
+	*/
+	MyOSCInit();
+
+	/* If the options are for Jack Master.
+	*/
+	if (JackMaster)
+		InitJackTransport();
+
+	/*
+	 * Set up the buttons, text and patches.
+	 */
+	CreateMainButtons();
+	SetUpMainButtons(&gMyInfo.MyPatchInfo);
+	CreateTabButtons();
+
+	/* Get the Mode switch button,
+	 */
+	EventBox = GTK_WIDGET(
+	               gtk_builder_get_object(gxml,
+	                                      "LayoutEvent"));
+	printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
+	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
+	                  MainButtonOffImage);
+
+	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
+
+	g_signal_connect(G_OBJECT(EventBox),
+	                 "button-press-event",
+	                 G_CALLBACK(
+	                     layout_click_handler),
+	                 &LayoutButton);
+	g_signal_connect(G_OBJECT(EventBox),
+	                 "button-release-event",
+	                 G_CALLBACK(
+	                     layout_release_handler),
+	                 &LayoutButton);
+	/*
+	 * Set up the connections between applications.
+	 */
+	InitConnections();
+
+	/*
+	 * Set the up Chord page in case we need it later.
+	 */
+	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
+	ChorderMain(theMainWindow, ChordWidget);
+
+	/*
+	 * Set the initial Volumes.
+	 */
+	printd(LogInfo, "Setting Default Volumes\n");
+	SetVolume1(gMyInfo.AnalogVolume);
+	SetVolume2(gMyInfo.MidiVolume);
+
+	printd(LogInfo, "Entering gtk_main\n");
+
+	/*
+	 * Start the timers
+	 */
+	MyTimerInit();
+
+	/*
+	 * Add and Idle for non interrupt based processing.
+	 */
+//	g_idle_add(GTKIdel_cb, theMainWindow);
+
+	/*
+	 * Set up the Live Player
+	 */
+	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
+	LivePlayerInit(theMainWindow, PlayerWidget);
+	WaitingforMidi = WaitingforMidiHold = 0;
+
+	/*
+	 * Set up the GUI for making changes to the preferences.
+	 */
+	InitGuiPrefs();
+
+	/*
+	 * Create the popup Menu's (ctrl-click) now that we have the presets.
+	 */
+	CreatePatchPopupMenu ();
+
+
+	gtk_widget_add_events(
+	    theMainWindow, GDK_KEY_PRESS_MASK);
+
+	g_signal_connect (
+	    G_OBJECT (theMainWindow),
+	    "key_press_event",
+	    G_CALLBACK (my_keypress_function),
+	    NULL);
+
+	DisableTextInput = FALSE;
+
+	/*
+	 * Show the main window and let the show begin.
+	 */
+	gtk_widget_show_all(theMainWindow);
+
+	/*
+	 * And they're off.
+	 */
+	printd(LogInfo, "And we're off \n");
+	WeAreRunning = TRUE;
+	gtk_main();
+	WeAreRunning = FALSE;
+
+
+	/*
+	 * After we quit we should write back the changes.
+	 */
+//	CloseHIDGrab();
+	WritePrefs();
+	MyAlsaClose();
+	MyOSCClose();
+	CloseJackTransport();
+	LivePlayerClose();
+
+	/* No printd after this.
+	*/
+	fclose(LogFile);
+
+	return 0;
 }
 
 /*--------------------------------------------------------------------
@@ -271,7 +659,6 @@ void CheckForStartupDirs(void) {
 		NewInstall = 1;
 	}
 }
-int VolumeControllerNum;
 
 /*--------------------------------------------------------------------
  * Function:            my_keypress_function
@@ -511,8 +898,8 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_KP_Add:
 		printf("GDK_KEY_KP_Add\n");
-		SetVolumeControl(VolumeControllerNum,
-			GetVolumeControl(VolumeControllerNum) + 5);
+		SetExpressionControl(VolumeControllerNum,
+			GetExpressionControl(VolumeControllerNum) + 5);
 		return TRUE;
 		break;
 
@@ -523,8 +910,8 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_KP_Subtract:
 		printf("GDK_KEY_KP_Subtract\n");
-		SetVolumeControl(VolumeControllerNum,
-			GetVolumeControl(VolumeControllerNum) - 5);
+		SetExpressionControl(VolumeControllerNum,
+			GetExpressionControl(VolumeControllerNum) - 5);
 		return TRUE;
 		break;
 
@@ -603,412 +990,6 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 }
 
 /*--------------------------------------------------------------------
- * Function:            main
- *
- * Description:         This is where it all starts.
- *
- *---------------------------------------------------------------------*/
-int main(int argc, char *argv[]) {
-	// GtkWidget *theMainWindow;
-	GtkWidget *widget;
-	GError *error = NULL;
-	GtkWidget *ChordWidget;
-	GtkWidget *PlayerWidget;
-	GtkWidget *EventBox;
-	GError *err = NULL;
-	/*----- CSS ----------- */
-	GtkCssProvider *provider;
-	GdkDisplay *display;
-	GdkScreen *screen;
-	/*-----------------------*/
-	int BButtonX, BButtonY, MButtonX, MButtonY;
-	int Loop;
-	GdkScreen *myScreen;
-	WeAreRunning = FALSE;
-
-	/*
-	 * Let's setup some variables.
-	 * CurrentLayout is the default to start with
-	 * When we start are
-	 */
-	CurrentLayout = 0;
-	WaitingforMidi = 0;
-	GenerateHFile = 0;
-	KeyLayout = 1;
-	JackMaster = 0;
-	RemoveMuteCount = 0;
-	gMyInfo.TimerCount = 0;
-	gMyInfo.TabSwitch = NULLSwitch;
-	gMyInfo.RaiseSwitch = NULLSwitch;
-	gMyInfo.NextDeskSwitch = NULLSwitch;
-	gMyInfo.PrevDeskSwitch = NULLSwitch;
-	gMyInfo.GoToDeskSwitch = Max_Patches;
-
-	/* Let's see what's already installed.
-	*/
-	CheckForStartupDirs();
-	GetResourceDir("./MyFile.png", FileLocConfig);
-	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");
-
-
-	/* Default name for the jack client.
-	*/
-	strcpy(JackName, "default");
-
-	parse_cmdline(argc, argv);
-
-	printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
-	printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
-
-	/* Handle any HID pedals,
-	Must be called before gtk_init
-	*/
-//	InitHIDGrab();
-
-	/* initialize the GTK+ library */
-	gtk_init(&argc, &argv);
-
-	myScreen = gdk_screen_get_default();
-	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
-	ScreenSize = 0;
-	ButtonSize = 95;
-
-	/* Based on the sreen, size the buttons.
-	*/
-	if (gdk_screen_get_width(myScreen) > 1400) {
-		ScreenSize = 1;
-		ButtonSize = 115;
-	}
-
-	if (gdk_screen_get_width(myScreen) > 1800) {
-		ScreenSize = 2;
-		ButtonSize = 130;
-	}
-	printd(LogInfo, "Button Size %d %d\n", ButtonSize);
-
-#if 0
-	GtkCssProvider *provider = gtk_css_provider_new();
-//	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
-	gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
-	                                 "* {border-color: #CC0000}",
-	                                 -1, NULL);
-	gtk_css_provider_load_from_data (provider,
-	                                 "}\n", -1, NULL);
-	FaderControl.png
-	.scale.slider,
-	.scale.slider.horizontal {
-background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url("assets/scale-slider-horz-dark@2.png"));
-	}
-
-	/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
-	provider = gtk_css_provider_new ();
-	display = gdk_display_get_default ();
-	screen = gdk_display_get_default_screen (display);
-	gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-	gsize bytes_written, bytes_read;
-
-	const gchar* home = "YourPathHere"; // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
-
-	GError *error = 0;
-
-	gtk_css_provider_load_from_path (provider,
-	                                 g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
-	                                 NULL);
-	g_object_unref (provider);
-	/*-------------------------------------------------------------------------------------------------------------------------*/
-
-	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-#endif
-
-	/*
-	 * Initialize the XML reader/writer and set some basic values here.
-	 */
-	InitPref();
-
-	/* History saves the charts you open.
-	I forget what I worked on at rehearsal,
-	this helps me remeber.
-	*/
-	InitHistoryFile();
-
-
-	/*
-	 create an instance of the GladeXML object and build widgets within
-	 the window1 root node.
-	 */
-	gxml = gtk_builder_new();
-
-	/* Choose the glad file based on the layout we are using.
-	*/
-	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
-	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf, FileLocConfig), &error)) {
-		g_warning("Couldn't load builder file: %s", error->message);
-		g_error_free(error);
-	}
-
-	/*
-	 * get the window widget from the glade XML file
-	 */
-	theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
-
-	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
-	provider = gtk_css_provider_new();
-	display = gdk_display_get_default();
-	screen = gdk_display_get_default_screen(display);
-
-	gtk_style_context_add_provider_for_screen(screen,
-	        GTK_STYLE_PROVIDER(provider),
-	        GTK_STYLE_PROVIDER_PRIORITY_USER);
-
-	printd(LogInfo, "ejk About to load\n");
-//	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
-
-//	g_object_unref(provider);
-
-
-	/* Connect the close button.
-	*/
-	g_signal_connect(G_OBJECT (theMainWindow), "destroy", G_CALLBACK (on_window1_destroy), NULL);
-	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
-//	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
-	gtk_window_set_icon(GTK_WINDOW(theMainWindow), NULL);
-
-
-	/* Get the button sizes.
-	*/
-	BButtonX = ButtonSize;
-	BButtonY = (int) ((float) ButtonSize * 0.65);
-	MButtonX = (int) ((float) ButtonSize * 0.80);
-	MButtonY = (int) ((float) ButtonSize * 0.6);
-
-	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                        GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("MainSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("PatchSwitchOn.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
-	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("PatchSwitchOff.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
-	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("NoteBSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("NoteBSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-//	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
-	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
-
-	/*
-	 * Open the persistent main tab.
-	 */
-	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
-	                 (GCallback ) tab_focus_callback, gxml);
-
-#if 0
-	g_signal_connect(G_OBJECT(theMainWindow), "key_press_event", G_CALLBACK(key_press_cb), theMainWindow);
-	gMyInfo.KeyPatchValue = 0;
-#endif
-
-	/*
-	 * Setup and initialize our status bar and Mode indicator
-	 */
-	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
-	PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
-
-	/*
-	 * Clear the Status bar buffer.
-	 */
-	HoldStatusIndex = 0;
-	memset(HoldStatus, 0, sizeof(HoldStatus));
-
-	/*
-	 * Get the metronome button loaded and displayed.
-	 */
-	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml, "Tempo"));
-
-
-	/* Set up my buttons.
-	*/
-	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
-
-	/* Update the metronome button.
-	*/
-	if (gMyInfo.MetronomeOn) {
-		MyImageButtonSetText(&TempoDraw, "On");
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonDownImage);
-	} else {
-		MyImageButtonSetText(&TempoDraw, "Off");
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonUpImage);
-	}
-
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-press-event",
-	                 G_CALLBACK(on_Tempo_Button),
-	                 &TempoDraw);
-
-	/*
-	 * The about window.
-	 */
-	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
-	g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
-
-#if 0
-	/*
-	 * The OK Button on the About Box
-	 */
-	g_signal_connect(G_OBJECT(theMainWindow),
-	                 "key_press_event",
-	                 G_CALLBACK(
-	                     button_press_notify_cb),
-	                 NULL);
-	/*
-	 * Create the HTML page from our preferences.
-	 */
-	CreateHTMLGuide(&gMyInfo);
-#endif
-
-	/*
-	 * Initialize the WebKit (HTML) engine
-	 */
-	InitHTML(gxml);
-	printd(LogInfo, "After InitHTML\n");
-
-	/*
-	 * Set up the Midi Sequencer ports
-	 */
-	MyAlsaInit();
-	printd(LogInfo, "After MyAlsaInit\n");
-
-	/* OSC controls sooperlooper and jack-volume.
-	*/
-	MyOSCInit();
-
-	/* If the options are for Jack Master.
-	*/
-	if (JackMaster)
-		InitJackTransport();
-
-	/*
-	 * Set up the buttons, text and patches.
-	 */
-	CreateMainButtons();
-	SetUpMainButtons(&gMyInfo.MyPatchInfo);
-	CreateTabButtons();
-
-	/* Get the Mode switch button,
-	 */
-	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml,
-	                                      "LayoutEvent"));
-	printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
-	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
-	                  MainButtonOffImage);
-
-	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
-
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-press-event",
-	                 G_CALLBACK(
-	                     layout_click_handler),
-	                 &LayoutButton);
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-release-event",
-	                 G_CALLBACK(
-	                     layout_release_handler),
-	                 &LayoutButton);
-	/*
-	 * Set up the connections between applications.
-	 */
-	InitConnections();
-
-	/*
-	 * Set the up Chord page in case we need it later.
-	 */
-	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
-	ChorderMain(theMainWindow, ChordWidget);
-
-	/*
-	 * Set the initial Volumes.
-	 */
-	printd(LogInfo, "Setting Default Volumes\n");
-	SetVolume1(gMyInfo.AnalogVolume);
-	SetVolume2(gMyInfo.MidiVolume);
-
-	printd(LogInfo, "Entering gtk_main\n");
-
-	/*
-	 * Start the timers
-	 */
-	MyTimerInit();
-
-	/*
-	 * Add and Idle for non interrupt based processing.
-	 */
-//	g_idle_add(GTKIdel_cb, theMainWindow);
-
-	/*
-	 * Set up the Live Player
-	 */
-	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
-	LivePlayerInit(theMainWindow, PlayerWidget);
-	WaitingforMidi = WaitingforMidiHold = 0;
-
-	/*
-	 * Set up the GUI for making changes to the preferences.
-	 */
-	InitGuiPrefs();
-
-	/*
-	 * Create the popup Menu's (ctrl-click) now that we have the presets.
-	 */
-	CreatePatchPopupMenu ();
-
-
-	gtk_widget_add_events(
-	    theMainWindow, GDK_KEY_PRESS_MASK);
-
-	g_signal_connect (
-	    G_OBJECT (theMainWindow),
-	    "key_press_event",
-	    G_CALLBACK (my_keypress_function),
-	    NULL);
-
-	DisableTextInput = FALSE;
-
-	/*
-	 * Show the main window and let the show begin.
-	 */
-	gtk_widget_show_all(theMainWindow);
-
-	/*
-	 * And they're off.
-	 */
-	printd(LogInfo, "And we're off \n");
-	WeAreRunning = TRUE;
-	gtk_main();
-	WeAreRunning = FALSE;
-
-
-	/*
-	 * After we quit we should write back the changes.
-	 */
-//	CloseHIDGrab();
-	WritePrefs();
-	MyAlsaClose();
-	MyOSCClose();
-	CloseJackTransport();
-	LivePlayerClose();
-
-	/* No printd after this.
-	*/
-	fclose(LogFile);
-
-	return 0;
-}
-
-/*--------------------------------------------------------------------
  * Function:            GTKIdel_cb
  *
  * Description: Startup some Gui.
@@ -1033,23 +1014,23 @@ int GTKIdel_cb(gpointer data) {
 
 // gMyInfo.SliderGUIUpdate
 //	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
-	if (gMyInfo.SliderGUIUpdate) {
+	if (gMyInfo.SliderGUINumber) {
 		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
-		gMyInfo.SliderGUIUpdate = FALSE;
-		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
+		switch (gMyInfo.SliderGUINumber) {
+//		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
 		case Slider1:
 			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
-			SetVolume1(AlsaEvent.data.control.value / 1.28);
+			SetVolume1(gMyInfo.SliderGUIUpdate / 1.27);
 			break;
 
 		case Slider2:
 			printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
-			SetVolume2(AlsaEvent.data.control.value / 1.28);
+			SetVolume2(gMyInfo.SliderGUIUpdate / 1.27);
 			break;
 
 		case Slider3:
 			printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
-			SetVolume3(AlsaEvent.data.control.value / 1.28);
+			SetVolume3(gMyInfo.SliderGUIUpdate / 1.27);
 			break;
 
 		case Slider4:
@@ -1060,13 +1041,15 @@ int GTKIdel_cb(gpointer data) {
 //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
 			printd(LogTest, "GTKIdel_cb Default\n");
 //			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
-			SetVolume4(AlsaEvent.data.control.value / 1.28);
+			SetVolume4(gMyInfo.SliderGUIUpdate / 1.26);
 			break;
 		}
 
 		/* Clear it until next message set
 		*/
 		AlsaEvent.data.control.param = 0;
+		gMyInfo.SliderGUINumber = 0;
+		gMyInfo.SliderGUIUpdate = 0;
 	}
 
 	if (gMyInfo.SetMP3PlayVolBool) {
@@ -1225,33 +1208,6 @@ int GTKIdel_cb(gpointer data) {
 	sprintf(ForString, "%3.1f\n%s", PlayerDisTime, PlayerDisSection);
 	gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
 
-#ifdef AcceptTimedKeyboard
-	gMyInfo.TimerCount++;
-
-	// If we have a key in the works.
-	if (gMyInfo.KeyPatchValue != 0 ) {
-		if (gMyInfo.KeyIsValue) {
-			printd(LogDebug, "Idle %d\n", gMyInfo.KeyIsValue);
-			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) > MaxKeyTimeout ) {
-				gMyInfo.KeyIsValue = 0;
-				printd(LogDebug, "Final Key %d\n", gMyInfo.KeyPatchValue);
-				if (gMyInfo.KeyPatchValue > 0 && gMyInfo.KeyPatchValue < LayoutSwitchPatch)
-					LayoutSwitchPatch(gMyInfo.KeyPatchValue - 1, true);
-
-				gMyInfo.KeyPatchValue = 0;
-			}
-		} else {
-			printd(LogDebug, "We have letter %c\n", gMyInfo.KeyChar);
-			gMyInfo.KeyPatchValue = 0;
-
-			// Space will toggle player
-			if (gMyInfo.KeyPatchValue == ' ') {
-				plLoopToggle();
-			}
-
-		}
-	}
-#endif
 //	printd(LogDebug, "GTKIdel_cb out\n");
 	return (FALSE);
 //	return (TRUE);
@@ -1867,6 +1823,10 @@ void VScale4_Changed(GtkAdjustment *adj) {
 int SetVolume1(int Value) {
 	gtk_adjustment_set_value(Adjustment1, Value);
 	printd(LogDebug, "Slider 1\n");
+
+	if (Value > 100)
+		Value = 100;
+
 	gMyInfo.AnalogVolume = Value;
 	gtk_range_set_adjustment(VScale1, Adjustment1);
 
@@ -1882,6 +1842,9 @@ int SetVolume2(int Value) {
 	printd(LogDebug, "Slider 2 %x %d\n",
 	       Adjustment2, Value);
 
+	if (Value > 100)
+		Value = 100;
+	
 	gtk_adjustment_set_value(Adjustment2, Value);
 	gMyInfo.MidiVolume = (Value * 1.27);
 	gtk_range_set_adjustment(VScale2, Adjustment2);
@@ -1896,6 +1859,10 @@ int SetVolume2(int Value) {
 int SetVolume3(int Value) {
 	printd(LogDebug, "Slider 3 %x %d\n",
 	       Adjustment2, Value);
+
+	if (Value > 100)
+		Value = 100;
+	
 	gtk_adjustment_set_value(Adjustment3, Value);
 	gMyInfo.V3Volume = Value;
 	gtk_range_set_adjustment(VScale3, Adjustment3);
@@ -1910,6 +1877,10 @@ int SetVolume3(int Value) {
 int SetVolume4(int Value) {
 	printd(LogTest, "Slider 4 %x %d\n",
 	       Adjustment2, Value);
+
+	if (Value > 100)
+		Value = 100;
+	
 	gtk_adjustment_set_value(Adjustment4, Value);
 	gMyInfo.V4Volume = Value;
 	gtk_range_set_adjustment(VScale4, Adjustment4);
@@ -2225,64 +2196,6 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		key_press_cb
- *
- * Description:	Key input.
- *---------------------------------------------------------------------*/
-gint key_press_cb(GtkWidget *widget, GdkEventKey *kevent, gpointer data)  {
-	GtkWidget *btn = (GtkWidget *)data;
-#ifdef AcceptTimedKeyboard
-
-	if (kevent->type == GDK_KEY_PRESS)  {
-		gMyInfo.KeyChar = kevent->keyval;
-
-		// If it's a character.
-		if (gMyInfo.KeyChar >= '0' && gMyInfo.KeyChar <= '9') {
-			if ( (gMyInfo.TimerCount - gMyInfo.KeyTimer) < MaxKeyTimeout || gMyInfo.KeyPatchValue == 0 ) {
-				gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
-				gMyInfo.KeyIsValue = 1;
-				printd(LogDebug, "Key Press %d %d\n", gMyInfo.KeyPatchValue, (gMyInfo.TimerCount - gMyInfo.KeyTimer));
-			}
-		} else
-			gMyInfo.KeyPatchValue = gMyInfo.KeyChar;
-	}
-
-	gMyInfo.KeyTimer = gMyInfo.TimerCount;
-
-	// void g_signal_emit_by_name(GObject *object, const gchar *name, ... );
-	// g_signal_emit_by_name(G_OBJECT(btn), "clicked", NULL);
-	// g_signal_emit_by_name(G_OBJECT(widget), "clicked", NULL);
-#endif
-	if (kevent->type == GDK_KEY_PRESS)  {
-		gMyInfo.KeyChar = kevent->keyval;
-
-		printd(LogDebug, "Key %d\n", gMyInfo.KeyChar);
-		if (gMyInfo.KeyChar >= '0' && gMyInfo.KeyChar <= '9') {
-			gMyInfo.KeyPatchValue = (10 * gMyInfo.KeyPatchValue) + (gMyInfo.KeyChar - '0');
-		}
-
-		if (gMyInfo.KeyChar == ' ') {
-			plPausePlay();
-		}
-
-// NumLock 127
-// 81 /
-// 86 *
-// 83 -
-// 85 +
-// 08 Back
-// 82 .
-//
-		if (gMyInfo.KeyChar == 13) {
-			LayoutSwitchPatch(gMyInfo.KeyPatchValue - 1, true);
-			gMyInfo.KeyPatchValue = 0;
-		}
-	}
-
-	return TRUE;
-}
-
-/*--------------------------------------------------------------------
  * Function:		FindString
  *
  * Description:	Find the offset into a list of strings.
@@ -2358,12 +2271,12 @@ int CloseHistoryFile(void) {
 }
 
 /*--------------------------------------------------------------------
- * Function:		SetVolumeControl
+ * Function:		SetExpressionControl
  *
  * Description:		Control multiple volumes/expression
  *
  *---------------------------------------------------------------------*/
-int SetVolumeControl(int Controller, int Value) {
+int SetExpressionControl(int Controller, int Value) {
 int ReturnVal = 0;
 
 	if (Value < 0)
@@ -2373,48 +2286,56 @@ int ReturnVal = 0;
 		Value = 127;
 
 	switch (Controller) {
-	case 1:
+	case ecGuitarVolume:
 		// Guitar Volume
 		ReturnVal = gMyInfo.AnalogVolume;
-		SetVolume1(Value);
+		gMyInfo.SliderGUINumber = Slider1;
+		gMyInfo.SliderGUIUpdate = Value;
+//		SetVolume1(Value);
 		break;
 
-	case 2:
+	case ecMidiVolume:
 		// Midi Volume
 		ReturnVal = gMyInfo.MidiVolume;
-		SetVolume2(Value);
+		gMyInfo.SliderGUINumber = Slider2;
+		gMyInfo.SliderGUIUpdate = Value;
+//		SetVolume2(Value);
 		break;
 
-	case 3:
+	case ecMasterVolume:
 		// Master Volume (OSC)
 		ReturnVal = gMyInfo.V3Volume;
-		SetVolume3(Value);
+		gMyInfo.SliderGUINumber = Slider3;
+		gMyInfo.SliderGUIUpdate = Value;
+//		SetVolume3(Value);
 		break;
 
-	case 4:
+	case ecTempChange:
 		// Tempo
 		ReturnVal = gMyInfo.Tempo;
 		gMyInfo.Tempo = Value + 50;
 		break;
 
-	case 5:
+	case ecMP3Volume:
 		// MPS volume
 		ReturnVal = gMyInfo.SetMP3PlayVolBool;
 		gMyInfo.SetMP3PlayVolBool = Value;
 		break;
 
-	case 6:
+	case ecExpress6:
 		ReturnVal = gMyInfo.V6Volume;
 		gMyInfo.V6Volume = Value;
 		break;
 
-	case 7:
+	case ecPedalControl:
 		// Pedal Volume
 		ReturnVal = gMyInfo.V4Volume;
-		SetVolume4(Value);
+		gMyInfo.SliderGUINumber = Slider4;
+		gMyInfo.SliderGUIUpdate = Value;
+//		SetVolume4(Value);
 		break;
 
-	case 8:
+	case ecMidiThreshold:
 		ReturnVal = gMyInfo.MidiThresholdLevel;
 		gMyInfo.MidiThresholdLevel = Value;
 		break;
@@ -2423,44 +2344,44 @@ return(ReturnVal);
 }
 
 /*--------------------------------------------------------------------
- * Function:		GetVolumeControl
+ * Function:		GetExpressionControl
  *
  * Description:		Control multiple volumes/expression
  *
  *---------------------------------------------------------------------*/
-int GetVolumeControl(int Controller) {
+int GetExpressionControl(int Controller) {
 int ReturnVal = 0;
 
 	switch (Controller) {
-	case 1:
+	case ecGuitarVolume:
 		ReturnVal = gMyInfo.AnalogVolume;
 		break;
 
-	case 2:
+	case ecMidiVolume:
 		ReturnVal = gMyInfo.MidiVolume;
 		break;
 
-	case 3:
+	case ecMasterVolume:
 		ReturnVal = gMyInfo.V3Volume;
 		break;
 
-	case 4:
+	case ecTempChange:
 		ReturnVal = gMyInfo.Tempo;
 		break;
 
-	case 5:
+	case ecMP3Volume:
 		ReturnVal = gMyInfo.SetMP3PlayVolBool;
 		break;
 
-	case 6:
+	case ecExpress6:
 		ReturnVal = gMyInfo.V6Volume;
 		break;
 
-	case 7:
+	case ecPedalControl:
 		ReturnVal = gMyInfo.V4Volume;
 		break;
 
-	case 8:
+	case ecMidiThreshold:
 		ReturnVal = gMyInfo.MidiThresholdLevel;
 		break;
 	}

@@ -8,7 +8,7 @@
  |
  |	Written By: 	Elias Keshishoglou on Wed Dec 26 14:13:15 PST 2012
  |
- |	Copyright �: 	2012 Elias Keshishoglou all rights reserved.
+ |	Copyright : 	2012-2021 Elias Keshishoglou all rights reserved.
  |
  |	This program is free software; you can redistribute it and/or
  |	modify it under the terms of the GNU General Public License
@@ -44,23 +44,24 @@
  * Place Global prototypes here.
  */
 
-#define LogTest 0x1000
-#define LogMidi 0x200
+/* Debugging definitions.
+*/
+#define LogHold1	0x0800
+#define LogPlayer 	0x400
+#define LogMidi 	0x200
 #define LogRealTime 0x100
-#define LogTimer 0x40
-#define LogDebug 0x20
-#define LogError 0x10
-#define LogAlert 0x08
-#define LogWarn 0x04
-#define LogInfo 0x02
-#define LogNone 0x01
+#define LogTimer 	0x40
+#define LogDebug 	0x20
+#define LogError 	0x10
+#define LogAlert 	0x08
+#define LogWarn 	0x04
+#define LogInfo 	0x02
+#define LogTest 	0x01
 #define MyLogLevel	LogNone
 
 #define PatchNameSize 60
 #define MaxHardSliders 5
 #define TotalMaxStrings 10
-
-#define EliasPresets 1
 
 char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
@@ -72,24 +73,25 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 #define MaxStringPortName	32
 #if 1
 enum {
-	FluidPort = 0, 
-	GuitarixPort, 
-	LooperPort, 
+	FluidPort = 0,
+	GuitarixPort,
+	LooperPort,
 	TransportPort,
-	TempoPort, 
-	ClickPort, 
-	PedalPort, 
+	TempoPort,
+	ClickPort,
+	PedalPort,
 	DAWPort,
-	InternalPort, 
-	User1, 
-	User2, 
-	User3, 
+	InternalPort,
+	User1,
+	User2,
+	User3,
 	MaxOutPorts
 };
 #endif
-// Notebook tabs page.
+
+// Notebook tabs pages Part of Glade File.
 enum {
-	tabpagePatch=0,
+	tabpagePatch = 0,
 	tabpageChart,
 	tabpagePlayer,
 	tabpageChords,
@@ -132,8 +134,6 @@ typedef struct {
 
 
 typedef struct {
-//	char	Button[32];
-//	int Index;
 	char Name[PatchNameSize];
 	// Bank select -1 not to send Bank Info
 	unsigned char BankSelect;
@@ -147,7 +147,6 @@ typedef struct {
 	int CustomCommand;
 	// Chaing to Another Command
 	char Chain[PatchNameSize];
-//    int Chain;
 } PatchInfo;
 
 typedef struct {
@@ -173,10 +172,26 @@ typedef struct {
 	char Presets[Max_Patches][PatchNameSize];
 } LayoutType;
 
-#define Slider1		1
-#define Slider2		2
-#define Slider3		3
-#define Slider4		4
+// Fixed Flider controllers
+enum {
+	Slider1 = 1,
+	Slider2,
+	Slider3,
+	Slider4
+};
+
+// SetExpress function control values.
+enum {
+	ecGuitarVolume = 1,
+	ecMidiVolume,
+	ecMasterVolume,
+	ecTempChange,
+	ecMP3Volume,
+	ecExpress6,
+	ecPedalControl,
+	ecMidiThreshold,
+	exMaxItems
+};
 
 typedef struct {
 	char Name[255];
@@ -189,6 +204,8 @@ typedef struct {
 	int	theTempo;
 } WebLoadPresets;
 
+// Application names index,
+// Names are part of the configuration xml.
 enum {
 	AnalogApp = 0,
 	MidiSoundApp,
@@ -201,13 +218,6 @@ enum {
 	MidiPlayer,
 	HTMLEditor,
 	MaxApps
-};
-
-enum {
-	dLEDBeat1 = 36,
-	dLEDBeat2,
-	dLEDBeat3,
-	dLEDBeat4
 };
 
 typedef struct {
@@ -302,7 +312,8 @@ typedef struct {
 	unsigned int    V4Volume;
 	unsigned int    V6Volume;
 	char    PatchUpdate;
-	char    SliderGUIUpdate;
+	unsigned int    SliderGUIUpdate;
+	unsigned int    SliderGUINumber;
 
 } LiveMusicInfo;
 
@@ -310,10 +321,17 @@ typedef struct {
 */
 #define NULLSwitch	250
 
-enum {GuitarMidiCallNo, GuitarMidiCallStart, GuitarMidiCallComplete };
+/* State for using midi control to change patches.
+*/
+enum {
+	GuitarMidiCallNo, 
+	GuitarMidiCallStart,
+	GuitarMidiCallComplete 
+};
 
 #define MaxSoundFonts 12
 
+// Custom commands for each preset.
 enum {
 	NoCustom = 0,
 	ToNextDesktop,
@@ -350,6 +368,7 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 
 /*
  * Sounds Banks in Fluid Synth.
+ * These are dynamic now.
  */
 #define SFFluidGM  0
 #define SFElias  1
@@ -364,33 +383,6 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define SFDrums		128
 #define SFDrumsElias 129
 #define NoBank		0xff
-
-#if 0
-#define SF32GM  0
-#define SFDSF  1
-#define SFA340Base  3
-#define SFMusica 4
-#define SFFlute 5
-#define SFGI 6
-#define SFBoogie 7
-#define SFGoodFlue 8
-#define SFHold8	 8
-#define SFDrumKit	 9
-#define SFFluidGMLow 10
-#define SFA340Low 11
-#define SFHold12	 12
-#define SFHold13	 13
-#define SFHold14	 14
-#define SFA340High 15
-#define SFDrums		128
-#endif
-
-#if 0
-#define ModeSwitchKey	29
-#define PresetMidiKey	28
-#define Preset1FButton	27
-#define Preset2FButton	26
-#endif
 
 enum {
 	ToDesktop0 = 60,
@@ -416,20 +408,9 @@ enum {
 	FishmanSynth
 };
 
-#define MAINPREFS_FILE ".GTKMidi"
-
 #define DefaultMidiChannel		1
 #define DrumMidiChannel		10
 #define MidiProgramChange		32
-
-#if 0
-#define ModeDefault		0
-#define ModeRehearsal		1
-#define ModePractice		2
-#define ModePerformance	3
-#define ModeLooper		4
-#define ModeLastItem		ModeLooper
-#endif
 
 #ifndef MY_BUILD_NUMBER
 #define MY_BUILD_NUMBER 1
@@ -447,55 +428,50 @@ enum { cntStateWaitingIdle = 0,
      };
 
 
-#define PedalLEDAllOn	0
-#define PedalLEDAllOff	1
-#define PedalLED1On		2
-#define PedalLED1Off	3
-#define PedalLED2On		4
-#define PedalLED2Off	5
+// Default Settings for Akai LPD8
+enum {
+	dLEDBeat1 = 36,
+	dLEDBeat2,
+	dLEDBeat3,
+	dLEDBeat4
+};
 
-// Tempo Leds
-#define PedalLED3On		6
-#define PedalLED3Off	7
-#define PedalLED4On		8
-#define PedalLED4Off	9
+enum {
+	PedalLEDAllOn = 0,
+	PedalLEDAllOff,
+	PedalLED1On,
+	PedalLED1Off,
+	PedalLED2On,
+	PedalLED2Off,
+	PedalLED3On,
+	PedalLED3Off,
+	PedalLED4On,
+	PedalLED4Off,
+	PedalLED5On,
+	PedalLED5Off,
+	PedalLED6On,
+	PedalLED6Off,
+	PedalLED7On,
+	PedalLED7Off,
+	PedalLED8Off,
+	PedalLED8On
+};
 
-//
-#define PedalLED5On		10
-#define PedalLED5Off	11
-#define PedalLED6On		12
-#define PedalLED6Off	13
-#define PedalLED7On		14
-#define PedalLED7Off 	15
-
-// Mute Hold
-#define PedalLED8Off	16
-#define PedalLED8On		17
 
 /* Note values for the fretboard view.
 */
 enum { NValueA = 0, NValueBb, NValueB,
-		NValueC, NValueDb, NValueD,
-		NValueEb, NValueE, NValueF,
-		NValueGb, NValueG, NValueAb, NValueNone };
+       NValueC, NValueDb, NValueD,
+       NValueEb, NValueE, NValueF,
+       NValueGb, NValueG, NValueAb, NValueNone
+     };
 
 #ifdef LiveMusicApp_c
 #define EXTERN /* */
 char *GlobalNoteNames[] = {
-	"A","Bb","B","C","Db",
-	"D","Eb","E","F","Gb",
-	"G","Ab"};
-
-char *CustomPorts[] = {
-	"FluidPort",
-	"GuitarixPort",
-	"LooperPort",
-	"TransportPort",
-	"TempoPort",
-	"ClickPort",
-	"PedalPort",
-	"DAWPort",
-	"InternalPort"
+	"A", "Bb", "B", "C", "Db",
+	"D", "Eb", "E", "F", "Gb",
+	"G", "Ab"
 };
 
 char *CustomCommands[] = {
@@ -527,20 +503,6 @@ char *CustomCommands[] = {
 	"oops2"
 };
 
-char *SoundFontBankNames[] = {
-	"SFFluidGM",
-	"SFElias",
-	"SFSonidoGM",
-	"SFSynthGM",
-	"SFVintage",
-	"SFDX7",
-	"SFDSF",
-	"SFRolandTenor",
-	"SFAltoSax",
-	"SFFlute",
-	"SFDrums",
-	"SFDrumsElias"
-};
 #else
 #define EXTERN extern
 extern char *CustomPorts[];
@@ -553,13 +515,9 @@ EXTERN LiveMusicInfo gMyInfo;
 //LayoutType LayoutPresets[Max_Layouts];
 EXTERN int LastPortUsed;
 
-
 EXTERN PortsInfo theInPorts;
 EXTERN PortsInfo theOutPorts;
 
-//int		ModeArray[ModeLastItem][Max_Patches];
-
-//int		preModeSwitch[Max_Patches];
 EXTERN int 		WaitingforMidi;
 EXTERN int 		WaitingforMidiHold;
 EXTERN GtkBuilder *gxml;
@@ -581,8 +539,6 @@ EXTERN int      GenerateHFile;
 EXTERN char		JackName[MaxStringPortName];
 EXTERN int 		FishmanSwitch;
 EXTERN int 		FishmanSelSwitch;
-//EXTERN int 		LastPatch;
-//EXTERN int 		LastAbsPatch;
 EXTERN int 		CurrentTab;
 EXTERN int 		PreviousTab;
 EXTERN snd_seq_event_t AlsaEvent;
@@ -644,7 +600,7 @@ void SetScale4Label(char *String);
 int GTKIdel_cb(gpointer data);
 enum {FileLocConfig = 0, FileLocTunes, FileLocUser };
 char *GetResourceDir(char *FileName, char WhichLoc);
-int SetVolumeControl(int Controller,int Value);
-int GetVolumeControl(int Controller);
+int SetExpressionControl(int Controller, int Value);
+int GetExpressionControl(int Controller);
 
 #endif

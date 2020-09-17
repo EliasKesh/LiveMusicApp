@@ -738,12 +738,10 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		gMyInfo.ExpreP1Slider =
 		    FindString(fsPatchNames, thePatch->Name);
 
-//		gMyInfo.SliderGUIUpdate = TRUE;
-
 		/* Used to update the text.
 		*/
-		gMyInfo.SliderUpdate = gMyInfo.ExpreP1Slider;
-
+		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 		printd(LogMidi, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
 		break;
 
@@ -826,15 +824,18 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 		// Slider 0-7
 				case 0:
 				// Main Volume
-				SetVolumeControl(1, event_ptr->data.control.value);
+				SetExpressionControl(ecGuitarVolume, 
+					event_ptr->data.control.value);
 				break;
 
 				case 1:
-				SetVolumeControl(2, event_ptr->data.control.value);
+				SetExpressionControl(ecMidiVolume, 
+					event_ptr->data.control.value);
 				break;
 
 				case 2:
-				SetVolumeControl(5, event_ptr->data.control.value);
+				SetExpressionControl(ecMP3Volume, 
+					event_ptr->data.control.value);
 				break;
 
 				case 3:
@@ -847,16 +848,19 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 				break;
 
 				case 6:
-					SetVolumeControl(7, event_ptr->data.control.value);	
+					SetExpressionControl(ecPedalControl, 
+						event_ptr->data.control.value);	
 				break;
 
 				case 7:
-					SetVolumeControl(3, event_ptr->data.control.value);
+					SetExpressionControl(ecMasterVolume, 
+						event_ptr->data.control.value);
 				break;
 
 		// PAN Knobs 57-64
 				case 57:
-				SetVolumeControl(4, event_ptr->data.control.value);
+				SetExpressionControl(ecTempChange, 
+					event_ptr->data.control.value);
 				break;
 
 				case 58:
@@ -887,7 +891,8 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 				case 90:
 				// Midi Threshold
-				SetVolumeControl(8, event_ptr->data.control.value);
+				SetExpressionControl(ecMidiThreshold, 
+					event_ptr->data.control.value);
 				break;
 
 				case 91:
@@ -1010,17 +1015,17 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 	
 		// Play 105, Stop 106, Rec 107
 				case 105:
-				plPausePlay();
+				if (event_ptr->data.control.value)
+					plPausePlay();
 				break;
 	
 				case 106:
 				break;
 	
 				case 107:
-				plLoopToggle();
+				if (event_ptr->data.control.value)
+					plLoopToggle();
 				break;
-	
-	
 
 			}
 			sprintf(msg_str_ptr, "SND_SEQ_EVENT_CONTROLLER %d %d\n",event_ptr->data.control.param,
@@ -1058,10 +1063,8 @@ void *alsa_midi_thread(void * context_ptr) {
 	int AlsaValue;
 	char *DataPtr;
 
-#ifdef EliasPresets
 	tPatchIndex ThisPatchNum;
 	PatchInfo *ThisPatch;
-#endif
 
 	while (snd_seq_event_input(SeqPort1In, &event_ptr) >= 0) {
 		printd(LogMidi, "Event Type %d %d %d %d\n", event_ptr->type,
@@ -1202,13 +1205,13 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_MODWHEEL:
 				cc_name = "Modulation";
 				printd(LogMidi, "%s \n", cc_name);
-// #ifdef EliasPresets
 #if 0
 				if (gMyInfo.ControlRoute[0].OutPort == InternalPort) {
 					MyOSCJackVol(event_ptr->data.control.value, 0);
 				}
 #endif
-				SetVolumeControl(1, event_ptr->data.control.value / 1.28);
+				SetExpressionControl(ecGuitarVolume, 
+					event_ptr->data.control.value);
 //				SetVolume1(event_ptr->data.control.value / 1.28);
 
 #if 0
@@ -1220,61 +1223,30 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_BREATH:
 				cc_name = "Breath";
 				printd(LogMidi, "%s \n", cc_name);
-				SetVolumeControl(2, event_ptr->data.control.value / 1.28);
+				SetExpressionControl(ecMidiVolume, 
+					event_ptr->data.control.value);
 
 //				SetVolume2(event_ptr->data.control.value / 1.28);
-#if 0
-#ifdef EliasPresets
-				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
-				         1,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
-				         event_ptr->data.control.value);
-
-#else
-				printd(LogInfo, "Send MIDI_CTL_MSB_BREATH %d\n",
-				       event_ptr->data.control.value);
-				SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
-				         event_ptr->data.control.value);
-#endif
-#endif
 				break;
 			/* 03 Master */
 			case 0x03:
 				cc_name = "Unknown 0x03";
 				printd(LogMidi, "%s \n", cc_name);
-				SetVolumeControl(3, event_ptr->data.control.value / 1.28);
+				SetExpressionControl(ecMasterVolume, 
+					event_ptr->data.control.value);
 //				SetVolume3(event_ptr->data.control.value / 1.28);
 
-#if 0
-#ifdef EliasPresets
-				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
-				         1,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
-				         event_ptr->data.control.value);
-
-#endif
-#endif
 				break;
 			/* 04 Tempo */
 			case MIDI_CTL_MSB_FOOT:
 				cc_name = "Foot";
 				printd(LogMidi, "%s \n", cc_name);
-				SetVolumeControl(4, event_ptr->data.control.value);
+				SetExpressionControl(ecTempChange, 
+					event_ptr->data.control.value);
 
 // Not sure this is needed.
 //				SetVolume4(event_ptr->data.control.value / 1.28);
-#if 0
-#ifdef EliasPresets
-				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
-				         1,
-				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
-				         event_ptr->data.control.value);
 
-#endif
-#endif
 #if 0
 				ThisPatchNum = gMyInfo.HardSlider[1];
 				ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
@@ -1297,7 +1269,8 @@ void *alsa_midi_thread(void * context_ptr) {
 				cc_name = "Portamento time";
 				printd(LogTest, "%s \n", cc_name);
 				gMyInfo.SetMP3PlayVolBool = event_ptr->data.control.value;
-				SetVolumeControl(5, event_ptr->data.control.value);
+				SetExpressionControl(ecMP3Volume, 
+					event_ptr->data.control.value);
 #if 0
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
@@ -1312,14 +1285,13 @@ void *alsa_midi_thread(void * context_ptr) {
 				cc_name = "Data entry";
 				printd(LogMidi, "%s \n", cc_name);
 // Maybe need to change
-#ifdef EliasPresets
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
 				         1,
 				         gMyInfo.ControlRoute[ControllerValue - 1].OutControl,
 				         event_ptr->data.control.value);
 
-#endif
+
 				break;
 
 			/* Here is the main Volume Pedal.
@@ -1334,7 +1306,8 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (gMyInfo.ExpreP1Slider >= Max_Patches) {
 					gMyInfo.ExpreP1Slider = 0;
 				}
-				SetVolumeControl(7, event_ptr->data.control.value);
+				SetExpressionControl(ecPedalControl, 
+					event_ptr->data.control.value);
 
 #if 0
 				switch (gMyInfo.ExpreP1Slider) {
@@ -1375,7 +1348,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
 				printd(LogMidi, "%s \n", cc_name);
-				SetVolumeControl(8, event_ptr->data.control.value);
+				SetExpressionControl(ecMidiThreshold, 
+					event_ptr->data.control.value);
 				break;
 			/* 0x0a */
 			case MIDI_CTL_MSB_PAN:
@@ -1726,7 +1700,8 @@ void *alsa_midi_thread(void * context_ptr) {
 //						gMyInfo.ExpreP1Slider = Slider1;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Expr P");
-						gMyInfo.SliderGUIUpdate = TRUE;    
+		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 						break;
 
 					case 2: //  Midi Volume
@@ -1734,7 +1709,8 @@ void *alsa_midi_thread(void * context_ptr) {
 //						gMyInfo.ExpreP1Slider = Slider2;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Midi V");
-							gMyInfo.SliderGUIUpdate = TRUE;    
+		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 					break;
 
 					case 3: // Main Volume
@@ -1742,7 +1718,8 @@ void *alsa_midi_thread(void * context_ptr) {
 //						gMyInfo.ExpreP1Slider = Slider4;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Master V");
-						gMyInfo.SliderGUIUpdate = TRUE;    
+		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 					}
 
 					printd(LogMidi, "FishmanSwitch %d\n", FishmanSwitch);

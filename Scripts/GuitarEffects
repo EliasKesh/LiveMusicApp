@@ -9,16 +9,14 @@
 #
 #   Written By:     Elias Keshishoglou on Thu Jun 25 20:49:03 PDT 2009
 #
-#   Copyright ©:    2009-2019 Elias Keshishoglou all rights reserved.
+#   Copyright :    2009-2021 Elias Keshishoglou all rights reserved.
 #
 #
 #---------------------------------------------------------------------#
 
 function Delay {
-    
     echo "Delay "`expr $1 \* 3`" "$1
     sleep `expr $1 \* 2`
-    
 }
 
 #---------------------------------------------------------------------#
@@ -272,6 +270,13 @@ function FindDevice {
     AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
     export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
     echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
+    
+    #   Patchage takes a while to start so kick it off early.
+    # Run the patch bay
+    echo "***************** Starting Patch Bay"
+    # patchage  > /dev/null 2>&1 &
+    # catia > $LogFile 2>&1 &
+    ${PatchBay} > $LogFile 2>&1 &
 }
 
 #---------------------------------------------------------------------#
@@ -279,7 +284,6 @@ function FindDevice {
 # Set the Definitions
 #
 #---------------------------------------------------------------------#
-
 function SetDefinitions {
     # This is the midi router for converting Program Change
     RouterNameIn="LiveMusic"
@@ -314,8 +318,7 @@ function SetDefinitions {
 #
 #---------------------------------------------------------------------#
 function StartJack {
-    
-    
+
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -383,6 +386,7 @@ function StartJack {
     fi
 }
 
+
 #---------------------------------------------------------------------#
 #
 # Startup Set Up Connections
@@ -415,147 +419,30 @@ function SetUpConnections {
     
     amixer sset 'Master' 100
     
-    # Nux Interface
-    # Record Volume
-    # amixer -c 1 cset numid=10 2032
-    # amixer -c 1 cset numid=11 2032
-    # Playback
-    # amixer -c 1 cset numid=5 2032
-    # amixer -c 1 cset numid=6 2032
+    # ********************************
+    # **** Definitions
+    # ********************************
+    MainOut1="jack-volume:input_1"
+    MainOut2="jack-volume:input_1"
+    
+    PedalBoardName="EliasPedal3"
+    KeyBoardMidi="Uno"
+    MidiGuitarMidi="LiveMusic"
     
     # ********************************
     # **** Alsa midi connections
     # ********************************
-    # set -x
-    # MainOut1="system:playback_1"
-    # MainOut2="system:playback_2"
-    MainOut1="jack-volume:input_1"
-    MainOut2="jack-volume:input_1"
-    PedalBoardName="EliasPedal"
-    KeyBoardMidi="Uno"
-    MidiGuitarMidi="LiveMusic"
+    aconnect "Fishman TriplePlay":"0" "LiveMusic Input":"0"
+    aconnect "USB Uno MIDI Interface":"0" "LiveMusic Input":"0"
+    aconnect "EliasPedal3":"0" "LiveMusic Input":"0"
+    aconnect "LPD8":"0" "LiveMusic Input":"0"
     
-    export MidiList=`aconnect -i`
-    echo $MidiList | grep "Fishman" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        # Check for Fishman Triple play
-        MidiGuitarInput=`aconnect -i | grep -m 1 "Fishman" | awk '{ print $2}'`
-        echo "Fishman Out="$MidiGuitarInput
-    else
-        # This is the channel the converted analog signal to Midi comes in on.
-        echo "MidiGuitarInput="$MidiGuitarInput
-    fi
-    
-    MidiGuitarOutput=`aconnect -i | grep -m 1 $MidiGuitarMidi | awk '{ print $2}'`
-    echo "Midi Guitar In NA Out "$MidiGuitarOutput
-    
-    LiveMusicOutput=`aconnect -i | grep -m 1 $MidiGuitarMidi | awk '{ print $2}'`
-    LiveMusicInput=`aconnect -o | grep -m 1 $MidiGuitarMidi | awk '{ print $2}'`
-    echo "LiveMusic In "$LiveMusicInput" Out "$LiveMusicOutput
-    
-    ArtiphonOutput=`aconnect -i | grep -m 1 'INSTRUMENT1' | awk '{ print $2}'`
-    ArtiphonInput=`aconnect -o | grep -m 1 'INSTRUMENT1' | awk '{ print $2}'`
-    echo "Artiphon Effects In "$ArtiphonInput" Out "$ArtiphonOutput
-    
-    # This is the Looper Software
-    LooperOutput=`aconnect -i | grep -m 1 "sooperlooper" | awk '{ print $2}'`
-    LooperInput=`aconnect -o | grep -m 1 "sooperlooper" | awk '{ print $2}'`
-    echo "Looper In "$LooperInput" Out "$LooperOutput
-    
-    # Midi Control Pedal
-    PedalBoardOut=`aconnect -o | grep -m 1 $PedalBoardName | awk '{ print $2}'`
-    echo "PedalBoardOut= "$PedalBoardOut
-    
-    # Keyboard interface, mostly for composing
-    MidiKeyBoardIn=`aconnect -o | grep -m 1 $KeyBoardMidi | awk '{ print $2}'`
-    MidiKeyBoardOut=`aconnect -i | grep -m 1 $KeyBoardMidi | awk '{ print $2}'`
-    echo "MidiKey In"$MidiKeyBoardIn" Out "$MidiKeyBoardOut
-    
-    # Fluid is the Soundfont player we are using.
-    FluidSoundIn=`aconnect -o | grep -m 1 "FLUID" | awk '{ print $2}'`
-    echo "Fluid In "$FluidSoundIn
-    
-    # Midi Router
-    MidiRouterIn=`aconnect -o | grep -m 1 $RouterNameIn | awk '{ print $2}'`
-    MidiRouterOut=`aconnect -i | grep -m 1 $RouterNameOut | awk '{ print $2}'`
-    echo "Midi Router In"$MidiRouterIn" Out "$MidiRouterOut
-    
-    # Sequencer (rosegarden)
-    SequencerIn=`aconnect -o | grep -m 1 $Sequencer | awk '{ print $2}'`
-    SequencerOut=`aconnect -i | grep -m 1 $Sequencer | awk '{ print $2}'`
-    echo "Sequencer In "$SequencerIn" Out "$SequencerOut
-    
-    # Drum Machine
-    DrummerIn=`aconnect -o | grep -m 1 $DrumNameIn | awk '{ print $2}'`
-    DrummerOut=`aconnect -i | grep -m 1 $DrumNameOut | awk '{ print $2}'`
-    echo "Drum Mac In "$DrummerIn" Out "$DrummerOut
-    
-    LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
-    LPADIn=`aconnect -o | grep -m 1 "LPD8" | awk '{ print $2}'`
-    #   LPADOut=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
-    echo "LPADOut="$LPADOut
-    
-    XSessionIn=`aconnect -i | grep -m 1 "X-Session" | awk '{ print $2}'`
-    echo "XSessionIn="$XSessionIn
-    
-    # If EliasMidi is there let set it up.
-    echo $MidiList | grep "EliasMIDI" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        ButtonLayout=2
-        PedalBoardIn=`aconnect -i | grep -m 1 "EliasMIDI" | awk '{ print $2}'`
-        echo "EliasMIDI In "$SequencerIn" Out "$SequencerOut
-        aconnect $PedalBoardOut"0"  $MidiRouterIn"0"
-    fi
-    
-    # If EliasMidi is there let set it up.
-    echo $MidiList | grep "EliasPedal" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        ButtonLayout=1
-        PedalBoardOut=`aconnect -i | grep -m 1 "EliasPedal" | awk '{ print $2}'`
-        PedalBoardIn=`aconnect -o | grep -m 1 "EliasPedal" | awk '{ print $2}'`
-        echo "PedalBoard In "$PedalBoardIn" Out "$PedalBoardOut
-    fi
-    
-    if test "${Rosegarden}" = "true"; then
-        # The port 4 goes to the Rosegarden
-        echo "Connecting router p3 "$MidiRouterOut"4 to Rosegarden "$SequencerIn"0"
-        aconnect $MidiRouterOut"3" $SequencerIn"0"
-        aconnect $MidiRouterOut"4" $SequencerIn"0"
-    fi
-    
-    MidiThruOut=`aconnect -i | grep -m 1 "Through" | awk '{ print $2}'`
-    MidiThruIn=`aconnect -o | grep -m 1 "Through" | awk '{ print $2}'`
-    echo "Midi Thru "$MidiThruIn" Out "$MidiThruOut
-    
-    # Connect Pedal to LiveMusic
-    aconnect $PedalBoardOut"0" $LiveMusicInput
-    aconnect $LPADOut"0" $LiveMusicInput
-    
-    # Connect Fishman In to LiveMusic
-    aconnect $MidiGuitarInput $LiveMusicInput
-    
-    # Connect LiveMusic Click to Pedal
-    aconnect $LiveMusicOutput"6" $PedalBoardIn
-    aconnect $LiveMusicOutput"6" $LPADIn"0"
-    
-    # Live Music to Fluid
-    aconnect $LiveMusicOutput"0" $FluidSoundIn
-    
-    # Connect Click to LiveMusic
-    aconnect $LiveMusicOutput"5" $FluidSoundIn
-    
-    # Connect Click to LiveMusic
-    aconnect $MidiThruOut $FluidSoundIn
-    
-    # Connect to Hydrogen
-    aconnect $MidiRouterOut"3" $DrummerIn
-    aconnect $MidiRouterOut"4" $DrummerIn
-    # click    aconnect $MidiRouterOut"5" $DrummerIn
-    # Messages sent over OSC to looper.
-    #    aconnect $MidiRouterOut"2" $LooperOutput
-    #    aconnect $MidiRouterOut"3" $LooperOutput
-    #    aconnect $MidiRouterOut"4" $LooperOutput
-    
+    aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
+    aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+    aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
+    aconnect "LiveMusic Output":"7" "LPD8":"0"
+    aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
+    aconnect "Reloop KeyFadr":"0" "LiveDAW Input":"0"
     
     # ********************************
     # **** Jack audio and midi connections
@@ -571,18 +458,15 @@ function SetUpConnections {
     jack_connect jack-volume:output_1 system:playback_1
     jack_connect jack-volume:output_1 system:playback_2
     
+    
     # Guitar in goes to effects Rack
     echo "jack_connect system:capture_1 gx_head_amp:in_1"
     jack_connect system:capture_1 gx_head_amp:in_0
     jack_connect system:capture_2 gx_head_amp:in_0
     
-    # Effects rack channel 1 goes to 1 and 2 of output
-    echo "jack_connect Guitarix:out_1 $MainOut1"
-    #   echo "jack_connect Guitarix:out_2 $MainOut2"
+    echo "Guitatix Audio to Jack Volume"
+    jack_connect gx_head_fx:out_0 $MainOut1
     jack_connect gx_head_fx:out_1 $MainOut1
-    jack_connect gx_head_fx:out_2 $MainOut1
-    #   jack_connect gx_head_fx:out_2 $MainOut2
-    #   jack_conxnect gx_head_fx:out_1 $MainOut2
     jack_disconnect gx_head_fx:out_1 system:playback_1
     jack_disconnect gx_head_fx:out_0 system:playback_2
     
@@ -615,381 +499,14 @@ function SetUpConnections {
     jack_connect Clementine:out_jackaudiosink-1_1 $MainOut1
     jack_connect Clementine:out_jackaudiosink-1_1 $MainOut2
     
-    # If we are recording the reherasals.
-    if test "${2}" = "rec"; then
-        # Connect the second input to a microphone.
-        # jack_connect system:capture_2 "ardour:Audio 2/in 1"
-        # Connect the rack output to the recorder.
-        jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
-        jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
-    fi
-    
-    # Somehow Sooperlooper is connecting by it self FIX ?
-    #   LoopCapture=`jack_lsp -c | grep "a2j" | grep "LiveEffects" | grep "capture" | grep "Looper"`
-    LoopCapture=`jack_lsp -c | grep "a2j" | grep "Midilink MIDI 2" | grep "capture"`
-    LoopPlayback=`jack_lsp -c | grep "a2j" | grep "sooperlooper" | grep "playback"`
-    echo "Jack Connect p1 "${LoopCapture}" to Fluid "${LoopPlayback}
-    jack_connect "${LoopCapture}" "${LoopPlayback}"
-    
-    # Connect Midi Pedal to Guitarix
-    RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "GuitarEffects" | grep "capture"`
-    GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
-    echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn}
-    jack_connect "${RouterLiveOut}" "${GuitarixIn}"
-    
-    # Connect Midi Tap to Looper
-    LiveClickOut=`jack_lsp -c | grep "a2j" | grep "LiveMusic" | grep "Click"`
-    LooperClickIn=`jack_lsp -c | grep "a2j" | grep "sooperlooper" | grep "playback"`
-    echo "Guitarix "${LiveClickOut}" to Fluid "${LooperClickIn}
-    jack_connect "${LiveClickOut}" "${LooperClickIn}"
-    
-    jack_connect "TuxGuitar:GM Port" "${MidiSoundin}"
-}
-
-#---------------------------------------------------------------------#
-#
-# Startup Set Up Connections
-#
-#---------------------------------------------------------------------#
-function SetUpConnections1 {
-    #    set -x
-    #MainOut1="system:playback_1"
-    #MainOut2="system:playback_2"
-    MainOut1="jack-volume:input_1"
-    MainOut2="jack-volume:input_1"
-    
-    # Set the speaker information. Mostly used to local playback and record.
-    #   amixer sset 'Mux' 0
-    
-    
-    # Turn on Line input as source.
-    #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
-    
-    # Turn on the Headphone output
-    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
-    
-    # Turn on the Master output
-    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
-    
-    # Set the input mode to be a line level signal not a mic.
-    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
-    
-    amixer sset "Mic Boost" 0
-    #   amixer sset "Capture" 70
-    amixer cset name='Capture Switch' 2
-    
-    amixer sset 'Master' 100
-    
-    # Nux Interface
-    # Record Volume
-    # amixer -c 1 cset numid=10 2032
-    # amixer -c 1 cset numid=11 2032
-    # Playback
-    # amixer -c 1 cset numid=5 2032
-    # amixer -c 1 cset numid=6 2032
-    
-    
-    # This is the port used to program change messages to the Effects program.
-    #   MidiEffectsIn=`aconnect -o | grep -m 1 rakarrack | awk '{ print $2}'`
-    MidiEffectsIn=`aconnect -o | grep -m 1 gx_head_amp | awk '{ print $2}'`
-    echo "MidiEffectsIn="$MidiEffectsIn  >> $LogFile
-    
-    #   MidiEffectsOut=`aconnect -i | grep -m 1 rakarrack | awk '{ print $2}'`
-    MidiEffectsOut=`aconnect -i | grep -m 1 gx_head_amp | awk '{ print $2}'`
-    echo "MidiEffectsOut="$MidiEffectsOut  >> $LogFile
-    
-    export MidiList=`aconnect -i`
-    echo $MidiList | grep "Fishman" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        # Check for Fishman Triple play
-        MidiGuitarInput=`aconnect -i | grep -m 1 "Fishman" | awk '{ print $2}'`
-        echo "MidiGuitarInput="$MidiGuitarInput  >> $LogFile
-        echo "We Found Fishman"
-    else
-        # This is the channel the converted analog signal to Midi comes in on.
-        echo "MidiGuitarInput="$MidiGuitarInput  >> $LogFile
-        MidiGuitarInput=`aconnect -i | grep -m 1 $MidiGuitarInputPort | awk '{ print $2}'`
-    fi
-    
-    ArtiphonInput=`aconnect -i | grep -m 1 'INSTRUMENT1' | awk '{ print $2}'`
-    ArtiphonOutput=`aconnect -o | grep -m 1 'INSTRUMENT1' | awk '{ print $2}'`
-    
-    # This is the Looper Software
-    LooperInput=`aconnect -i | grep -m 1 "sooperlooper" | awk '{ print $2}'`
-    LooperOutput=`aconnect -o | grep -m 1 "sooperlooper" | awk '{ print $2}'`
-    echo "LooperInput="$LooperInput  >> $LogFile
-    echo "LooperOutput="$LooperOutput  >> $LogFile
-    
-    echo "******************** "$PedalBoardIn >> $LogFile
-    # Midi Control Pedal
-    PedalBoardOut=`aconnect -o | grep -m 1 $PedalBoardIn | awk '{ print $2}'`
-    echo "PedalBoardOut="$PedalBoardOut  >> $LogFile
-    
-    # Midi Control Out
-    #   MidiOutGI20=`aconnect -i | grep -m 1 $MidiOut | awk '{ print $2}'`
-    #   echo "MidiGIOut="$MidiOut  >> $LogFile
-    
-    # Keyboard interface, mostly for composing
-    MidiKeyBoardIn=`aconnect -i | grep -m 1 $KeyBoardMidi | awk '{ print $2}'`
-    MidiKeyBoardOut=`aconnect -o | grep -m 1 $KeyBoardMidi | awk '{ print $2}'`
-    echo "MidiKeyBoardIn="$MidiKeyBoardIn  >> $LogFile
-    echo "MidiKeyBoardOut="$MidiKeyBoardOut  >> $LogFile
-    
-    # Fluid is the Soundfont player we are using.
-    MidiSoundGen=`aconnect -o | grep -m 1 "FLUID" | awk '{ print $2}'`
-    MidiSoundIn=`aconnect -o | grep -m 1 "LiveMusic" | awk '{ print $2}'`
-    echo "MidiSoundIn="$MidiSoundIn  >> $LogFile
-    
-    # Midi Router
-    # MidiRouterIn=`aconnect -i | grep -m 1 $RouterNameIn | awk '{ print $2}' | cut -d":" -f1`
-    MidiRouterIn=`aconnect -o | grep -m 1 $RouterNameIn | awk '{ print $2}'`
-    MidiRouterOut=`aconnect -i | grep -m 1 $RouterNameOut | awk '{ print $2}'`
-    echo "MidiRouterIn="$MidiRouterIn  >> $LogFile
-    echo "MidiRouterOut="$MidiRouterOut  >> $LogFile
-    aconnect $MidiRouterOut"0" $MidiSoundGen
-    
-    # Sequencer (rosegarden)
-    SequencerIn=`aconnect -i | grep -m 1 $Sequencer | awk '{ print $2}'`
-    SequencerOut=`aconnect -o | grep -m 1 $Sequencer | awk '{ print $2}'`
-    echo "SequencerIn="$SequencerIn  >> $LogFile
-    echo "SequencerOut="$SequencerOut  >> $LogFile
-    
-    # Drum Machine
-    DrummerIn=`aconnect -i | grep -m 1 $DrumNameIn | awk '{ print $2}'`
-    DrummerOut=`aconnect -o | grep -m 1 $DrumNameOut | awk '{ print $2}'`
-    echo "DrummerIn="$DrummerIn  >> $LogFile
-    echo "DrummerOut="$DrummerOut  >> $LogFile
-    
-    LPADIn=`aconnect -i | grep -m 1 "LPD8" | awk '{ print $2}'`
-    echo "LPADIn="$LPADIn  >> $LogFile
-    
-    XSessionIn=`aconnect -i | grep -m 1 "X-Session" | awk '{ print $2}'`
-    echo "XSessionIn="$XSessionIn  >> $LogFile
-    
-    # To find devices
-    # jack_lsp -c
-    
-    # Connect Jack_Volume to Main
-    jack_connect jack-volume:output_1 system:playback_1
-    jack_connect jack-volume:output_1 system:playback_2
-    
-    # Guitar in goes to effects Rack
-    echo "jack_connect system:capture_1 gx_head_amp:in_1"  >> $LogFile
-    jack_connect system:capture_1 gx_head_amp:in_0
-    jack_connect system:capture_2 gx_head_amp:in_0
-    
-    # Other channel (microphone) for use with the Vocoder
-    # echo "jack_connect system:capture_2 Guitarix:aux"  >> $LogFile
-    #   jack_connect system:capture_2 rakarrack:aux
-    
-    # Effects rack channel 1 goes to 1 and 2 of output
-    echo "jack_connect Guitarix:out_1 $MainOut1"  >> $LogFile
-    #   echo "jack_connect Guitarix:out_2 $MainOut2"  >> $LogFile
-    jack_connect gx_head_fx:out_1 $MainOut1
-    jack_connect gx_head_fx:out_2 $MainOut1
-    #   jack_connect gx_head_fx:out_2 $MainOut2
-    #   jack_conxnect gx_head_fx:out_1 $MainOut2
-    jack_disconnect gx_head_fx:out_1 system:playback_1
-    jack_disconnect gx_head_fx:out_0 system:playback_2
-    
-    # Connect Guitarix out to loopert in
-    jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
-    #   jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
-    
-    # Connect the Looper to the main outputs
-    jack_connect sooperlooper:common_out_1 $MainOut1
-    jack_connect sooperlooper:common_out_1 $MainOut2
-    jack_connect sooperlooper:common_out_2 $MainOut1
-    jack_connect sooperlooper:common_out_2 $MainOut2
-    
-    # Soundfont player get connected to the Main playback device.
-    jack_connect qsynth:left jack-volume:input_1
-    jack_connect qsynth:right jack-volume:input_1
-    jack_disconnect qsynth:left system:playback_1
-    jack_disconnect qsynth:right system:playback_2
-    
-    
-    
-    # Connect qsynth to the Looper.
-    jack_connect qsynth:left sooperlooper:common_in_1
-    jack_connect qsynth:left sooperlooper:common_in_2
-    
-    # Drum Machine
-    jack_connect Hydrogen:out_L sooperlooper:common_in_1
-    jack_connect Hydrogen:out_R sooperlooper:common_in_2
-    jack_connect Hydrogen:out_L $MainOut1
-    jack_connect Hydrogen:out_R $MainOut2
-    jack_disconnect Hydrogen:out_L system:playback_1
-    jack_disconnect Hydrogen:out_R system:playback_2
-    
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut1
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut2
-    
-    # If we are recording the reherasals.
-    if test "${2}" = "rec"; then
-        # Connect the second input to a microphone.
-        # jack_connect system:capture_2 "ardour:Audio 2/in 1"
-        # Connect the rack output to the recorder.
-        jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
-        jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
-    fi
-    
-    # Connect the midi out from the Converter to the Midi Router
-    # The router will pass all notes, but traps program change messages.
-    echo "Midi to Router and Fluid"
-    # aconnect $MidiGuitarInput"0"  $MidiRouterIn"0"
-    
-    echo "MidiGuitarInput "$MidiGuitarInput"0 to MidiSoundIn "$MidiSoundIn"0"  >> $LogFile
-    aconnect $MidiGuitarInput"0"  $MidiSoundIn"0"
-    aconnect $MidiEffectsOut"0"  $MidiSoundIn"0"
-    aconnect $ArtiphonInput"0"  $MidiSoundIn"0"
-    
-    #    Connect Midi in to effects apps for control
-    #   aconnect $MidiGuitarInput"0"  $MidiRouterIn"0"
-    #   aconnect $MidiGuitarInput"1"  $MidiRouterIn"0"
-    
-    # Midi in to LiveEffect
-    #   echo "Connecting GI20 "$MidiOutGI20"1 to PedalBoard "$PedalBoardOut"0"  >> $LogFile
-    #   aconnect $MidiOutGI20"1" $PedalBoardOut"0"
-    
-    # Connect the keyboard to the Sequencer
-    echo "Keyboard "$MidiKeyBoardOut" to Sequencer " $SequencerIn"0"   >> $LogFile
-    aconnect $MidiKeyBoardOut"0"  $SequencerIn"0"
-    
-    # Used if we want the keyboard to playback midi.
-    #   aconnect $SequencerOut"3"  $MidiKeyBoardIn"0"
-    
-    # Somehow Sooperlooper is connecting by it self FIX ?
-    #   LoopCapture=`jack_lsp -c | grep "a2j" | grep "LiveEffects" | grep "capture" | grep "Looper"`
-    LoopCapture=`jack_lsp -c | grep "a2j" | grep "Midilink MIDI 2" | grep "capture"`
-    LoopPlayback=`jack_lsp -c | grep "a2j" | grep "sooperlooper" | grep "playback"`
-    echo "Jack Connect p1 "${LoopCapture}" to Fluid "${LoopPlayback} >> $LogFile
-    jack_connect "${LoopCapture}" "${LoopPlayback}"
-    
-    # Connect Midi Pedal to Guitarix
-    RouterLiveOut=`jack_lsp -c | grep "a2j" | grep "Guitarix" | grep "capture"`
-    GuitarixIn=`jack_lsp -c | grep "midi_in_1"`
-    echo "Guitarix "${RouterLiveOut}" to Fluid "${GuitarixIn} >> $LogFile
-    jack_connect "${RouterLiveOut}" "${GuitarixIn}"
-    
-    # Connect Midi Tap to Looper
-    LiveClickOut="`jack_lsp -c | grep "a2j" | grep "LiveMusic" | grep "Click"`"
-    LooperClickIn="`jack_lsp -c | grep "a2j" | grep "sooperlooper" | grep "playback"`"
-    echo "Guitarix "${LiveClickOut}" to Fluid "${LooperClickIn} >> $LogFile
-    jack_connect "${LiveClickOut}" "${LooperClickIn}"
-    
-    LiveTransportOut="`jack_lsp -c | grep "a2j" | grep "LiveMusic" | grep "Transport"`"
-    jack_connect "${LiveTransportOut}" "${LooperClickIn}"
-    jack_connect  "a2j:LiveMusic [131] (capture): Transport" "a2j:sooperlooper [134] (playback): sooperlooper"
-    jack_connect  "a2j:LiveMusic [131] (capture): Transport" "a2j:Hydrogen [133] (playback): Hydrogen Midi-In"
-    jack_connect  "a2j:LiveMusic [131] (capture): Tempo" "a2j:Hydrogen [133] (playback): Hydrogen Midi-In"
-    
-    # ------------------------------------
-    # ------- Router
-    # ------------------------------------
-    # Pedal Board Connection
-    echo "Connecting Pedal Board "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
-    aconnect $PedalBoardOut"0"  $MidiRouterIn"0"
-    #   aconnect $PedalBoardOut"1"  $MidiRouterIn"0"
-    
-    # If EliasMidi is there let set it up.
-    echo $MidiList | grep "EliasMIDI" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        ButtonLayout=2
-        PedalBoardOut=`aconnect -o | grep -m 1 "EliasMIDI" | awk '{ print $2}'`
-        echo "EliasMIDI "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
-        aconnect $PedalBoardOut"0"  $MidiRouterIn"0"
-    fi
-    
-    # If EliasMidi is there let set it up.
-    echo $MidiList | grep "EliasPedal2" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        ButtonLayout=1
-        PedalBoardOut=`aconnect -o | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
-        PedalBoardIn=`aconnect -i | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
-        echo "EliasPedal2 "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
-        aconnect $PedalBoardOut"0"  $MidiRouterIn"0"
-        aconnect $MidiRouterOut"6" $PedalBoardIn"0"
-    fi
-    
-    echo $MidiList | grep "EliasPedal3" >/dev/null
-    if [ "$?" -eq 0 ]; then
-        ButtonLayout=1
-        PedalBoardOut=`aconnect -o | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
-        PedalBoardIn=`aconnect -i | grep -m 1 "EliasPedal2" | awk '{ print $2}'`
-        echo "EliasPedal3 "$PedalBoardOut"0 to Router"$MidiRouterIn"0"  >> $LogFile
-        aconnect $PedalBoardOut"0"  $MidiRouterIn"0"
-        aconnect $MidiRouterOut"6" $PedalBoardIn"0"
-    fi
-    
-    # One port from the Router goes to the Soundfont player.
-    echo "Connection router p0 "$MidiRouterOut"1 to Fluid "$MidiSoundIn"0"  >> $LogFile
-    # ejk   aconnect $MidiRouterOut"0" $MidiSoundIn"0"
-    aconnect $MidiRouterOut"0" $MidiSoundIn"0"
-    
-    # The other goes to the guitar effects to switch patches
-    echo "Connecting router p1 "$MidiRouterOut"2 to Rak "$MidiEffectsIn"0"   >> $LogFile
-    aconnect $MidiRouterOut"1" $MidiEffectsIn"0"
-    
-    # The port 3 goes to the looper
-    echo "Connecting router p2 "$MidiRouterOut"3 to Looper "$LooperInput"0"  >> $LogFile
-    aconnect $MidiRouterOut"2 " $LooperInput"0"
-    # Transport
-    aconnect $MidiRouterOut"3 " $LooperInput"0"
-    # Tempo
-    aconnect $MidiRouterOut"4 " $LooperInput"0"
-    # Click
-    aconnect $MidiRouterOut"5 " $MidiSoundIn"0"
-    
-    if test "${Rosegarden}" = "true"; then
-        # The port 4 goes to the Rosegarden
-        echo "Connecting router p3 "$MidiRouterOut"4 to Rosegarden "$SequencerIn"0"  >> $LogFile
-        aconnect $MidiRouterOut"3" $SequencerIn"0"
-        aconnect $MidiRouterOut"4" $SequencerIn"0"
-    fi
-    #   aconnect $MidiUA"0" $MidiSoundIn"0"
-    echo "Connecting Router p3 "$MidiRouterOut"4 to Drum Machine "$DrummerIn"0"
-    
-    #   if test "${Hydrogen}" = "true"; then
-    echo "Connecting Router p3 "$MidiRouterOut"4 to Drum Machine "$DrummerIn"0"  >> $LogFile
-    aconnect $MidiRouterOut"3" $DrummerIn
-    aconnect $MidiRouterOut"4" $DrummerIn
-    aconnect $MidiRouterOut"5" $DrummerIn
-    #   fi
-    #   aconnect $MidiUA"0" $MidiSoundIn"0"
-    
-    
-    MidiSoundOut=`jack_lsp -c |  grep "FLUID" | tail -1`
-    
-    jack_connect "TuxGuitar:GM Port" "${MidiSoundOut}"
-    # Connect the Midi Router to back to the GI20
-    #   echo "Connecting router p4 "$MidiRouterOut"4 to Gi20 "$MidiOutGI20"0"  >> $LogFile
-    #   aconnect $MidiRouterOut"4" $MidiOutGI20"0"
-    
-    # Always do this.
-    aconnect 'Midi Through' 'FLUID Synth (qsynth)'
-    
-    # Max out the USB Device.
-    amixer -c 1 sset 'PCM' 128
-    # FCB1010 Editor
-    # java -jar FCB1010_editor_v1.8.jar
-    
-    
-    # For getting jack to work with realtime kernel.
-    # sudo su -c 'echo @audio - rtprio 99 >> /etc/security/limits.conf'
-    # sudo su -c 'echo @audio - memlock 250000 >> /etc/security/limits.conf'
-    # sudo su -c 'echo @audio - nice -10 >> /etc/security/limits.conf'
-    
-    # sudo mkdir -p /dev/shm/jack-1000/default
-    # sudo chmod -R 777 /dev/shm/jack-1000
-    
-    
-    # meterbridge -t vu alsa_pcm:playback_1 alsa_pcm:playback_2
-    # gnuitar
-    # modprobe snd_virmidi
-    
-    # amidi -p hw:1,1 -S 'B0 00 00 C0 07'
-    # amidi -p hw:1,0 --recieve
+    jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
+    jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
+    
+    # Muse Connection
+    jack_connect "MusE:Out 1-0" "system:playback_1"
+    jack_connect "MusE:Out 1-1" "system:playback_1"
+    aconnect "Fishman TriplePlay":0  MusE:0
+    aconnect  MusE:0 "FLUID Synth (qsynth)":0
     
 }
 
@@ -1023,7 +540,7 @@ function FindUSB {
 #
 #---------------------------------------------------------------------#
 function SetUpApplications {
-       
+    
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
@@ -1069,12 +586,12 @@ function SetUpApplications {
         # Set the first Desktop to use.
         QT_STYLE_OVERRIDE=QtCurve muse &
     fi
-
+    
     if test "${MuseScore}" = "true"; then
         # Set the first Desktop to use.
         QT_STYLE_OVERRIDE=QtCurve musescore3 &
     fi
-
+    
     # External viewer, not used anymore
     if test "${MusicViewer}" = "true"; then
         if test "${Group}" = "fusion"; then
@@ -1111,7 +628,6 @@ function SetUpApplications {
     fi
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
-
 
 #---------------------------------------------------------------------#
 #
@@ -1186,7 +702,6 @@ function SetPlacement {
         MidiDesktop=5
         SetPlacement1920
     else
-        
         xinput | grep "PixArtImaging"
         if [ "$?" = "0" ] ; then
             echo "Found ViewSonic"
@@ -1200,23 +715,8 @@ function SetPlacement {
             MaxOffSet=`expr 1368+1920`
             SetPlacement1920
         else
+            SetPlacement1920
             
-            xinput | grep "Quanta HID-TQH-FS"
-            if [ "$?" = "0" ] ; then
-                echo "Found Dell"
-                xrandr --output HDMI1 --mode 1600x900 --pos 1366x0
-                
-                ExtID=`xinput list | grep -Po 'Quanta*id=\K[0-9]+'`
-                xinput map-to-output $ExtID HDMI1
-                
-                XOffset=1370
-                NewOffset=`expr $XOffset + 1050`
-                NewOffset=0
-                MaxOffSet=`expr 1368+1600`
-                SetPlacement1600
-            else
-                SetPlacement1920
-            fi
         fi
     fi
     wmctrl -a $LiveMusicAppDesktop
@@ -1329,78 +829,76 @@ function SetPlacement1200 {
 }
 
 function StopEverything {
-                echo "Closing down Effects"
-            KillAll KeepLiveMusicRunning.sh
-            killall patchage
-            killall ${EffectsProcessorName}
-            killall qsynth
-            killall jackd
-            killall jackdbus
-            killall qjackctl
-            killall ardour2
-            killall jack-volume
-            killall KeepLiveMusicRunning.sh
-            killall kmetronome
-            
-            killall qmidiroute
-            killall mididings
-            killall guitarix
-            
-            killall rosegarden
-            killall hydrogen
-            
-            killall clementine
-            killall okular
-            killall livedings
-            killall jack-volume
-            killall ${PatchBay}
-            killall ${PatchBay}
-            killall LiveMusicApp
-            killall sooperlooper
-            killall slgui
-            killall tuxguitar
-            killall smplayer
-            KillAll a2jmidid
-            
-            killall kmidimon
-            killall kdialog
-            killall konqueror
-            killall smplayer
-            killall mplayer
-            killall tuxguitar
-            kill `ps aux | grep tuxguitar | awk {'print $2'}`
-            killall aqualung
-            killall mididings
-            KillAll a2jmidid
-            KillAll gedit
-            
-            
-            KillAll jackd
-            killall jack-plumbing
-            killall jackd
-            killall jack-plumbing
-            killall jackd
-            killall jackd
-            killall jack-plumbing
-            killall jackd
-            killall jack-plumbing
-            killall jackd
-            killall jack-plumbing
-            killall jackd
-            killall jack-plumbing
-            killall jackd
-            KillAll ${PatchBay}
-            KillAll a2jmidid
-            KillAll musescore
-            sleep 3
-            KillAll guitarix
-            killall jack-plumbing
-            xset s on
-            xset +dpms
-            killall GuitarEffects    
-            FAHClient --send-unpause "LiveMusicApp_Done"
-
-            exit 0
+    echo "Closing down Effects"
+    KillAll KeepLiveMusicRunning.sh
+    killall patchage
+    killall ${EffectsProcessorName}
+    killall qsynth
+    killall qjackctl
+    killall ardour2
+    killall jack-volume
+    killall kmetronome
+    killall qmidiroute
+    killall mididings
+    killall guitarix
+    killall receivemidi
+    killall rosegarden
+    killall hydrogen
+    
+    killall clementine
+    killall okular
+    killall livedings
+    killall jack-volume
+    killall ${PatchBay}
+    killall ${PatchBay}
+    killall LiveMusicApp
+    killall sooperlooper
+    killall slgui
+    killall tuxguitar
+    killall smplayer
+    KillAll a2jmidid
+    killall jackd
+    killall jackdbus
+    
+    killall kmidimon
+    killall kdialog
+    killall konqueror
+    killall smplayer
+    killall mplayer
+    killall tuxguitar
+    kill `ps aux | grep tuxguitar | awk {'print $2'}`
+    killall aqualung
+    killall mididings
+    KillAll a2jmidid
+    KillAll gedit
+    
+    
+    KillAll jackd
+    killall jack-plumbing
+    killall jackd
+    killall jack-plumbing
+    killall jackd
+    killall jackd
+    killall jack-plumbing
+    killall jackd
+    killall jack-plumbing
+    killall jackd
+    killall jack-plumbing
+    killall jackd
+    killall jack-plumbing
+    killall jackd
+    KillAll ${PatchBay}
+    KillAll a2jmidid
+    KillAll musescore
+    sleep 3
+    KillAll guitarix
+    killall jack-plumbing
+    xset s on
+    xset +dpms
+    killall GuitarEffects
+    FAHClient --send-unpause "LiveMusicApp_Done"
+    
+    exit 0
 }
 
 #---------------------------------------------------------------------#
@@ -1410,17 +908,6 @@ function StopEverything {
 #---------------------------------------------------------------------#
 # set -x
 #
-
-#cd /home/elias/LiveMusic
-
-#xinput | grep "PixArtImaging"
-#if [ "$?" = "0" ] ; then
-#   xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
-#   ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
-#   xinput map-to-output $ExtID HDMI1
-#   ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
-#   xinput map-to-output $ExtID LVDS1
-#fi
 
 echo "Line "$1
 # Set Default values
@@ -1485,7 +972,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-        w - Working Scoring"
+            w - Working Scoring"
             exit 0
         ;;
         v)
@@ -1502,8 +989,8 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             exit 0
         ;;
         c)
-            FindDevice
-            SetDefinitions
+            #            FindDevice
+            #            SetDefinitions
             SetUpConnections
             exit 0
         ;;
@@ -1512,7 +999,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             Hydrogen=true
         ;;
         e)
-
+            
             # if the script is called
             # twice exit.
             pid=`pgrep jackd`
@@ -1522,8 +1009,8 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             else
                 echo "GuitarEffects Auto 2"
             fi
-
-
+            
+            
             pid=`pgrep LiveMusicApp`
             if [ -z $pid ]
             then
@@ -1533,11 +1020,11 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
                 GuitarEffects=true
                 BackroundChecker=true
                 SoundSynth=true
-           else
+            else
                 StopEverything
             fi
         ;;
-
+        
         f)
             echo "Test"
             Rosegarden=false
@@ -1553,7 +1040,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             SoundSynth=true
         ;;
         g)
-           # LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
+            # LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
             LiveMusicCharts.py /home/elias/MySongs/FusionBlue/ -f -c -i -r
         ;;
         j)
@@ -1576,7 +1063,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             echo "Muse Score"
             MuseScore=true
         ;;
-
+        
         r)
             echo "Rosegarden"
             Rosegarden=true
@@ -1615,12 +1102,11 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
     esac
 done
 
-RunCount=`pgrep -c GuitarEffects `
+RunCount=`pgrep -c LivrMusicApp `
 if [ RunCount -gt 1 ]; then
     echo "********** Multiple Version running, killing."
     exit 1
 fi
-
 
 #  the computer from screen saving.
 xset s off
@@ -1628,6 +1114,7 @@ xset -dpms
 qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
 FAHClient --send-pause "LiveMusicApp_Running"
+killall receivemidi
 
 # Remove the switches we parsed above.
 shift `expr $OPTIND - 1`
@@ -1655,10 +1142,10 @@ cat /sys/class/rtc/rtc0/max_user_freq
 GXSize=`wc -c /home/elias/.config/guitarix/gx_head_rc | awk '{print $1}'`
 if [ $GXSize -ge 150000 ];
 then
-zenity --warning \
---text=" gx_head_rc too large "$GXSize
-# The end (connections) of the gx_head_rc file get's large.
-# jack_connections remove.
+    zenity --warning \
+    --text=" gx_head_rc too large "$GXSize
+    # The end (connections) of the gx_head_rc file get's large.
+    # jack_connections remove.
 fi
 
 # Set the definitions for the functions.
@@ -1669,7 +1156,7 @@ StartJack
 
 # If at first you don't succeed ....
 if [ `ps -ew | grep -c jackd` == 0 ] ; then
-    StartJack 
+    StartJack
 fi
 
 if [ `ps -ew | grep -c jackd` == 0 ] ; then
@@ -1677,8 +1164,6 @@ if [ `ps -ew | grep -c jackd` == 0 ] ; then
     --text=" Can\'t Start Jack"
     exit 1
 fi
-
-# StartJack
 
 # If jackd is still not running then exit.
 if [ `ps -ew|grep -c jackd` == 0 ] ; then
@@ -1699,8 +1184,13 @@ echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections
 
-
 echo "***************** Starting SetPlacement"
+# Put apps in the right place/desktop
+SetPlacement
+sleep 3
+
+# Set up the mier levels and the interconnection between devices.
+SetUpConnections
 # Put apps in the right place/desktop
 SetPlacement
 
@@ -1711,31 +1201,17 @@ SetUpConnections
 # Put apps in the right place/desktop
 SetPlacement
 
-sleep 5
+sleep 8
 
-# Set up the mier levels and the interconnection between devices.
-SetUpConnections
-# Put apps in the right place/desktop
-SetPlacement
-
-sleep 10
-
-#   Patchage takes a while to start so kick it off early.
-# Run the patch bay
-echo "***************** Starting Patch Bay"
-# patchage  > /dev/null 2>&1 &
-# catia > $LogFile 2>&1 &
-${PatchBay} > $LogFile 2>&1 &
-
-
-# Set up the mier levels and the interconnection between devices.
+# Set up the mixer levels and the interconnection between devices.
 SetUpConnections
 # Put apps in the right place/desktop
 SetPlacement
 
 exit 0
+
 # Check for file size on this:
 # /home/elias/.config/guitarix/gx_head_rc
-# 
+#
 # lsp-plugins-loud-comp-mono -c /home/elias/LoudCompensation.cfg
-# 
+#

@@ -194,15 +194,14 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 			fprintf (PrefsFile, "/*   Num   Name,              Bank         , Patch, Outport    ,  Channel, Custom,    Chain */ \n");
 
 		if (myInfo->MyPatchInfo[Loop].CustomCommand == NoCustom) {
-			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
-				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
-			else
+//			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
+//				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
+//			else
 				strcpy(SFName, "NoBank");
 		} else if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
 			sprintf(SFName, "0x%02x", myInfo->MyPatchInfo[Loop].BankSelect);
 		else
 			strcpy(SFName, "NoBank");
-
 
 		StringLen = strlen(myInfo->MyPatchInfo[Loop].Name);
 		printd (LogInfo, "ID=%d %-15s %-10s %d %-12s %d %-10s %-10s\n", Loop,
@@ -210,11 +209,11 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 
 		        SFName, // SoundFontBankNames
 		        myInfo->MyPatchInfo[Loop].Patch,
-		        CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
+		        gMyInfo.OutPortName[myInfo->MyPatchInfo[Loop].OutPort],
+//		        CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 		        myInfo->MyPatchInfo[Loop].Channel,
 		        CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
 		        myInfo->MyPatchInfo[Loop].Chain);
-
 
 		/* Patch definitions.
 		*/
@@ -225,7 +224,8 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 			         padding,
 			         SFName,
 			         myInfo->MyPatchInfo[Loop].Patch,
-			         CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
+			        gMyInfo.OutPortName[myInfo->MyPatchInfo[Loop].OutPort],
+//			         CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 			         myInfo->MyPatchInfo[Loop].Channel,
 			         CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
 			         myInfo->MyPatchInfo[Loop].Chain);
