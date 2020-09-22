@@ -23,10 +23,10 @@ if [ "${1}" == "DrumFile" ] ; then
 exit 0
 fi 
 
-if [ "${1}" == "mp4" ] ; then
-    smplayer  "${2}" &
-exit 0
-fi 
+# if [ "${1}" == "mp4" ] ; then
+#     smplayer  "${2}" &
+# exit 0
+# fi 
 
 if [ "${1}" == "mid" ] ; then
     muse  "${2}" &

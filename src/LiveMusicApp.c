@@ -677,7 +677,8 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 	}
 
 	if (event->keyval >= 0x31 &&
-	        event->keyval <= 0x39) {
+	        event->keyval <= 0x39 &&
+	        event->state == 4) {
 		printf("Patch\n");
 		LayoutSwitchPatch(event->keyval - 0x31, true);
 		return (TRUE);
@@ -716,15 +717,15 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 			plSetB();
 		}
 
-	case GDK_KEY_Return:
-		printf("GDK_KEY_Return\n");
-		return (TRUE);
-		break;
+	// case GDK_KEY_Return:
+	// 	printf("GDK_KEY_Return\n");
+	// 	return (TRUE);
+	// 	break;
 
-	case GDK_KEY_BackSpace:
-		printf("GDK_KEY_BackSpace\n");
-		return (TRUE);
-		break;
+	// case GDK_KEY_BackSpace:
+	// 	printf("GDK_KEY_BackSpace\n");
+	// 	return (TRUE);
+	// 	break;
 
 	case GDK_KEY_Tab:
 		printf("GDK_KEY_Tab\n");
@@ -881,10 +882,10 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 		return TRUE;
 		break;
 
-	case GDK_KEY_KP_Delete:
-		printf("GDK_KEY_KP_Delete\n");
-		return TRUE;
-		break;
+	// case GDK_KEY_KP_Delete:
+	// 	printf("GDK_KEY_KP_Delete\n");
+	// 	return TRUE;
+	// 	break;
 
 	case GDK_KEY_KP_Equal:
 		printf("GDK_KEY_KP_Equal\n");
@@ -2071,7 +2072,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 
 	if (MidiIn >= Max_Patches) {
 		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
-		return (0);
+		return (Patch_Not_Found);
 	}
 
 	/*
@@ -2087,7 +2088,7 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	RetVal = Preset;
 	if (RetVal >= Max_Patches || RetVal < 0) {
 		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
-		return (0);
+		return (Patch_Not_Found);
 	}
 
 	FinalRetVal = RetVal;
@@ -2189,7 +2190,6 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 		WaitingforMidi = 0;
 		MyOSCJackMute(0, 0);
 		WaitingforMidiHold = 0;
-
 	}
 
 	return (0);

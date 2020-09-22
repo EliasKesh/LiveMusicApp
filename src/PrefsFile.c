@@ -93,6 +93,13 @@ InitPref (void) {
 		printd(LogDebug, "ReadFrefs Failed. \n");
 		NewInstall = 1;
 	}
+#if 0
+	/* Set up the not Found String.
+	*/
+	strcpy(
+		gMyInfo.MyPatchInfo[Patch_Not_Found].Name,
+		"NotFound");
+#endif
 
 //	PrintDataStructure(&gMyInfo, DefinePrefsFile);
 //	exit(1);

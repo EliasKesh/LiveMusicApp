@@ -68,9 +68,9 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
 	overlay = gtk_overlay_new ();
 	gtk_container_add(GTK_CONTAINER(overlay), image);
 	gtk_container_add(GTK_CONTAINER(EventBox), overlay);
-	theButton->Label = gtk_label_new("Hello There");
+	theButton->Label = gtk_label_new("!!PROB!!");
 
-	MyImageButtonSetText(theButton, "Hello There");
+	MyImageButtonSetText(theButton, "!!PROB!!");
 
 //	          gtk_label_set_markup(GTK_LABEL(theButton->Label),
 //             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");

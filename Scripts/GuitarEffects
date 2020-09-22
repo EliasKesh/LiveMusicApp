@@ -443,7 +443,9 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW Input":"0"
-    
+    aconnect "Fishman TriplePlay":0 MusE:0    
+ 
+
     # ********************************
     # **** Jack audio and midi connections
     # ********************************
@@ -501,13 +503,16 @@ function SetUpConnections {
     
     jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
-    
+    aconnect "LiveMusic Output":1 GuitBridge:0
+    jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1    
+
+   
     # Muse Connection
+    aconnect "Fishman TriplePlay":0  MusE:0
+    aconnect MusE:0 "FLUID Synth":0
     jack_connect "MusE:Out 1-0" "system:playback_1"
     jack_connect "MusE:Out 1-1" "system:playback_1"
-    aconnect "Fishman TriplePlay":0  MusE:0
-    aconnect  MusE:0 "FLUID Synth (qsynth)":0
-    
+
 }
 
 #---------------------------------------------------------------------#
@@ -544,7 +549,7 @@ function SetUpApplications {
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
-        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.5  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
     # Midi Router
@@ -1173,9 +1178,12 @@ fi
 
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
-Delay 1
+Delay 4
+
+# -e to enable hardware interfaces as well.
 # a2jmidid -e > $LogFile 2>&1 &
-a2jmidid > $LogFile 2>&1 &
+
+    a2jmidi_bridge "GuitBridge" &
 
 SetUpApplications
 Delay 1

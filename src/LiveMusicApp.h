@@ -157,19 +157,20 @@ typedef struct {
 #define Max_Main_Buttons 80
 #define MaxPresetButtons 6
 #define Max_Patches	 182
-#define Preset1Patch (Max_Patches + 1)
-#define Preset2Patch (Max_Patches + 2)
-#define Preset3Patch (Max_Patches + 3)
-#define Preset4Patch (Max_Patches + 4)
-#define Preset5Patch (Max_Patches + 5)
-#define Preset6Patch (Max_Patches + 6)
+#define Patch_Not_Found (Max_Patches + 1)
+#define Preset1Patch (Max_Patches + 2)
+#define Preset2Patch (Max_Patches + 3)
+#define Preset3Patch (Max_Patches + 4)
+#define Preset4Patch (Max_Patches + 5)
+#define Preset5Patch (Max_Patches + 6)
+#define Preset6Patch (Max_Patches + 7)
 #define Max_Patches_W_Presets Preset6Patch
 #define Max_Layouts	 10
 #define FileNameMaxLength	250
 
 typedef struct {
 	char Name[PatchNameSize];
-	char Presets[Max_Patches][PatchNameSize];
+	char Presets[Max_Patches_W_Presets][PatchNameSize];
 } LayoutType;
 
 // Fixed Flider controllers
@@ -217,12 +218,13 @@ enum {
 	DrumPlayer,
 	MidiPlayer,
 	HTMLEditor,
+	ConnectApp,
 	MaxApps
 };
 
 typedef struct {
 	// Preferences
-	PatchInfo MyPatchInfo[Max_Patches];
+	PatchInfo MyPatchInfo[Max_Patches_W_Presets];
 	char BasePath[255];
 	char NumOutPorts;
 	char OutPortName[MaxOutPorts][MaxStringPortName];

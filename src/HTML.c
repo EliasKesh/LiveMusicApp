@@ -54,6 +54,7 @@
 
 #define ParseValue "Preset"
 #define MAXLINE 250
+#define AllowInternalMP4 1
 
 /*
  * Place Local prototypes here
@@ -767,6 +768,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
 	 * not to deal with it.
 	 */
+//	if (strstr(theURI, ".mp3") || strstr(theURI, ".mp4")) {
 	if (strstr(theURI, ".mp3")) {
 		/*
 		 * Tell web kit not to o anything with it.
@@ -781,6 +783,22 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		return (true);
 	}
+#ifdef AllowInternalMP4
+	if (strstr(theURI, ".mp4")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		SetPlayerFile((theURI + 7));
+		printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+#endif
 
 	/* Depending on the PDF call there may be a page number, so
 	we will handle it.
@@ -833,6 +851,23 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
+#ifdef AllowInternalMP4
+
+	if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		SetPlayerFile((theURI + 7));
+		printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+#else
 	if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
 		/*
 		 * Tell web kit not to o anything with it.
@@ -849,7 +884,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		return (true);
 	}
-
+#endif
 	if (strstr(theURI, ".mid") || strstr(theURI, ".med") ) {
 		/*
 		 * Tell web kit not to o anything with it.
