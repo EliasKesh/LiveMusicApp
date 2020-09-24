@@ -667,19 +667,19 @@ void CheckForStartupDirs(void) {
  *---------------------------------------------------------------------*/
 gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data) {
 
-	printf("Event %x %x\n",
+	printd(LogDebug, "Event %x %x\n",
 	       event->keyval,
 	       event->state);
 
 	if (DisableTextInput) {
-		printf("Key Disabled\n");
+		printd(LogDebug, "Key Disabled\n");
 		return (FALSE);
 	}
 
 	if (event->keyval >= 0x31 &&
 	        event->keyval <= 0x39 &&
 	        event->state == 4) {
-		printf("Patch\n");
+		printd(LogDebug, "Patch\n");
 		LayoutSwitchPatch(event->keyval - 0x31, true);
 		return (TRUE);
 	}
@@ -688,299 +688,299 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 
 	case GDK_KEY_q:
 		if (event->state == 4) {
-			printf("Found quit\n");
+			printd(LogDebug, "Found quit\n");
 			gtk_window_close(GTK_WINDOW(theMainWindow));
 		}
 
 	case GDK_KEY_l:
 		if (event->state == 4) {
-			printf("GDK_KEY_l\n");
+			printd(LogDebug, "GDK_KEY_l\n");
 			plLoopToggle();
 		}
 
 //	if (event->keyval == GDK_KEY_p && event->state == 0) {
 	case GDK_KEY_space:
 		if (event->state == 4) {
-			printf("GDK_KEY_space\n");
+			printd(LogDebug, "GDK_KEY_space\n");
 			plPausePlay();
 		}
 
 	case GDK_KEY_a:
 		if (event->state == 4) {
-			printf("GDK_KEY_a\n");
+			printd(LogDebug, "GDK_KEY_a\n");
 			plSetA();
 		}
 
 	case GDK_KEY_b:
 		if (event->state == 4) {
-			printf("GDK_KEY_b\n");
+			printd(LogDebug, "GDK_KEY_b\n");
 			plSetB();
 		}
 
 	// case GDK_KEY_Return:
-	// 	printf("GDK_KEY_Return\n");
+	// 	printd(LogDebug, "GDK_KEY_Return\n");
 	// 	return (TRUE);
 	// 	break;
 
 	// case GDK_KEY_BackSpace:
-	// 	printf("GDK_KEY_BackSpace\n");
+	// 	printd(LogDebug, "GDK_KEY_BackSpace\n");
 	// 	return (TRUE);
 	// 	break;
 
 	case GDK_KEY_Tab:
-		printf("GDK_KEY_Tab\n");
+		printd(LogDebug, "GDK_KEY_Tab\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Multi_key:
-		printf("GDK_KEY_Multi_key\n");
+		printd(LogDebug, "GDK_KEY_Multi_key\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Page_Up:
-		printf("GDK_KEY_Page_Up\n");
+		printd(LogDebug, "GDK_KEY_Page_Up\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Page_Down:
-		printf("GDK_KEY_Page_Down\n");
+		printd(LogDebug, "GDK_KEY_Page_Down\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_F1:
-		printf("GDK_KEY_F1\n");
+		printd(LogDebug, "GDK_KEY_F1\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Control_L:
-		printf("GDK_KEY_Control_L\n");
+		printd(LogDebug, "GDK_KEY_Control_L\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Meta_L:
-		printf("GDK_KEY_Meta_L\n");
+		printd(LogDebug, "GDK_KEY_Meta_L\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Super_L:
-		printf("GDK_KEY_Super_L\n");
+		printd(LogDebug, "GDK_KEY_Super_L\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Begin:
-		printf("GDK_KEY_Begin\n");
+		printd(LogDebug, "GDK_KEY_Begin\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Alt_L:
-		printf("GDK_KEY_Alt_L\n");
+		printd(LogDebug, "GDK_KEY_Alt_L\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Down:
-		printf("GDK_KEY_Down\n");
+		printd(LogDebug, "GDK_KEY_Down\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Up:
-		printf("GDK_KEY_Up\n");
+		printd(LogDebug, "GDK_KEY_Up\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Right:
-		printf("GDK_KEY_Right\n");
+		printd(LogDebug, "GDK_KEY_Right\n");
 		return (TRUE);
 		break;
 
 	case GDK_KEY_Num_Lock:
-		printf("GDK_KEY_Num_Lock\n");
+		printd(LogDebug, "GDK_KEY_Num_Lock\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Space:
-		printf("GDK_KEY_KP_Space\n");
+		printd(LogDebug, "GDK_KEY_KP_Space\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Tab:
-		printf("GDK_KEY_KP_Tab\n");
+		printd(LogDebug, "GDK_KEY_KP_Tab\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Enter:
-		printf("GDK_KEY_KP_Enter\n");
+		printd(LogDebug, "GDK_KEY_KP_Enter\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_F1:
-		printf("GDK_KEY_KP_F1\n");
+		printd(LogDebug, "GDK_KEY_KP_F1\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_F2:
-		printf("GDK_KEY_KP_F2\n");
+		printd(LogDebug, "GDK_KEY_KP_F2\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_F3:
-		printf("GDK_KEY_KP_F3\n");
+		printd(LogDebug, "GDK_KEY_KP_F3\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_F4:
-		printf("GDK_KEY_KP_F4\n");
+		printd(LogDebug, "GDK_KEY_KP_F4\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Home:
-		printf("GDK_KEY_KP_Home\n");
+		printd(LogDebug, "GDK_KEY_KP_Home\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Left:
-		printf("GDK_KEY_KP_Left\n");
+		printd(LogDebug, "GDK_KEY_KP_Left\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Up:
-		printf("GDK_KEY_KP_Up\n");
+		printd(LogDebug, "GDK_KEY_KP_Up\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Right:
-		printf("GDK_KEY_KP_Right\n");
+		printd(LogDebug, "GDK_KEY_KP_Right\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Down:
-		printf("GDK_KEY_KP_Down\n");
+		printd(LogDebug, "GDK_KEY_KP_Down\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Page_Up:
-		printf("GDK_KEY_KP_Page_Up\n");
+		printd(LogDebug, "GDK_KEY_KP_Page_Up\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Page_Down:
-		printf("GDK_KEY_KP_Page_Down\n");
+		printd(LogDebug, "GDK_KEY_KP_Page_Down\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_End:
-		printf("GDK_KEY_KP_End\n");
+		printd(LogDebug, "GDK_KEY_KP_End\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Begin:
-		printf("GDK_KEY_KP_Begin\n");
+		printd(LogDebug, "GDK_KEY_KP_Begin\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Insert:
-		printf("GDK_KEY_KP_Insert\n");
+		printd(LogDebug, "GDK_KEY_KP_Insert\n");
 		return TRUE;
 		break;
 
 	// case GDK_KEY_KP_Delete:
-	// 	printf("GDK_KEY_KP_Delete\n");
+	// 	printd(LogDebug, "GDK_KEY_KP_Delete\n");
 	// 	return TRUE;
 	// 	break;
 
 	case GDK_KEY_KP_Equal:
-		printf("GDK_KEY_KP_Equal\n");
+		printd(LogDebug, "GDK_KEY_KP_Equal\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Multiply:
-		printf("GDK_KEY_KP_Multiply\n");
+		printd(LogDebug, "GDK_KEY_KP_Multiply\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Add:
-		printf("GDK_KEY_KP_Add\n");
+		printd(LogDebug, "GDK_KEY_KP_Add\n");
 		SetExpressionControl(VolumeControllerNum,
 			GetExpressionControl(VolumeControllerNum) + 5);
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Separator:
-		printf("GDK_KEY_KP_Separator\n");
+		printd(LogDebug, "GDK_KEY_KP_Separator\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Subtract:
-		printf("GDK_KEY_KP_Subtract\n");
+		printd(LogDebug, "GDK_KEY_KP_Subtract\n");
 		SetExpressionControl(VolumeControllerNum,
 			GetExpressionControl(VolumeControllerNum) - 5);
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Decimal:
-		printf("GDK_KEY_KP_Decimal\n");
+		printd(LogDebug, "GDK_KEY_KP_Decimal\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_Divide:
-		printf("GDK_KEY_KP_Divide\n");
+		printd(LogDebug, "GDK_KEY_KP_Divide\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_0:
-		printf("GDK_KEY_KP_0\n");
+		printd(LogDebug, "GDK_KEY_KP_0\n");
 		VolumeControllerNum = 1;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_1:
-		printf("GDK_KEY_KP_1\n");
+		printd(LogDebug, "GDK_KEY_KP_1\n");
 		VolumeControllerNum = 2;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_2:
-		printf("GDK_KEY_KP_2\n");
+		printd(LogDebug, "GDK_KEY_KP_2\n");
 		VolumeControllerNum = 3;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_3:
-		printf("GDK_KEY_KP_3\n");
+		printd(LogDebug, "GDK_KEY_KP_3\n");
 		VolumeControllerNum = 4;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_4:
-		printf("GDK_KEY_KP_4\n");
+		printd(LogDebug, "GDK_KEY_KP_4\n");
 		VolumeControllerNum = 5;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_5:
-		printf("GDK_KEY_KP_5\n");
+		printd(LogDebug, "GDK_KEY_KP_5\n");
 		VolumeControllerNum = 6;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_6:
-		printf("GDK_KEY_KP_6\n");
+		printd(LogDebug, "GDK_KEY_KP_6\n");
 		VolumeControllerNum = 7;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_7:
-		printf("GDK_KEY_KP_7\n");
+		printd(LogDebug, "GDK_KEY_KP_7\n");
 		VolumeControllerNum = 8;
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_8:
-		printf("GDK_KEY_KP_8\n");
+		printd(LogDebug, "GDK_KEY_KP_8\n");
 		return TRUE;
 		break;
 
 	case GDK_KEY_KP_9:
-		printf("GDK_KEY_KP_9\n");
+		printd(LogDebug, "GDK_KEY_KP_9\n");
 		return TRUE;
 		break;
 	}
@@ -1876,7 +1876,7 @@ int SetVolume3(int Value) {
  * Description:
  *---------------------------------------------------------------------*/
 int SetVolume4(int Value) {
-	printd(LogTest, "Slider 4 %x %d\n",
+	printd(LogTest, "SetVol Slider 4 %x %d\n",
 	       Adjustment2, Value);
 
 	if (Value > 100)

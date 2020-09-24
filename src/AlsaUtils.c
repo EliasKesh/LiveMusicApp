@@ -740,6 +740,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 
 		/* Used to update the text.
 		*/
+		gMyInfo.SliderUpdate = gMyInfo.ExpreP1Slider;
 		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
 		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 		printd(LogMidi, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
@@ -886,7 +887,12 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 		// Left 89-96
 				case 89:
-				// Tempo
+				printf("In Dist Guitarix\n");
+				SendMidi(SND_SEQ_EVENT_CONTROLLER,
+			         GuitarixPort,
+			         1,
+			         2,
+			         event_ptr->data.control.value);
 				break;
 
 				case 90:
@@ -915,6 +921,12 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 		// Right 97-104
 				case 97:
+				printf("In Dist Guitarix\n");
+				SendMidi(SND_SEQ_EVENT_CONTROLLER,
+			         GuitarixPort,
+			         1,
+			         11,
+			         event_ptr->data.control.value);
 				break;
 
 				case 98:

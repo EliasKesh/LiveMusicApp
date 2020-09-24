@@ -137,8 +137,9 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	GtkWidget *MainBox, *PositionBox, *PlayControlBox, *PositionStartBox, *PositionEndBox, *SaveLoopBox, *SpeedBox;
 	GtkWidget *SetABox, *SetBBox, *SetBPlay, *ResetBox, *LoopBox, *NormalBox, *PrevSegBox, *NextSegBox;
 	GtkWidget *EditLoopBox, *NewLoopBox, *FineABox, *FineBBox;
-	GtkWidget *NewSongMarkBox;
-	GtkWidget *theFrame, *SavedFrame, *SaveFixed, *SavedLabel;
+	GtkWidget *NewSongMarkBox, *SpeedInBox;
+	GtkWidget *theFrame, *SavedFrame, *SaveFixed, *SavedLabel, *PlayerFrame;
+	GtkWidget *PositionSlicerBox;
 	int result;
 
 	InPlayerTimer = 0;
@@ -168,15 +169,15 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	PositionBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 	PositionStartBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	PositionEndBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-	SpeedBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+	SpeedBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	FineABox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
 	FineBBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+	SpeedInBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
 	PlayControlBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	SaveLoopBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 
 	/*
 	 * Get the image generated of the music..
-	 * sox Pools.mp3  -n spectrogram  -x 800 -Y 130 -c 1 −−clobber  -a -o spectrogram.png
 	 */
 	ImageWidget = gtk_image_new_from_file(ImageWidget);
 
@@ -190,7 +191,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	//  gtk_scale_set_digits (PositionSlider, 1);
 //    gtk_scale_set_value_pos (PositionSlider, GTK_POS_TOP);
 	gtk_scale_set_draw_value(PositionSlider, TRUE);
-	gtk_scale_set_value_pos(PositionSlider, GTK_POS_LEFT);
+	gtk_scale_set_value_pos(PositionSlider, GTK_POS_BOTTOM);
 	g_signal_connect(G_OBJECT (PositionSlider), "change_value",
 	                 G_CALLBACK (PositionSlider_Changed), NULL);
 
@@ -199,7 +200,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	 */
 	SetABox = gtk_event_box_new();
 	MyImageButtonInit(&SetA, SetABox, MainButtonOnImage, MainButtonOffImage);
-	MyImageButtonSetText(&SetA, "Set A");
+	MyImageButtonSetText(&SetA, "Start");
 	g_signal_connect(G_OBJECT(SetABox),
 	                 "button-press-event",
 	                 G_CALLBACK(SetA_click_handler),
@@ -304,7 +305,11 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	SpeedSpin = gtk_spin_button_new(SpeedAdjustment, 0.05, 2);
 	g_signal_connect(G_OBJECT (SpeedSpin), "value_changed",
 	                 G_CALLBACK (SpeedSlider_Changed), NULL);
-
+#if 0
+	gtk_widget_set_size_request(SpeedSpin, 50, 50);
+	gtk_widget_set_margin_top(SpeedSpin, 20);
+	gtk_widget_set_margin_bottom(SpeedSpin, 20);
+#endif
 	/*
 	 * Normal speed set
 	 */
@@ -324,20 +329,25 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	/*
 	 * Playback volume slider
 	 */
-	VolumeAdjustment = gtk_adjustment_new(90, 0, 100, 1, 10, 0);
+	VolumeAdjustment = gtk_adjustment_new(75, 0, 100, 1, 10, 0);
 	VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
 	                           GTK_ADJUSTMENT(VolumeAdjustment));
 //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
 //	   gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
+	gtk_widget_set_margin_bottom(VolumeSpin,15);
 	gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
 	gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
 
 	g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
 	                 G_CALLBACK (VolumeSlider_Changed), NULL);
-	gtk_scale_set_draw_value((GtkScale *)VolumeSpin, FALSE);
+	gtk_scale_set_draw_value((GtkScale *)VolumeSpin, TRUE);
 	gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
 	gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
+	gtk_widget_set_margin_top(VolumeSpin,20);
+	gtk_widget_set_margin_right(VolumeSpin,20);
+	gtk_widget_set_margin_left(VolumeSpin,20);
+
 
 	/*
 	 * Loop Segment prev
@@ -438,85 +448,122 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	 * Now that everything has been created let's pack them together.
 	 */
 //	gtk_box_set_homogeneous(GTK_BOX(FineABox), TRUE);
-	gtk_box_pack_start(GTK_BOX(FineABox), SetABox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(FineABox), FineStartSpin, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(FineABox), SetABox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(FineABox), FineStartSpin, TRUE, FALSE,  5);
 
 //	gtk_box_set_homogeneous(GTK_BOX(FineBBox), TRUE);
-	gtk_box_pack_start(GTK_BOX(FineBBox), SetBBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(FineBBox), FineEndSpin, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(FineBBox), SetBBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(FineBBox), FineEndSpin, TRUE, FALSE,  5);
 
 //	gtk_box_set_homogeneous(GTK_BOX(PositionStartBox), TRUE);
-	gtk_box_pack_start(GTK_BOX(PositionStartBox), FineABox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PositionStartBox), StartSpin, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionStartBox), FineABox, TRUE, FALSE,  5);
+//	gtk_box_pack_start(GTK_BOX(PositionStartBox), StartSpin, TRUE, FALSE,  5);
 
 	gtk_box_set_homogeneous(GTK_BOX(PositionEndBox), TRUE);
-	gtk_box_pack_start(GTK_BOX(PositionEndBox), FineBBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PositionEndBox), EndSpin, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionEndBox), FineBBox, TRUE, FALSE,  5);
+//	gtk_box_pack_start(GTK_BOX(PositionEndBox), EndSpin, TRUE, FALSE,  5);
 
-	gtk_box_pack_start(GTK_BOX(SpeedBox), NormalBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(SpeedBox), SpeedSpin, FALSE, FALSE, 20);
+
+
+	gtk_box_pack_start(GTK_BOX(SpeedInBox), NormalBox, TRUE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(SpeedInBox), SpeedSpin, TRUE, FALSE, 5);
+
+	gtk_box_pack_start(GTK_BOX(SpeedBox), SpeedInBox, TRUE, FALSE, 5);
 
 //	gtk_box_set_homogeneous(GTK_BOX(PositionBox), TRUE);
-	theFrame = gtk_frame_new("A Position");
+	theFrame = gtk_frame_new("Start Position");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionStartBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
-	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, FALSE,  5);
 
-	theFrame = gtk_frame_new("B Position");
+	theFrame = gtk_frame_new("Length");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionEndBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
-	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, FALSE,  5);
 
 	theFrame = gtk_frame_new("Speed");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), SpeedBox);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
-	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, FALSE,  5);
 
 	theFrame = gtk_frame_new("Volume");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
 	gtk_container_add(GTK_CONTAINER(theFrame), VolumeSpin);
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
-	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(PositionBox), theFrame, TRUE, FALSE,  5);
 
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), SetBPlay, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), ResetBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), LoopBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), PrevSegBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(PlayControlBox), NextSegBox, TRUE, TRUE, 5);
+#if 1
+	PlayerFrame = gtk_frame_new("Player Control");
+	gtk_frame_set_label_align((GtkFrame *)PlayerFrame, 0.5, 0.5);
+	gtk_container_add(GTK_CONTAINER(PlayerFrame), PlayControlBox);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), SetBPlay, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), ResetBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), LoopBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), PrevSegBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), NextSegBox, TRUE, FALSE,  5);
+
+#else
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), SetBPlay, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), ResetBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), LoopBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), PrevSegBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(PlayControlBox), NextSegBox, TRUE, FALSE,  5);
+#endif
+
 
 	SavedFrame = gtk_frame_new("Saved Loops");
 	gtk_frame_set_label_align((GtkFrame *)SavedFrame, 0.5, 0.5);
 	gtk_frame_set_shadow_type(GTK_FRAME(SavedFrame), GTK_SHADOW_ETCHED_OUT);
 	gtk_container_add(GTK_CONTAINER(SavedFrame), SaveLoopBox);
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EditLoopBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), SaveFixed, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), EditLoopBox, TRUE, FALSE,  5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewLoopBox, TRUE, FALSE,  5);
 
-	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewSongMarkBox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewSongMarkBox, TRUE, FALSE,  5);
 
-	gtk_misc_set_padding(ImageWidget, 45,0);
-	gtk_misc_set_alignment(ImageWidget, 0,0);
+//	gtk_misc_set_padding(ImageWidget, 55,10);
+//	gtk_misc_set_alignment(ImageWidget, 0,0);
 
-	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, FALSE, FALSE, 5);
+	gtk_widget_set_margin_left(ImageWidget,28);
+	gtk_widget_set_margin_right(ImageWidget,28);
+	gtk_widget_set_margin_top(ImageWidget,15);
+	gtk_widget_set_margin_bottom(ImageWidget,15);
+	gtk_widget_set_margin_left(PositionSlider,25);
+	gtk_widget_set_margin_right(PositionSlider,25);
+
+//	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, FALSE, 5);
+
+	PositionSlicerBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 
 	theFrame = gtk_frame_new("Song Position");
 	gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
-	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
+
+	gtk_container_add(GTK_CONTAINER(PositionSlicerBox), ImageWidget);
+	gtk_container_add(GTK_CONTAINER(PositionSlicerBox), PositionSlider);
+	// gtk_box_pack_start(GTK_BOX(PositionSlicerBox), ImageWidget, TRUE, FALSE, 5);
+	// gtk_box_pack_start(GTK_BOX(PositionSlicerBox), PositionSlider, TRUE, FALSE,  5);
+	gtk_widget_set_margin_bottom(PositionSlicerBox,30);
+
+	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlicerBox);
+
+//	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
+
 	gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 
-
 	// Pack everything together
-	gtk_box_pack_start(GTK_BOX(MainBox), theFrame, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(MainBox), PositionBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(MainBox), PlayControlBox, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX(MainBox), SavedFrame, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(MainBox), theFrame, TRUE, TRUE, 15);
+	gtk_box_pack_start(GTK_BOX(MainBox), PositionBox, TRUE, TRUE,  15);
+
+	gtk_box_pack_start(GTK_BOX(MainBox), PlayerFrame, TRUE, TRUE,  15);
+//	gtk_box_pack_start(GTK_BOX(MainBox), PlayControlBox, TRUE, FALSE,  15);
+	gtk_box_pack_start(GTK_BOX(MainBox), SavedFrame, TRUE, TRUE,  15);
 
 	// Add this to the main window.
 	gtk_container_add(GTK_CONTAINER(window), MainBox);
-	gtk_widget_set_size_request(window, 100, 100);
+//	gtk_widget_set_size_request(window, 100, 100);
 //	gtk_window_set_default_size(window, 200, 200);
 	gtk_widget_show_all(window);
 
@@ -640,14 +687,14 @@ void SetPlayerFile(char *FileName) {
 
 	OpenSavedLoopFile(FileName);
 
-	// sox Pools.mp3  -n spectrogram  -x 800 -Y 130 -c 1 −−clobber  -a -o spectrogram.png
-	sprintf(PlayerString,
-	        "sox \"%s\"  -n spectrogram  -x 1400 -Y 130 -c 1  -r -a -o %s\n",  
-	        FileName,CurrentFileSpec);
-	printd(LogPlayer, "%s", PlayerString);
-	system(PlayerString);
+	// sprintf(PlayerString,
+	//         "sox \"%s\"  -n spectrogram  -x 1400 -Y 130 -c 1  -r -a -o %s\n",  
+	//         FileName,CurrentFileSpec);
+	// printd(LogPlayer, "%s", PlayerString);
+	// system(PlayerString);
 	gtk_image_clear((GtkImage *)ImageWidget);
 	gtk_image_set_from_file((GtkImage *)ImageWidget, CurrentFileSpec);
+
 	RestartPlayer = RestartPlayerValue;
 	sprintf(PlayerString, "load \"%s\"\n", FileName);
 
