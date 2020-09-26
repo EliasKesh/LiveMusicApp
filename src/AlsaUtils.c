@@ -921,7 +921,7 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 		// Right 97-104
 				case 97:
-				printf("In Dist Guitarix\n");
+				printd(LogMidi, "In Dist Guitarix\n");
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 			         GuitarixPort,
 			         1,
@@ -977,6 +977,14 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 	
 		// Stop 24-31 Moment 127->0
 				case 24:
+				// Dist
+				printd(LogMidi, "In Dist Toggle\n");
+				SendMidi(SND_SEQ_EVENT_CONTROLLER,
+			         GuitarixPort,
+			         1,
+			         40,
+			         120);
+
 				break;
 
 				case 25:
@@ -1002,6 +1010,14 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 	
 		// Custom 40-47 Moment 127->0
 				case 40:
+				// Dist
+				printd(LogMidi, "In Wah Toggle\n");
+				SendMidi(SND_SEQ_EVENT_CONTROLLER,
+			         GuitarixPort,
+			         1,
+			         41,
+			         120);
+
 				break;
 
 				case 41:
@@ -1028,10 +1044,11 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 		// Play 105, Stop 106, Rec 107
 				case 105:
 				if (event_ptr->data.control.value)
-					plPausePlay();
+					plPlay();
 				break;
 	
 				case 106:
+					plStop();
 				break;
 	
 				case 107:

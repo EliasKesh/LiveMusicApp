@@ -413,7 +413,7 @@ void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
 }
 
 unsigned int CurTapTempo;
-struct timeval Time0;
+struct timeval Time0; 
 /*--------------------------------------------------------------------
  * Function:		Tap Tempo
  *
@@ -421,37 +421,57 @@ struct timeval Time0;
  *
  *---------------------------------------------------------------------*/
 gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-	char String[20];
-	struct timeval Time1;
-	double elapsedTime;
+char String[20];
+struct timeval Time1;
+long long elapsedTime;
+int 	ReturnVal;
 
-	if (event->button.state & GDK_CONTROL_MASK) {
-	}
+	ReturnVal = clock_gettime(CLOCK_REALTIME, &Time1);
 
+#if 0
+	long NowTime,OldTime;
 	// Get the new time
-	gettimeofday(&Time1, NULL);
+	// ReturnVal = clock_getres(CLOCK_REALTIME, &Time1);
+	// printf("TimeRes %ld %ld %d\n", Time1.tv_sec,Time1.tv_usec, ReturnVal);
 
-	// Subtract the old time.
-	elapsedTime = (Time1.tv_sec - Time0.tv_sec) * 1000.0;      // sec to ms
-	elapsedTime += (Time1.tv_usec - Time0.tv_usec) / 1000.0;   // us to ms
+	NowTime = (long) ( ( ((long)(Time1.tv_sec)*1000000) + ((long)(Time1.tv_usec)/1000)))  ;
+	printf("Now %18ld \n", NowTime);
+	OldTime = (long) ( ( ((long)(Time0.tv_sec)*1000000) + ((long)(Time0.tv_usec)/1000)))  ;
+	printf("Old %18ld \n", OldTime);
+	printf("Dif %18ld  %d \n", NowTime - OldTime,60000000/(NowTime - OldTime) );
+	printf("msec %18ld %18ld \n", (Time1.tv_sec-Time0.tv_sec), Time1.tv_usec - Time0.tv_usec);
 
-	// Calculate BPM
-	if (elapsedTime != 0 && CurTapTempo < 250)
-		CurTapTempo = (.35 * CurTapTempo) + (.65 * (60 * 1000) / elapsedTime);
+	NowTime = Time1.tv_usec - Time0.tv_usec;
+	if (NowTime < 0) {
+		NowTime = ((1000000000 + Time1.tv_usec) - Time0.tv_usec);
+		printf("Neg %ld\n", NowTime);
+	}
 	else
-		CurTapTempo = 100;
+		printf("Nor %ld\n", NowTime);
 
-	// Make this time the old time
+#endif
+	if (Time1.tv_usec-Time0.tv_usec)
+		elapsedTime = (long) (60000000 / ( ((long long)(Time1.tv_sec-Time0.tv_sec)*1000000) + ((long long)(Time1.tv_usec-Time0.tv_usec)/1000)))  ;
+	else
+		elapsedTime = 0;
+
 	Time0 = Time1;
 
-	// Update the button.
-	if (CurTapTempo < 250)
-		sprintf(String, "Tap=%d", CurTapTempo);
-	else
-		sprintf(String, "Tap=??");
+	/* If it's a ctrl click then assign the value.
+	*/
+	if (event->button.state & GDK_CONTROL_MASK) {
+		gMyInfo.Tempo = CurTapTempo;
+		g_idle_add(GTKIdel_cb, theMainWindow);
+		return(CurTapTempo);
+	}
+	
+	// Calculate BPM
+	if (elapsedTime > 0 && elapsedTime < 220) {
+		CurTapTempo = (0.50 * CurTapTempo) + (0.50 * elapsedTime);
+	}
 
+	sprintf(String, "Tap=%d", CurTapTempo);
 	MyImageButtonSetText(&TapTempoButton, String);
-//	webkit_web_view_set_editable(web_view, FALSE);
 
 	/*
 	 * Draw the button
@@ -1317,7 +1337,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 				thePresets->theTempo = Value;
 
 			printd(LogInfo, "Tempo %d\n", Value);
-			SetTempo(Value);
+			gMyInfo.Tempo = Value;
 			sprintf(StatusString, "Tempo %d", Value);
 			UpdateStatus(StatusString);
 		}

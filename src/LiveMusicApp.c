@@ -176,9 +176,9 @@ char *printd(int LogLevel, const char *fmt, ...) {
 	/* Always print LogTest messages.
 	*/
 	if ((RunLogLevel | LogTest) & LogLevel)
-		printf( "L%d %s", LogLevel, p);
+		printf( "L%x %s", LogLevel, p);
 
-	fprintf(LogFile, "L%d %s", LogLevel, p);
+	fprintf(LogFile, "L%x %s", LogLevel, p);
 
 	return NULL;
 }

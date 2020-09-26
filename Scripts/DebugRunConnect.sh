@@ -19,7 +19,7 @@
 pid=`pgrep -i LiveMusicApp`
 if [ -z $pid ]
 then
-./LiveMusicApp -v 0x200 &
+./LiveMusicApp -v 0x140 &
 sleep 3
 fi 
 

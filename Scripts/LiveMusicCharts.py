@@ -18,7 +18,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 from wand.image import Image
 import sys
 from shutil import copyfile
-
+import subprocess
 
 sPresets=[]
 sSetIndex=0
@@ -423,7 +423,8 @@ def LoadVariables(Files):
 
         if (filename.endswith("png")):
  #           print ("png ", filename)
-            if (filename != "background.png"):
+            if (filename != "background.png" and 
+              not filename.endswith(".spec.png")):
               sSrcFile[sSrcIndex]=filename
               sSrcIndex=sSrcIndex+1
 
@@ -437,6 +438,13 @@ def LoadVariables(Files):
 #            print ("pdf ", filename)
             sSrcFile[sSrcIndex]=filename
             sSrcIndex=sSrcIndex+1
+
+        if (filename.endswith("webm")):
+#            print ("pdf ", filename)
+            sSrcFile[sSrcIndex]=filename
+            sSrcIndex=sSrcIndex+1
+
+
 
 # Create the main index html page
 # ------------------------------------------
@@ -761,6 +769,12 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=True):
 #        if filename.endswith('.mp3'):
 #          isMp3Valid(filename)
 
+        if (filename.endswith(".mp3") or
+          filename.endswith(".mp4") or 
+          filename.endswith(".webm") ):
+          if ( not os.path.exists(Root+"/"+filename+".spec.png") ):
+              subprocess.run(["ffmpeg", "-i", Root+"/"+filename, "-lavfi", "showspectrumpic=s=1395x60:mode=combined:color=plasma:scale=5thrt:fscale=log:legend=off", Root+"/"+filename+".spec.png"])
+
 #        Check for an html file
         if filename.endswith('.html') and (FoundHTML == 0):
 #            sys.stdout.write("\n "+Root+" ")
@@ -819,4 +833,5 @@ if (CreateIndexFIle):
 # find ./ -iname \*.gp? -exec mscore3 {} -o {}".mscz" \;
 # # lame --scale 4 BKContigo.mp3 BKContigo1.mp3
 # 
+# ffmpeg -i ahf1_icecold_vid.mp4  -lavfi showspectrumpic=s=800x400:mode=separate spectrogram.png
 # 

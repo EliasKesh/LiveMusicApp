@@ -234,7 +234,32 @@ void MyTimerInit(void) {
 	gMyInfo.TimerCount = 0;
 	gMyInfo.AlsaTimerHandle = 0;
 // ejk segfault 	SetTempo(130);
+	printd(LogTimer, "MyTimerInit\n");
 
+
+	int Ret;
+	timer_t timerid;
+	struct sigevent sig;
+	sig.sigev_notify = SIGEV_THREAD;
+	sig.sigev_notify_function = time_handlerRT;
+	// This get's passed to the handler.
+	sig.sigev_value.sival_int = 20;
+	sig.sigev_value.sival_ptr = &timerid;
+	sig.sigev_notify_attributes = NULL;
+	gMyInfo.TempoTimerID = timerid;
+	/* Let create a timer.
+	*/
+	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
+	printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
+
+	if (Ret != 0) {
+		printd(LogTimer, "timer_settime() failed with %d\n", errno);
+		//delete the timer.
+		timer_delete(timerid);
+		timerid = 0;
+	}
+
+	SetTempo(111);
 }
 
 /*--------------------------------------------------------------------
@@ -243,41 +268,27 @@ void MyTimerInit(void) {
  * 	interrupts to handle double the tempo.
  *
  *---------------------------------------------------------------------*/
-unsigned int OldTempo;
+unsigned int OldTempo = 0;
 void SetTempo(unsigned int NewTempo) {
 	int Ret;
-	pthread_attr_t attr;
-	struct sched_param parm;
-	struct sigevent sig;
-	struct itimerspec in, out;
-	timer_t timerid;
-	long T_High;
-	long L_High;
+	struct itimerspec in;
+
+	printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
 
 	/* If the tempo is not reasonable.
 	*/
 	if (NewTempo <= 30)
 		return;
 
+	/* If the tempo's are the same don't bother.
+	*/
 	if (gMyInfo.Tempo == OldTempo)
 		return;
-
-	timerid = 0;
-	OldTempo = NewTempo;
 
 	/* Set the jack transport for timers.
 	*/
 	com_tempo(NewTempo);
-	gMyInfo.Tempo = NewTempo;
-
-	printd(LogTimer, "***** RT Timer init ****\n");
-	if (gMyInfo.TempoTimerID) {
-		printd(LogTimer, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
-//        memset((void*)&in, 0, sizeof(in));
-//		timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
-		timer_delete(gMyInfo.TempoTimerID);
-		gMyInfo.TempoTimerID = 0;
-	}
+	OldTempo = gMyInfo.Tempo = NewTempo;
 
 #if 0
 	pthread_attr_init( &attr );
@@ -286,38 +297,45 @@ void SetTempo(unsigned int NewTempo) {
 	sig.sigev_notify_attributes = &attr;
 #endif
 
+#if 0
+	/* Delete current timer before creating new one.
+	*/
+	if (gMyInfo.TempoTimerID) {
+		printd(LogTimer, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
+		timer_delete(gMyInfo.TempoTimerID);
+		gMyInfo.TempoTimerID = 0;
+	}
+
+
 	sig.sigev_notify = SIGEV_THREAD;
 	sig.sigev_notify_function = time_handlerRT;
 	// This get's passed to the handler.
 	sig.sigev_value.sival_int = 20;
+	sig.sigev_value.sival_ptr = &timerid;
+	sig.sigev_notify_attributes = NULL;
 
+	/* Let create a timer.
+	*/
 	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
 	printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
-	if (Ret == 0) {
-        memset(&in, 0, sizeof(in));
-		// Can't be zero.
-		in.it_value.tv_sec = 1;
-		in.it_value.tv_nsec = 0;
-		in.it_interval.tv_sec = 0;
+	gMyInfo.TempoTimerID = timerid;
+#endif
+
+	/* Was == 0 but this works much better.
+	*/
+	memset(&in, 0, sizeof(in));
+	// Can't be zero.
+	in.it_value.tv_sec = 1;
+	in.it_value.tv_nsec = 0;
+	in.it_interval.tv_sec = 0;
 
 //		in.it_interval.tv_nsec = 30000000000 / NewTempo;
-		// Double the timer interval.
-		in.it_interval.tv_nsec = 7500000000 / NewTempo;
+	// Double the timer interval.
+	in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
-		//issue the periodic timer request here.
-//		Ret = timer_settime(timerid, 0, &in, &out);
-		Ret = timer_settime(timerid, 0, &in, 0);
-		printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
-		if (Ret != 0) {
-			printd(LogTimer, "timer_settime() failed with %d\n", errno);
-			//delete the timer.
-			timer_delete(timerid);
-			timerid = 0;
-		}
-	} else
-		printd(LogTimer, "timer_create() failed with %d\n", errno);
-
-	gMyInfo.TempoTimerID = timerid;
+	//issue the periodic timer request here.
+	Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, 0);
+	printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 }
 
 /*--------------------------------------------------------------------
@@ -357,7 +375,7 @@ void ToggleTempo(void) {
 	struct timeval Time0;
 
 	// gettimeofday(&Time0, NULL);
-	printd(LogTimer, "%ld:%ld->\n",Time0.tv_sec, Time0.tv_usec);
+	printd(LogTimer, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
 	if (gMyInfo.Tempo != OldTempo) {
 		SetTempo(gMyInfo.Tempo);
 		// Must return or SegFault.
@@ -387,29 +405,29 @@ void ToggleTempo(void) {
 			         DrumMidiChannel, 04, (int) PedalLED4On);
 
 		} else {
-			switch(BeatCount) {
+			switch (BeatCount) {
 			case 2:
 				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-			         1, 100, (int) dLEDBeat2);
+				         1, 100, (int) dLEDBeat2);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-			         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
+				         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
 
-			break;
-			
+				break;
+
 			case 3:
 				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-			         1, 100, (int) dLEDBeat3);
+				         1, 100, (int) dLEDBeat3);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-			         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
-			break;
-			
+				         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
+				break;
+
 			case 4:
 				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-			         1, 100, (int) dLEDBeat4);
+				         1, 100, (int) dLEDBeat4);
 				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-			         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
-			break;
-			
+				         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
+				break;
+
 			}
 			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
 			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);

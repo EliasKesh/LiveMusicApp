@@ -7,7 +7,7 @@
 |
 |	Written By: 	Elias Keshishoglou on Sun Mar 22 14:18:29 PDT 2015
 |
-|	Copyright �: 	2015 Elias Keshishoglou all rights reserved.
+|	Copyright : 	2015 Elias Keshishoglou all rights reserved.
 |
 |	This program is free software; you can redistribute it and/or
 |	modify it under the terms of the GNU General Public License
@@ -98,7 +98,7 @@ GtkWidget *StartSpin, *EndSpin;
 GtkWidget *FineStartSpin, *FineEndSpin;
 GtkWidget *SpeedSpin, *VolumeSpin;
 float TotalLength;
-float CurrentLength;
+float CurrentSongPosition;
 theImageButtons SetA;
 theImageButtons SetB;
 theImageButtons PlayPause;
@@ -335,7 +335,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
 //	   gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
-	gtk_widget_set_margin_bottom(VolumeSpin,15);
+	gtk_widget_set_margin_bottom(VolumeSpin, 15);
 	gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
 	gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
 
@@ -344,9 +344,9 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_scale_set_draw_value((GtkScale *)VolumeSpin, TRUE);
 	gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
 	gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
-	gtk_widget_set_margin_top(VolumeSpin,20);
-	gtk_widget_set_margin_right(VolumeSpin,20);
-	gtk_widget_set_margin_left(VolumeSpin,20);
+	gtk_widget_set_margin_top(VolumeSpin, 20);
+	gtk_widget_set_margin_right(VolumeSpin, 20);
+	gtk_widget_set_margin_left(VolumeSpin, 20);
 
 
 	/*
@@ -527,12 +527,12 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //	gtk_misc_set_padding(ImageWidget, 55,10);
 //	gtk_misc_set_alignment(ImageWidget, 0,0);
 
-	gtk_widget_set_margin_left(ImageWidget,28);
-	gtk_widget_set_margin_right(ImageWidget,28);
-	gtk_widget_set_margin_top(ImageWidget,15);
-	gtk_widget_set_margin_bottom(ImageWidget,15);
-	gtk_widget_set_margin_left(PositionSlider,25);
-	gtk_widget_set_margin_right(PositionSlider,25);
+	gtk_widget_set_margin_left(ImageWidget, 28);
+	gtk_widget_set_margin_right(ImageWidget, 28);
+	gtk_widget_set_margin_top(ImageWidget, 15);
+	gtk_widget_set_margin_bottom(ImageWidget, 15);
+	gtk_widget_set_margin_left(PositionSlider, 25);
+	gtk_widget_set_margin_right(PositionSlider, 25);
 
 //	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, FALSE, 5);
 
@@ -545,7 +545,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_container_add(GTK_CONTAINER(PositionSlicerBox), PositionSlider);
 	// gtk_box_pack_start(GTK_BOX(PositionSlicerBox), ImageWidget, TRUE, FALSE, 5);
 	// gtk_box_pack_start(GTK_BOX(PositionSlicerBox), PositionSlider, TRUE, FALSE,  5);
-	gtk_widget_set_margin_bottom(PositionSlicerBox,30);
+	gtk_widget_set_margin_bottom(PositionSlicerBox, 30);
 
 	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlicerBox);
 
@@ -632,7 +632,7 @@ int ResetPlayer(void) {
 
 //	WeAreLooping = 1;
 	CurrentSpeed = 1.0;
-	CurrentLength = 0.0;
+	CurrentSongPosition = 0.0;
 //	plLoopToggle();
 //	usleep(150);
 	PlayerWrite("set_property stream_pos 0.000\n");
@@ -688,7 +688,7 @@ void SetPlayerFile(char *FileName) {
 	OpenSavedLoopFile(FileName);
 
 	// sprintf(PlayerString,
-	//         "sox \"%s\"  -n spectrogram  -x 1400 -Y 130 -c 1  -r -a -o %s\n",  
+	//         "sox \"%s\"  -n spectrogram  -x 1400 -Y 130 -c 1  -r -a -o %s\n",
 	//         FileName,CurrentFileSpec);
 	// printd(LogPlayer, "%s", PlayerString);
 	// system(PlayerString);
@@ -734,6 +734,8 @@ void OpenSavedLoopFile(char *FileName) {
 		fclose(SavedLoopFD);
 		SavedLoopFD = 0;
 	}
+
+	memset(mySavedLoops, 0, sizeof(mySavedLoops));
 
 	NumSavedLoops = 0;
 	/*
@@ -954,7 +956,7 @@ void PlayerPoll(char How) {
 				Found += 18;
 				Current = Found;
 				FValue = atof(Found);
-				CurrentLength = FValue;
+				CurrentSongPosition = FValue;
 				PlayerAsk--;
 				printd(LogPlayer, "Mpl Time %f - %s\n", FValue, Found );
 
@@ -1006,7 +1008,7 @@ void PlayerPoll(char How) {
 				/* Set the Global.
 				*/
 #if 1
-				if ((TotalLength > 0) && (CurrentLength + 0.5 >= TotalLength))  {
+				if ((TotalLength > 0) && (CurrentSongPosition + 0.5 >= TotalLength))  {
 					printd(LogPlayer, "Player Stopping\n");
 					plSetPosition(0.0);
 				}
@@ -1041,7 +1043,10 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 	float NewValue;
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
-	printd(LogPlayer, "PositionSlider_Changed %f %f\n", NewValue, CurrentLength);
+	printd(LogPlayer, "PositionSlider_Changed %f %f\n", NewValue, CurrentSongPosition);
+	/* If we change the current position while stopped.
+	*/
+	CurrentSongPosition = NewValue;
 	plSetPosition(gtk_adjustment_get_value(PositionAdjustment));
 }
 
@@ -1064,7 +1069,7 @@ void SetASlider_Changed(GtkAdjustment *adj) {
  *---------------------------------------------------------------------*/
 void SetBSlider_Changed(GtkAdjustment *adj) {
 	float NewValue;
-	
+
 	NewValue = gtk_adjustment_get_value(EndAdjustment);
 	printd(LogPlayer, "SetBSlider_Changed\n");
 }
@@ -1177,7 +1182,7 @@ gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
 
 	CurrentSpeed = 1.0;
 	PlayerWrite("speed_set 1.0\n");
-//	gtk_adjustment_set_value(FineEndAdjustment, CurrentLength - gtk_adjustment_get_value(FineStartAdjustment));
+//	gtk_adjustment_set_value(FineEndAdjustment, CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
 
 	return TRUE; /* stop event propagation */
 }
@@ -1472,13 +1477,13 @@ int StartPlayer(void) {
 		OutPipe = NULL;
 	}
 #endif
-/*
---idle Keeps mplayer from quitting
---quiet prevents console output
---nocache used for seeking
---hr-mp3-seek Helps with exact position for seek 
-for stereo use two output system:playback_(21|22)
-*/
+	/*
+	--idle Keeps mplayer from quitting
+	--quiet prevents console output
+	--nocache used for seeking
+	--hr-mp3-seek Helps with exact position for seek
+	for stereo use two output system:playback_(21|22)
+	*/
 
 	if (WeAreLooping) {
 		sprintf(PlayerString,
@@ -1496,7 +1501,7 @@ for stereo use two output system:playback_(21|22)
 	} else {
 		sprintf(PlayerString,
 		        "mplayer -nocache -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -ss %f -volume %f -speed %0.2f -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
-		        CurrentLength,
+		        CurrentSongPosition,
 		        gtk_adjustment_get_value(VolumeAdjustment),
 		        CurrentSpeed, CurrentFile);
 		printd(LogPlayer, "calling %s\n", PlayerString);
@@ -1568,7 +1573,7 @@ gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event,
 void plSetA(void) {
 	gtk_adjustment_set_value(StartAdjustment, 0.0);
 //	gtk_adjustment_set_value(FineStartAdjustment, 0.0);
-	gtk_adjustment_set_value(FineStartAdjustment, CurrentLength);
+	gtk_adjustment_set_value(FineStartAdjustment, CurrentSongPosition);
 	printd(LogPlayer, "plSetA\n");
 }
 
@@ -1581,7 +1586,7 @@ void plSetB(void) {
 	gtk_adjustment_set_value(EndAdjustment, 0.0);
 //	gtk_adjustment_set_value(FineEndAdjustment, 0.0);
 	gtk_adjustment_set_value(FineEndAdjustment,
-	                         CurrentLength - gtk_adjustment_get_value(FineStartAdjustment));
+	                         CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
 	printd(LogPlayer, "plSetB\n");
 }
 
@@ -1604,7 +1609,7 @@ void plLoopToggle(void) {
 		                          LoopButton.ButtonUpImage);
 		WeAreLooping = 0;
 
-		/* If we turn off loops and not playing then 
+		/* If we turn off loops and not playing then
 		don't start.
 		*/
 		if (InPlayingState)
@@ -1695,7 +1700,7 @@ void plNextSeg(void) {
 void plPrevSeg(void) {
 	gtk_adjustment_set_value(FineStartAdjustment,
 	                         gtk_adjustment_get_value(FineStartAdjustment)
-	                         - gtk_adjustment_get_value(FineEndAdjustment));	
+	                         - gtk_adjustment_get_value(FineEndAdjustment));
 
 	printd(LogPlayer, "plPrevSeg\n");
 	if (WeAreLooping)
