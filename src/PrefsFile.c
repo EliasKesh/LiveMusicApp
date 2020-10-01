@@ -40,6 +40,9 @@
 
 int TopLevelParse;
 
+// Use relative index not from the XML file.
+#define DontIndexFromXML 1
+
 typedef struct {
 	char Valid;
 	char name[250];
@@ -97,8 +100,8 @@ InitPref (void) {
 	/* Set up the not Found String.
 	*/
 	strcpy(
-		gMyInfo.MyPatchInfo[Patch_Not_Found].Name,
-		"NotFound");
+	    gMyInfo.MyPatchInfo[Patch_Not_Found].Name,
+	    "NotFound");
 #endif
 
 //	PrintDataStructure(&gMyInfo, DefinePrefsFile);
@@ -204,7 +207,7 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 //			if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
 //				strcpy(SFName, SoundFontBankNames[myInfo->MyPatchInfo[Loop].BankSelect]);
 //			else
-				strcpy(SFName, "NoBank");
+			strcpy(SFName, "NoBank");
 		} else if (myInfo->MyPatchInfo[Loop].BankSelect <= MaxSoundFonts)
 			sprintf(SFName, "0x%02x", myInfo->MyPatchInfo[Loop].BankSelect);
 		else
@@ -231,7 +234,7 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 			         padding,
 			         SFName,
 			         myInfo->MyPatchInfo[Loop].Patch,
-			        gMyInfo.OutPortName[myInfo->MyPatchInfo[Loop].OutPort],
+			         gMyInfo.OutPortName[myInfo->MyPatchInfo[Loop].OutPort],
 //			         CustomPorts[myInfo->MyPatchInfo[Loop].OutPort],
 			         myInfo->MyPatchInfo[Loop].Channel,
 			         CustomCommands[myInfo->MyPatchInfo[Loop].CustomCommand],
@@ -559,7 +562,7 @@ void WritePrefs (void) {
 
 		xmlSetProp (node1, "LayoutName", gMyInfo.LayoutPresets[Loop].Name);
 
-		for (PatchLoop = 0; PatchLoop < Max_Patches; PatchLoop++) {
+		for (PatchLoop = 0; PatchLoop < MaxLayoutPatches; PatchLoop++) {
 			sprintf (buff, "Patch%03d", PatchLoop);
 			node2 = xmlNewChild (node1, NULL, buff, NULL);
 			xmlSetProp (node2, "PatchName",
@@ -582,6 +585,8 @@ void WritePrefs (void) {
 		PrintDataStructure(&gMyInfo, DefinePrefsFile);
 }
 
+int LayoutPatchIndex;
+int MainPatchIndex;
 
 /*--------------------------------------------------------------------
  * Function:		LoadXMLPair
@@ -607,25 +612,23 @@ void LoadXMLPair(ParseData *theData) {
 	if (!strcmp ("MainButtons", name) && theData[2].name[0]) {
 		sscanf (theData[2].name, "Preset%03d", &HoldIndex);
 
-		if (!strcmp ("Name", theData[3].name))
+		if (!strcmp ("Name", theData[3].name)) {
+#if DontIndexFromXML
+			HoldIndex = MainPatchIndex;
+			MainPatchIndex++;
+#endif
 			strcpy (gMyInfo.MyPatchInfo[HoldIndex].Name, theData[3].value);
-		else
-		if (!strcmp ("Channel", theData[3].name))
+		} else if (!strcmp ("Channel", theData[3].name))
 			gMyInfo.MyPatchInfo[HoldIndex].Channel = atoi (theData[3].value);
-		else
-		if (!strcmp ("Controller", theData[3].name))
+		else if (!strcmp ("Controller", theData[3].name))
 			gMyInfo.MyPatchInfo[HoldIndex].BankSelect = atoi (theData[3].value);
-		else
-		if (!strcmp ("OutPort", theData[3].name))
+		else if (!strcmp ("OutPort", theData[3].name))
 			gMyInfo.MyPatchInfo[HoldIndex].OutPort = atoi (theData[3].value);
-		else
-		if (!strcmp ("Patch", theData[3].name))
+		else if (!strcmp ("Patch", theData[3].name))
 			gMyInfo.MyPatchInfo[HoldIndex].Patch = atoi (theData[3].value);
-		else
-		if (!strcmp ("Custom", theData[3].name))
+		else if (!strcmp ("Custom", theData[3].name))
 			gMyInfo.MyPatchInfo[HoldIndex].CustomCommand = atoi (theData[3].value);
-		else
-		if (!strcmp ("Chain", theData[3].name)) {
+		else if (!strcmp ("Chain", theData[3].name)) {
 
 			if (theData[3].value[0] == 0)
 				strcpy (gMyInfo.MyPatchInfo[HoldIndex].Chain, "None");
@@ -683,8 +686,7 @@ void LoadXMLPair(ParseData *theData) {
 
 		if (!strcmp ("Name", theData[3].name))
 			strcpy (gMyInfo.Apps[HoldIndex].Name, theData[3].value);
-		else
-		if (!strcmp ("PortID", theData[3].name)) {
+		else if (!strcmp ("PortID", theData[3].name)) {
 			gMyInfo.Apps[HoldIndex].PortID = atoi (theData[3].value);
 
 			printd (LogDebug, "dTopLevelAppName %d %s %d\n",
@@ -701,8 +703,7 @@ void LoadXMLPair(ParseData *theData) {
 
 		if (!strcmp ("Name", theData[3].name))
 			strcpy (gMyInfo.ControlRoute[HoldIndex].OutPort, theData[3].value);
-		else
-		if (!strcmp ("PortID", theData[3].name)) {
+		else if (!strcmp ("PortID", theData[3].name)) {
 			gMyInfo.ControlRoute[HoldIndex].OutControl = atoi (theData[3].value);
 
 			printd (LogDebug, "dTopLevelControllerMap %d %s %s\n",
@@ -744,21 +745,39 @@ void LoadXMLPair(ParseData *theData) {
 		if (!strcmp ("LayoutName", theData[3].name)) {
 			strcpy (gMyInfo.LayoutPresets[HoldIndex].Name, theData[3].value);
 			theData[3].value[0] = 0;
-		}
-		else
-		if (!strcmp ("PatchName", theData[4].name) && theData[2].name[0]) {
+			LayoutPatchIndex = 0;
+		} else if (!strcmp ("PatchName", theData[4].name) && theData[2].name[0]) {
 			sscanf (theData[3].name, "Patch%03d", &ParseCountL2);
-			strcpy (gMyInfo.
-			        LayoutPresets[HoldIndex].Presets[ParseCountL2],
-			        theData[4].value);
-			theData[4].value[0] = 0;
 
-			if (gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2][0] != 0)
-				printd (LogInfo, "dTopLevelLayouts %d %d [%s] [%s]\n",
-				        HoldIndex, ParseCountL2,
-				        gMyInfo.LayoutPresets[HoldIndex].Name,
-				        gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2]
-				       );
+#if DontIndexFromXML
+// printf("LayoutIndex %d %d %d\n",ParseCountL2,LayoutPatchIndex/2,LayoutPatchIndex);
+// printf("LayoutIndex2 %s %s\n",theData[2].name,theData[2].value);
+// printf("LayoutIndex3 %s %s\n",theData[3].name,theData[3].value);
+// printf("LayoutIndex4 %s %s\n",theData[4].name,theData[4].value);
+
+			ParseCountL2 = LayoutPatchIndex / 2;
+			LayoutPatchIndex++;
+#endif
+
+			if (theData[4].value[0] != 0) {
+				/* Check for valid Range.
+				*/
+				if (ParseCountL2 >= MaxLayoutPatches)
+					ParseCountL2 = MaxLayoutPatches - 1;
+
+				strcpy (gMyInfo.
+				        LayoutPresets[HoldIndex].Presets[ParseCountL2],
+				        theData[4].value);
+
+				theData[4].value[0] = 0;
+
+				if (gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2][0] != 0)
+					printd (LogInfo, "dTopLevelLayouts %d %d [%s] [%s]\n",
+					        HoldIndex, ParseCountL2,
+					        gMyInfo.LayoutPresets[HoldIndex].Name,
+					        gMyInfo.LayoutPresets[HoldIndex].Presets[ParseCountL2]
+					       );
+			}
 		}
 	}
 
@@ -909,11 +928,11 @@ streamFile(const char *filename) {
 	reader = xmlReaderForFile(filename, NULL,
 	                          XML_PARSE_DTDATTR |  /* default DTD attributes */
 	                          XML_PARSE_NOENT |    /* substitute entities */
-							XML_PARSE_NOWARNING |
-							XML_PARSE_PEDANTIC |
-							XML_PARSE_NOERROR
-	                         // XML_PARSE_DTDVALID /* validate with the DTD */
-							);
+	                          XML_PARSE_NOWARNING |
+	                          XML_PARSE_PEDANTIC |
+	                          XML_PARSE_NOERROR
+	                          // XML_PARSE_DTDVALID /* validate with the DTD */
+	                         );
 
 	if (reader != NULL) {
 		ret = xmlTextReaderRead(reader);
@@ -935,7 +954,7 @@ streamFile(const char *filename) {
 				//printf("StreamFile 30\n");
 				if (theData1.Type < MaxLevels)
 					LoadXMLData(myData);
-	
+
 			}
 #else
 			if (theData1.Level == 2 && theData1.Type == 1) {

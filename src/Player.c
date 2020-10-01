@@ -681,6 +681,8 @@ void SetPlayerFile(char *FileName) {
 //		SaveSongMarkers(CurrentFile);
 	}
 
+	LEDControl(7,1);
+
 	strncpy(CurrentFile, FileName, FileNameMaxLength);
 	strncpy(CurrentFileSpec, FileName, FileNameMaxLength);
 	strcat(CurrentFileSpec, ".spec.png");
@@ -971,6 +973,21 @@ void PlayerPoll(char How) {
 							strcpy(PlayerDisSection, mySavedLoops[Loop].LoopName);
 							PlayerDisTime = mySavedLoops[Loop].Start - FValue;
 
+							if (PlayerDisTime < 10) {
+								if (PlayerDisTime < 1)
+									LEDControl(7,1);
+								else
+								if (PlayerDisTime < 4)
+									LEDControl(8,0);
+								else
+								if (PlayerDisTime < 7)
+									LEDControl(9,0);
+								else
+								if (PlayerDisTime < 10)
+									LEDControl(10,0);
+							
+							}
+
 							if (mySavedLoops[Loop].Position >= 0 )
 								ScrollCtrl(mySavedLoops[Loop].Position);
 
@@ -1041,6 +1058,8 @@ void PlayerPoll(char How) {
  *---------------------------------------------------------------------*/
 void PositionSlider_Changed(GtkAdjustment *adj) {
 	float NewValue;
+
+	LEDControl(7,1);
 
 	NewValue = gtk_adjustment_get_value(PositionAdjustment);
 	printd(LogPlayer, "PositionSlider_Changed %f %f\n", NewValue, CurrentSongPosition);

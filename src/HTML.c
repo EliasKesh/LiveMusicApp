@@ -65,6 +65,10 @@ int ScalePage(void);
 tPatchIndex AssignPreset(int PresetNum, char *String);
 void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value);
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static void
+scroll_js_finished_cb (GObject      *object,
+                       GAsyncResult *result,
+                       gpointer      user_data);
 
 /*
  * Place Static variables here
@@ -125,7 +129,7 @@ char SavePresetChanges(char *FileName) {
 
 	if (!InFile || !OutFile) {
 		printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
-		return;
+		return(1);
 	}
 
 	/* Read the infile line by line and replace the meta
@@ -199,6 +203,8 @@ char SavePresetChanges(char *FileName) {
 
 	// Rename the temp file back to the main file.
 	rename(FileLine, FileName);
+
+	return(0);
 }
 
 
@@ -287,6 +293,21 @@ web_view_javascript_finished (GObject      *object,
 	webkit_javascript_result_unref (js_result);
 }
 
+static void
+scroll_js_finished_cb (GObject      *object,
+                       GAsyncResult *result,
+                       gpointer      user_data) {
+  WebKitJavascriptResult *js_result;
+  GError *error = NULL;
+
+  js_result = webkit_web_view_run_javascript_finish (WEBKIT_WEB_VIEW (object), result, &error);
+  if (error != NULL) {
+    g_print ("Error running scroll script: %s", error->message);
+    g_error_free (error);
+    return;
+	}
+} 
+
 /*--------------------------------------------------------------------
  * Function:		ScrollCtrl
  *
@@ -299,15 +320,14 @@ int ScrollCtrl(float Amount) {
 	gdouble Value;
 	char Script[500];
 
-
 	ScrollPosition = ScrollGetPosition();
 
 	if (Amount == ScrollPgDn) {
-		ScrollPosition += 300;
+		ScrollPosition += 200;
 	}
 
 	if (Amount == ScrollPgUp) {
-		ScrollPosition -= 300;
+		ScrollPosition -= 200;
 	}
 
 	if (Amount == ScrollEnd) {
@@ -333,11 +353,12 @@ int ScrollCtrl(float Amount) {
 		ScrollPosition = 0;
 
 //	sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
-	sprintf(Script, "window.scrollTo(%d,%d); \n", ScrollPosition, ScrollPosition);
+	printf("Scroll Control %f %d\n", Amount, ScrollPosition);
+	sprintf(Script, "window.scrollTo(%d,%d);", 0, ScrollPosition);
 	webkit_web_view_run_javascript (web_view,
 	                                Script,
 	                                NULL,
-	                                NULL,
+	                                scroll_js_finished_cb,
 	                                NULL);
 	return (0);
 
@@ -450,6 +471,7 @@ int 	ReturnVal;
 		printf("Nor %ld\n", NowTime);
 
 #endif
+
 	if (Time1.tv_usec-Time0.tv_usec)
 		elapsedTime = (long) (60000000 / ( ((long long)(Time1.tv_sec-Time0.tv_sec)*1000000) + ((long long)(Time1.tv_usec-Time0.tv_usec)/1000)))  ;
 	else
@@ -459,12 +481,13 @@ int 	ReturnVal;
 
 	/* If it's a ctrl click then assign the value.
 	*/
-	if (event->button.state & GDK_CONTROL_MASK) {
+	if ((event->button.state & GDK_CONTROL_MASK) ||
+	(event->button.button == 3)) {
 		gMyInfo.Tempo = CurTapTempo;
 		g_idle_add(GTKIdel_cb, theMainWindow);
 		return(CurTapTempo);
 	}
-	
+
 	// Calculate BPM
 	if (elapsedTime > 0 && elapsedTime < 220) {
 		CurTapTempo = (0.50 * CurTapTempo) + (0.50 * elapsedTime);
@@ -640,6 +663,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	gchar *CurrentURI;
 	char *Pointer;
 	int   Loop;
+	char  FileName[200];
 
 	/* Get the URL that was selected.
 	*/
@@ -661,6 +685,7 @@ void PageLoaded (WebKitWebView  *web_view,
 	strcpy(BasePathName, CurrentURI);
 	for (Loop = strlen(BasePathName); Loop >= 0; Loop--)
 		if (BasePathName[Loop] == '/') {
+			strcpy(FileName, &BasePathName[Loop + 1]);
 			BasePathName[Loop + 1] = 0;
 			Loop = -1;
 		}
@@ -669,6 +694,13 @@ void PageLoaded (WebKitWebView  *web_view,
 //	printd(LogDebug, "Base Name %s \n", BasePathName);
 #endif
 	printd(LogDebug, "After Basename %s \n", BasePathName);
+
+#if 0
+	if (strcmp("index.html", FileName ) ) {
+		printf("match Basename1 %s \n", FileName);
+//		UpdateStatus(FileName);
+	}
+#endif
 
 	/* Keep a record
 	*/
@@ -691,6 +723,8 @@ void PageLoaded (WebKitWebView  *web_view,
 	}
 	else if (strstr(CurrentURI, ".mp3")) {
 		printd(LogDebug, "*** MP3 file.\n");
+//		UpdateStatus(FileName);
+
 		return;
 	} else {
 		printd(LogDebug, "Not HTML File\n");
@@ -749,7 +783,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	int 	SysRet;
 	char *PageIndex;
 	int	PageNumber;
-
+	char *FileName;
 
 	if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE)
 		return FALSE;
@@ -771,6 +805,12 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	theOrgURI = requestURI;
 	DecodeURI(theOrgURI, theURI);
 	printd(LogDebug, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
+
+	for (Loop = strlen(requestURI); Loop >= 0; Loop--)
+		if (requestURI[Loop] == '/') {
+			FileName = &requestURI[Loop + 1];
+			Loop = -1;
+		}
 
 
 	/* get the extension of the file.
@@ -798,6 +838,10 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
+		printf("*** MP3 file. %s\n", FileName);
+
+		UpdateStatus(FileName);
+
 		/*
 		 * This tells webkit we are dealing with it.
 		 */

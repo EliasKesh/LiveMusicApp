@@ -393,47 +393,8 @@ void ToggleTempo(void) {
 		if (++BeatCount > gMyInfo.BeatsPerMeasure) {
 			BeatCount = 1;
 			TempoState = 0;
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
-
-			SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-			         1, 100, (int) dLEDBeat1);
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-			         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 1 );
-
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED4On);
-
-		} else {
-			switch (BeatCount) {
-			case 2:
-				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-				         1, 100, (int) dLEDBeat2);
-				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-				         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
-
-				break;
-
-			case 3:
-				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-				         1, 100, (int) dLEDBeat3);
-				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-				         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
-				break;
-
-			case 4:
-				SendMidi(SND_SEQ_EVENT_NOTEON, DAWPort,
-				         1, 100, (int) dLEDBeat4);
-				SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-				         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
-				break;
-
-			}
-			SendMidi(SND_SEQ_EVENT_NOTEON, PedalPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-			         DrumMidiChannel, 04, (int) PedalLED3On );
 		}
+		LEDControl(BeatCount, 1);
 
 		/* Handle any recording for the looper.
 		*/

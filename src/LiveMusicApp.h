@@ -81,11 +81,11 @@ enum {
 	ClickPort,
 	PedalPort,
 	DAWPort,
-	InternalPort,
 	User1,
 	User2,
 	User3,
-	MaxOutPorts
+	MaxOutPorts,
+	InternalPort
 };
 #endif
 
@@ -155,7 +155,11 @@ typedef struct {
 } SongInfo;
 
 #define Max_Main_Buttons 80
+
+// Presets that are set by html.
 #define MaxPresetButtons 6
+
+// Total usable patches.
 #define Max_Patches	 182
 #define Patch_Not_Found (Max_Patches + 1)
 #define Preset1Patch (Max_Patches + 2)
@@ -165,8 +169,14 @@ typedef struct {
 #define Preset5Patch (Max_Patches + 6)
 #define Preset6Patch (Max_Patches + 7)
 #define Max_Patches_W_Presets Preset6Patch
+
+// Total number of Layouts
 #define Max_Layouts	 10
 #define FileNameMaxLength	250
+
+// Total number of patches per layout
+#define MaxLayoutPatches 81
+
 
 typedef struct {
 	char Name[PatchNameSize];
@@ -430,6 +440,7 @@ enum { cntStateWaitingIdle = 0,
      };
 
 
+#if 0
 // Default Settings for Akai LPD8
 enum {
 	dLEDBeat1 = 36,
@@ -437,6 +448,25 @@ enum {
 	dLEDBeat3,
 	dLEDBeat4
 };
+#define dLEDMIDI	SND_SEQ_EVENT_NOTEOFF
+#define dLEDMIDIO	SND_SEQ_EVENT_NOTEON
+#define dLEDChan 1
+#else
+// Default Settings for kayfadr
+enum {
+	dLEDBeat1 = 8,
+	dLEDBeat2,
+	dLEDBeat3,
+	dLEDBeat4,
+	dLEDBeat5,
+	dLEDBeat6,
+	dLEDBeat7,
+	dLEDBeat8
+};
+#define dLEDMIDI	SND_SEQ_EVENT_CONTROLLER
+#define dLEDMIDIO	SND_SEQ_EVENT_CONTROLLER
+#define dLEDChan 2
+#endif
 
 enum {
 	PedalLEDAllOn = 0,
@@ -604,5 +634,5 @@ enum {FileLocConfig = 0, FileLocTunes, FileLocUser };
 char *GetResourceDir(char *FileName, char WhichLoc);
 int SetExpressionControl(int Controller, int Value);
 int GetExpressionControl(int Controller);
-
+void LEDControl(char Beat, char State);
 #endif

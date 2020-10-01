@@ -800,12 +800,12 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 		       event_ptr->data.note.velocity);
 			break;
 		case SND_SEQ_EVENT_NOTEON:
-		// N: 48,36,24
+		// N: 72, *48,36,24
 			sprintf(msg_str_ptr, "SND_SEQ_EVENT_NOTEON %d %d\n",event_ptr->data.note.note,
 		       event_ptr->data.note.velocity);
 
-			if (event_ptr->data.note.note >= 71) {
-				PatchValue = event_ptr->data.note.note - 71;
+			if (event_ptr->data.note.note >= 47) {
+				PatchValue = event_ptr->data.note.note - 47;
 				gMyInfo.PatchUpdate = PatchValue;
 			}
 			break;

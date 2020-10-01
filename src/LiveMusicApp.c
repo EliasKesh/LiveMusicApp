@@ -60,7 +60,8 @@ include file.
 
 /* Max number of history messages.
 */
-#define MaxStatusHold 8
+#define MaxStatusHold 12
+#define MaxUpdateLength 50
 #define CSSFileName GetResourceDir("LiveMusicApp.css",FileLocConfig)
 #define HistoryFileName	"/LiveMusicHistory.txt"
 
@@ -107,7 +108,7 @@ int RunLogLevel;
 
 /* Array to hold the recent status messages.
 */
-char HoldStatus[MaxStatusHold][50];
+char HoldStatus[MaxStatusHold][MaxUpdateLength];
 int HoldStatusIndex;
 
 /* Boolean, send internal metronome to midi.
@@ -1175,15 +1176,6 @@ int GTKIdel_cb(gpointer data) {
 		MyOSCPoll(FALSE);
 //		HIDPoll();
 
-		// LPD8 Lights
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
-		         1, 00, (int) dLEDBeat1);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
-		         1, 00, (int) dLEDBeat2);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
-		         1, 00, (int) dLEDBeat3);
-		SendMidi(SND_SEQ_EVENT_NOTEOFF, DAWPort,
-		         1, 00, (int) dLEDBeat4);
 
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
 		         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 0 );
@@ -1342,9 +1334,8 @@ void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 
 	// Put Dialog here.
 	if (event->button.state & GDK_CONTROL_MASK) {
-		printf("CTRL and Tempo\n");
-//		SetTempo(132);
-		gMyInfo.Tempo = 132;
+		printd(LogInfo, "CTRL and Tempo\n");
+//		gMyInfo.Tempo = 132;
 	}
 
 	if (gMyInfo.MetronomeOn) {
@@ -1485,19 +1476,26 @@ void parse_cmdline(int argc, char *argv[]) {
  *---------------------------------------------------------------------*/
 void UpdateStatus(char *String) {
 	GtkStyle *hold;
-	char DisString[500];
+	char DisString[MaxStatusHold * (MaxUpdateLength + 20)];
+//	char DisString[1500];
 	int Loop;
 	int StringOff = 0;
 
+	/* Check for string length
+	*/
+	if (strlen(String) > 11)
+		String[11] = 0;
+
+	/* Move everything up to add new entry on the bottom.
+	*/
 	for (Loop = 0; Loop < MaxStatusHold - 1; Loop++) {
 		strcpy(HoldStatus[Loop], HoldStatus[Loop + 1]);
-//	printd(LogDebug,"String off %d %s\n", StringOff, HoldStatus[Loop]);
 		StringOff += sprintf((DisString + StringOff),
 		                     "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
 		                     gMyInfo.StatusTextColor,
 		                     (char*) &HoldStatus[Loop]);
-
 	}
+
 	strcpy(HoldStatus[MaxStatusHold - 1], String);
 	sprintf((DisString + StringOff),
 	        "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
@@ -1769,7 +1767,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	/* Set the number of decimal places to which adj->value is rounded */
 	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
 	NewValue = gtk_adjustment_get_value(Adjustment3);
-//	printd(LogInfo, "Vscale 3 %d\n", NewValue);
+	printd(LogInfo, "Vscale 3 %d\n", NewValue);
 	ThisPatchNum = gMyInfo.HardSlider[2];
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
@@ -1784,6 +1782,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 		         ThisPatch->Patch,
 		         (char) LogValue * 1.27);
 }
+
 /*--------------------------------------------------------------------
  * Function:		VScale4_Changed
  *
@@ -1800,7 +1799,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
 	NewValue = gtk_adjustment_get_value(Adjustment4);
 	ThisPatchNum = gMyInfo.ExpreP1Slider;
 	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-	printd(LogTest, "Vscale 4 %d P=%d\n",
+	printd(LogInfo, "Vscale 4 %d P=%d\n",
 	       NewValue, ThisPatch->Channel);
 
 //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
@@ -2387,6 +2386,134 @@ int ReturnVal = 0;
 	}
 
 return(ReturnVal);
+}
+
+/*--------------------------------------------------------------------
+ * Function:		LEDControl
+ *
+ * Description:		
+ *
+ *---------------------------------------------------------------------*/
+void LEDControl(char Beat, char State) {
+
+	// DAW Lights Off
+	SendMidi(dLEDMIDI, DAWPort,
+	         dLEDChan, (int) dLEDBeat1, 00);
+	SendMidi(dLEDMIDI, DAWPort,
+	         dLEDChan, (int) dLEDBeat2, 00);
+	SendMidi(dLEDMIDI, DAWPort,
+	         dLEDChan, (int) dLEDBeat3, 00);
+	SendMidi(dLEDMIDI, DAWPort,
+	         dLEDChan, (int) dLEDBeat4, 00);
+
+	switch (Beat) {
+	case 1:
+
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat1, 127);
+
+		// LPD8
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 1 );
+
+		// Click Track
+		if (gMyInfo.MetronomeOn)
+		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+		         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+
+		// Floor Pedal
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED4On);
+
+		break;
+
+	case 2:
+
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat2, 127);
+
+		// LPD8
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
+
+		// Click Track
+		if (gMyInfo.MetronomeOn)
+		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+
+		// Floor Pedal
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3On );
+		break;
+
+	case 3:
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat3, 127);
+
+		// LPD8
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
+
+		// Click Track
+		if (gMyInfo.MetronomeOn)
+		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+
+		// Floor Pedal
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3On );
+		break;
+
+	case 4:
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat4, 127);
+
+		// LPD8
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+		         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
+
+		// Click Track
+		if (gMyInfo.MetronomeOn)
+		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+
+		// Floor Pedal
+		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+		         DrumMidiChannel, 04, (int) PedalLED3On );
+		break;
+
+		case 7:
+		// DAW Lights On
+		SendMidi(dLEDMIDI, DAWPort,
+		         dLEDChan, (int) dLEDBeat6, 0);
+		SendMidi(dLEDMIDI, DAWPort,
+		         dLEDChan, (int) dLEDBeat7, 0);
+		SendMidi(dLEDMIDI, DAWPort,
+		         dLEDChan, (int) dLEDBeat8, 0);
+		break;
+
+		case 8:
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat6, 127);
+		break;
+
+		case 9:
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat7, 127);
+		break;
+
+		case 10:
+		// DAW Lights On
+		SendMidi(dLEDMIDIO, DAWPort,
+		         dLEDChan, (int) dLEDBeat8, 127);
+		break;
+	}
 }
 
 #if 0
