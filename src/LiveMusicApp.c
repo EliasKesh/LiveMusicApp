@@ -392,6 +392,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
 	PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
+	gtk_widget_set_tooltip_text(PlayerCurWid, "Player Countdown to markers.");
 
 	/*
 	 * Clear the Status bar buffer.
@@ -560,6 +561,10 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 * Show the main window and let the show begin.
 	 */
 	gtk_widget_show_all(theMainWindow);
+	MyOSCJackVol(127, 10);
+	MyOSCJackVol(127, 0);
+	MyOSCJackVol(127, 1);
+	MyOSCJackVol(127, 2);
 
 	/*
 	 * And they're off.
@@ -901,7 +906,7 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 	case GDK_KEY_KP_Add:
 		printd(LogDebug, "GDK_KEY_KP_Add\n");
 		SetExpressionControl(VolumeControllerNum,
-			GetExpressionControl(VolumeControllerNum) + 5);
+		                     GetExpressionControl(VolumeControllerNum) + 5);
 		return TRUE;
 		break;
 
@@ -913,7 +918,7 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 	case GDK_KEY_KP_Subtract:
 		printd(LogDebug, "GDK_KEY_KP_Subtract\n");
 		SetExpressionControl(VolumeControllerNum,
-			GetExpressionControl(VolumeControllerNum) - 5);
+		                     GetExpressionControl(VolumeControllerNum) - 5);
 		return TRUE;
 		break;
 
@@ -1012,11 +1017,10 @@ int GTKIdel_cb(gpointer data) {
 	}
 
 	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
-//	printf("GTKIdel_cb %d %d %d\n", IdleCounter, AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
 // gMyInfo.SliderGUIUpdate
 //	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
-	if (gMyInfo.SliderGUINumber) {
+	if (gMyInfo.SliderGUIUpdate) {
 		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
 		switch (gMyInfo.SliderGUINumber) {
 //		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
@@ -1050,7 +1054,7 @@ int GTKIdel_cb(gpointer data) {
 		/* Clear it until next message set
 		*/
 		AlsaEvent.data.control.param = 0;
-		gMyInfo.SliderGUINumber = 0;
+//		gMyInfo.SliderGUINumber = 0;
 		gMyInfo.SliderGUIUpdate = 0;
 	}
 
@@ -1632,6 +1636,7 @@ void CreateMainButtons(void) {
 
 		MyImageButtonInit(&MainButtons[Loop], EventBox, PatchButtonOnImage,
 		                  PatchButtonOffImage);
+		gtk_widget_set_tooltip_text(MainButtons[Loop].EventBox, "CTRL-Click to set button.");
 
 		g_signal_connect(G_OBJECT(EventBox),
 		                 "button-press-event",
@@ -1745,11 +1750,14 @@ void VScale2_Changed(GtkAdjustment *adj) {
 
 	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
 
-	SendMidi(SND_SEQ_EVENT_CONTROLLER,
-	         ThisPatch->OutPort,
-	         ThisPatch->Channel,
-	         ThisPatch->Patch,
-	         (char) LogValue);
+	if (ThisPatch->OutPort == InternalPort)
+		MyOSCJackVol(NewValue, 1);
+	else
+		SendMidi(SND_SEQ_EVENT_CONTROLLER,
+		         ThisPatch->OutPort,
+		         ThisPatch->Channel,
+		         ThisPatch->Patch,
+		         (char) LogValue);
 }
 
 /*--------------------------------------------------------------------
@@ -1774,7 +1782,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
 
 	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(LogValue, 0);
+		MyOSCJackVol(LogValue * 1.27, 0xff);
 	else
 		SendMidi(SND_SEQ_EVENT_CONTROLLER,
 		         ThisPatch->OutPort,
@@ -1844,7 +1852,7 @@ int SetVolume2(int Value) {
 
 	if (Value > 100)
 		Value = 100;
-	
+
 	gtk_adjustment_set_value(Adjustment2, Value);
 	gMyInfo.MidiVolume = (Value * 1.27);
 	gtk_range_set_adjustment(VScale2, Adjustment2);
@@ -1862,7 +1870,7 @@ int SetVolume3(int Value) {
 
 	if (Value > 100)
 		Value = 100;
-	
+
 	gtk_adjustment_set_value(Adjustment3, Value);
 	gMyInfo.V3Volume = Value;
 	gtk_range_set_adjustment(VScale3, Adjustment3);
@@ -1880,7 +1888,7 @@ int SetVolume4(int Value) {
 
 	if (Value > 100)
 		Value = 100;
-	
+
 	gtk_adjustment_set_value(Adjustment4, Value);
 	gMyInfo.V4Volume = Value;
 	gtk_range_set_adjustment(VScale4, Adjustment4);
@@ -2276,7 +2284,8 @@ int CloseHistoryFile(void) {
  *
  *---------------------------------------------------------------------*/
 int SetExpressionControl(int Controller, int Value) {
-int ReturnVal = 0;
+	int ReturnVal = 0;
+	int LogValue = 0;
 
 	if (Value < 0)
 		Value = 0;
@@ -2284,13 +2293,18 @@ int ReturnVal = 0;
 	if (Value > 126 )
 		Value = 127;
 
+	// Convert to Audio (log)-ish
+	LogValue = (int)( pow(Value, 0.6) * 6.35);
+
+
 	switch (Controller) {
 	case ecGuitarVolume:
 		// Guitar Volume
 		ReturnVal = gMyInfo.AnalogVolume;
 		gMyInfo.SliderGUINumber = Slider1;
 		gMyInfo.SliderGUIUpdate = Value;
-//		SetVolume1(Value);
+		gMyInfo.AnalogVolume = Value;
+//		MyOSCJackVol(LogValue, 0);
 		break;
 
 	case ecMidiVolume:
@@ -2338,8 +2352,28 @@ int ReturnVal = 0;
 		ReturnVal = gMyInfo.MidiThresholdLevel;
 		gMyInfo.MidiThresholdLevel = Value;
 		break;
+
+	case ecMidiAnaMix:
+		ReturnVal = gMyInfo.MidiAnalMixLevel;
+		gMyInfo.MidiAnalMixLevel = Value;
+		ReturnVal = gMyInfo.AnalogVolume;
+		ReturnVal = gMyInfo.MidiVolume;
+
+		if (Value > 64) {
+
+
+		} else {
+
+
+		}
+
+
+
+//		SetExpressionControl
+		break;
+
 	}
-return(ReturnVal);
+	return (ReturnVal);
 }
 
 /*--------------------------------------------------------------------
@@ -2349,7 +2383,7 @@ return(ReturnVal);
  *
  *---------------------------------------------------------------------*/
 int GetExpressionControl(int Controller) {
-int ReturnVal = 0;
+	int ReturnVal = 0;
 
 	switch (Controller) {
 	case ecGuitarVolume:
@@ -2385,13 +2419,13 @@ int ReturnVal = 0;
 		break;
 	}
 
-return(ReturnVal);
+	return (ReturnVal);
 }
 
 /*--------------------------------------------------------------------
  * Function:		LEDControl
  *
- * Description:		
+ * Description:
  *
  *---------------------------------------------------------------------*/
 void LEDControl(char Beat, char State) {
@@ -2419,8 +2453,8 @@ void LEDControl(char Beat, char State) {
 
 		// Click Track
 		if (gMyInfo.MetronomeOn)
-		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-		         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
 		// Floor Pedal
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -2440,8 +2474,8 @@ void LEDControl(char Beat, char State) {
 
 		// Click Track
 		if (gMyInfo.MetronomeOn)
-		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
 		// Floor Pedal
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -2459,8 +2493,8 @@ void LEDControl(char Beat, char State) {
 
 		// Click Track
 		if (gMyInfo.MetronomeOn)
-		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
 		// Floor Pedal
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -2478,15 +2512,15 @@ void LEDControl(char Beat, char State) {
 
 		// Click Track
 		if (gMyInfo.MetronomeOn)
-		SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-		         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
 		// Floor Pedal
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
 		         DrumMidiChannel, 04, (int) PedalLED3On );
 		break;
 
-		case 7:
+	case 7:
 		// DAW Lights On
 		SendMidi(dLEDMIDI, DAWPort,
 		         dLEDChan, (int) dLEDBeat6, 0);
@@ -2496,19 +2530,19 @@ void LEDControl(char Beat, char State) {
 		         dLEDChan, (int) dLEDBeat8, 0);
 		break;
 
-		case 8:
+	case 8:
 		// DAW Lights On
 		SendMidi(dLEDMIDIO, DAWPort,
 		         dLEDChan, (int) dLEDBeat6, 127);
 		break;
 
-		case 9:
+	case 9:
 		// DAW Lights On
 		SendMidi(dLEDMIDIO, DAWPort,
 		         dLEDChan, (int) dLEDBeat7, 127);
 		break;
 
-		case 10:
+	case 10:
 		// DAW Lights On
 		SendMidi(dLEDMIDIO, DAWPort,
 		         dLEDChan, (int) dLEDBeat8, 127);
@@ -2654,7 +2688,7 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 		gtk_widget_override_font(widget, pfd);
 	else
 		gtk_widget_override_fo(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
-		                         pfd);
+		                       pfd);
 
 	pango_font_description_free(pfd);
 }

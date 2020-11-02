@@ -38,8 +38,12 @@ if [ "${1}" == "med" ] ; then
 exit 0
 fi 
 
+# https://ftp.osuosl.org/pub/musescore-nightlies/linux/4x/nightly/?C=M;O=D
 if [ "${1}" == "mscz" ] ; then
-    musescore  "${2}" &>/dev/null &
+#    musescore  "${2}" &>/dev/null &
+
+#    /usr/src/LiveMusicBuilds/MuseScoreNightly-202010270447-master-f622c3f-x86_64.appimage "${2}" &>/dev/null &
+    /usr/src/LiveMusicBuilds/MuseScoreNightly-202010010819-master-5e77de6-x86_64.appimage  "${2}" &>/dev/null &
 exit 0
 fi 
 
@@ -73,6 +77,8 @@ if [ "${1}" == "EffectsProcessorApp" ] ; then
     GDK_BACKEND=x11 nice -15 \
     /AppImages/guitarix-0.39-x86_64.AppImage \
     -p 7000 &
+#    guitarix 
+#    /AppImages/guitarix-0.39-x86_64.AppImage \
 
 #    /usr/bin/guitarix \
 #    /AppImages/guitarix-0.39-x86_64.AppImage \

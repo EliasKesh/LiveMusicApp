@@ -186,6 +186,13 @@ char SavePresetChanges(char *FileName) {
 
 		if (strstr(FileLine, "Tempo")) {
 			sprintf(FileLine, "<meta name=\"Tempo\" content=\"%d\" >\n", gMyInfo.Tempo);
+
+				if (gMyInfo.Tempo < 60)
+					gMyInfo.Tempo = 60;
+
+				if (gMyInfo.Tempo > 160)
+					gMyInfo.Tempo = 160;
+
 		}
 
 //		printf("%s", FileLine);
@@ -479,7 +486,8 @@ int 	ReturnVal;
 
 	Time0 = Time1;
 
-	/* If it's a ctrl click then assign the value.
+	/* If it's a ctrl click or 
+	a right lick then assign the value.
 	*/
 	if ((event->button.state & GDK_CONTROL_MASK) ||
 	(event->button.button == 3)) {
@@ -488,9 +496,9 @@ int 	ReturnVal;
 		return(CurTapTempo);
 	}
 
-	// Calculate BPM
+	// Calculate BPM and average with previous value.
 	if (elapsedTime > 0 && elapsedTime < 220) {
-		CurTapTempo = (0.50 * CurTapTempo) + (0.50 * elapsedTime);
+		CurTapTempo = (0.65 * CurTapTempo) + (0.35 * elapsedTime);
 	}
 
 	sprintf(String, "Tap=%d", CurTapTempo);
@@ -876,9 +884,11 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			PageNumber = atoi(PageIndex);
 			sprintf(string, "MusicApps.sh %s \'%s\' %d", ext + 1, &theURI[7], PageNumber);
 		} else
+//			return (false);
 			sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
-	} else
-		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+	} 
+	// else
+	// 	sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
 
 	/* Call the bash app and see if there is a handler for the media-type.
 	*/
@@ -896,7 +906,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		printd(LogInfo, "NavPol return false\n");
 		return (false);
 	}
-#else
+#else // Old Method not using MusicApps.sh
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
 	 * not to deal with it.
 	 */
@@ -1173,6 +1183,8 @@ void InitHTML(GtkBuilder * gxml) {
 		MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
 		                  PatchButtonOffImage);
 		MyImageButtonSetText(&PresetButtons[Loop], Buffer);
+ 		gtk_widget_set_tooltip_text(PresetButtons[Loop].EventBox, 
+ 			"CTRL-Click to set. This will get saved in the song file.");
 
 		g_signal_connect(G_OBJECT(EventBox),
 		                 "button-press-event",
@@ -1230,6 +1242,8 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_TapTempo_clicked), &TapTempoButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &TapTempoButton);
+ 	gtk_widget_set_tooltip_text(TapTempoButton.EventBox, "CTRL-Click or Right-Click to set metronome. The new tempo will be saved in the song file.");
+
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "SaveWeb"));
@@ -1238,6 +1252,7 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_SaveWeb_clicked), &SaveWebButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &SaveWebButton);
+ 	gtk_widget_set_tooltip_text(SaveWebButton.EventBox, "Open HTML editor.");
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "SetList"));
@@ -1246,6 +1261,7 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_SetList_clicked), &SetListButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &SetListButton);
+ 	gtk_widget_set_tooltip_text(SetListButton.EventBox, "With a valid HTML file open this will make it the default setlist allowing the patches to switch between charts.");
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "PlayPause"));

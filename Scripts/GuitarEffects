@@ -214,16 +214,26 @@ function FindDevice {
         AudioInDevice="$Device"
         AudioOutDevice="$Device"
     fi
-    
+
     # If we have the NUX Pocket port
     Device="NUX USB Audio"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
+        echo "We have " $Device" "$USBDevice" "$USBName
+    export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
+    export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
+    export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
+    export USBDeviceNum=`echo "$USBDevice" | grep -Po '(?<=device )\W*\K[^ :]*'`
+        echo "We have 1" $Device" "$USBDevice" "$USBName
+
+        # mplayer crackling at 96K,64,2
+        #AudioSampleRate=48000
         AudioSampleRate=48000
-        # AudioSampleRate=96000
-        JBuffer=128
-        JPeriod=3
+#        JBuffer=128
+        JBuffer=64
+        JPeriod=2
+
         # AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
@@ -231,7 +241,7 @@ function FindDevice {
         amixer -c $USBCardNum sset 'Mic',0 2032
         amixer -c $USBCardNum sset 'NUX USB Audio 2.0 ',0 2032
     fi
-    
+
     # If we are n a Raspberry PI with the PISound card.
     Device="pisound"
     echo $DeviceList | grep "${Device}"
@@ -270,7 +280,7 @@ function FindDevice {
     AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
     export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
     echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
-    
+   
     #   Patchage takes a while to start so kick it off early.
     # Run the patch bay
     echo "***************** Starting Patch Bay"
@@ -322,7 +332,7 @@ function StartJack {
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
-        Delay 2
+        Delay 1
     fi
     # https://wiki.linuxaudio.org/wiki/list_of_jack_frame_period_settings_ideal_for_usb_interface
     #
@@ -330,9 +340,9 @@ function StartJack {
         #       jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p128 -n3 &
         echo "Audio i04, run jack twice"
         jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p64 -n2 &
-        sleep 3
+        sleep 1
         /home/ebin/KillAll jackd
-        sleep 2
+        sleep 1
     fi
     
     # Now start jack.
@@ -359,9 +369,9 @@ function StartJack {
     echo "****************"
     
     # Jack can be a bit slow to come up.
-    Delay 2
+    Delay 1
     echo " About to Start Jack-Volume"
-    nice -18 jack-volume -p 9952 -n 1  >> $LogFile 2>&1 &
+    nice -18 jack-volume -p 9952 -n 3  >> $LogFile 2>&1 &
     
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
@@ -423,7 +433,8 @@ function SetUpConnections {
     # **** Definitions
     # ********************************
     MainOut1="jack-volume:input_1"
-    MainOut2="jack-volume:input_1"
+    MainOut2="jack-volume:input_2"
+    MainOut3="jack-volume:input_3"
     
     PedalBoardName="EliasPedal3"
     KeyBoardMidi="Uno"
@@ -432,6 +443,7 @@ function SetUpConnections {
     # ********************************
     # **** Alsa midi connections
     # ********************************
+    aconnect "TriplePlay Connect":"0" "LiveMusic Input":"0"
     aconnect "Fishman TriplePlay":"0" "LiveMusic Input":"0"
     aconnect "USB Uno MIDI Interface":"0" "LiveMusic Input":"0"
     aconnect "EliasPedal3":"0" "LiveMusic Input":"0"
@@ -443,6 +455,7 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW Input":"0"
+    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0" 
     aconnect "Fishman TriplePlay":0 MusE:0    
  
 
@@ -459,14 +472,18 @@ function SetUpConnections {
     # Connect Jack_Volume to Main
     jack_connect jack-volume:output_1 system:playback_1
     jack_connect jack-volume:output_1 system:playback_2
-    
+    jack_connect jack-volume:output_2 system:playback_1
+    jack_connect jack-volume:output_2 system:playback_2
+    jack_connect jack-volume:output_3 system:playback_1
+    jack_connect jack-volume:output_3 system:playback_2
+
     
     # Guitar in goes to effects Rack
     echo "jack_connect system:capture_1 gx_head_amp:in_1"
     jack_connect system:capture_1 gx_head_amp:in_0
     jack_connect system:capture_2 gx_head_amp:in_0
     
-    echo "Guitatix Audio to Jack Volume"
+    echo "Guitarix Audio to Jack Volume"
     jack_connect gx_head_fx:out_0 $MainOut1
     jack_connect gx_head_fx:out_1 $MainOut1
     jack_disconnect gx_head_fx:out_1 system:playback_1
@@ -477,14 +494,14 @@ function SetUpConnections {
     #   jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
     
     # Connect the Looper to the main outputs
-    jack_connect sooperlooper:common_out_1 $MainOut1
     jack_connect sooperlooper:common_out_1 $MainOut2
-    jack_connect sooperlooper:common_out_2 $MainOut1
+    jack_connect sooperlooper:common_out_1 $MainOut2
+    jack_connect sooperlooper:common_out_2 $MainOut2
     jack_connect sooperlooper:common_out_2 $MainOut2
     
     # Soundfont player get connected to the Main playback device.
-    jack_connect qsynth:left jack-volume:input_1
-    jack_connect qsynth:right jack-volume:input_1
+    jack_connect qsynth:left jack-volume:input_2
+    jack_connect qsynth:right jack-volume:input_2
     jack_disconnect qsynth:left system:playback_1
     jack_disconnect qsynth:right system:playback_2
     
@@ -495,11 +512,11 @@ function SetUpConnections {
     # Drum Machine
     jack_connect Hydrogen:out_L sooperlooper:common_in_1
     jack_connect Hydrogen:out_R sooperlooper:common_in_2
-    jack_connect Hydrogen:out_L $MainOut1
+    jack_connect Hydrogen:out_L $MainOut2
     jack_connect Hydrogen:out_R $MainOut2
     
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut1
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut2
+    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut3
+    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut3
     
     jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
@@ -1108,7 +1125,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
 done
 
 RunCount=`pgrep -c LivrMusicApp `
-if [ RunCount -gt 1 ]; then
+if [[ RunCount -gt 1 ]]; then
     echo "********** Multiple Version running, killing."
     exit 1
 fi
@@ -1118,7 +1135,7 @@ xset s off
 xset -dpms
 qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
-FAHClient --send-pause "LiveMusicApp_Running"
+# FAHClient --send-pause "LiveMusicApp_Running"
 killall receivemidi
 
 # Remove the switches we parsed above.
@@ -1154,9 +1171,11 @@ then
 fi
 
 # Set the definitions for the functions.
+echo "Set Definitions"
 SetDefinitions
 
 # Start up Jack
+echo "Start Jack"
 StartJack
 
 # If at first you don't succeed ....
@@ -1178,7 +1197,7 @@ fi
 
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
-Delay 4
+Delay 3
 
 # -e to enable hardware interfaces as well.
 # a2jmidid -e > $LogFile 2>&1 &

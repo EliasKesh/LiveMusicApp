@@ -209,6 +209,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &SetA);
+ 	gtk_widget_set_tooltip_text(SetA.EventBox, "Start of the loop.");
 
 	/*
 	 * A Set Controls, Large Controls
@@ -241,6 +242,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &SetB);
+ 	gtk_widget_set_tooltip_text(SetB.EventBox, "Hit at the B point of the loop to set the length.");
 
 	/*
 	 * Length Set Controls, Course control
@@ -285,6 +287,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &StopButton);
+ 	gtk_widget_set_tooltip_text(StopButton.EventBox, "Reset Volume, loop, speed and position.");
+
 
 	/*
 	 * Loop on/off
@@ -297,6 +301,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-press-event",
 	                 G_CALLBACK(Loop_click_handler),
 	                 &LoopButton);
+ 	gtk_widget_set_tooltip_text(LoopButton.EventBox, "Toggle looping and playing.");
 
 	/*
 	 * Playback speed control
@@ -325,6 +330,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &SpeedButton);
+ 	gtk_widget_set_tooltip_text(SpeedButton.EventBox, "Reset to normal speed of the file.");
 
 	/*
 	 * Playback volume slider
@@ -364,6 +370,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &PrevSegButton);
+ 	gtk_widget_set_tooltip_text(PrevSegButton.EventBox, "Reset the start point back by the current length.");
 
 	/*
 	 * Loop Segment next
@@ -380,6 +387,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &NextSegButton);
+ 	gtk_widget_set_tooltip_text(NextSegButton.EventBox, "Reset the start point forward by the current length.");
 
 	/*
 	 * Edit an existing saved loop
@@ -396,6 +404,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &EnterSaveLoop);
+ 	gtk_widget_set_tooltip_text(EnterSaveLoop.EventBox, "Reset Start Length for the current loop.");
 
 
 	/*
@@ -413,6 +422,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &NewSaveLoop);
+ 	gtk_widget_set_tooltip_text(NewSaveLoop.EventBox, "Create a named loop to recall later.");
 
 	/*
 	 * Create a new saved loop
@@ -429,6 +439,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	                 "button-release-event",
 	                 G_CALLBACK(normal_release_handler),
 	                 &NewMarker);
+ 	gtk_widget_set_tooltip_text(NewMarker.EventBox, "Create a marker which gets a countdown during playback.");
 
 
 	/*
@@ -443,6 +454,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	g_signal_connect(G_OBJECT(SaveCombo), "changed",
 	                 G_CALLBACK(SaveLoopPopup_cb), (gpointer ) SavedLabel);
 	gtk_widget_set_size_request(SaveCombo, 130, 60);
+ 	gtk_widget_set_tooltip_text(SaveCombo, "Select a saved loop.");
 
 	/*
 	 * Now that everything has been created let's pack them together.
@@ -617,6 +629,11 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
  *
  *---------------------------------------------------------------------*/
 int ResetPlayer(void) {
+
+
+	// Clear the Marker display.
+	PlayerDisSection[0] = 0;
+	PlayerDisTime = 0;
 
 //	system("killall mplayer");
 	printd(LogPlayer, "ResetPlayer\n");
@@ -1507,7 +1524,7 @@ int StartPlayer(void) {
 	if (WeAreLooping) {
 		sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-		        "mplayer -nocache -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null" ,
+		        "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null" ,
 //		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
 		        gtk_adjustment_get_value(FineStartAdjustment),
 		        gtk_adjustment_get_value(FineEndAdjustment),
@@ -1519,7 +1536,7 @@ int StartPlayer(void) {
 
 	} else {
 		sprintf(PlayerString,
-		        "mplayer -nocache -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -ss %f -volume %f -speed %0.2f -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
+		        "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -ss %f -volume %f -speed %0.2f -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
 		        CurrentSongPosition,
 		        gtk_adjustment_get_value(VolumeAdjustment),
 		        CurrentSpeed, CurrentFile);

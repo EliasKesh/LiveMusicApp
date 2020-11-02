@@ -172,7 +172,7 @@ typedef struct {
 
 // Total number of Layouts
 #define Max_Layouts	 10
-#define FileNameMaxLength	250
+#define FileNameMaxLength	400
 
 // Total number of patches per layout
 #define MaxLayoutPatches 81
@@ -201,6 +201,7 @@ enum {
 	ecExpress6,
 	ecPedalControl,
 	ecMidiThreshold,
+	ecMidiAnaMix,
 	exMaxItems
 };
 
@@ -235,7 +236,7 @@ enum {
 typedef struct {
 	// Preferences
 	PatchInfo MyPatchInfo[Max_Patches_W_Presets];
-	char BasePath[255];
+	char BasePath[FileNameMaxLength];
 	char NumOutPorts;
 	char OutPortName[MaxOutPorts][MaxStringPortName];
 	// Mostly moved to bash script.
@@ -281,7 +282,7 @@ typedef struct {
 	HTML page is loaded.
 	*/
 	WebLoadPresets WebPresets;
-	char LoopFileName[100];
+	char LoopFileName[FileNameMaxLength];
 	//	unsigned int	Timer1Count;	/* Not used	*/
 	unsigned long TempoReload;
 	unsigned long TimerCount;
@@ -318,6 +319,7 @@ typedef struct {
 	unsigned int 	GoToDeskSwitch;
 	unsigned int 	IncrementSwitch;
 	unsigned char 	MidiThresholdLevel;
+	unsigned char 	MidiAnalMixLevel;
 	unsigned int 	SetMP3PlayVolBool;
 	unsigned int 	ScrollUpdate;
 	unsigned int    V3Volume;
@@ -355,17 +357,17 @@ enum {
 	TransStart,
 	TransCont,
 	TransStop,
-	TransPosition,
+	TransPosition, // 10
 	TransTempo,
 	cmdPreset,
 	cmdBankSelect,
 	cmdMidiSelect,
-	cmdCountIn,
+	cmdCountIn, // 15
 	cmdVolume,
 	cmdLnTransPort,
 	cmdSetList,
 	cmdScroll,
-	cmdOSC,
+	cmdOSC, // 20
 	cmdSendCC,
 	cmdSetExpr,
 	cmdHardSlider,

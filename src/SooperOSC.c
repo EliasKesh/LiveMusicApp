@@ -300,6 +300,9 @@ void MyOSCClose(void) {
 
 	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
 	lo_address_free (SLOSCaddr);
+	lo_address_free (JackVoladdr);
+	lo_address_free (Hydrogenaddr);
+	
 	lo_server_free (osc_server);
 }
 
@@ -341,7 +344,32 @@ void MyOSCLoadFile(char *FileName) {
  * 		Values 0 - 127
  *---------------------------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
-	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", (float)Volume / 127);
+	float VolumeFloat;
+
+	VolumeFloat = ((float)Volume / 127);
+//	printf("Vol Change %d %f\n", Volume, VolumeFloat);
+
+	switch (channel) {
+	case 0xff:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", VolumeFloat);
+		break;
+
+	case 0:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0", "f", VolumeFloat);
+		break;
+
+	case 1:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1", "f", VolumeFloat);
+		break;
+
+	case 2:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2", "f", VolumeFloat);
+		break;
+
+	case 3:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3", "f", VolumeFloat);
+		break;
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -368,7 +396,9 @@ void MyOSCJackMute(int Mute, int channel) {
 
 
 #if 0
-oscsend localhost 9951 / net / mhcloud / volume / jack - volume / master f  1.0
+oscsend localhost 9952 / net / mhcloud / volume / jack - volume / 0  f 1.0
+
+oscsend localhost 9952 / net / mhcloud / volume / jack - volume / master f  1.0
 
 load_session s
 

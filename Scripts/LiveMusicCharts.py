@@ -69,7 +69,7 @@ def WriteFile(fname, dirname):
 #  theFile.write("{text-align: left; width: 100%; height: 100%;}\n body {\n")
 
 
-  theFile.write("body {\nbackground-image: url(../background.png);\nheight: 100%; }")
+  theFile.write("body {\nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%; }")
   theFile.write("</style>\n</head>\n")
 
 # background-repeat:background-size: 200%;\n\
@@ -440,7 +440,7 @@ def LoadVariables(Files):
             sSrcIndex=sSrcIndex+1
 
         if (filename.endswith("webm")):
-#            print ("pdf ", filename)
+#            print ("webm ", filename)
             sSrcFile[sSrcIndex]=filename
             sSrcIndex=sSrcIndex+1
 
@@ -743,12 +743,14 @@ if (ConvertPDF):
     FoundHTML=0
     ClearVariables()
     for filename in Files:
+
 #        Check for an html file
         if filename.endswith('.html') and not filename.startswith('.'):
 #            sys.stdout.write("\n 1-"+filename+" ")
             FoundHTML=1
 #           walk thru a file and pull out meta data.
             if (ParseFile(filename,Root) == 0):
+#                print("Filename ",filename)
                 ExtractPDF(Files,Root)
 
 

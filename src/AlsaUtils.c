@@ -741,9 +741,12 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		/* Used to update the text.
 		*/
 		gMyInfo.SliderUpdate = gMyInfo.ExpreP1Slider;
-		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+//		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+// Check this.
+		gMyInfo.SliderGUINumber = thePatch->Channel;
 		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 		printd(LogMidi, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
+		printd(LogTest, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
 		break;
 
 // SND_SEQ_EVENT_SETPOS_TIME
