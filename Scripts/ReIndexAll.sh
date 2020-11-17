@@ -39,6 +39,8 @@ LiveMusicCharts.py RG_20NeoSoulFusionLicks -vcfp
 LiveMusicCharts.py RockLicks -vcfp
 LiveMusicCharts.py TomQuayle -vcfp
 LiveMusicCharts.py WestCoastLicks -vcfp
+LiveMusicCharts.py JJ_WarmUpJamtracks -vcfp
+LiveMusicCharts.py ah_sophisticatedblues -vcfp
 
 LiveMusicCharts.py . -i
 
@@ -116,7 +118,7 @@ echo `pwd`
 LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py 50RockLicks -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
-LiveMusicCharts.py MBonus -vcfp
+# LiveMusicCharts.py MBonus -vcfp
 
 cd /home/Music/Learn/
 echo `pwd`
@@ -142,16 +144,7 @@ find ./ -type f -exec chmod 600 {} \;
 cd /home/elias/MySongs/Solo
 LiveMusicCharts.py . -a
 
-cd /home/elias/MySongs/ExtraSongs
-LiveMusicCharts.py . -a
-
-cd /home/elias/MySongs/TOC
-LiveMusicCharts.py . -a
-
-cd /home/elias/MySongs/Tony
-LiveMusicCharts.py . -a
-
-cd /home/elias/MySongs/PoblanoCharts
+cd /home/elias/MySongs/OtherTunes
 LiveMusicCharts.py . -a
 
 cd /home/elias/MySongs/NewScores
@@ -160,5 +153,5 @@ LiveMusicCharts.py . -a
 cd /home/elias/MySongs/FusionBlue
 LiveMusicCharts.py . -a
 
-
+# find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 

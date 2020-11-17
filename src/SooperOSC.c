@@ -302,7 +302,7 @@ void MyOSCClose(void) {
 	lo_address_free (SLOSCaddr);
 	lo_address_free (JackVoladdr);
 	lo_address_free (Hydrogenaddr);
-	
+
 	lo_server_free (osc_server);
 }
 
@@ -390,7 +390,28 @@ void MyOSCJackMute(int Mute, int channel) {
 		         DrumMidiChannel, 04, (int) PedalLED7Off );
 	}
 
-	lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+
+	switch (channel) {
+	case 0xff:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+		break;
+
+	case 0:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0/mute", "i", Mute);
+		break;
+
+	case 1:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1/mute", "i", Mute);
+		break;
+
+	case 2:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2/mute", "i", Mute);
+		break;
+
+	case 3:
+		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3/mute", "i", Mute);
+		break;
+	}
 
 }
 

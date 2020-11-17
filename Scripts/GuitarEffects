@@ -228,11 +228,13 @@ function FindDevice {
         echo "We have 1" $Device" "$USBDevice" "$USBName
 
         # mplayer crackling at 96K,64,2
-        #AudioSampleRate=48000
-        AudioSampleRate=48000
-#        JBuffer=128
-        JBuffer=64
-        JPeriod=2
+       AudioSampleRate=96000
+       JBuffer=128
+       JPeriod=4
+
+        # AudioSampleRate=48000
+        # JBuffer=64
+        # JPeriod=3
 
         # AudioSampleRate=192000
         AudioDevice="$Device"
@@ -371,7 +373,7 @@ function StartJack {
     # Jack can be a bit slow to come up.
     Delay 1
     echo " About to Start Jack-Volume"
-    nice -18 jack-volume -p 9952 -n 3  >> $LogFile 2>&1 &
+    nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
     
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
@@ -476,6 +478,8 @@ function SetUpConnections {
     jack_connect jack-volume:output_2 system:playback_2
     jack_connect jack-volume:output_3 system:playback_1
     jack_connect jack-volume:output_3 system:playback_2
+    jack_connect jack-volume:output_4 system:playback_1
+    jack_connect jack-volume:output_4 system:playback_2
 
     
     # Guitar in goes to effects Rack
@@ -522,6 +526,15 @@ function SetUpConnections {
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
     aconnect "LiveMusic Output":1 GuitBridge:0
     jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1    
+
+    # Transport out
+#    aconnect "LiveMusic Output":3 Mamba:input
+    
+    # Tempo out
+ #   aconnect "LiveMusic Output":4 Mamba:input
+
+ #   jack_connect "Mamba:out" "a2j:FLUID Synth (qsynth) (playback): Synth input port (qsynth:0)"    # jack_connect "Mamba:out" "MambaBridge:playback"
+    # aconnect MambaBridge:capture "FLUID Synth":0
 
    
     # Muse Connection
@@ -639,6 +652,8 @@ function SetUpApplications {
         hydrogen -k GMKit -s  /home/elias/MySongs/Drums/JustFunky.h2song &
     fi
     
+    mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
+
     Delay 2
     
     jack-plumbing /home/elias/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
@@ -670,7 +685,7 @@ function SetPlacement {
         echo "Keshie"
         AnalogDesktop=4
         LiveMusicAppDesktop=5
-        LooperDesktop=$AnalogDesktop
+        LooperDesktop=7
         MidiDesktop=$AnalogDesktop
         PatchageDesktop=7
         PlayerDesktop=7
@@ -719,7 +734,7 @@ function SetPlacement {
         MaxOffSet=`expr 1368+1920`
         PlayerDesktop=4
         PatchageDesktop=4
-        LooperDesktop=5
+        LooperDesktop=7
         AnalogDesktop=5
         MidiDesktop=5
         SetPlacement1920
@@ -755,7 +770,7 @@ function SetPlacement1920 {
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1020
+    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,900
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
     wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
@@ -781,7 +796,7 @@ function SetPlacement1920 {
     wmctrl -r Patchage -e 0,0,0,1700,1000
     
     wmctrl -r ${PatchBayName} -t $PatchageDesktop
-    wmctrl -r ${PatchBayName} -e 0,0,0,1700,1000
+    wmctrl -r ${PatchBayName} -e 0,0,0,1200,850
     set +x
 }
 
@@ -881,6 +896,7 @@ function StopEverything {
     KillAll a2jmidid
     killall jackd
     killall jackdbus
+//    killall mamba
     
     killall kmidimon
     killall kdialog
@@ -1042,6 +1058,8 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
                 GuitarEffects=true
                 BackroundChecker=true
                 SoundSynth=true
+                Looper=true
+#                Hydrogen=true
             else
                 StopEverything
             fi
@@ -1203,6 +1221,8 @@ Delay 3
 # a2jmidid -e > $LogFile 2>&1 &
 
     a2jmidi_bridge "GuitBridge" &
+#       j2amidi_bridge "MambaBridge" &
+#    a2jmidid -u &
 
 SetUpApplications
 Delay 1

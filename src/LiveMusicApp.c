@@ -1138,7 +1138,7 @@ int GTKIdel_cb(gpointer data) {
 	if (RemoveMuteCount) {
 		printd(LogTest, "RemoveMuteCount %d\n", RemoveMuteCount);
 		if (RemoveMuteCount-- == 1 ) {
-			MyOSCJackMute(0, 0);
+			MyOSCJackMute(0, 0xff);
 			RemoveMuteCount = 0;
 		}
 	}
@@ -2149,7 +2149,7 @@ int GuitarMidiPreset(char Wait) {
 	SwitchToTab(0);
 
 	// MyOSCJackVol(NewValue);
-	MyOSCJackMute(1, 0);
+	MyOSCJackMute(1, 0xff);
 	WaitingforMidi = 1;
 
 	/* If we are wait for a specific release queue.
@@ -2195,7 +2195,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	} else if (MidiNote >= Max_Patches) {
 		printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
 		WaitingforMidi = 0;
-		MyOSCJackMute(0, 0);
+		MyOSCJackMute(0, 0xff);
 		WaitingforMidiHold = 0;
 	}
 
@@ -2352,6 +2352,13 @@ int SetExpressionControl(int Controller, int Value) {
 		ReturnVal = gMyInfo.MidiThresholdLevel;
 		gMyInfo.MidiThresholdLevel = Value;
 		break;
+
+	case ecLooper:
+//		ReturnVal = gMyInfo.MidiThresholdLevel;
+		MyOSCJackVol(Value,3);
+		break;
+
+
 
 	case ecMidiAnaMix:
 		ReturnVal = gMyInfo.MidiAnalMixLevel;

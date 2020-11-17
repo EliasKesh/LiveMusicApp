@@ -105,8 +105,8 @@ def WriteFile(fname, dirname):
   for x in range(0, sHREFIndex):
     FileName=sHREFFile[x]
     FileRef=sHREFFile[x]
-    if (len(FileName) > 18):
-        FileName=FileName[0:18]
+    if (len(FileName) > 25):
+        FileName=FileName[0:25]
 
     if (FileRef.find("mp3") > 0):
         theFile.write("<a style=\"color:red\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
@@ -473,7 +473,7 @@ height: 100%; }\n\
 #    print ("\n\n")
     print ("in GenerateIndex " + Base+"/"+"index.html")
     if (Reference):
-      theFile.write("<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[ __A__ ]</a><a href=\"#Baaa\">[ __B__ ]</a><a href=\"#Caaa\">[ __C__ ]</a><a href=\"#Daaa\">[ __D__ ]</a><a href=\"#Eaaa\">[ __E__ ]</a><a href=\"#Faaa\">[ __F__ ]</a><a href=\"#Gaaa\">[ __G__ ]</a><a href=\"#Haaa\">[ __H__ ]</a><a href=\"#Iaaa\">[ __I__ ]</a><a href=\"#Jaaa\">[ __J__ ]</a><a href=\"#Kaaa\">[ __K__ ]</a><a href=\"#Laaa\">[ __L__ ]</a><a href=\"#Maaa\">[ __M__ ]</a><a href=\"#Naaa\">[ __N__ ]</a><a href=\"#Oaaa\">[ __O__ ]</a><a href=\"#Paaa\">[ __P__ ]</a><a href=\"#Qaaa\">[ __Q__ ]</a><a href=\"#Raaa\">[ __R__ ]</a><a href=\"#Saaa\">[ __S__ ]</a><a href=\"#Taaa\">[ __T__ ]</a><a href=\"#Uaaa\">[ __U__ ]</a><a href=\"#Vaaa\">[ __V__ ]</a><a href=\"#Waaa\">[ __W__ ]</a><a href=\"#Xaaa\">[ __X__ ]</a><a href=\"#Yaaa\">[ __Y__ ]</a><a href=\"#Zaaa\">[ __Z__ ]</a><br>")
+      theFile.write("<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[__A__]</a><a href=\"#Baaa\">[__B__]</a><a href=\"#Caaa\">[__C__]</a><a href=\"#Daaa\">[__D__]</a><a href=\"#Eaaa\">[__E__]</a><a href=\"#Faaa\">[__F__]</a><a href=\"#Gaaa\">[__G__]</a><a href=\"#Haaa\">[__H__]</a><a href=\"#Iaaa\">[__I__]</a><a href=\"#Jaaa\">[__J__]</a><a href=\"#Kaaa\">[__K__]</a><a href=\"#Laaa\">[__L__]</a><a href=\"#Maaa\">[__M__]</a><a href=\"#Naaa\">[__N__]</a><a href=\"#Oaaa\">[__O__]</a><a href=\"#Paaa\">[__P__]</a><a href=\"#Qaaa\">[__Q__]</a><a href=\"#Raaa\">[__R__]</a><a href=\"#Saaa\">[__S__]</a><a href=\"#Taaa\">[__T__]</a><a href=\"#Uaaa\">[__U__]</a><a href=\"#Vaaa\">[__V__]</a><a href=\"#Waaa\">[__W__]</a><a href=\"#Xaaa\">[__X__]</a><a href=\"#Yaaa\">[__Y__]</a><a href=\"#Zaaa\">[__Z__]</a><br>")
 
     PreviousIndex='Z'
     for x in List:

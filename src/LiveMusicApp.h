@@ -201,6 +201,7 @@ enum {
 	ecExpress6,
 	ecPedalControl,
 	ecMidiThreshold,
+	ecLooper,
 	ecMidiAnaMix,
 	exMaxItems
 };
@@ -351,7 +352,7 @@ enum {
 	ToNextDesktop,
 	ToPrevDesktop,
 	ToDesktop,
-	Controller,
+	cmdController,
 	SwitchTab,
 	RaiseApp,
 	TransStart,
@@ -371,6 +372,7 @@ enum {
 	cmdSendCC,
 	cmdSetExpr,
 	cmdHardSlider,
+	cmdMidiOnOff,
 	MaxCommands
 };
 
@@ -456,7 +458,7 @@ enum {
 #else
 // Default Settings for kayfadr
 enum {
-	dLEDBeat1 = 8,
+	dLEDBeat1 = 40,
 	dLEDBeat2,
 	dLEDBeat3,
 	dLEDBeat4,
@@ -513,7 +515,7 @@ char *CustomCommands[] = {
 	"ToNextDesktop",
 	"ToPrevDesktop",
 	"ToDesktop",
-	"Controller",
+	"cmdController",
 	"SwitchTab",
 	"RaiseApp",
 	"TransStart",
@@ -533,6 +535,7 @@ char *CustomCommands[] = {
 	"cmdSendCC",
 	"cmdSetExpr",
 	"cmdHardSlider",
+	"cmdMidiOnOff",
 	"MaxCommands",
 	"oops2"
 };

@@ -604,7 +604,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
 //		ScrollCtrl(thePatch->Patch);
 		break;
 
-	case Controller:
+	case cmdController:
 		printd(LogInfo, "Controller \n");
 
 		SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
@@ -749,6 +749,13 @@ int SendMidiPatch(PatchInfo * thePatch) {
 		printd(LogTest, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
 		break;
 
+	case cmdMidiOnOff:
+		if (gMyInfo.MidiPassThru)
+			gMyInfo.MidiPassThru = 0;
+		else
+			gMyInfo.MidiPassThru = 1;
+		break;
+
 // SND_SEQ_EVENT_SETPOS_TIME
 // SND_SEQ_EVENT_TEMPO
 
@@ -791,21 +798,21 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 		switch (event_ptr->type) {
 		case SND_SEQ_EVENT_SYSTEM:
-			sprintf(msg_str_ptr, "System event %d %d\n",event_ptr->data.control.param,
-		       event_ptr->data.control.value);
+			sprintf(msg_str_ptr, "System event %d %d\n", event_ptr->data.control.param,
+			        event_ptr->data.control.value);
 			break;
 		case SND_SEQ_EVENT_RESULT:
-			sprintf(msg_str_ptr, "Result status event %d %d\n",event_ptr->data.control.param,
-		       event_ptr->data.control.value);
+			sprintf(msg_str_ptr, "Result status event %d %d\n", event_ptr->data.control.param,
+			        event_ptr->data.control.value);
 			break;
 		case SND_SEQ_EVENT_NOTE:
-			sprintf(msg_str_ptr, "Note %d %d\n",event_ptr->data.note.note,
-		       event_ptr->data.note.velocity);
+			sprintf(msg_str_ptr, "Note %d %d\n", event_ptr->data.note.note,
+			        event_ptr->data.note.velocity);
 			break;
 		case SND_SEQ_EVENT_NOTEON:
-		// N: 72, *48,36,24
-			sprintf(msg_str_ptr, "SND_SEQ_EVENT_NOTEON %d %d\n",event_ptr->data.note.note,
-		       event_ptr->data.note.velocity);
+			// N: 72, *48,36,24
+			sprintf(msg_str_ptr, "SND_SEQ_EVENT_NOTEON %d %d\n", event_ptr->data.note.note,
+			        event_ptr->data.note.velocity);
 
 			if (event_ptr->data.note.note >= 47) {
 				PatchValue = event_ptr->data.note.note - 47;
@@ -814,254 +821,278 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 			break;
 
 		case SND_SEQ_EVENT_NOTEOFF:
-			sprintf(msg_str_ptr, "SND_SEQ_EVENT_NOTEOFF %d %d\n",event_ptr->data.note.note,
-		       event_ptr->data.note.velocity);
+			sprintf(msg_str_ptr, "SND_SEQ_EVENT_NOTEOFF %d %d\n", event_ptr->data.note.note,
+			        event_ptr->data.note.velocity);
 			break;
 		case SND_SEQ_EVENT_KEYPRESS:
-			sprintf(msg_str_ptr, "SND_SEQ_EVENT_KEYPRESS %d %d\n",event_ptr->data.control.param,
-		       event_ptr->data.control.value);
+			sprintf(msg_str_ptr, "SND_SEQ_EVENT_KEYPRESS %d %d\n", event_ptr->data.control.param,
+			        event_ptr->data.control.value);
 			break;
 
 		case SND_SEQ_EVENT_CONTROLLER:
 
-			switch(event_ptr->data.control.param) {
-		// Slider 0-7
-				case 0:
+			switch (event_ptr->data.control.param) {
+			// Slider 0-7
+			case 0:
 				// Main Volume
-				SetExpressionControl(ecGuitarVolume, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecGuitarVolume,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 1:
-				SetExpressionControl(ecMidiVolume, 
-					event_ptr->data.control.value);
+			case 1:
+				SetExpressionControl(ecMidiVolume,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 2:
-				SetExpressionControl(ecMP3Volume, 
-					event_ptr->data.control.value);
+			case 2:
+				SetExpressionControl(ecMP3Volume,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 3:
+			case 3:
+				SetExpressionControl(ecLooper,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 4:
+			case 4:
 				break;
 
-				case 5:
+			case 5:
 				break;
 
-				case 6:
-					SetExpressionControl(ecPedalControl, 
-						event_ptr->data.control.value);	
+			case 6:
+				SetExpressionControl(ecPedalControl, event_ptr->data.control.value);
 				break;
 
-				case 7:
-					SetExpressionControl(ecMasterVolume, 
-						event_ptr->data.control.value);
+			case 7:
+				SetExpressionControl(ecMasterVolume,
+				                     event_ptr->data.control.value);
 				break;
 
-		// PAN Knobs 57-64
-				case 57:
-				SetExpressionControl(ecTempChange, 
-					event_ptr->data.control.value);
+			// PAN Knobs 57-64
+			case 57:
+				SetExpressionControl(ecTempChange,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 58:
+			case 58:
 				break;
 
-				case 59:
+			case 59:
 				break;
 
-				case 60:
+			case 60:
 				break;
 
-				case 61:
+			case 61:
 				break;
 
-				case 62:
+			case 62:
 				break;
 
-				case 63:
+			case 63:
 				break;
 
-				case 64:
+			case 64:
 				break;
 
-		// Left 89-96
-				case 89:
+			// Left 89-96
+			case 89:
 				printf("In Dist Guitarix\n");
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-			         GuitarixPort,
-			         1,
-			         2,
-			         event_ptr->data.control.value);
+				         GuitarixPort,
+				         1,
+				         2,
+				         event_ptr->data.control.value);
 				break;
 
-				case 90:
+			case 90:
 				// Midi Threshold
-				SetExpressionControl(ecMidiThreshold, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecMidiThreshold,
+				                     event_ptr->data.control.value);
 				break;
 
-				case 91:
+			case 91:
 				break;
 
-				case 92:
+			case 92:
 				break;
 
-				case 93:
+			case 93:
 				break;
 
-				case 94:
+			case 94:
 				break;
 
-				case 95:
+			case 95:
 				break;
 
-				case 96:
+			case 96:
 				break;
 
-		// Right 97-104
-				case 97:
+			// Right 97-104
+			case 97:
 				printd(LogMidi, "In Dist Guitarix\n");
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-			         GuitarixPort,
-			         1,
-			         11,
-			         event_ptr->data.control.value);
+				         GuitarixPort,
+				         1,
+				         11,
+				         event_ptr->data.control.value);
 				break;
 
-				case 98:
+			case 98:
 				break;
 
-				case 99:
+			case 99:
 				break;
 
-				case 100:
+			case 100:
 				break;
 
-				case 101:
+			case 101:
 				break;
 
-				case 102:
+			case 102:
 				break;
 
-				case 103:
+			case 103:
 				break;
 
-				case 104:
+			case 104:
 				break;
 
-		// Play 8-15 Lock
-				case 8:
+			// Play 8-15 Lock
+			case 8:
+				printd(LogMidi, "Guitar Mute\n");
+				if (event_ptr->data.control.value == 0)
+					MyOSCJackMute(1, 0);
+				else
+					MyOSCJackMute(0, 0);
 				break;
 
-				case 9:
+			case 9:
+				printd(LogMidi, "Midi Pass\n");
+
+				if (event_ptr->data.control.value == 0)
+					gMyInfo.MidiPassThru = 0;
+				else
+					gMyInfo.MidiPassThru = 1;
 				break;
 
-				case 10:
+			case 10:
+				printd(LogMidi, "MP3 Mute\n");
+				if (event_ptr->data.control.value == 0)
+					MyOSCJackMute(1, 2);
+				else
+					MyOSCJackMute(0, 2);
 				break;
 
-				case 11:
+			case 11:
+				printd(LogMidi, "Loop Mute\n");
+				if (event_ptr->data.control.value == 0)
+					MyOSCJackMute(1, 3);
+				else
+					MyOSCJackMute(0, 3);
 				break;
 
-				case 12:
+			case 12:
 				break;
 
-				case 13:
+			case 13:
 				break;
 
-				case 14:
+			case 14:
 				break;
 
-				case 15:
+			case 15:
 				break;
-	
-		// Stop 24-31 Moment 127->0
-				case 24:
+
+			// Stop 24-31 Moment 127->0
+			case 24:
 				// Dist
 				printd(LogMidi, "In Dist Toggle\n");
-				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-			         GuitarixPort,
-			         1,
-			         40,
-			         120);
+				if (event_ptr->data.control.value == 0)
+					SendMidi(SND_SEQ_EVENT_CONTROLLER,
+					         GuitarixPort,
+					         1,
+					         40,
+					         120);
 
 				break;
 
-				case 25:
+			case 25:
 				break;
 
-				case 26:
+			case 26:
 				break;
 
-				case 27:
+			case 27:
 				break;
 
-				case 28:
+			case 28:
 				break;
 
-				case 29:
+			case 29:
 				break;
 
-				case 30:
+			case 30:
 				break;
 
-				case 31:
+			case 31:
 				break;
-	
-		// Custom 40-47 Moment 127->0
-				case 40:
+
+			// Custom 40-47 Moment 127->0
+			case 40:
 				// Dist
 				printd(LogMidi, "In Wah Toggle\n");
-				SendMidi(SND_SEQ_EVENT_CONTROLLER,
-			         GuitarixPort,
-			         1,
-			         41,
-			         120);
+				if (event_ptr->data.control.value == 0)
+					SendMidi(SND_SEQ_EVENT_CONTROLLER,
+					         GuitarixPort,
+					         1,
+					         41,
+					         120);
 
 				break;
 
-				case 41:
+			case 41:
 				break;
 
-				case 42:
+			case 42:
 				break;
 
-				case 43:
+			case 43:
 				break;
 
-				case 44:
+			case 44:
 				break;
 
-				case 45:
+			case 45:
 				break;
 
-				case 46:
+			case 46:
 				break;
 
-				case 47:
+			case 47:
 				break;
-	
-		// Play 105, Stop 106, Rec 107
-				case 105:
-				if (event_ptr->data.control.value)
-					plPlay();
-				break;
-	
-				case 106:
-					plStop();
-				break;
-	
-				case 107:
+
+			// Play 105, Stop 106, Rec 107
+			case 105:
 				if (event_ptr->data.control.value)
 					plLoopToggle();
 				break;
 
+			case 106:
+				plStop();
+				break;
+
+			case 107:
+				if (event_ptr->data.control.value)
+					system("playerctl -p clementine play-pause");
+				break;
+
 			}
-			sprintf(msg_str_ptr, "SND_SEQ_EVENT_CONTROLLER %d %d\n",event_ptr->data.control.param,
-		       event_ptr->data.control.value);
+			sprintf(msg_str_ptr, "SND_SEQ_EVENT_CONTROLLER %d %d\n", event_ptr->data.control.param,
+			        event_ptr->data.control.value);
 			break;
 
 		default:
@@ -1070,7 +1101,7 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 			       event_ptr->data.control.value);
 			break;
 		}
-	printf("DAW %s\n", msg_str_ptr);
+//		printf("DAW %s\n", msg_str_ptr);
 	}
 }
 
@@ -1242,8 +1273,8 @@ void *alsa_midi_thread(void * context_ptr) {
 					MyOSCJackVol(event_ptr->data.control.value, 0);
 				}
 #endif
-				SetExpressionControl(ecGuitarVolume, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecGuitarVolume,
+				                     event_ptr->data.control.value);
 //				SetVolume1(event_ptr->data.control.value / 1.28);
 
 #if 0
@@ -1255,8 +1286,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_BREATH:
 				cc_name = "Breath";
 				printd(LogMidi, "%s \n", cc_name);
-				SetExpressionControl(ecMidiVolume, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecMidiVolume,
+				                     event_ptr->data.control.value);
 
 //				SetVolume2(event_ptr->data.control.value / 1.28);
 				break;
@@ -1264,8 +1295,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case 0x03:
 				cc_name = "Unknown 0x03";
 				printd(LogMidi, "%s \n", cc_name);
-				SetExpressionControl(ecMasterVolume, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecMasterVolume,
+				                     event_ptr->data.control.value);
 //				SetVolume3(event_ptr->data.control.value / 1.28);
 
 				break;
@@ -1273,8 +1304,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_FOOT:
 				cc_name = "Foot";
 				printd(LogMidi, "%s \n", cc_name);
-				SetExpressionControl(ecTempChange, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecTempChange,
+				                     event_ptr->data.control.value);
 
 // Not sure this is needed.
 //				SetVolume4(event_ptr->data.control.value / 1.28);
@@ -1301,8 +1332,8 @@ void *alsa_midi_thread(void * context_ptr) {
 				cc_name = "Portamento time";
 				printd(LogTest, "%s \n", cc_name);
 				gMyInfo.SetMP3PlayVolBool = event_ptr->data.control.value;
-				SetExpressionControl(ecMP3Volume, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecMP3Volume,
+				                     event_ptr->data.control.value);
 #if 0
 				SendMidi(SND_SEQ_EVENT_CONTROLLER,
 				         gMyInfo.ControlRoute[ControllerValue - 1].OutPort,
@@ -1338,8 +1369,8 @@ void *alsa_midi_thread(void * context_ptr) {
 				if (gMyInfo.ExpreP1Slider >= Max_Patches) {
 					gMyInfo.ExpreP1Slider = 0;
 				}
-				SetExpressionControl(ecPedalControl, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecPedalControl,
+				                     event_ptr->data.control.value);
 
 #if 0
 				switch (gMyInfo.ExpreP1Slider) {
@@ -1380,8 +1411,8 @@ void *alsa_midi_thread(void * context_ptr) {
 			case MIDI_CTL_MSB_BALANCE:
 				cc_name = "Balance";
 				printd(LogMidi, "%s \n", cc_name);
-				SetExpressionControl(ecMidiThreshold, 
-					event_ptr->data.control.value);
+				SetExpressionControl(ecMidiThreshold,
+				                     event_ptr->data.control.value);
 				break;
 			/* 0x0a */
 			case MIDI_CTL_MSB_PAN:
@@ -1732,8 +1763,8 @@ void *alsa_midi_thread(void * context_ptr) {
 //						gMyInfo.ExpreP1Slider = Slider1;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Expr P");
-		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+						gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+						gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 						break;
 
 					case 2: //  Midi Volume
@@ -1741,17 +1772,17 @@ void *alsa_midi_thread(void * context_ptr) {
 //						gMyInfo.ExpreP1Slider = Slider2;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Midi V");
-		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
-					break;
+						gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+						gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+						break;
 
 					case 3: // Main Volume
 						FishmanSelSwitch = FishmanSwitch = FishmanMix;
 //						gMyInfo.ExpreP1Slider = Slider4;
 						gMyInfo.ExpreP1Slider =
 						    FindString(fsPatchNames, "Master V");
-		gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-		gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+						gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
+						gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
 					}
 
 					printd(LogMidi, "FishmanSwitch %d\n", FishmanSwitch);
@@ -2470,6 +2501,13 @@ fail_close_seq:
 fail:
 	return false;
 }
+
+
+
+
+
+
+
 
 #if 0
 // /usr/include/alsa/seq_event.h

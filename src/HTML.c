@@ -54,7 +54,6 @@
 
 #define ParseValue "Preset"
 #define MAXLINE 250
-#define AllowInternalMP4 1
 
 /*
  * Place Local prototypes here
@@ -129,7 +128,7 @@ char SavePresetChanges(char *FileName) {
 
 	if (!InFile || !OutFile) {
 		printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
-		return(1);
+		return (1);
 	}
 
 	/* Read the infile line by line and replace the meta
@@ -187,11 +186,11 @@ char SavePresetChanges(char *FileName) {
 		if (strstr(FileLine, "Tempo")) {
 			sprintf(FileLine, "<meta name=\"Tempo\" content=\"%d\" >\n", gMyInfo.Tempo);
 
-				if (gMyInfo.Tempo < 60)
-					gMyInfo.Tempo = 60;
+			if (gMyInfo.Tempo < 60)
+				gMyInfo.Tempo = 60;
 
-				if (gMyInfo.Tempo > 160)
-					gMyInfo.Tempo = 160;
+			if (gMyInfo.Tempo > 160)
+				gMyInfo.Tempo = 160;
 
 		}
 
@@ -211,9 +210,8 @@ char SavePresetChanges(char *FileName) {
 	// Rename the temp file back to the main file.
 	rename(FileLine, FileName);
 
-	return(0);
+	return (0);
 }
-
 
 /*--------------------------------------------------------------------
  * Function:		on_Back_clicked
@@ -304,16 +302,16 @@ static void
 scroll_js_finished_cb (GObject      *object,
                        GAsyncResult *result,
                        gpointer      user_data) {
-  WebKitJavascriptResult *js_result;
-  GError *error = NULL;
+	WebKitJavascriptResult *js_result;
+	GError *error = NULL;
 
-  js_result = webkit_web_view_run_javascript_finish (WEBKIT_WEB_VIEW (object), result, &error);
-  if (error != NULL) {
-    g_print ("Error running scroll script: %s", error->message);
-    g_error_free (error);
-    return;
+	js_result = webkit_web_view_run_javascript_finish (WEBKIT_WEB_VIEW (object), result, &error);
+	if (error != NULL) {
+		g_print ("Error running scroll script: %s", error->message);
+		g_error_free (error);
+		return;
 	}
-} 
+}
 
 /*--------------------------------------------------------------------
  * Function:		ScrollCtrl
@@ -368,7 +366,6 @@ int ScrollCtrl(float Amount) {
 	                                scroll_js_finished_cb,
 	                                NULL);
 	return (0);
-
 }
 
 /*--------------------------------------------------------------------
@@ -441,7 +438,7 @@ void on_scalebutton_clicked(GtkWidget *widget, gpointer data) {
 }
 
 unsigned int CurTapTempo;
-struct timeval Time0; 
+struct timeval Time0;
 /*--------------------------------------------------------------------
  * Function:		Tap Tempo
  *
@@ -449,51 +446,50 @@ struct timeval Time0;
  *
  *---------------------------------------------------------------------*/
 gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-char String[20];
-struct timeval Time1;
-long long elapsedTime;
-int 	ReturnVal;
+	char String[20];
+	struct timeval Time1;
+	long long elapsedTime;
+	int 	ReturnVal;
 
 	ReturnVal = clock_gettime(CLOCK_REALTIME, &Time1);
 
 #if 0
-	long NowTime,OldTime;
+	long NowTime, OldTime;
 	// Get the new time
 	// ReturnVal = clock_getres(CLOCK_REALTIME, &Time1);
 	// printf("TimeRes %ld %ld %d\n", Time1.tv_sec,Time1.tv_usec, ReturnVal);
 
-	NowTime = (long) ( ( ((long)(Time1.tv_sec)*1000000) + ((long)(Time1.tv_usec)/1000)))  ;
+	NowTime = (long) ( ( ((long)(Time1.tv_sec) * 1000000) + ((long)(Time1.tv_usec) / 1000)))  ;
 	printf("Now %18ld \n", NowTime);
-	OldTime = (long) ( ( ((long)(Time0.tv_sec)*1000000) + ((long)(Time0.tv_usec)/1000)))  ;
+	OldTime = (long) ( ( ((long)(Time0.tv_sec) * 1000000) + ((long)(Time0.tv_usec) / 1000)))  ;
 	printf("Old %18ld \n", OldTime);
-	printf("Dif %18ld  %d \n", NowTime - OldTime,60000000/(NowTime - OldTime) );
-	printf("msec %18ld %18ld \n", (Time1.tv_sec-Time0.tv_sec), Time1.tv_usec - Time0.tv_usec);
+	printf("Dif %18ld  %d \n", NowTime - OldTime, 60000000 / (NowTime - OldTime) );
+	printf("msec %18ld %18ld \n", (Time1.tv_sec - Time0.tv_sec), Time1.tv_usec - Time0.tv_usec);
 
 	NowTime = Time1.tv_usec - Time0.tv_usec;
 	if (NowTime < 0) {
 		NowTime = ((1000000000 + Time1.tv_usec) - Time0.tv_usec);
 		printf("Neg %ld\n", NowTime);
-	}
-	else
+	} else
 		printf("Nor %ld\n", NowTime);
 
 #endif
 
-	if (Time1.tv_usec-Time0.tv_usec)
-		elapsedTime = (long) (60000000 / ( ((long long)(Time1.tv_sec-Time0.tv_sec)*1000000) + ((long long)(Time1.tv_usec-Time0.tv_usec)/1000)))  ;
+	if (Time1.tv_usec - Time0.tv_usec)
+		elapsedTime = (long) (60000000 / ( ((long long)(Time1.tv_sec - Time0.tv_sec) * 1000000) + ((long long)(Time1.tv_usec - Time0.tv_usec) / 1000)))  ;
 	else
 		elapsedTime = 0;
 
 	Time0 = Time1;
 
-	/* If it's a ctrl click or 
+	/* If it's a ctrl click or
 	a right lick then assign the value.
 	*/
 	if ((event->button.state & GDK_CONTROL_MASK) ||
-	(event->button.button == 3)) {
+	        (event->button.button == 3)) {
 		gMyInfo.Tempo = CurTapTempo;
 		g_idle_add(GTKIdel_cb, theMainWindow);
-		return(CurTapTempo);
+		return (CurTapTempo);
 	}
 
 	// Calculate BPM and average with previous value.
@@ -728,8 +724,7 @@ void PageLoaded (WebKitWebView  *web_view,
 		*/
 		if (!strstr(CurrentURI, "index"))
 			UpdateStatus("---Load---");
-	}
-	else if (strstr(CurrentURI, ".mp3")) {
+	} else if (strstr(CurrentURI, ".mp3")) {
 		printd(LogDebug, "*** MP3 file.\n");
 //		UpdateStatus(FileName);
 
@@ -784,7 +779,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
                           gpointer user_data) {
 	char *theOrgURI;
 	char theURI[250];
-	char string[150];
+	char string[1000];
 	int Loop;
 	char *mimeType;
 	char *ext;
@@ -820,7 +815,6 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 			Loop = -1;
 		}
 
-
 	/* get the extension of the file.
 	*/
 	ext = strrchr(theURI, '.');
@@ -832,11 +826,23 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (FALSE);
 	}
 
-#if 1
+	// Let's check if the MusicApp.sh can handle this.
+	sprintf(string, "MusicApps.sh %s \'%s\' \'%s\' ", ext + 1, &theURI[7], theURI);
+	SysRet = system(string);
+	printd(LogInfo, "*** systemcall %d %s\n",SysRet, string);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	if (!SysRet) {
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogInfo, "NavPol return true\n");
+		return (true);
+	}
+
 	/* If we find an MP3 file then handle it ourselves and tell WebKit
 	 * not to deal with it.
 	 */
-//	if (strstr(theURI, ".mp3") || strstr(theURI, ".mp4")) {
 	if (strstr(theURI, ".mp3")) {
 		/*
 		 * Tell web kit not to o anything with it.
@@ -855,7 +861,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		 */
 		return (true);
 	}
-#ifdef AllowInternalMP4
+
 	if (strstr(theURI, ".mp4")) {
 		/*
 		 * Tell web kit not to o anything with it.
@@ -864,153 +870,9 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-#endif
+		printd(LogDebug, "*** MP4 After systemcall %s\n", SysCallString);
 
-	/* Depending on the PDF call there may be a page number, so
-	we will handle it.
-	*/
-	if (strstr(theURI, ".pdf")) {
-		PageIndex = strstr(theURI, "#page=");
-		if (PageIndex) {
-			webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-			*PageIndex = 0;
-			PageIndex += 6;
-			PageNumber = atoi(PageIndex);
-			sprintf(string, "MusicApps.sh %s \'%s\' %d", ext + 1, &theURI[7], PageNumber);
-		} else
-//			return (false);
-			sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
-	} 
-	// else
-	// 	sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
-
-	/* Call the bash app and see if there is a handler for the media-type.
-	*/
-	SysRet = system(string);
-	printd(LogInfo, "*** systemcall %d %s\n", SysRet, string);
-
-	/*
-	 * This tells webkit we are dealing with it.
-	 */
-	if (!SysRet) {
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-		printd(LogInfo, "NavPol return true\n");
-		return (true);
-	} else {
-		printd(LogInfo, "NavPol return false\n");
-		return (false);
-	}
-#else // Old Method not using MusicApps.sh
-	/* If we find an MP3 file then handle it ourselves and tell WebKit
-	 * not to deal with it.
-	 */
-	if (strstr(theURI, ".mp3")) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		SetPlayerFile((theURI + 7));
-		printd(LogInfo, "Call SetPlayer %s \n", theURI);
-
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-
-#ifdef AllowInternalMP4
-
-	if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		SetPlayerFile((theURI + 7));
-		printd(LogInfo, "Call SetPlayer %s \n", theURI);
-
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-		printd(LogDebug, "*** After systemcall %s\n", SysCallString);
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-#else
-	if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-
-//		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
-		sprintf(string, "MusicApps.sh  mp4 \'%s\' ", &theURI[7]);
-		system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
-
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-#endif
-	if (strstr(theURI, ".mid") || strstr(theURI, ".med") ) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-
-//		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
-		sprintf(string, "MusicApps.sh med \'%s\' ", &theURI[7]);
-//		sprintf(string, "muse \'%s\' &", &theURI[7]);
-//		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
-		SysRet = system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
-
-		printf("Type %s returns %d\n", ext, SysRet);
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-
-	if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-
-//		sprintf(string, "musescore \'%s\' &", &theURI[7]);
-		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
-//		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
-		SysRet = system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
-		printf("Type %s returns %d\n", ext, SysRet);
-
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		if (!SysRet)
-			return (true);
-		else
-			return (false);
-	}
-
-
-	if (strstr(theURI, ".tg") ) {
-		/*
-		 * Tell web kit not to o anything with it.
-		 */
-		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-
-		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[TabPlayer].Name, &theURI[7]);
-		system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
+		UpdateStatus(FileName);
 
 		/*
 		 * This tells webkit we are dealing with it.
@@ -1018,36 +880,6 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		return (true);
 	}
 
-	if (strstr(theURI, ".pdf")) {
-		char *PageIndex;
-		int	PageNumber;
-
-		/*
-		 * Tell web kit not to do anything with it.
-		 */
-		PageIndex = strstr(theURI, "#page=");
-		if (PageIndex) {
-			webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
-			*PageIndex = 0;
-			PageIndex += 6;
-			PageNumber = atoi(PageIndex);
-//			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
-//			sprintf(string, "okular \'%s\' --page=%d &", &theURI[7], PageNumber);
-			sprintf(string, "MusicApps.sh pdf \'%s\' --page=%d ", &theURI[7], PageNumber);
-		} else {
-			return (false);
-		}
-
-		system(string);
-		printd(LogInfo, "*** systemcall %s\n", string);
-
-		/*
-		 * This tells webkit we are dealing with it.
-		 */
-		return (true);
-	}
-#endif
-	//   webkit_web_policy_decision_use(policy_decision);
 	// Tell Webkit to handle the URI
 	return (false);
 }
@@ -1183,8 +1015,8 @@ void InitHTML(GtkBuilder * gxml) {
 		MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
 		                  PatchButtonOffImage);
 		MyImageButtonSetText(&PresetButtons[Loop], Buffer);
- 		gtk_widget_set_tooltip_text(PresetButtons[Loop].EventBox, 
- 			"CTRL-Click to set. This will get saved in the song file.");
+		gtk_widget_set_tooltip_text(PresetButtons[Loop].EventBox,
+		                            "CTRL-Click to set. This will get saved in the song file.");
 
 		g_signal_connect(G_OBJECT(EventBox),
 		                 "button-press-event",
@@ -1242,7 +1074,7 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_TapTempo_clicked), &TapTempoButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &TapTempoButton);
- 	gtk_widget_set_tooltip_text(TapTempoButton.EventBox, "CTRL-Click or Right-Click to set metronome. The new tempo will be saved in the song file.");
+	gtk_widget_set_tooltip_text(TapTempoButton.EventBox, "CTRL-Click or Right-Click to set metronome. The new tempo will be saved in the song file.");
 
 
 	EventBox = GTK_WIDGET(
@@ -1252,7 +1084,7 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_SaveWeb_clicked), &SaveWebButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &SaveWebButton);
- 	gtk_widget_set_tooltip_text(SaveWebButton.EventBox, "Open HTML editor.");
+	gtk_widget_set_tooltip_text(SaveWebButton.EventBox, "Open HTML editor.");
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "SetList"));
@@ -1261,7 +1093,7 @@ void InitHTML(GtkBuilder * gxml) {
 	g_signal_connect(G_OBJECT(EventBox), "button-press-event",
 	                 G_CALLBACK(on_SetList_clicked), &SetListButton);
 	g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler), &SetListButton);
- 	gtk_widget_set_tooltip_text(SetListButton.EventBox, "With a valid HTML file open this will make it the default setlist allowing the patches to switch between charts.");
+	gtk_widget_set_tooltip_text(SetListButton.EventBox, "With a valid HTML file open this will make it the default setlist allowing the patches to switch between charts.");
 
 	EventBox = GTK_WIDGET(
 	               gtk_builder_get_object(gxml, "PlayPause"));
@@ -1433,8 +1265,11 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 			tokenizer = strtok(String, "\""); //break up by spaces
 			printd(LogDebug, "LoopFile %s\n", tokenizer);
 
-			strcpy(gMyInfo.LoopFileName, BasePathName);
-			strcat(gMyInfo.LoopFileName, tokenizer);
+//			strcpy(gMyInfo.LoopFileName, BasePathName);
+//			strcat(gMyInfo.LoopFileName, tokenizer);
+
+			strcpy(gMyInfo.LoopFileName, tokenizer);
+
 
 			printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
 			MyOSCLoadFile(gMyInfo.LoopFileName);
@@ -1514,7 +1349,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 		/*
 		 * Make sure the the looper is the second argument even of the drum file is the same.
 		 */
-		sprintf(Copy, "MusicApp.sh DrumFile %s & ", DrumFile);
+		sprintf(Copy, "MusicApps.sh DrumFile %s & ", DrumFile);
 		printd(LogDebug, "Calling System with %s\n", Copy);
 		system(Copy);
 	}
@@ -1561,7 +1396,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 
 	if (PresetNum > 0 && PresetNum < 9) {
 		printd(LogDebug, "*********PresetNum Case %d\n", PresetNum);
-		SetPatchTitles(&PresetButtons[PresetNum-1], gMyInfo.MyPatchInfo[Value].Name, PresetNum);
+		SetPatchTitles(&PresetButtons[PresetNum - 1], gMyInfo.MyPatchInfo[Value].Name, PresetNum);
 	}
 
 #if 0
@@ -1787,4 +1622,194 @@ Value = gtk_adjustment_get_value(Adjust);
 printd(LogDebug, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
 printf("In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
 printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
+#endif
+
+
+
+#if 0 // Using NewMethod.
+/* If we find an MP3 file then handle it ourselves and tell WebKit
+ * not to deal with it.
+ */
+
+if (strstr(theURI, ".mp3")) {
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	SetPlayerFile((theURI + 7));
+	printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+	printd(LogDebug, "*** MP3 After systemcall %s\n", SysCallString);
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+
+#ifdef AllowInternalMP4
+
+if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	SetPlayerFile((theURI + 7));
+	printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+	printd(LogDebug, "*** MP4 After systemcall %s\n", SysCallString);
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+#else // AllowInternalMP4
+if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg") ) {
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+//		sprintf(string, "smplayer \'%s\' &", &theURI[7]);
+	sprintf(string, "MusicApps.sh  mp4 \'%s\' ", &theURI[7]);
+	system(string);
+	printd(LogInfo, "***MP4 else systemcall %s\n", string);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+#endif // AllowInternalMP4
+
+if (strstr(theURI, ".mid") || strstr(theURI, ".med") ) {
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+//		sprintf(string, "%s \'%s\' &", gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
+	sprintf(string, "MusicApps.sh med \'%s\' ", &theURI[7]);
+//		sprintf(string, "muse \'%s\' &", &theURI[7]);
+//		sprintf(string, "/usr/bin/rosegarden \'%s\' &", &theURI[7]);
+	SysRet = system(string);
+	printd(LogInfo, "***mid systemcall %s\n", string);
+
+	printf("Type %s returns %d\n", ext, SysRet);
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+
+printf("About to check for mscz [%s]\n", theURI);
+
+if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb") ) {
+
+	printf("MusicApps.sh %s \'%s\' \n", ext + 1, &theURI[7]);
+
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+//		sprintf(string, "musescore \'%s\' &", &theURI[7]);
+	sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+	printf("Muse Score [%s]\n", string);
+//		sprintf(string, "%s \'%s\' &",gMyInfo.Apps[MidiPlayer].Name, &theURI[7]);
+	SysRet = system(string);
+	printd(LogInfo, "*** mscz systemcall %s\n", string);
+	printf("Type %s returns %d\n", ext, SysRet);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	if (!SysRet)
+		return (true);
+	else
+		return (false);
+}
+
+
+if (strstr(theURI, ".tg") ) {
+	/*
+	 * Tell web kit not to o anything with it.
+	 */
+	webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+
+	sprintf(string, "%s \'%s\' &", gMyInfo.Apps[TabPlayer].Name, &theURI[7]);
+	system(string);
+	printd(LogInfo, "***tg systemcall %s\n", string);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+
+if (strstr(theURI, ".pdf")) {
+	char *PageIndex;
+	int	PageNumber;
+
+	/*
+	 * Tell web kit not to do anything with it.
+	 */
+	PageIndex = strstr(theURI, "#page=");
+	if (PageIndex) {
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		*PageIndex = 0;
+		PageIndex += 6;
+		PageNumber = atoi(PageIndex);
+//			sprintf(string, "/usr/bin/okular \'%s\'' --page=%d &", theURI, PageNumber);
+//			sprintf(string, "okular \'%s\' --page=%d &", &theURI[7], PageNumber);
+		sprintf(string, "MusicApps.sh pdf \'%s\' --page=%d ", &theURI[7], PageNumber);
+	} else {
+		return (false);
+	}
+
+	system(string);
+	printd(LogInfo, "***PDF systemcall %s\n", string);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	return (true);
+}
+#endif // Using NewMethod.
+
+
+
+/* Depending on the PDF call there may be a page number, so
+we will handle it.
+*/
+#if 0
+if (strstr(theURI, ".pdf")) {
+	printf("PDF 1 [%s]\n", theURI);
+	PageIndex = strstr(theURI, "#page=");
+	if (PageIndex) {
+		*PageIndex = 0;
+		PageIndex += 6;
+		PageNumber = atoi(PageIndex);
+		sprintf(string, "MusicApps.sh %s \'%s\' %d", ext + 1, &theURI[7], PageNumber);
+	} else
+		sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+
+	printf("PDF 2 [%s]\n", string);
+
+	/* Call the bash app and see if there is a handler for the media-type.
+	*/
+	SysRet = system(string);
+	printd(LogInfo, "*** PDF systemcall %d %s\n", SysRet, string);
+
+	/*
+	 * This tells webkit we are dealing with it.
+	 */
+	if (!SysRet) {
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printd(LogInfo, "NavPol return true\n");
+		return (true);
+	} else {
+		printd(LogInfo, "NavPol return false\n");
+		return (false);
+	}
+}
 #endif
