@@ -40,6 +40,7 @@
 #include <webkit2/webkit2.h>
 #include "LiveMusicApp.h"
 #include "MyWidgets.h"
+#include "APlayMidi.h"
 
 #define _GNU_SOURCE
 #include <string.h>
@@ -729,10 +730,16 @@ void PageLoaded (WebKitWebView  *web_view,
 //		UpdateStatus(FileName);
 
 		return;
+	} else if (strstr(CurrentURI, ".mid")) {
+		printd(LogDebug, "*** mid file.\n");
+//		UpdateStatus(FileName);
+
+		return;
 	} else {
 		printd(LogDebug, "Not HTML File\n");
 		return;
 	}
+
 
 //	webkit_web_view_set_editable(web_view, FALSE);
 	webkit_web_view_set_zoom_level(web_view, 1);
@@ -873,6 +880,25 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		printd(LogDebug, "*** MP4 After systemcall %s\n", SysCallString);
 
 		UpdateStatus(FileName);
+
+		/*
+		 * This tells webkit we are dealing with it.
+		 */
+		return (true);
+	}
+
+	if (strstr(theURI, ".mid")) {
+		/*
+		 * Tell web kit not to o anything with it.
+		 */
+		printd(LogInfo, "Call SetPlayer %s \n", theURI);
+
+		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
+		printf("*** Midi file. %s\n", FileName);
+
+		UpdateStatus(FileName);
+
+		StartMidiLoop((theURI + 7));
 
 		/*
 		 * This tells webkit we are dealing with it.

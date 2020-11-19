@@ -81,11 +81,11 @@ enum {
 	ClickPort,
 	PedalPort,
 	DAWPort,
-	User1,
+	DRLoop,
 	User2,
 	User3,
-	MaxOutPorts,
-	InternalPort
+	InternalPort,
+	MaxOutPorts
 };
 #endif
 

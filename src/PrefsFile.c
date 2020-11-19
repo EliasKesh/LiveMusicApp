@@ -103,10 +103,8 @@ InitPref (void) {
 	    gMyInfo.MyPatchInfo[Patch_Not_Found].Name,
 	    "NotFound");
 #endif
-
-//	PrintDataStructure(&gMyInfo, DefinePrefsFile);
-//	exit(1);
-
+//	PrintDataStructure(&gMyInfo, NULL);
+//	exit(0);
 #else
 	memcpy (&gMyInfo, &GlobalInfo, sizeof (LiveMusicInfo));
 #endif
@@ -291,18 +289,18 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 		fprintf (PrefsFile, " \"%s\", /* OSCPortNumJackVol   */\n", myInfo->OSCPortNumJackVol);
 		fprintf (PrefsFile, " \"%s\", /* OSCPortNumHydrogen   */\n", myInfo->OSCPortNumHydrogen);
 
-	}
+		fprintf (PrefsFile, " %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
 
-	fprintf (PrefsFile, " %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
+
 //	printf (" %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
 
-	for (Loop = 0; Loop < TotalMaxStrings; Loop++) {
-		fprintf (PrefsFile, "%d,\n", myInfo->BaseStringName[Loop]);
+		for (Loop = 0; Loop < TotalMaxStrings; Loop++) {
+			fprintf (PrefsFile, "%d,\n", myInfo->BaseStringName[Loop]);
 //		printf ("%d,\n", myInfo->BaseStringName[Loop]);
+		}
+
+		fprintf (PrefsFile, "    },\n");
 	}
-
-	fprintf (PrefsFile, "    },\n");
-
 	printd (LogInfo, "BaseName %s\n", myInfo->BasePath);
 
 	printd (LogInfo, "Num Ports %d\n", myInfo->NumOutPorts);
@@ -669,8 +667,7 @@ void LoadXMLPair(ParseData *theData) {
 	if (!strcmp ("OutPorts", name) && theData[2].name[0]) {
 		sscanf (theData[2].name, "Port%03d", &HoldIndex);
 		strcpy (gMyInfo.OutPortName[HoldIndex], theData[3].value);
-		printd (LogDebug, "dTopLevelOutPorts %d %s\n",
-		        HoldIndex,
+		printd (LogDebug, "dTopLevelOutPorts %d %s\n", HoldIndex,
 		        gMyInfo.OutPortName[HoldIndex]);
 	}
 

@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 #include "aconfig.h"
+#include "LiveMusicApp.h"
 
 #define false 0
 #define true 1
@@ -73,7 +74,8 @@ struct track {
 static snd_seq_t *seq;
 static int client;
 static int port_count;
-static snd_seq_addr_t *ports;
+//static snd_seq_addr_t *ports;
+static snd_seq_addr_t LoopPort;
 static int queue;
 static int end_delay = 2;
 static char *file_name;
@@ -86,7 +88,6 @@ static int smpte_timing;
 //int g_midi_ignore;
 pthread_t g_alsa_midi_Loop_tid; /* alsa_midi_thread id */
 int 	MyTempo;
-snd_seq_t *SeqPortLoop;
 volatile int MidiLooping;
 
 int MyAlsaLoopClose(void);
@@ -98,23 +99,78 @@ void StartMidiLoop(char *filename);
 static void errormsg(const char *msg, ...);
 int InitMidiLooper(void);
 
+
+//int main(int argc, char *argv[]) {
+
+/*--------------------------------------------------------------------
+* Function:  InitMidiLooper          
+*
+* Description:           Initialize the Midifile looper
+*---------------------------------------------------------------------*/
+int InitMidiLooper(void) {
+	snd_seq_port_info_t *pinfo;
+	int err;
+
+	seq = gMyInfo.SeqPort[DRLoop];
+
+	printf("open sequencer %x\n", seq);
+
+	/* find out who we actually are */
+//	client = snd_seq_client_id(seq);
+//	printf("get client id %d\n", client);
+//	snd_seq_parse_address(seq, &LoopPort, "129:0");
+	LoopPort.client = snd_seq_client_id(seq);
+	LoopPort.port = DRLoop;
+//	snd_seq_parse_address(seq, &LoopPort, "129:0");
+	printf("LoopPort %d %d\n", LoopPort.client, LoopPort.port);
+
+	queue = snd_seq_alloc_queue(seq);
+
+	MidiLooping = false;
+	alsa_loop_init();
+
+	return 0;
+}
+/*-------------------------------------------------
+* Function:  StopMidiLoop          
+*
+* Description:           Stop and clear buffer
+*------------------------------------------------*/
 void StopMidiLoop(void) {
 	MidiLooping = false;
-	sched_yield();
+//	sched_yield();
+	snd_seq_drain_output(seq);
 	snd_seq_reset_pool_output(seq);
-	snd_seq_drop_output(seq);
+	snd_seq_drop_output_buffer(seq);
 	// Fix this, need a context switch
 //	poll();
-	sleep(1);
+	sleep(2);
 //	usleep(500);
 }
 
+/*--------------------------------------------------------------------
+* Function:    StartMidiLoop        
+*
+* Description: Pass midi file and open.
+*---------------------------------------------------------------------*/
 void StartMidiLoop(char *filename) {
+
+	if (MidiLooping)
+		StopMidiLoop();
+
 	file_name = filename;
 	MidiLooping = true;
 }
 
+/*--------------------------------------------------------------------
+* Function: SetLoopTempo           
+*
+* Description: Adjust the playback speed
+*---------------------------------------------------------------------*/
 void SetLoopTempo(int NewTempo) {
+
+	if (!MidiLooping)
+		return;
 
 	MyTempo = NewTempo;
 	snd_seq_event_t ev;
@@ -123,10 +179,10 @@ void SetLoopTempo(int NewTempo) {
 
 	ev.type = SND_SEQ_EVENT_TEMPO;
 //	ev.time.tick = 2000;
-	ev.dest = ports[0];
+//	ev.dest = LoopPort;
 
 //	snd_seq_ev_set_fixed(&ev);
-	ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+//	ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
 	ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
 	ev.data.queue.queue = queue;
 	ev.data.queue.param.value = 60000000 / NewTempo;
@@ -135,6 +191,12 @@ void SetLoopTempo(int NewTempo) {
 
 }
 
+/*-----------------------------------------------
+* Function: MyAlsaLoopClose
+*
+* Description: Close the midi queue
+* 
+*-------------------------------------------*/
 int MyAlsaLoopClose(void) {
 	int ret;
 
@@ -149,11 +211,6 @@ int MyAlsaLoopClose(void) {
 	/* Wait midi thread to finish */
 	ret = pthread_join(g_alsa_midi_Loop_tid, NULL);
 
-	ret = snd_seq_close(SeqPortLoop);
-	if (ret < 0) {
-		printf("Cannot close sequencer\n");
-	}
-
 	return (false);
 }
 
@@ -162,89 +219,19 @@ static void init_seq(void) {
 	int err;
 
 	/* open sequencer */
-	err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
+	// err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
+
+	seq = gMyInfo.SeqPort[DRLoop];
+
 	printf("open sequencer %d\n", err);
 
 	/* set our name (otherwise it's "Client-xxx") */
-	err = snd_seq_set_client_name(seq, "aplaymidi");
-	printf("set client name%d\n", err);
+//	err = snd_seq_set_client_name(seq, "aplaymidi");
+//	printf("set client name%d\n", err);
 
 	/* find out who we actually are */
 	client = snd_seq_client_id(seq);
 	printf("get client id %d\n", client);
-}
-
-/* parses one or more port addresses from the string */
-static void parse_ports(const char *arg) {
-	char *buf, *s, *port_name;
-	int err;
-
-	/* make a copy of the string because we're going to modify it */
-	buf = strdup(arg);
-//	check_mem(buf);
-
-	for (port_name = s = buf; s; port_name = s + 1) {
-		/* Assume that ports are separated by commas.  We don't use
-		 * spaces because those are valid in client names. */
-		s = strchr(port_name, ',');
-		if (s)
-			*s = '\0';
-
-		++port_count;
-		ports = realloc(ports, port_count * sizeof(snd_seq_addr_t));
-//		check_mem(ports);
-
-		err = snd_seq_parse_address(seq, &ports[port_count - 1], port_name);
-		if (err < 0)
-			printf("Invalid port %s - %s", port_name, snd_strerror(err));
-	}
-
-	free(buf);
-}
-
-static void create_source_port(void) {
-	snd_seq_port_info_t *pinfo;
-	int err;
-
-	snd_seq_port_info_alloca(&pinfo);
-
-	/* the first created port is 0 anyway, but let's make sure ... */
-	snd_seq_port_info_set_port(pinfo, 0);
-	snd_seq_port_info_set_port_specified(pinfo, 1);
-
-	snd_seq_port_info_set_name(pinfo, "aplaymidi");
-
-	snd_seq_port_info_set_capability(pinfo, 0); /* sic */
-	snd_seq_port_info_set_type(pinfo,
-	                           SND_SEQ_PORT_TYPE_MIDI_GENERIC |
-	                           SND_SEQ_PORT_TYPE_APPLICATION);
-
-	err = snd_seq_create_port(seq, pinfo);
-	printf("create port%d\n", err);
-}
-
-static void create_queue(void) {
-	queue = snd_seq_alloc_named_queue(seq, "aplaymidi");
-	printf("create queue %d\n", queue);
-	/* the queue is now locked, which is just fine */
-}
-
-static void connect_ports(void) {
-	int i, err;
-
-	/*
-	 * We send MIDI events with explicit destination addresses, so we don't
-	 * need any connections to the playback ports.  But we connect to those
-	 * anyway to force any underlying RawMIDI ports to remain open while
-	 * we're playing - otherwise, ALSA would reset the port after every
-	 * event.
-	 */
-	for (i = 0; i < port_count; ++i) {
-		err = snd_seq_connect_to(seq, 0, ports[i].client, ports[i].port);
-		if (err < 0)
-			printf("Cannot connect to port %d:%d - %s",
-			       ports[i].client, ports[i].port, snd_strerror(err));
-	}
 }
 
 static int read_byte(void) {
@@ -660,11 +647,11 @@ static void handle_big_sysex(snd_seq_event_t *ev) {
 	}
 	while (length > MIDI_BYTES_PER_SEC) {
 		err = snd_seq_event_output(seq, ev);
-//		printf("output event%d\n", err);
+		printf("output event %d\n", err);
 		err = snd_seq_drain_output(seq);
-//		printf("drain output%d\n", err);
+		printf("drain output %d\n", err);
 		err = snd_seq_sync_output_queue(seq);
-//		printf("sync output%d\n", err);
+		printf("sync output %d\n", err);
 		if (sleep(1))
 			printf("aborted");
 		ev->data.ext.ptr += MIDI_BYTES_PER_SEC;
@@ -684,7 +671,7 @@ static void play_midi(void) {
 			max_tick = tracks[i].end_tick;
 	}
 
-	MyTempo = 120;
+	MyTempo = gMyInfo.Tempo;
 // ejk
 	while (MidiLooping) {
 		printf("ejk Starting loop\n");
@@ -695,8 +682,13 @@ static void play_midi(void) {
 		/* common settings for all our events */
 		snd_seq_ev_clear(&ev);
 		ev.queue = queue;
-		ev.source.port = 0;
+		ev.source.port = DRLoop;
 		ev.flags = SND_SEQ_TIME_STAMP_TICK;
+
+//		snd_seq_ev_set_source(&ev, 0);
+//		snd_seq_ev_set_subs(&ev);
+
+
 
 		err = snd_seq_start_queue(seq, queue, NULL);
 //		printf("start queue%d\n", err);
@@ -724,10 +716,24 @@ static void play_midi(void) {
 
 			/* advance pointer to next event */
 			event_track->current_event = event->next;
+
+
+	// snd_seq_ev_clear(&ev);
+	// snd_seq_ev_set_source(&ev, 7);
+	// snd_seq_ev_set_subs(&ev);
+	// snd_seq_ev_set_direct(&ev);
+
 			/* output the event */
 			ev.type = event->type;
 			ev.time.tick = event->tick;
-			ev.dest = ports[event->port];
+//			ev.dest = LoopPort;
+//			ev.dest = ports[event->port];
+
+
+
+    		snd_seq_ev_set_subs( &ev );
+
+
 			switch (ev.type) {
 			case SND_SEQ_EVENT_NOTEON:
 			case SND_SEQ_EVENT_NOTEOFF:
@@ -757,13 +763,12 @@ static void play_midi(void) {
 				     ((event->data.d[2]) << 7)) - 0x2000;
 				break;
 			case SND_SEQ_EVENT_SYSEX:
-				snd_seq_ev_set_variable(&ev, event->data.length,
-				                        event->sysex);
+				snd_seq_ev_set_variable(&ev, event->data.length,event->sysex);
 				handle_big_sysex(&ev);
 				break;
 			case SND_SEQ_EVENT_TEMPO:
 				snd_seq_ev_set_fixed(&ev);
-				ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+//				ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
 				ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
 				ev.data.queue.queue = queue;
 				event->data.tempo = 60000000 / MyTempo;
@@ -775,24 +780,32 @@ static void play_midi(void) {
 			}
 
 			/* this blocks when the output pool has been filled */
+//			err = snd_seq_event_output_buffer(seq, &ev);
+//			err = snd_seq_event_output_direct(seq, &ev);
+
+
 			err = snd_seq_event_output(seq, &ev);
 //			printf("output event%d\n", err);
 		}
 
+#if 1
 		/* schedule queue stop at end of song */
 		snd_seq_ev_set_fixed(&ev);
 		ev.type = SND_SEQ_EVENT_STOP;
 		ev.time.tick = max_tick;
-		ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
+//		ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
 		ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
 		ev.data.queue.queue = queue;
 		err = snd_seq_event_output(seq, &ev);
-//		printf("output event%d\n", err);
+		printf("output event error %d %x\n", 
+			err,seq);
+#endif
 
 		/* make sure that the sequencer sees all our events */
+		do {
 		err = snd_seq_drain_output(seq);
-		printf("drain output%d\n", err);
-
+			printf("drain output%d\n", err);
+		 } while( err > 0 );
 		/*
 		 * There are three possibilities how to wait until all events have
 		 * been played:
@@ -856,149 +869,6 @@ static void play_file(void) {
 
 	cleanup_file_data();
 }
-
-static void list_ports(void) {
-	snd_seq_client_info_t *cinfo;
-	snd_seq_port_info_t *pinfo;
-
-	snd_seq_client_info_alloca(&cinfo);
-	snd_seq_port_info_alloca(&pinfo);
-
-	puts(" Port    Client name                      Port name");
-
-	snd_seq_client_info_set_client(cinfo, -1);
-	while (snd_seq_query_next_client(seq, cinfo) >= 0) {
-		int client = snd_seq_client_info_get_client(cinfo);
-
-		snd_seq_port_info_set_client(pinfo, client);
-		snd_seq_port_info_set_port(pinfo, -1);
-		while (snd_seq_query_next_port(seq, pinfo) >= 0) {
-			/* port must understand MIDI messages */
-			if (!(snd_seq_port_info_get_type(pinfo)
-			        & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
-				continue;
-			/* we need both WRITE and SUBS_WRITE */
-			if ((snd_seq_port_info_get_capability(pinfo)
-			        & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE))
-			        != (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE))
-				continue;
-			printf("%3d:%-3d  %-32.32s %s\n",
-			       snd_seq_port_info_get_client(pinfo),
-			       snd_seq_port_info_get_port(pinfo),
-			       snd_seq_client_info_get_name(cinfo),
-			       snd_seq_port_info_get_name(pinfo));
-		}
-	}
-}
-
-static void usage(const char *argv0) {
-	printf(
-	    "Usage: %s -p client:port[,...] [-d delay] midifile ...\n"
-	    "-h, --help                  this help\n"
-	    "-V, --version               print current version\n"
-	    "-l, --list                  list all possible output ports\n"
-	    "-p, --port=client:port,...  set port(s) to play to\n"
-	    "-d, --delay=seconds         delay after song ends\n",
-	    argv0);
-}
-
-//int main(int argc, char *argv[]) {
-int InitMidiLooper(void) {
-
-	static const char short_options[] = "hVlp:d:";
-	static const struct option long_options[] = {
-		{"help", 0, NULL, 'h'},
-		{"version", 0, NULL, 'V'},
-		{"list", 0, NULL, 'l'},
-		{"port", 1, NULL, 'p'},
-		{"delay", 1, NULL, 'd'},
-		{}
-	};
-	
-	int c;
-	init_seq();
-
-#if 0
-	while ((c = getopt_long(argc, argv, short_options,
-	                        long_options, NULL)) != -1) {
-		switch (c) {
-		case 'h':
-			usage(argv[0]);
-			return 0;
-		case 'l':
-			do_list = 1;
-			break;
-		case 'p':
-			parse_ports(optarg);
-			break;
-		case 'd':
-			end_delay = atoi(optarg);
-			break;
-		default:
-			usage(argv[0]);
-			return 1;
-		}
-	}
-
-	if (port_count < 1) {
-		/* use env var for compatibility with pmidi */
-		const char *ports_str = getenv("ALSA_OUTPUT_PORTS");
-		if (ports_str)
-			parse_ports(ports_str);
-		if (port_count < 1) {
-			errormsg("Please specify at least one port with --port.");
-			return 1;
-		}
-	}
-
-	if (optind >= argc) {
-		errormsg("Please specify a file to play.");
-		return 1;
-	}
-#endif
-
-	create_source_port();
-	create_queue();
-	connect_ports();
-
-	MidiLooping = false;
-	alsa_loop_init();
-
-	StartMidiLoop("/home/Music/MidiFiles/MidiLoops/foxtrot.mid");
-	sleep(4);
-	StopMidiLoop();
-	StartMidiLoop("/home/Music/MidiFiles/MidiLoops/shuffle2.mid");
-	sleep(4);
-	StopMidiLoop();
-	StartMidiLoop("/home/Music/MidiFiles/MidiLoops/funk4.mid");
-	sleep(4);
-	StopMidiLoop();
-
-
-//	while (1) {
-
-	file_name = "/home/Music/MidiFiles/MidiLoops/foxtrot.mid";
-	MidiLooping = true;
-
-	sleep(2);
-	SetLoopTempo(140);
-	sleep(2);
-
-
-
-	MidiLooping = false;
-	snd_seq_reset_pool_output(seq);
-	sleep(1);
-
-
-	file_name = "/home/Music/MidiFiles/MidiLoops/shuffle2.mid";
-	MidiLooping = true;
-
-	sleep(4);
-
-	return 0;
-}
-
 
 /*--------------------------------------------------------------------
 * Function:		alsa_loop_init

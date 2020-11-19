@@ -39,6 +39,7 @@ include file.
 #include <string.h>
 #include "stdbool.h"
 #include "AlsaUtils.h"
+#include "APlayMidi.h"
 #include "HTML.h"
 #include "PrefsFile.h"
 #include "Connections.h"
@@ -460,6 +461,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	MyAlsaInit();
 	printd(LogInfo, "After MyAlsaInit\n");
+	InitMidiLooper();
 
 	/* OSC controls sooperlooper and jack-volume.
 	*/

@@ -273,6 +273,8 @@ void SetTempo(unsigned int NewTempo) {
 	int Ret;
 	struct itimerspec in;
 
+	SetLoopTempo(NewTempo);
+
 	printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
 
 	/* If the tempo is not reasonable.

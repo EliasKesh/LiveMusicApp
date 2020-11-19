@@ -114,6 +114,7 @@ bool MyAlsaInit() {
 	for (Loop = 0; Loop <= gMyInfo.NumOutPorts; Loop++) {
 		gMyInfo.SeqPort[Loop] = CreatePort(Seq, gMyInfo.OutPortName[Loop]);
 		printd(LogInfo, "Port %d %s\n", Loop, gMyInfo.OutPortName[Loop]);
+
 //               gMyInfo.SeqQueue[Loop] = snd_seq_alloc_queue(gMyInfo.SeqPort[Loop]);
 	}
 
@@ -315,10 +316,8 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 	int SeqStatus;
 
 	snd_seq_set_client_name(Seq, "LiveMusic Output");
-	SeqStatus = snd_seq_create_simple_port(Seq, Name,
-	                                       SND_SEQ_PORT_CAP_READ |
-	                                       SND_SEQ_PORT_CAP_SUBS_READ,
-	                                       SND_SEQ_PORT_TYPE_APPLICATION);
+	SeqStatus = snd_seq_create_simple_port(Seq, Name,                                     SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+ 		SND_SEQ_PORT_TYPE_APPLICATION);
 // SND_SEQ_PORT_TYPE_PORT, SND_SEQ_PORT_TYPE_APPLICATION
 
 	if (SeqStatus < 0) {
@@ -1083,6 +1082,7 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 			case 106:
 				plStop();
+				StopMidiLoop();
 				break;
 
 			case 107:
