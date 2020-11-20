@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*---------------------------------------------
  *	Revision Date:	 2014/04/08
  *
  *	Contains:	<Type in description>
@@ -27,7 +27,7 @@
  *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 
 /*
  * Includes
@@ -346,12 +346,12 @@ static gboolean draw_fretboard_background(GtkWidget *area,
 void SetChord(char Root, thePreChord *myPreChord);
 
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetChordCallBack
  *
  * Description:		The Scale or Chord call back from button press and
  * 				call the drawing routine.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static void SetChordCallBack(GtkWidget *widget, gpointer data) {
 	int ScaleIndex;
 
@@ -364,12 +364,12 @@ static void SetChordCallBack(GtkWidget *widget, gpointer data) {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetScaleCallBack
  *
  * Description:		The Scale or Chord call back from button press and
  * 				call the drawing routine.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static void SetScaleCallBack(GtkWidget *widget, gpointer data) {
 	int ScaleIndex;
 
@@ -381,12 +381,12 @@ static void SetScaleCallBack(GtkWidget *widget, gpointer data) {
 	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetRootCallBack
  *
  * Description:		Set root note call back from button press and
  * 				call the drawing routine.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static void SetRootCallBack(GtkWidget *widget, gpointer data) {
 
 	CurRootNote = (char) gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
@@ -396,11 +396,11 @@ static void SetRootCallBack(GtkWidget *widget, gpointer data) {
 	gdk_window_invalidate_rect(gtk_widget_get_window(widget), NULL, true);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GetFretPosition
  *
  * Description:		When the fret position is changed by the user.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static void GetFretPositionCallBack(GtkWidget *widget, GtkWidget *entry) {
 //    const gchar *PositionText = gtk_entry_get_text(GTK_ENTRY (entry));
 //	sscanf((char *)PositionText, "%d", &DisplayPosition);
@@ -411,11 +411,11 @@ static void GetFretPositionCallBack(GtkWidget *widget, GtkWidget *entry) {
 
 //		DisplayPosition = atoi(PositionText);
 }
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GetIntervalNote
  *
  * Description:		Given a root note and an interval get the new note
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 char GetIntervalNote(char Starting, char Interval) {
 	char NewInt;
 
@@ -423,11 +423,11 @@ char GetIntervalNote(char Starting, char Interval) {
 	return (NewInt);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		PrintBoard
  *
  * Description:	Print the board to a terminal -- Test
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void PrintBoard() {
 	int FretLoop;
 	int StringLoop;
@@ -442,12 +442,12 @@ void PrintBoard() {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetOpenString
  *
  * Description:	Set the open string tuning.
  * ** TODO Make this dynamic based on Preferences
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetOpenString(void) {
 int Loop;
 
@@ -468,12 +468,12 @@ int Loop;
 		StringLayout[Loop][0] = gMyInfo.BaseStringName[Loop];
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetupFretBoard
  *
  * Description:	Based on the open string tuning fill in all the notes
  * 			for every fret on everystring.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetupFretBoard(void) {
 	int	 FretLoop;
 	int	 StringLoop;
@@ -486,12 +486,12 @@ void SetupFretBoard(void) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetChord
  *
  * Description:	Clear the chord structure and fill in the notes we
  * 		want to display.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetChord(char Root, thePreChord *myPreChord) {
 	int	 Loop;
 //    char	NewNote;
@@ -552,12 +552,12 @@ void SetChord(char Root, thePreChord *myPreChord) {
 #endif
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetScale
  *
  * Description:	Clear the chord structure and fill in the notes we
  * 		want to display.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetScale(char Root, char *Scale) {
 	int Loop;
 	char NewNote;
@@ -577,11 +577,11 @@ void SetScale(char Root, char *Scale) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		MarkNote
  *
  * Description:	Add the note we want to display into the structure.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void MarkNote(char Note, char Value) {
 	int String;
 	int Fret;
@@ -595,11 +595,11 @@ void MarkNote(char Note, char Value) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		delete_event
  *
  * Description:
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
 	/* If you return FALSE in the "delete-event" signal handler,
 	 * GTK will emit the "destroy" signal. Returning TRUE means
@@ -621,11 +621,11 @@ static void destroy(GtkWidget *widget, gpointer data) {
 }
 
 #if (GTK_MAJOR_VERSION == 2)
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		ChorderMain
  *
  * Description:	for GTK 20X
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	/* GtkWidget is the storage type for widgets */
 //   GtkWidget *window;
@@ -842,11 +842,11 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	return 0;
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		draw_fretboard_background
  *
  * Description:	The drawing routine.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 	GError* error = NULL;
 	int Loop;
@@ -1042,11 +1042,11 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 	return TRUE;
 }
 #else
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		ChorderMain
  *
  * Description: for GTK 3.X
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	GtkWidget *button;
 	GtkWidget *rootBox;
@@ -1101,7 +1101,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	SetOpenString();
 //  FretOffset = width/MaxDisplayFrets;
 	if (!NumStrings)
-		return;
+		return(0);
 
 	FretOffset = Fwidth / MaxDisplayFrets;
 	StringOffset = (Fheight) / NumStrings;
@@ -1277,11 +1277,11 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window) {
 	return 0;
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		draw_fretboard_background
  *
  * Description:	The drawing routine.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
 //	GError* error = NULL;
 	int Loop;
@@ -1497,13 +1497,13 @@ return TRUE;
 }
 
 #if 0
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		hello
  *
  * Description:		This is a callback function. The data arguments are ignored
  * in this example. More on callbacks below
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 static void hello(GtkWidget *widget, gpointer data) {
 //   g_print ("Hello World\n");
 //	SetupFretBoard();

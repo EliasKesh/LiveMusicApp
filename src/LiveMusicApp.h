@@ -36,7 +36,7 @@
 
 #include <alsa/asoundlib.h>
 #include <gtk/gtk.h>
-#include <gladeui/glade.h>
+// #include <gladeui/glade.h>
 #include "MyWidgets.h"
 #include <stdbool.h>
 
@@ -84,9 +84,11 @@ enum {
 	DRLoop,
 	User2,
 	User3,
-	InternalPort,
 	MaxOutPorts
 };
+#define InternalPort 100
+
+
 #endif
 
 // Notebook tabs pages Part of Glade File.
@@ -594,6 +596,7 @@ EXTERN float 	PlayerDisTime;
 EXTERN char 	PlayerDisSection[30];
 EXTERN char 	DisableTextInput;
 EXTERN char 	WeAreRunning;
+EXTERN volatile char 	gLooperWaitForSync;
 
 #define MaxSongMarks	200
 #define SongSectionMax	30

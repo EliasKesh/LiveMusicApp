@@ -184,6 +184,7 @@ void SetTempo(unsigned int NewTempo) {
 	if (NewTempo <= 30)
 		return;
 
+	SetLoopTempo(NewTempo);
 	/* Set the jack transport for timers.
 	*/
 	com_tempo(NewTempo);
@@ -273,7 +274,6 @@ void SetTempo(unsigned int NewTempo) {
 	int Ret;
 	struct itimerspec in;
 
-	SetLoopTempo(NewTempo);
 
 	printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
 
@@ -286,6 +286,11 @@ void SetTempo(unsigned int NewTempo) {
 	*/
 	if (gMyInfo.Tempo == OldTempo)
 		return;
+
+	SetLoopTempo(NewTempo);
+
+	printf("SetTempo %d \n", gMyInfo.Tempo);
+	SetLoopTempo(NewTempo);
 
 	/* Set the jack transport for timers.
 	*/
@@ -378,6 +383,7 @@ void ToggleTempo(void) {
 
 	// gettimeofday(&Time0, NULL);
 	printd(LogTimer, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
+
 	if (gMyInfo.Tempo != OldTempo) {
 		SetTempo(gMyInfo.Tempo);
 		// Must return or SegFault.
@@ -396,6 +402,7 @@ void ToggleTempo(void) {
 			BeatCount = 1;
 			TempoState = 0;
 		}
+
 		LEDControl(BeatCount, 1);
 
 		/* Handle any recording for the looper.
@@ -503,16 +510,20 @@ void ToggleTempo(void) {
 		 */
 		if (gMyInfo.MetronomeOn) {
 			if (BeatCount != 1) {
+
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 			} else {
+				gLooperWaitForSync = 0;
 				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
 				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 			}
 
 			sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
-		} else
+		} else {
+			gLooperWaitForSync = 0;
 			sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
+		}
 
 		UIUpdateFromTimer = TRUE;
 	}

@@ -1,16 +1,16 @@
-/*---------------------------------------------------------------------
+/*---------------------------------------------
 |
-|	File: 	APlayMidi
+|   File:   APlayMidi
 |
-|	Contains: 	
-|
-|
-|	Written By: 	Elias Keshishoglou on Tue Nov 17 02:31:07 PM PST 2020
-|
-|	Copyright : 	2020 Elias Keshishoglou all rights reserved.
+|   Contains:
 |
 |
-|---------------------------------------------------------------------*/
+|   Written By:     Elias Keshishoglou on Tue Nov 17 02:31:07 PM PST 2020
+|
+|   Copyright :     2020 Elias Keshishoglou all rights reserved.
+|
+|
+|---------------------------------------------*/
 
 #ifndef APlayMidi_h
 #define APlayMidi_h
@@ -31,6 +31,7 @@ void StopMidiLoop(void);
 void StartMidiLoop(char *filename);
 static void errormsg(const char *msg, ...);
 int InitMidiLooper(void);
+void ToggleMidiLoop(void);
 
 
 /*

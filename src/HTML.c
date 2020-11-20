@@ -836,7 +836,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 	// Let's check if the MusicApp.sh can handle this.
 	sprintf(string, "MusicApps.sh %s \'%s\' \'%s\' ", ext + 1, &theURI[7], theURI);
 	SysRet = system(string);
-	printd(LogInfo, "*** systemcall %d %s\n",SysRet, string);
+	printd(LogInfo, "*** systemcall %d %s\n", SysRet, string);
 
 	/*
 	 * This tells webkit we are dealing with it.
@@ -891,14 +891,14 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 		/*
 		 * Tell web kit not to o anything with it.
 		 */
-		printd(LogInfo, "Call SetPlayer %s \n", theURI);
+		printd(LogInfo, "Midi file %s \n", theURI);
+		StartMidiLoop((theURI + 7));
 
 		webkit_policy_decision_ignore (WEBKIT_POLICY_DECISION (decision));
 		printf("*** Midi file. %s\n", FileName);
 
 		UpdateStatus(FileName);
 
-		StartMidiLoop((theURI + 7));
 
 		/*
 		 * This tells webkit we are dealing with it.

@@ -351,8 +351,12 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 	gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
 	gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
 	gtk_widget_set_margin_top(VolumeSpin, 20);
-	gtk_widget_set_margin_right(VolumeSpin, 20);
-	gtk_widget_set_margin_left(VolumeSpin, 20);
+
+//	gtk_widget_set_margin_right(VolumeSpin, 20);
+//	gtk_widget_set_margin_left(VolumeSpin, 20);
+
+	gtk_widget_set_margin_end(VolumeSpin, 20);
+	gtk_widget_set_margin_start(VolumeSpin, 20);
 
 
 	/*
@@ -539,12 +543,17 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 //	gtk_misc_set_padding(ImageWidget, 55,10);
 //	gtk_misc_set_alignment(ImageWidget, 0,0);
 
-	gtk_widget_set_margin_left(ImageWidget, 28);
-	gtk_widget_set_margin_right(ImageWidget, 28);
+//	gtk_widget_set_margin_left(ImageWidget, 28);
+//	gtk_widget_set_margin_right(ImageWidget, 28);
+	gtk_widget_set_margin_start(ImageWidget, 28);
+	gtk_widget_set_margin_end(ImageWidget, 28);
 	gtk_widget_set_margin_top(ImageWidget, 15);
 	gtk_widget_set_margin_bottom(ImageWidget, 15);
-	gtk_widget_set_margin_left(PositionSlider, 25);
-	gtk_widget_set_margin_right(PositionSlider, 25);
+
+//	gtk_widget_set_margin_left(PositionSlider, 25);
+//	gtk_widget_set_margin_right(PositionSlider, 25);
+	gtk_widget_set_margin_start(PositionSlider, 25);
+	gtk_widget_set_margin_end(PositionSlider, 25);
 
 //	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, FALSE, 5);
 

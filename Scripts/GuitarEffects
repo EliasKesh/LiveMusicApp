@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#-------------------------------------------
 #
 #   File:   GuitarEffects
 #
@@ -12,18 +12,18 @@
 #   Copyright :    2009-2021 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 
 function Delay {
     echo "Delay "`expr $1 \* 3`" "$1
     sleep `expr $1 \* 2`
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Find the devices that Jack should connect with.
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function FindDevice {
     
     # Get a list of all devices that can record
@@ -291,11 +291,11 @@ function FindDevice {
     ${PatchBay} > $LogFile 2>&1 &
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Set the Definitions
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetDefinitions {
     # This is the midi router for converting Program Change
     RouterNameIn="LiveMusic"
@@ -324,11 +324,11 @@ function SetDefinitions {
     #   fi
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Startup Jack.
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function StartJack {
 
     # See if Jackd is already running
@@ -399,11 +399,11 @@ function StartJack {
 }
 
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Startup Set Up Connections
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetUpConnections {
     
     # ********************************
@@ -453,6 +453,8 @@ function SetUpConnections {
     
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+    aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
@@ -545,11 +547,11 @@ function SetUpConnections {
 
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Find USB device
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function FindUSB {
     
     cd /sys/bus/usb/devices
@@ -569,11 +571,11 @@ function FindUSB {
     done
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Set up Music Applications
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetUpApplications {
     
     if test "${SoundSynth}" = "true"; then
@@ -652,7 +654,7 @@ function SetUpApplications {
         hydrogen -k GMKit -s  /home/elias/MySongs/Drums/JustFunky.h2song &
     fi
     
-    mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
+    # mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
 
     Delay 2
     
@@ -666,11 +668,11 @@ function SetUpApplications {
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Move apps to correct placement
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetPlacement {
     
     MaxOffSet=1368
@@ -759,11 +761,11 @@ function SetPlacement {
     wmctrl -a $LiveMusicAppDesktop
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Move apps to correct placement
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetPlacement1920 {
     set -x
     
@@ -800,11 +802,11 @@ function SetPlacement1920 {
     set +x
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Move apps to correct placement
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetPlacement1600 {
     set -x
     
@@ -834,11 +836,11 @@ function SetPlacement1600 {
     wmctrl -r TuxGuitar -t $PlayerDesktop
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Move apps to correct placement
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 function SetPlacement1200 {
     
     echo "1200 Placement Offset "$XOffset
@@ -939,11 +941,11 @@ function StopEverything {
     exit 0
 }
 
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 #
 # Main, start of script
 #
-#---------------------------------------------------------------------#
+#-------------------------------------------#
 # set -x
 #
 
@@ -985,9 +987,9 @@ xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" -5500 4100 0 4100
 
 # Exec=env WINEPREFIX="/home/elias/.wine64" wine64 MIDIGuitar2-64bit.exe
-echo "----------------------------------------------------------------------" >> $LogFile
+echo "--------------------------------------------" >> $LogFile
 echo `date` >> $LogFile
-echo "----------------------------------------------------------------------" >> $LogFile
+echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
 while getopts "abcdegfhrpmnovlswt" OPT; do
     echo "hello "$OPT

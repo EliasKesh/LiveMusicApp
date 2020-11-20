@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*---------------------------------------------
 |      Revision Date:   2012/01/15 22:52:40
 |
 |      Contains:       Main code for the Live Music Application
@@ -26,7 +26,7 @@
 |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
-|---------------------------------------------------------------------*/
+|---------------------------------------------*/
 
 /* Used for allocating storage in the
 include file.
@@ -162,12 +162,12 @@ int InitJackTransport(void);
 int CloseJackTransport(void);
 gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		printd
  *
  * Description:		Loggable print command.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 char *printd(int LogLevel, const char *fmt, ...) {
 	va_list ap;
 	char p[512]; /* check for null in real code */
@@ -186,12 +186,12 @@ char *printd(int LogLevel, const char *fmt, ...) {
 }
 
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            main
  *
  * Description:         This is where it all starts.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int main(int argc, char *argv[]) {
 	// GtkWidget *theMainWindow;
 	GtkWidget *widget;
@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
 background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url("assets/scale-slider-horz-dark@2.png"));
 	}
 
-	/*---------------- CSS ----------------------------------------------------------------------------------------------------*/
+	/*---------------- CSS ----------------------------------------------------------------------------*/
 	provider = gtk_css_provider_new ();
 	display = gdk_display_get_default ();
 	screen = gdk_display_get_default_screen (display);
@@ -301,7 +301,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	                                 g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
 	                                 NULL);
 	g_object_unref (provider);
-	/*-------------------------------------------------------------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------------------------------------*/
 
 	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 #endif
@@ -337,7 +337,7 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	 */
 	theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
 
-	/*------------- CSS  --------------------------------------------------------------------------------------------------*/
+	/*------------- CSS  --------------------------------------------------------------------------*/
 	provider = gtk_css_provider_new();
 	display = gdk_display_get_default();
 	screen = gdk_display_get_default_screen(display);
@@ -594,12 +594,12 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
 	return 0;
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GetResourceDir
  *
  * Description:		Return the full path for the file.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 char *GetResourceDir(char *FileName, char WhichLoc) {
 
 	/* Location of resource files needed.
@@ -628,12 +628,12 @@ char *GetResourceDir(char *FileName, char WhichLoc) {
 	return (ResourceFileName);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		Check for the .config dirs
  *
  * Description:
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void CheckForStartupDirs(void) {
 	struct stat s;
 	int err;
@@ -668,11 +668,11 @@ void CheckForStartupDirs(void) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            my_keypress_function
  *
  * Description: Get keyboard events.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data) {
 
 	printd(LogDebug, "Event %x %x\n",
@@ -998,11 +998,11 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
 	return FALSE;
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            GTKIdel_cb
  *
  * Description: Startup some Gui.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 unsigned long int IdleCounter;
 int GTKIdel_cb(gpointer data) {
 	char ForString[100];
@@ -1212,12 +1212,12 @@ int GTKIdel_cb(gpointer data) {
 //	return (TRUE);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SwitchToTab
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SwitchToTab(char Tab) {
 	int Loop;
 
@@ -1246,13 +1246,13 @@ void SwitchToTab(char Tab) {
 }
 
 #if 0
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_button_clicked
  *
  * Description:		When the uses presses one of the main screen patch
  * 	buttons we get dispatched here.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void on_button_clicked(GtkButton *button, gpointer user_data) {
 //	tPatchIndex PatchIndex;
 
@@ -1264,13 +1264,13 @@ void on_button_clicked(GtkButton *button, gpointer user_data) {
 }
 #endif
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_layoutbutton_clicked
  *
  * Description:		When the mode button is pressed from the screen we call
  * 	this.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean layout_click_handler(GtkWidget *widget,
                               GdkEvent *event,
                               gpointer user_data) {
@@ -1287,12 +1287,12 @@ gboolean layout_click_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		layout_release_handler
  *
  * Description:
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean layout_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {
@@ -1303,12 +1303,12 @@ gboolean layout_release_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_About_clicked
  *
  * Description:		It's all about ME !
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void on_About_clicked(GtkButton *button, gpointer user_data) {
 	GtkWidget *window;
 
@@ -1316,12 +1316,12 @@ void on_About_clicked(GtkButton *button, gpointer user_data) {
 	gtk_widget_show(window);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_window1_destroy
  *
  * Description:		That's IT, I'm outta here.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 
 	/* break gtk_main() loop */
@@ -1330,12 +1330,12 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 	gtk_main_quit();
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_Tempo_Button
  *
  * Description:		Turn the Metrognome on or off
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 
 	// Put Dialog here.
@@ -1356,22 +1356,22 @@ void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 	g_idle_add(GTKIdel_cb, theMainWindow);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		tab_focus_callback
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
 	SetUpMainButtons(&gMyInfo.MyPatchInfo);
 	return true;
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            ClearMainButtons
  *
  * Description: Make sure the buttons are all up.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void ClearMainButtons(void) {
 	int Loop;
 
@@ -1390,11 +1390,11 @@ void ClearMainButtons(void) {
 }
 
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            parse_cmdline
  *
  * Description: 	Deal with command line arguments.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void parse_cmdline(int argc, char *argv[]) {
 	int c;
 	int digit_optind = 0;
@@ -1474,12 +1474,12 @@ void parse_cmdline(int argc, char *argv[]) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		Update the display status
  * Description:		raw the previous patches on the screen to make
  * 	sure that they completed. It's hard to tell with a foot pedal .
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void UpdateStatus(char *String) {
 	GtkStyle *hold;
 	char DisString[MaxStatusHold * (MaxUpdateLength + 20)];
@@ -1517,10 +1517,10 @@ void UpdateStatus(char *String) {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		Main Button Handler
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean click_handler(GtkWidget *widget,
                        GdkEvent *event,
                        gpointer user_data) {
@@ -1546,11 +1546,11 @@ gboolean click_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		release_handler
  *
  * Description:		Clear the button
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean release_handler(GtkWidget *widget,
                          GdkEvent *event,
                          gpointer user_data) {
@@ -1565,11 +1565,11 @@ gboolean release_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		Notebook_click_handler
  *
  * Description:		Build the notebook tab
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gboolean Notebook_click_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {
@@ -1585,11 +1585,11 @@ gboolean Notebook_click_handler(GtkWidget *widget,
 	return TRUE; /* stop event propagation */
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		CreateTabButtons
  *
  * Description:		Build the notebook tab
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void CreateTabButtons(void) {
 	int Loop;
 	char Buffer[40];
@@ -1617,11 +1617,11 @@ void CreateTabButtons(void) {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		CreateMainButtons
  *
  * Description:		Build the main button screen
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void CreateMainButtons(void) {
 	int Loop, Row = 0, Col = 0;
 	GtkWidget *ButtonFrame;
@@ -1683,12 +1683,12 @@ void CreateMainButtons(void) {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetScale4Label
  *
  * Description:		Volume 4 Label
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetScale4Label(char *String) {
 	GtkWidget *Label;
 
@@ -1697,13 +1697,13 @@ void SetScale4Label(char *String) {
 	gtk_label_set_text((Label), (gchar *)String);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		VScale1_Changed
  *
  * Description:		Volume Sliders changed.
  * 				All values from 0-127
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void VScale1_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
@@ -1730,12 +1730,12 @@ void VScale1_Changed(GtkAdjustment *adj) {
 
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		VScale2_Changed
  *
  * Description:		Volume Sliders changed.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void VScale2_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
@@ -1762,12 +1762,12 @@ void VScale2_Changed(GtkAdjustment *adj) {
 		         (char) LogValue);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		VScale3_Changed
  *
  * Description:		Volume Sliders changed.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void VScale3_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
@@ -1793,12 +1793,12 @@ void VScale3_Changed(GtkAdjustment *adj) {
 		         (char) LogValue * 1.27);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		VScale4_Changed
  *
  * Description:		Volume Sliders changed.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void VScale4_Changed(GtkAdjustment *adj) {
 	int ThisPatchNum;
 	PatchInfo *ThisPatch;
@@ -1825,11 +1825,11 @@ void VScale4_Changed(GtkAdjustment *adj) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetVolume1
  *
  * Description:	Change the Volume Slider based on midi input.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int SetVolume1(int Value) {
 	gtk_adjustment_set_value(Adjustment1, Value);
 	printd(LogDebug, "Slider 1\n");
@@ -1843,11 +1843,11 @@ int SetVolume1(int Value) {
 	return (Value);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetVolume2
  *
  * Description:	Change the Volume Slider based on midi input.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int SetVolume2(int Value) {
 	printd(LogDebug, "Slider 2 %x %d\n",
 	       Adjustment2, Value);
@@ -1861,11 +1861,11 @@ int SetVolume2(int Value) {
 	return (Value);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetVolume3
  *
  * Description:
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int SetVolume3(int Value) {
 	printd(LogDebug, "Slider 3 %x %d\n",
 	       Adjustment2, Value);
@@ -1879,11 +1879,11 @@ int SetVolume3(int Value) {
 	return (Value);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetVolume4
  *
  * Description:
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int SetVolume4(int Value) {
 	printd(LogTest, "SetVol Slider 4 %x %d\n",
 	       Adjustment2, Value);
@@ -1897,12 +1897,12 @@ int SetVolume4(int Value) {
 	return (Value);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetUpMainButtons
  *
  * Description:		Set the title of all of the buttons
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void SetUpMainButtons(PatchInfo *myPatchInfo) {
 	GtkWidget *myButton;
 	GtkWidget *myChild;
@@ -1944,12 +1944,12 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 #endif
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:
  *
  * Description:         <Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 tPatchIndex DoPatch(PatchInfo *thePatch) {
 	int Next;
 	PatchInfo *NextPatch;
@@ -1981,23 +1981,23 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
 	return (0);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		RaiseWindowsNum
  *
  * Description:		Bring the App/Window into the forground.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void RaiseWindowsNum(int AppNumber) {
 	printd(LogInfo, "Raise Window %s\n", gMyInfo.Apps[AppNumber].Name);
 	RaiseWindows(&gMyInfo.Apps[AppNumber].Name);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GetModePreset
  *
  * Description:		Based on the current mode convert an index.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 tPatchIndex GetModePreset(tPatchIndex Value) {
 	tPatchIndex NewValue;
 
@@ -2040,12 +2040,12 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
 	return (NewValue);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		IncrementMode
  *
  * Description:		Based on the current mode do a different.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void IncrementMode(void) {
 
 	// Check for wrap around.
@@ -2063,12 +2063,12 @@ void IncrementMode(void) {
 	printd(LogDebug, "Increment Mode %d\n", CurrentLayout);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		LayoutSwitchPatch
  *
  * Description:		Based on the current mode do a different.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	tPatchIndex Preset;
 	tPatchIndex RetVal;
@@ -2135,12 +2135,12 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
 	return (FinalRetVal);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GuitarMidiPreset
  *
  * Description:		Wait for a preset from the Midi Guitar.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int GuitarMidiPreset(char Wait) {
 
 	printd(LogTest, "GuitarMidiPreset Start Wait=%d\n", Wait);
@@ -2163,12 +2163,12 @@ int GuitarMidiPreset(char Wait) {
 	return (0);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GuitarMidiPresetComplete
  *
  * Description:		Wait for a preset from the Midi Guitar.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	tPatchIndex PatchChange;
 
@@ -2204,11 +2204,11 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 	return (0);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		FindString
  *
  * Description:	Find the offset into a list of strings.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int FindString(int StringList, char *String) {
 	int Loop;
 
@@ -2244,12 +2244,12 @@ int FindString(int StringList, char *String) {
 	return (0);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		InitHistoryFile
  *
  * Description:		When the sliders are changed on the main screen.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int InitHistoryFile(void) {
 
 	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");
@@ -2279,12 +2279,12 @@ int CloseHistoryFile(void) {
 	fclose(FileHistory);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		SetExpressionControl
  *
  * Description:		Control multiple volumes/expression
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int SetExpressionControl(int Controller, int Value) {
 	int ReturnVal = 0;
 	int LogValue = 0;
@@ -2357,7 +2357,7 @@ int SetExpressionControl(int Controller, int Value) {
 
 	case ecLooper:
 //		ReturnVal = gMyInfo.MidiThresholdLevel;
-		MyOSCJackVol(Value,3);
+		MyOSCJackVol(Value, 3);
 		break;
 
 
@@ -2385,12 +2385,12 @@ int SetExpressionControl(int Controller, int Value) {
 	return (ReturnVal);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		GetExpressionControl
  *
  * Description:		Control multiple volumes/expression
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int GetExpressionControl(int Controller) {
 	int ReturnVal = 0;
 
@@ -2431,12 +2431,12 @@ int GetExpressionControl(int Controller) {
 	return (ReturnVal);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		LEDControl
  *
  * Description:
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void LEDControl(char Beat, char State) {
 
 	// DAW Lights Off
@@ -2560,11 +2560,11 @@ void LEDControl(char Beat, char State) {
 }
 
 #if 0
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		show_motion_notify_cb
  *
  * Description:	CallBack function for motion.
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
                             GtkWidget *widget) {
 
@@ -2599,12 +2599,12 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
 	return (FALSE);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		CreateHTMLGuide
  *
  * Description:		Writes and HTML file for the presets.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void CreateHTMLGuide(LiveMusicInfo *myInfo) {
 	FILE *MyFile;
 	char FileName[255];
@@ -2653,12 +2653,12 @@ void CreateHTMLGuide(LiveMusicInfo *myInfo) {
 	fclose(MyFile);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            create_pixbuf
  *
  * Description:		Load an icon file for the application
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 GdkPixbuf *create_pixbuf(const gchar * filename) {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
@@ -2674,21 +2674,21 @@ return (NULL);
 }
 
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		CheckConnectionData
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void CheckConnectionData(LiveMusicInfo *myInfo) {
 
 }
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            apply_font_to_widget
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 	PangoFontDescription *pfd;
 	pfd = pango_font_description_from_string(fload);
@@ -2703,12 +2703,12 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
 }
 
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:		on_hscale1_value_changed
  *
  * Description:		When the sliders are changed on the main screen.
  *
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
 	gdouble val;
 

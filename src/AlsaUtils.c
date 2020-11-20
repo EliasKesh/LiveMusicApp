@@ -50,11 +50,11 @@ void ProgramChange(unsigned int InputChange);
 bool alsa_input_init(const char * name);
 bool alsa_input_DAW_init(const char * name);
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
  * Function:            show_status
  *
  * Description:
- *---------------------------------------------------------------------*/
+ *-------------------------------------------*/
 void show_status(void *handle) {
 	int err;
 	snd_timer_status_t *status;
@@ -71,11 +71,11 @@ void show_status(void *handle) {
 	printd(LogInfo, "  queue = %li\n", snd_timer_status_get_queue(status));
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
  * Function:            MyAlsaClose
  *
  * Description:         Close and cleanup
- *---------------------------------------------------------------------*/
+ *-------------------------------------------*/
 bool MyAlsaClose(void) {
 	int ret;
 
@@ -96,12 +96,12 @@ bool MyAlsaClose(void) {
 	return (FALSE);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		MyAlsaInit
 *
 * Description:		Set up Alsa Midi and create the I/O Ports
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 bool MyAlsaInit() {
 	int Loop;
 	snd_seq_t *Seq;
@@ -144,11 +144,11 @@ bool MyAlsaInit() {
 }
 
 #ifdef AlsaTimer
-/*--------------------------------------------------------------------
+/*------------------------------------------
  * Function:            async_callback
  *
  * Description:         Timer callback for Tempo
- *---------------------------------------------------------------------*/
+ *-------------------------------------------*/
 static void async_callback(snd_async_handler_t *ahandler) {
 	int err;
 
@@ -169,11 +169,11 @@ static void async_callback(snd_async_handler_t *ahandler) {
 #endif
 snd_async_handler_t *ahandler;
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:            SetupAlsaTimer
  *
  * Description:         Setup timer for Tempo
- *---------------------------------------------------------------------*/
+ *----------------------------------------------*/
 void SetupAlsaTimer(int Count) {
 	char timername[64];
 	int idx, err;
@@ -280,11 +280,11 @@ void SetupAlsaTimer(int Count) {
 #endif
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
  * Function:            setTimerFreq
  *
  * Description:         Change the tempo (thanks muse)
- *---------------------------------------------------------------------*/
+ *-------------------------------------------*/
 unsigned long setTimerFreq(unsigned long freq) {
 	signed int err;
 	long int cur_freq;
@@ -306,18 +306,18 @@ unsigned long setTimerFreq(unsigned long freq) {
 
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		CreatePort
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 	int SeqStatus;
 
 	snd_seq_set_client_name(Seq, "LiveMusic Output");
 	SeqStatus = snd_seq_create_simple_port(Seq, Name,                                     SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
- 		SND_SEQ_PORT_TYPE_APPLICATION);
+	                                       SND_SEQ_PORT_TYPE_APPLICATION);
 // SND_SEQ_PORT_TYPE_PORT, SND_SEQ_PORT_TYPE_APPLICATION
 
 	if (SeqStatus < 0) {
@@ -328,12 +328,12 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 
 #define TICKS_PER_QUARTER 128
 #define MAX_SEQ_LEN        64
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:             SendMidi
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 	snd_seq_event_t ev;
 	int err;
@@ -515,12 +515,12 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
 }
 #endif
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		SendMidiPatch
 *
 * Description:		This should not get called via the thread.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 int SendMidiPatch(PatchInfo * thePatch) {
 	int err = 0;
 
@@ -765,13 +765,13 @@ int SendMidiPatch(PatchInfo * thePatch) {
 	return (err);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		alsa_midi_DAW_thread
 *
 * Description:		This is a separate thread that handles midi messages
 * 		received.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 void *alsa_midi_DAW_thread(void * context_ptr) {
 	snd_seq_event_t * event_ptr, ev;
 	char msg_str_ptr[255];
@@ -1082,7 +1082,9 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 
 			case 106:
 				plStop();
-				StopMidiLoop();
+
+				if (event_ptr->data.control.value)
+					ToggleMidiLoop();
 				break;
 
 			case 107:
@@ -1105,13 +1107,13 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		alsa_midi_thread
 *
 * Description:		This is a separate thread that handles midi messages
 * 		received.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 void *alsa_midi_thread(void * context_ptr) {
 	snd_seq_event_t * event_ptr, ev;
 	char time_str_ptr[255];
@@ -2175,12 +2177,12 @@ void *alsa_midi_thread(void * context_ptr) {
 }
 static snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		device_list
 *
 * Description:		Look for all devices.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 static void device_list(void) {
 	snd_ctl_t *handle;
 	int card, err, dev, idx;
@@ -2250,12 +2252,12 @@ next_card:
 	}
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		pcm_list
 *
 * Description:		Look for Capture Cards.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 static void pcm_list(void) {
 	void **hints, **n;
 	char *name, *descr, *descr1, *io;
@@ -2302,12 +2304,12 @@ __end:
 	snd_device_name_free_hint(hints);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		SetAlsaMasterVolume
 *
 * Description:		Control the Alsa Mixer
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 void SetAlsaMasterVolume(long volume) {
 	long min, max;
 	snd_mixer_selem_id_t *sid;
@@ -2326,12 +2328,12 @@ void SetAlsaMasterVolume(long volume) {
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		SetAlsaCaptureVolume
 *
 * Description:		Control the Alsa Mixer
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 void SetAlsaCaptureVolume(long volume) {
 	long min, max;
 	snd_mixer_selem_id_t *sid;
@@ -2351,12 +2353,12 @@ void SetAlsaCaptureVolume(long volume) {
 	snd_mixer_selem_set_capture_volume_all(elem, volume * max / 100);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		alsa_input_init
 *
 * Description:		Setup the Alsa input port.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 bool alsa_input_init(const char * name) {
 	int ret;
 	snd_seq_port_info_t * port_info = NULL;
@@ -2427,12 +2429,12 @@ fail:
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		alsa_input_DAW_init
 *
 * Description:		Setup the Alsa input port.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 bool alsa_input_DAW_init(const char * name) {
 	int ret;
 	snd_seq_port_info_t * port_info = NULL;
@@ -2511,12 +2513,12 @@ fail:
 
 #if 0
 // /usr/include/alsa/seq_event.h
-/*--------------------------------------------------------------------
+/*------------------------------------------
 * Function:		ProgramChange
 *
 * Description:		Change.
 *
-*---------------------------------------------------------------------*/
+*-------------------------------------------*/
 void ProgramChange(unsigned int InputChange) {
 
 	switch (InputChange) {

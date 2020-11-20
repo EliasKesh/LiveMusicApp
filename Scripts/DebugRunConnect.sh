@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#---------------------------------------------
 #
 #	File: 	DebugRunConnect
 #
@@ -11,7 +11,7 @@
 #	Copyright ©: 	2019 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#---------------------------------------------#
 
 
 # ./LiveMusicApp -v 6 > ./LiveText.txt &
@@ -40,6 +40,9 @@ aconnect "Midi Through":0 "LiveMusic Input":0
 aconnect  "LiveMusic Output":6 "EliasPedal3":0
 aconnect  "LiveMusic Output":6 "LPD8":0
 aconnect  "LiveMusic Output":6 "USB Uno MIDI Interface":0
+aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+
 aconnect  "Reloop KeyFadr":"0" "LiveDAW Input":"0"
 aconnect  "LiveMusic Output":7 "Reloop KeyFadr":"0"
 

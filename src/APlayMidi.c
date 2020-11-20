@@ -1,23 +1,16 @@
-/*
- * aplaymidi.c - play Standard MIDI Files to sequencer port(s)
- *
- * Copyright (c) 2004-2006 Clemens Ladisch <clemens@ladisch.de>
- *
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+/*---------------------------------------------
+|
+|	File: 	APlayMidi
+|
+|	Contains:
+|
+|
+|	Written By: 	Elias Keshishoglou on Tue Nov 17 02:31:07 PM PST 2020
+|
+|	Copyright : 	2020 Elias Keshishoglou all rights reserved.
+|
+|
+|---------------------------------------------*/
 
 /* TODO: sequencer queue timer selection */
 
@@ -78,7 +71,7 @@ static int port_count;
 static snd_seq_addr_t LoopPort;
 static int queue;
 static int end_delay = 2;
-static char *file_name;
+static char file_name[1000];
 static FILE *file;
 static int file_offset;		/* current offset in input file */
 static int num_tracks;
@@ -102,27 +95,27 @@ int InitMidiLooper(void);
 
 //int main(int argc, char *argv[]) {
 
-/*--------------------------------------------------------------------
-* Function:  InitMidiLooper          
+/*--------------------------------------------
+* Function:  InitMidiLooper
 *
 * Description:           Initialize the Midifile looper
-*---------------------------------------------------------------------*/
+*---------------------------------------------*/
 int InitMidiLooper(void) {
 	snd_seq_port_info_t *pinfo;
 	int err;
 
 	seq = gMyInfo.SeqPort[DRLoop];
 
-	printf("open sequencer %x\n", seq);
+	printd(LogTest, "open sequencer %x\n", seq);
 
 	/* find out who we actually are */
 //	client = snd_seq_client_id(seq);
-//	printf("get client id %d\n", client);
+//	printd(LogTest, "get client id %d\n", client);
 //	snd_seq_parse_address(seq, &LoopPort, "129:0");
 	LoopPort.client = snd_seq_client_id(seq);
 	LoopPort.port = DRLoop;
 //	snd_seq_parse_address(seq, &LoopPort, "129:0");
-	printf("LoopPort %d %d\n", LoopPort.client, LoopPort.port);
+	printd(LogTest, "LoopPort %d %d\n", LoopPort.client, LoopPort.port);
 
 	queue = snd_seq_alloc_queue(seq);
 
@@ -131,8 +124,25 @@ int InitMidiLooper(void) {
 
 	return 0;
 }
+
+/*-----------------------------------------------
+* Function: ToggleMidiLoop
+*
+* Description:  Description
+* 
+*----------------------------------------------*/
+void ToggleMidiLoop(void) {
+
+	if (MidiLooping) {
+		StopMidiLoop();
+	}
+	else {
+		StartMidiLoop(NULL);
+	}
+}
+
 /*-------------------------------------------------
-* Function:  StopMidiLoop          
+* Function:  StopMidiLoop
 *
 * Description:           Stop and clear buffer
 *------------------------------------------------*/
@@ -148,25 +158,43 @@ void StopMidiLoop(void) {
 //	usleep(500);
 }
 
-/*--------------------------------------------------------------------
-* Function:    StartMidiLoop        
+/*--------------------------------------------
+* Function:    StartMidiLoop
 *
 * Description: Pass midi file and open.
-*---------------------------------------------------------------------*/
+*---------------------------------------------*/
 void StartMidiLoop(char *filename) {
 
 	if (MidiLooping)
 		StopMidiLoop();
 
-	file_name = filename;
+	if (filename != NULL)
+		strcpy(file_name,filename);
+
+printd(LogTest, "Start File [%s]\n",file_name);
+	gLooperWaitForSync = true;
 	MidiLooping = true;
 }
 
-/*--------------------------------------------------------------------
-* Function: SetLoopTempo           
+/*-----------------------------------------------
+* Function: SetLoopStartSync
+*
+* Description:  Sync start with MetroNome.
+* 
+*----------------------------------------------*/
+void SetLoopStartSync(void) {
+	snd_seq_event_t ev;
+
+	snd_seq_start_queue(seq, queue, &ev);
+//	snd_seq_ev_set_queue_pos_tick(ev, queue, 0);
+
+}
+
+/*--------------------------------------------
+* Function: SetLoopTempo
 *
 * Description: Adjust the playback speed
-*---------------------------------------------------------------------*/
+*---------------------------------------------*/
 void SetLoopTempo(int NewTempo) {
 
 	if (!MidiLooping)
@@ -175,7 +203,7 @@ void SetLoopTempo(int NewTempo) {
 	MyTempo = NewTempo;
 	snd_seq_event_t ev;
 	int err;
-	printf("SetLoopTempo %d\n", NewTempo);
+	printd(LogTest, "SetLoopTempo %d\n", NewTempo);
 
 	ev.type = SND_SEQ_EVENT_TEMPO;
 //	ev.time.tick = 2000;
@@ -195,7 +223,7 @@ void SetLoopTempo(int NewTempo) {
 * Function: MyAlsaLoopClose
 *
 * Description: Close the midi queue
-* 
+*
 *-------------------------------------------*/
 int MyAlsaLoopClose(void) {
 	int ret;
@@ -223,15 +251,15 @@ static void init_seq(void) {
 
 	seq = gMyInfo.SeqPort[DRLoop];
 
-	printf("open sequencer %d\n", err);
+	printd(LogTest, "open sequencer %d\n", err);
 
 	/* set our name (otherwise it's "Client-xxx") */
 //	err = snd_seq_set_client_name(seq, "aplaymidi");
-//	printf("set client name%d\n", err);
+//	printd(LogTest, "set client name%d\n", err);
 
 	/* find out who we actually are */
 	client = snd_seq_client_id(seq);
-	printf("get client id %d\n", client);
+	printd(LogTest, "get client id %d\n", client);
 }
 
 static int read_byte(void) {
@@ -443,7 +471,7 @@ static int read_track(struct track *track, int track_end) {
 						event->data.tempo = read_byte() << 16;
 						event->data.tempo |= read_byte() << 8;
 						event->data.tempo |= read_byte();
-						printf("ejk Tempo %d\n", event->data.tempo);
+						printd(LogTest, "ejk Tempo %d\n", event->data.tempo);
 						skip(len - 3);
 					}
 					break;
@@ -501,25 +529,38 @@ invalid_format:
 	}
 
 	time_division = read_int(2);
+	// ejk
+	time_division = gMyInfo.Tempo;
+
 	if (time_division < 0)
 		goto invalid_format;
 
-	printf("ejk read_smf %d\n",
+	printd(LogTest, "ejk read_smf %d\n",
 	       time_division);
 	/* interpret and set tempo */
 	snd_seq_queue_tempo_alloca(&queue_tempo);
 	smpte_timing = !!(time_division & 0x8000);
 	if (!smpte_timing) {
+		printd(LogTest, "Loop !smpte_timing %d\n");
+
 		/* time_division is ticks per quarter */
-		snd_seq_queue_tempo_set_tempo(queue_tempo, 500000); /* default: 120 bpm */
+//		snd_seq_queue_tempo_set_tempo(queue_tempo, 500000); /* default: 120 bpm */
+
+
+		snd_seq_queue_tempo_set_tempo(queue_tempo, 60000000 / time_division); /* default: 120 bpm */
+
+
+
 		snd_seq_queue_tempo_set_ppq(queue_tempo, time_division);
 	} else {
+		printd(LogTest, "Loop smpte_timing %d\n");
+
 		/* upper byte is negative frames per second */
 		i = 0x80 - ((time_division >> 8) & 0x7f);
 		/* lower byte is ticks per frame */
 		time_division &= 0xff;
 		/* now pretend that we have quarter-note based timing */
-		printf("ejk Tempo Case %d\n", i);
+		printd(LogTest, "ejk Tempo Case %d %d\n", i, time_division);
 		switch (i) {
 		case 24:
 			snd_seq_queue_tempo_set_tempo(queue_tempo, 500000);
@@ -543,15 +584,18 @@ invalid_format:
 			return 0;
 		}
 	}
-	printf("snd_seq_set_queue_tempo\n");
+
+#if 1
+	printd(LogTest, "snd_seq_set_queue_tempo\n");
 	err = snd_seq_set_queue_tempo(seq, queue, queue_tempo);
-//	printf("ejk read_smf %d\n", queue_tempo);
+//	printd(LogTest, "ejk read_smf %d\n", queue_tempo);
 	if (err < 0) {
 		errormsg("Cannot set queue tempo (%u/%i)",
 		         snd_seq_queue_tempo_get_tempo(queue_tempo),
 		         snd_seq_queue_tempo_get_ppq(queue_tempo));
-		return 0;
+//		return 0;
 	}
+#endif
 
 	/* read tracks */
 	for (i = 0; i < num_tracks; ++i) {
@@ -641,19 +685,19 @@ static void handle_big_sysex(snd_seq_event_t *ev) {
 	event_size = snd_seq_event_length(ev);
 	if (event_size + 1 > snd_seq_get_output_buffer_size(seq)) {
 		err = snd_seq_drain_output(seq);
-		printf("drain output%d\n", err);
+		printd(LogTest, "drain output%d\n", err);
 		err = snd_seq_set_output_buffer_size(seq, event_size + 1);
-		printf("set output buffer size%d\n", err);
+		printd(LogTest, "set output buffer size%d\n", err);
 	}
 	while (length > MIDI_BYTES_PER_SEC) {
 		err = snd_seq_event_output(seq, ev);
-		printf("output event %d\n", err);
+		printd(LogTest, "output event %d\n", err);
 		err = snd_seq_drain_output(seq);
-		printf("drain output %d\n", err);
+		printd(LogTest, "drain output %d\n", err);
 		err = snd_seq_sync_output_queue(seq);
-		printf("sync output %d\n", err);
+		printd(LogTest, "sync output %d\n", err);
 		if (sleep(1))
-			printf("aborted");
+			printd(LogTest, "aborted");
 		ev->data.ext.ptr += MIDI_BYTES_PER_SEC;
 		length -= MIDI_BYTES_PER_SEC;
 	}
@@ -672,9 +716,11 @@ static void play_midi(void) {
 	}
 
 	MyTempo = gMyInfo.Tempo;
-// ejk
+	printd(LogTest, "MidiLooping Tempo=%d\n",MyTempo);
+
+	// Here is where we loop.
 	while (MidiLooping) {
-		printf("ejk Starting loop\n");
+		printd(LogTest, "ejk Starting loop\n");
 		/* initialize current position in each track */
 		for (i = 0; i < num_tracks; ++i)
 			tracks[i].current_event = tracks[i].first_event;
@@ -685,13 +731,8 @@ static void play_midi(void) {
 		ev.source.port = DRLoop;
 		ev.flags = SND_SEQ_TIME_STAMP_TICK;
 
-//		snd_seq_ev_set_source(&ev, 0);
-//		snd_seq_ev_set_subs(&ev);
-
-
-
 		err = snd_seq_start_queue(seq, queue, NULL);
-//		printf("start queue%d\n", err);
+//		printd(LogTest, "start queue%d\n", err);
 		/* The queue won't be started until the START_QUEUE event is
 		 * actually drained to the kernel, which is exactly what we want. */
 
@@ -711,28 +752,19 @@ static void play_midi(void) {
 				}
 			}
 
+			while(gLooperWaitForSync);
+
 			if (!event)
 				break; /* end of song reached */
 
 			/* advance pointer to next event */
 			event_track->current_event = event->next;
 
-
-	// snd_seq_ev_clear(&ev);
-	// snd_seq_ev_set_source(&ev, 7);
-	// snd_seq_ev_set_subs(&ev);
-	// snd_seq_ev_set_direct(&ev);
-
 			/* output the event */
 			ev.type = event->type;
 			ev.time.tick = event->tick;
-//			ev.dest = LoopPort;
-//			ev.dest = ports[event->port];
 
-
-
-    		snd_seq_ev_set_subs( &ev );
-
+			snd_seq_ev_set_subs( &ev );
 
 			switch (ev.type) {
 			case SND_SEQ_EVENT_NOTEON:
@@ -763,7 +795,7 @@ static void play_midi(void) {
 				     ((event->data.d[2]) << 7)) - 0x2000;
 				break;
 			case SND_SEQ_EVENT_SYSEX:
-				snd_seq_ev_set_variable(&ev, event->data.length,event->sysex);
+				snd_seq_ev_set_variable(&ev, event->data.length, event->sysex);
 				handle_big_sysex(&ev);
 				break;
 			case SND_SEQ_EVENT_TEMPO:
@@ -773,19 +805,20 @@ static void play_midi(void) {
 				ev.data.queue.queue = queue;
 				event->data.tempo = 60000000 / MyTempo;
 				ev.data.queue.param.value = event->data.tempo;
-				printf("ejk SND_SEQ_EVENT_TEMPO %d %d\n", event->data.tempo, MyTempo);
+				printd(LogTest, "ejk SND_SEQ_EVENT_TEMPO %d %d\n", event->data.tempo, MyTempo);
 				break;
 			default:
-				printf("Invalid event type %d!", ev.type);
+				printd(LogTest, "Invalid event type %d!", ev.type);
 			}
 
 			/* this blocks when the output pool has been filled */
 //			err = snd_seq_event_output_buffer(seq, &ev);
 //			err = snd_seq_event_output_direct(seq, &ev);
 
+			snd_seq_nonblock(seq, 1);
 
 			err = snd_seq_event_output(seq, &ev);
-//			printf("output event%d\n", err);
+//			printd(LogTest, "output event%d\n", err);
 		}
 
 #if 1
@@ -797,15 +830,18 @@ static void play_midi(void) {
 		ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
 		ev.data.queue.queue = queue;
 		err = snd_seq_event_output(seq, &ev);
-		printf("output event error %d %x\n", 
-			err,seq);
+		printd(LogTest, "output event error %d %x\n",
+		       err, seq);
 #endif
 
 		/* make sure that the sequencer sees all our events */
 		do {
-		err = snd_seq_drain_output(seq);
-			printf("drain output%d\n", err);
-		 } while( err > 0 );
+			err = snd_seq_drain_output(seq);
+			printd(LogTest, "drain output %d\n", err
+				);
+			gLooperWaitForSync = true;
+		} while ( err > 0 );
+
 		/*
 		 * There are three possibilities how to wait until all events have
 		 * been played:
@@ -815,34 +851,39 @@ static void play_midi(void) {
 		 * 3) wait until the output pool is empty.
 		 * The last is the simplest.
 		 */
-		printf("Before Sync\n");
+
+#if 0		
+		do {
+			err = snd_seq_event_output_pending(seq);
+			printd(LogTest, "Pending output %d\n", err
+				);
+			gLooperWaitForSync = true;
+		} while ( err > 0 );
+#endif
+
 		err = snd_seq_sync_output_queue(seq);
-		printf("After Sync %d\n", MidiLooping);
+		gLooperWaitForSync = true;
+		printd(LogTest, "After Sync %d %d\n", MidiLooping, err);
 	} // end of while.
 
 	/* give the last notes time to die away */
 //	if (end_delay > 0)
 //		sleep(end_delay);
-	printf("Leaving play_midi\n");
+	printd(LogTest, "Leaving play_midi\n");
 }
 
-static void play_file(void) {
+static int play_file(void) {
 	int ok;
 
-	printf("Play_file %s\n", file_name);
+	printd(LogTest, "Play_file [%s]\n", file_name);
 
-	if (!strcmp(file_name, "-"))
-		file = stdin;
-	else
-		file = fopen(file_name, "rb");
+	file = fopen(file_name, "rb");
 	if (!file) {
-		printf("Cannot open %s - %s", file_name, strerror(errno));
-
-		errormsg("Cannot open %s - %s", file_name, strerror(errno));
-		return;
+		printd(LogTest, "Cannot open [%s] - %s\n", file_name, strerror(errno));
+		return (true);
 	}
 
-	printf("Play_File name %s\n", file_name);
+	printd(LogTest, "Play_File name %s\n", file_name);
 	file_offset = 0;
 	ok = 0;
 
@@ -854,35 +895,37 @@ static void play_file(void) {
 		ok = read_riff();
 		break;
 	default:
-		errormsg("%s is not a Standard MIDI File", file_name);
+		errormsg("%s is not a Standard MIDI File\n", file_name);
+		return (true);
 		break;
 	}
 
 	if (file != stdin)
 		fclose(file);
 
-	printf("About to Call Play Midi\n");
+	printd(LogTest, "About to Call Play Midi\n");
 	if (ok)
 		play_midi();
 
-	printf("After call to Play Midi\n");
+	printd(LogTest, "After call to Play Midi\n");
 
 	cleanup_file_data();
+	return (false);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
 * Function:		alsa_loop_init
 *
 * Description:		Setup the Alsa input port.
 *
-*---------------------------------------------------------------------*/
+*---------------------------------------------*/
 int alsa_loop_init(void) {
 	int ret;
 	snd_seq_port_info_t * port_info = NULL;
 	pthread_attr_t tattr;
 	struct sched_param param;
 
-	printf("alsa_loop_init\n");
+	printd(LogTest, "alsa_loop_init\n");
 
 	/* initialized with default attributes */
 	ret = pthread_attr_init (&tattr);
@@ -906,14 +949,17 @@ int alsa_loop_init(void) {
 
 void *alsa_Loop_thread(void * context_ptr) {
 
-	printf("alsa_Loop_thread\n");
+	printd(LogTest, "alsa_Loop_thread\n");
 
 	while (1) {
 
 		if (MidiLooping) {
-			printf("alsa_Loop_thread before play\n");
-			play_file();
-			printf("alsa_Loop_thread after play\n");
+			printd(LogTest, "alsa_Loop_thread before play\n");
+			if (play_file()) {
+				MidiLooping = false;
+				printd(LogTest, "play error\n");
+			}
+			printd(LogTest, "alsa_Loop_thread after play\n");
 		}
 	}
 }
@@ -936,11 +982,11 @@ static void errormsg(const char *msg, ...) {
 
 #if 0
 /* prints an error message to stderr, and dies */
-static void printf(const char *msg, ...) {
+static void printd(LogTest, const char *msg, ...) {
 	va_list ap;
 
 	va_start(ap, msg);
-	vfprintf(stderr, msg, ap);
+	vfprintd(LogTest, stderr, msg, ap);
 	va_end(ap);
 	fputc('\n', stderr);
 	exit(EXIT_FAILURE);
@@ -949,13 +995,13 @@ static void printf(const char *msg, ...) {
 /* memory allocation error handling */
 static void check_mem(void *p) {
 	if (!p)
-		printf("Out of memory");
+		printd(LogTest, "Out of memory");
 }
 
 /* error handling for ALSA functions */
 static void check_snd(const char *operation, int err) {
 	if (err < 0)
-		printf("Cannot %s - %s", operation, snd_strerror(err));
+		printd(LogTest, "Cannot %s - %s", operation, snd_strerror(err));
 }
 #endif
 

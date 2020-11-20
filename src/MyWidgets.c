@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*---------------------------------------------
 |
 |	File: 	MyWidgets
 |
@@ -25,7 +25,7 @@
 |	along with this program; if not, write to the Free Software
 |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
-|---------------------------------------------------------------------*/
+|---------------------------------------------*/
 
 #define MyWidgets_c
 
@@ -51,11 +51,11 @@
  * Place Static variables here
  */
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            MyImageButtonInit
  *
  * Description:         Create a new button from an eventbox..
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
 	GtkWidget *overlay;
 
@@ -92,11 +92,11 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
 	return (0);
 }
 
-/*--------------------------------------------------------------------
+/*--------------------------------------------
  * Function:            MyImageButtonSetText
  *
  * Description:         Change or Set the text of a button..
- *---------------------------------------------------------------------*/
+ *---------------------------------------------*/
 int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 	char		FormatString[200];
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
