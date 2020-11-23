@@ -49,7 +49,7 @@
  * Place defines and Typedefs here
  */
 #ifdef RTTimer
-#define TimerTicksPerQuater 	1
+#define TimerTicksPerQuater 	8
 #else
 #define TimerTicksPerQuater 	1
 #endif
@@ -74,6 +74,7 @@ int GTKIdel_cb(gpointer data);
  */
 int TempoState;
 int SubBeats;
+unsigned int OldTempo = 0;
 
 #ifdef GTKTimer
 /*--------------------------------------------------------------------
@@ -234,9 +235,7 @@ void MyTimerInit(void) {
 	gMyInfo.TempoTimerID = 0;
 	gMyInfo.TimerCount = 0;
 	gMyInfo.AlsaTimerHandle = 0;
-// ejk segfault 	SetTempo(130);
 	printd(LogTimer, "MyTimerInit\n");
-
 
 	int Ret;
 	timer_t timerid;
@@ -269,7 +268,6 @@ void MyTimerInit(void) {
  * 	interrupts to handle double the tempo.
  *
  *---------------------------------------------------------------------*/
-unsigned int OldTempo = 0;
 void SetTempo(unsigned int NewTempo) {
 	int Ret;
 	struct itimerspec in;
@@ -287,9 +285,6 @@ void SetTempo(unsigned int NewTempo) {
 	if (gMyInfo.Tempo == OldTempo)
 		return;
 
-	SetLoopTempo(NewTempo);
-
-	printf("SetTempo %d \n", gMyInfo.Tempo);
 	SetLoopTempo(NewTempo);
 
 	/* Set the jack transport for timers.
@@ -352,11 +347,11 @@ void SetTempo(unsigned int NewTempo) {
  *
  *---------------------------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
+		ToggleTempo();
 
-	printd(LogTimer, " IN time_handler %d\n", SubBeats);
+	printd(LogTimer, "IN time_handler %d\n", SubBeats);
 
 	if (++SubBeats > 7) {
-		ToggleTempo();
 		SubBeats = 0;
 	}
 
@@ -382,13 +377,7 @@ void ToggleTempo(void) {
 	struct timeval Time0;
 
 	// gettimeofday(&Time0, NULL);
-	printd(LogTimer, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
-
-	if (gMyInfo.Tempo != OldTempo) {
-		SetTempo(gMyInfo.Tempo);
-		// Must return or SegFault.
-		return;
-	}
+	// printd(LogTest, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
 
 	/* This is the tempo in BPM
 		Currently we use 4 clocks per quarter.
@@ -403,9 +392,8 @@ void ToggleTempo(void) {
 			TempoState = 0;
 		}
 
-		LEDControl(BeatCount, 1);
-
-		/* Handle any recording for the looper.
+		/* Handle any recording for the looper. Make
+		sure this is first.
 		*/
 		switch (CountInActiveState) {
 		case cntStateWaitingforCountIn:
@@ -419,19 +407,23 @@ void ToggleTempo(void) {
 
 		case cntStateWaitingforRecCount:
 			printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+
 			if (CountInCount-- == gMyInfo.CountInBeats) {
+
+				MyOSCSetSync(1);
+
+				// In case there is no downbeat.
+				OSCCommand(OSCRecThres, 0);
+
+				// Send a start record over OSC
+				com_play();
 
 				/* Tell Drums to start.
 				*/
 				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
 				         0, 0);
-				printd(LogTimer, "Start %d %d\n", CountInCount,  TempoState);
-				/* Set sync source to Internal
-				*/
-				OSCCommand(OSCSyncSource, typeSyncjack);
 
-				// In case there is no downbeat.
-				OSCCommand(OSCRecThres, 0);
+				printd(LogTimer, "Start %d %d\n", CountInCount,  TempoState);
 
 			}
 
@@ -439,8 +431,6 @@ void ToggleTempo(void) {
 				CountInActiveState = cntStateRecording;
 
 //							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-				// Send a start record over OSC
-				com_play();
 				//		OSCCommand(OSCStartRecord, 0);
 				gMyInfo.MetronomeOn = FALSE;
 				printd(LogTimer, "Loop Start 1\n\n");
@@ -452,23 +442,36 @@ void ToggleTempo(void) {
 		*/
 		case cntStateRecording:
 			printd(LogTimer, "cntStateRecording %d\n", LoopRecBeats);
-			if (LoopRecBeats == gMyInfo.LoopRecBeats)
-				OSCCommand(OSCStartRecord, 0);
 
+			if (LoopRecBeats == gMyInfo.LoopRecBeats) {
+				
+				/* Start the looper for recording.
+				*/
+				OSCCommand(OSCSyncSource, 0);
+
+				OSCCommand(OSCStartRecord, 0);
+				printd(LogTimer, "Start Recording %d\n", LoopRecBeats);
+			}
 
 			LoopRecBeats--;
 #if 0
-
 			if (LoopRecBeats == 0) {
 
 				OSCCommand(OSCStopRecord, 0);
 			}
 #endif
 
-			if (LoopRecBeats < 0) {
+			if (LoopRecBeats == 0) {
 
+				/* Send stop to the looper.
+				*/
 				OSCCommand(OSCStopRecord, 0);
 
+
+				printd(LogTimer, "Stop Recording %d\n", LoopRecBeats);
+
+				/* Stop the Jack timer.
+				*/
 				com_stop();
 
 				/* Set Sync to Loop for the remaining tracks.
@@ -485,12 +488,11 @@ void ToggleTempo(void) {
 		case cntStatePostRecord:
 			printd(LogTimer, "Record Post\n\n");
 			CountInActiveState = cntStateWaitingIdle;
-			OSCCommand(OSCSyncSource, 1);
-			OSCCommand(OSCSyncOn, 0);
+
+			MyOSCSetSync(0);
 			break;
 
-		/* If we are not recording, but the CountIn has
-		been set let's start Drum machine.
+		/* If we are not recording, but the CountIn has been set let's start Drum machine.
 		*/
 		case cntStateWaitingIdle:
 			/* You need to set the the midi pref in hydrogen to
@@ -525,8 +527,17 @@ void ToggleTempo(void) {
 			sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
 		}
 
+		LEDControl(BeatCount, 1);
 		UIUpdateFromTimer = TRUE;
+
 	}
+
+	if (gMyInfo.Tempo != OldTempo) {
+		SetTempo(gMyInfo.Tempo);
+		// Must return or SegFault.
+		return;
+	}
+
 #if 0
 	else {
 //		if (TempoState == 2) {

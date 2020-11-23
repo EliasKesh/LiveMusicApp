@@ -214,28 +214,28 @@ function FindDevice {
         AudioInDevice="$Device"
         AudioOutDevice="$Device"
     fi
-
+    
     # If we have the NUX Pocket port
     Device="NUX USB Audio"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         echo "We have " $Device" "$USBDevice" "$USBName
-    export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
-    export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
-    export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
-    export USBDeviceNum=`echo "$USBDevice" | grep -Po '(?<=device )\W*\K[^ :]*'`
+        export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
+        export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
+        export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
+        export USBDeviceNum=`echo "$USBDevice" | grep -Po '(?<=device )\W*\K[^ :]*'`
         echo "We have 1" $Device" "$USBDevice" "$USBName
-
+        
         # mplayer crackling at 96K,64,2
-       AudioSampleRate=96000
-       JBuffer=128
-       JPeriod=4
-
+        AudioSampleRate=96000
+        JBuffer=128
+        JPeriod=4
+        
         # AudioSampleRate=48000
         # JBuffer=64
         # JPeriod=3
-
+        
         # AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
@@ -243,7 +243,7 @@ function FindDevice {
         amixer -c $USBCardNum sset 'Mic',0 2032
         amixer -c $USBCardNum sset 'NUX USB Audio 2.0 ',0 2032
     fi
-
+    
     # If we are n a Raspberry PI with the PISound card.
     Device="pisound"
     echo $DeviceList | grep "${Device}"
@@ -282,7 +282,7 @@ function FindDevice {
     AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
     export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
     echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
-   
+    
     #   Patchage takes a while to start so kick it off early.
     # Run the patch bay
     echo "***************** Starting Patch Bay"
@@ -330,7 +330,7 @@ function SetDefinitions {
 #
 #-------------------------------------------#
 function StartJack {
-
+    
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -454,15 +454,15 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
-
+    
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW Input":"0"
-    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0" 
-    aconnect "Fishman TriplePlay":0 MusE:0    
- 
-
+    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
+    aconnect "Fishman TriplePlay":0 MusE:0
+    
+    
     # ********************************
     # **** Jack audio and midi connections
     # ********************************
@@ -482,7 +482,7 @@ function SetUpConnections {
     jack_connect jack-volume:output_3 system:playback_2
     jack_connect jack-volume:output_4 system:playback_1
     jack_connect jack-volume:output_4 system:playback_2
-
+    
     
     # Guitar in goes to effects Rack
     echo "jack_connect system:capture_1 gx_head_amp:in_1"
@@ -527,24 +527,24 @@ function SetUpConnections {
     jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
     aconnect "LiveMusic Output":1 GuitBridge:0
-    jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1    
-
+    jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
+    
     # Transport out
-#    aconnect "LiveMusic Output":3 Mamba:input
+    #    aconnect "LiveMusic Output":3 Mamba:input
     
     # Tempo out
- #   aconnect "LiveMusic Output":4 Mamba:input
-
- #   jack_connect "Mamba:out" "a2j:FLUID Synth (qsynth) (playback): Synth input port (qsynth:0)"    # jack_connect "Mamba:out" "MambaBridge:playback"
+    #   aconnect "LiveMusic Output":4 Mamba:input
+    
+    #   jack_connect "Mamba:out" "a2j:FLUID Synth (qsynth) (playback): Synth input port (qsynth:0)"    # jack_connect "Mamba:out" "MambaBridge:playback"
     # aconnect MambaBridge:capture "FLUID Synth":0
-
-   
+    
+    
     # Muse Connection
     aconnect "Fishman TriplePlay":0  MusE:0
     aconnect MusE:0 "FLUID Synth":0
     jack_connect "MusE:Out 1-0" "system:playback_1"
     jack_connect "MusE:Out 1-1" "system:playback_1"
-
+    
 }
 
 #-------------------------------------------#
@@ -589,7 +589,7 @@ function SetUpApplications {
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 1 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 0x40 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
         #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
@@ -655,7 +655,7 @@ function SetUpApplications {
     fi
     
     # mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
-
+    
     Delay 2
     
     jack-plumbing /home/elias/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
@@ -687,7 +687,7 @@ function SetPlacement {
         echo "Keshie"
         AnalogDesktop=4
         LiveMusicAppDesktop=5
-        LooperDesktop=7
+        LooperDesktop=$LiveMusicAppDesktop
         MidiDesktop=$AnalogDesktop
         PatchageDesktop=7
         PlayerDesktop=7
@@ -778,8 +778,7 @@ function SetPlacement1920 {
     wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
     
     wmctrl -r SooperLooper -t $LooperDesktop
-    wmctrl -r SooperLooper -e 0,850,400,1000,600
-    
+    wmctrl -r SooperLooper -e 0,800,1000,1000,600    
     wmctrl -r qsynth -e 0,870,0,1000,330
     wmctrl -r qsynth -t $MidiDesktop
     
@@ -898,7 +897,7 @@ function StopEverything {
     KillAll a2jmidid
     killall jackd
     killall jackdbus
-//    killall mamba
+    //    killall mamba
     
     killall kmidimon
     killall kdialog
@@ -1061,7 +1060,9 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
                 BackroundChecker=true
                 SoundSynth=true
                 Looper=true
-#                Hydrogen=true
+                BackroundChecker=false
+                
+                #                Hydrogen=true
             else
                 StopEverything
             fi
@@ -1222,7 +1223,7 @@ Delay 3
 # -e to enable hardware interfaces as well.
 # a2jmidid -e > $LogFile 2>&1 &
 
-    a2jmidi_bridge "GuitBridge" &
+a2jmidi_bridge "GuitBridge" &
 #       j2amidi_bridge "MambaBridge" &
 #    a2jmidid -u &
 

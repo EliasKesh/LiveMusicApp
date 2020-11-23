@@ -15,6 +15,7 @@
 #ifndef APlayMidi_h
 #define APlayMidi_h
 
+#include "APlayMidi.h"
 /*
  * Place Includes here.
  */
@@ -23,16 +24,13 @@
 /*
  * Place Global prototypes here.
  */
+
 int MyAlsaLoopClose(void);
 int alsa_loop_init(void);
-void *alsa_Loop_thread(void * context_ptr);
 void SetLoopTempo(int NewTempo);
 void StopMidiLoop(void);
 void StartMidiLoop(char *filename);
-static void errormsg(const char *msg, ...);
 int InitMidiLooper(void);
-void ToggleMidiLoop(void);
-
 
 /*
  * Place Static variables here.
