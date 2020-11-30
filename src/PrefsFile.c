@@ -96,6 +96,21 @@ InitPref (void) {
 		printd(LogDebug, "ReadFrefs Failed. \n");
 		NewInstall = 1;
 	}
+
+#if 0
+	sprintf(FileString, "%s/MySongs", homedir);
+	printf("CheckForStartupDirs %s\n", FileString);
+	printf("CheckForStartupDirs %s\n", homedir);
+	printf("CheckForStartupDirs %s\n", gMyInfo.BasePath);
+	err = stat(FileString, &s);
+	if (-1 == err) {
+		sprintf(CommandString, "mv %s/.config/LiveMusicApp/MySongs %s/", homedir, homedir);
+		system(CommandString);
+//		NewInstall = 1;
+//		exit(0);
+	}
+#endif
+
 #if 0
 	/* Set up the not Found String.
 	*/
@@ -112,7 +127,10 @@ InitPref (void) {
 	*/
 	if (NewInstall) {
 		strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes ));
+		printd(LogInfo, "New Install\n");
 	}
+
+	printd(LogInfo, "Prefs file %s\n",gMyInfo.BasePath);
 
 	/* Clear some of the basic user variables.
 	*/
@@ -999,10 +1017,13 @@ streamFile(const char *filename) {
 		// }
 		xmlFreeTextReader(reader);
 		if (ret != 0) {
-			fprintf(stderr, "%s : failed to parse\n", filename);
+			printd(LogError, "%s : failed to parse\n", filename);
+		return (1);
+	
 		}
 	} else {
-		fprintf(stderr, "Unable to open %s\n", filename);
+		printd(LogError, "Unable to open %s\n", filename);
+		return (1);
 	}
 
 	return (ret);

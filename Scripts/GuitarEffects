@@ -685,7 +685,7 @@ function SetPlacement {
     # On home PC spread it out
     if [ `hostname` == "Keshie" ]; then
         echo "Keshie"
-        AnalogDesktop=4
+        AnalogDesktop=5
         LiveMusicAppDesktop=5
         LooperDesktop=$LiveMusicAppDesktop
         MidiDesktop=$AnalogDesktop
@@ -724,6 +724,8 @@ function SetPlacement {
         MaxOffSet=1920
     fi
     
+    YOffset=900
+
     # Check for Digitizer, tells us where we are.
     xinput | grep "ILITEK"
     if [ "$?" = "0" ] ; then
@@ -772,13 +774,13 @@ function SetPlacement1920 {
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,900
+    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1855,1050
+    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1800,1000
     
     wmctrl -r SooperLooper -t $LooperDesktop
-    wmctrl -r SooperLooper -e 0,800,1000,1000,600    
+    wmctrl -r SooperLooper -e 0,586,420,1000,450    
     wmctrl -r qsynth -e 0,870,0,1000,330
     wmctrl -r qsynth -t $MidiDesktop
     
@@ -1046,7 +1048,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             then
                 echo "GuitarEffects Auto 1"
             else
-                echo "GuitarEffects Auto 2"
+                StopEverything
             fi
             
             
@@ -1060,7 +1062,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
                 BackroundChecker=true
                 SoundSynth=true
                 Looper=true
-                BackroundChecker=false
+                BackroundChecker=true
                 
                 #                Hydrogen=true
             else

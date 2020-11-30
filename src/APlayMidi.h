@@ -25,12 +25,12 @@
  * Place Global prototypes here.
  */
 
-int MyAlsaLoopClose(void);
-int alsa_loop_init(void);
-void SetLoopTempo(int NewTempo);
-void StopMidiLoop(void);
-void StartMidiLoop(char *filename);
-int InitMidiLooper(void);
+int MyAlsaLoopClose ( void );
+int alsa_loop_init ( void );
+void SetLoopTempo ( int NewTempo );
+void StopMidiLoop ( void );
+void StartMidiLoop ( char *filename );
+int InitMidiLooper ( void );
 
 /*
  * Place Static variables here.

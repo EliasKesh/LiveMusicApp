@@ -160,7 +160,7 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data);
 
 int InitJackTransport(void);
 int CloseJackTransport(void);
-gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data);
+gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 /*--------------------------------------------
  * Function:		printd
@@ -168,21 +168,22 @@ gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer d
  * Description:		Loggable print command.
  *
  *---------------------------------------------*/
-char *printd(int LogLevel, const char *fmt, ...) {
-	va_list ap;
-	char p[512]; /* check for null in real code */
-	va_start(ap, fmt);
-	vsnprintf(p, 512, fmt, ap);
-	va_end(ap);
+char *printd(int LogLevel, const char *fmt, ...)
+{
+    va_list ap;
+    char p[512]; /* check for null in real code */
+    va_start(ap, fmt);
+    vsnprintf(p, 512, fmt, ap);
+    va_end(ap);
 
-	/* Always print LogTest messages.
-	*/
-	if ((RunLogLevel | LogTest) & LogLevel)
-		printf( "L%x %s", LogLevel, p);
+    /* Always print LogTest messages.
+    */
+    if ((RunLogLevel | LogTest) & LogLevel)
+        printf("L%x %s", LogLevel, p);
 
-	fprintf(LogFile, "L%x %s", LogLevel, p);
+    fprintf(LogFile, "L%x %s", LogLevel, p);
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -192,1024 +193,1030 @@ char *printd(int LogLevel, const char *fmt, ...) {
  * Description:         This is where it all starts.
  *
  *---------------------------------------------*/
-int main(int argc, char *argv[]) {
-	// GtkWidget *theMainWindow;
-	GtkWidget *widget;
-	GError *error = NULL;
-	GtkWidget *ChordWidget;
-	GtkWidget *PlayerWidget;
-	GtkWidget *EventBox;
-	GError *err = NULL;
-	/*----- CSS ----------- */
-	GtkCssProvider *provider;
-	GdkDisplay *display;
-	GdkScreen *screen;
-	/*-----------------------*/
-	int BButtonX, BButtonY, MButtonX, MButtonY;
-	int Loop;
-	GdkScreen *myScreen;
-	WeAreRunning = FALSE;
+int main(int argc, char *argv[])
+{
+    // GtkWidget *theMainWindow;
+    GtkWidget *widget;
+    GError *error = NULL;
+    GtkWidget *ChordWidget;
+    GtkWidget *PlayerWidget;
+    GtkWidget *EventBox;
+    GError *err = NULL;
+    /*----- CSS ----------- */
+    GtkCssProvider *provider;
+    GdkDisplay *display;
+    GdkScreen *screen;
+    /*-----------------------*/
+    int BButtonX, BButtonY, MButtonX, MButtonY;
+    int Loop;
+    GdkScreen *myScreen;
+    WeAreRunning = FALSE;
 
-	/*
-	 * Let's setup some variables.
-	 * CurrentLayout is the default to start with
-	 * When we start are
-	 */
-	CurrentLayout = 0;
-	WaitingforMidi = 0;
-	GenerateHFile = 0;
-	KeyLayout = 1;
-	JackMaster = 0;
-	RemoveMuteCount = 0;
-	RunLogLevel = 0;
-	gMyInfo.TimerCount = 0;
-	gMyInfo.TabSwitch = NULLSwitch;
-	gMyInfo.RaiseSwitch = NULLSwitch;
-	gMyInfo.NextDeskSwitch = NULLSwitch;
-	gMyInfo.PrevDeskSwitch = NULLSwitch;
-	gMyInfo.GoToDeskSwitch = Max_Patches;
+    /*
+     * Let's setup some variables.
+     * CurrentLayout is the default to start with
+     * When we start are
+     */
+    CurrentLayout = 0;
+    WaitingforMidi = 0;
+    GenerateHFile = 0;
+    KeyLayout = 1;
+    JackMaster = 0;
+    RemoveMuteCount = 0;
+    RunLogLevel = 0;
+    gMyInfo.TimerCount = 0;
+    gMyInfo.TabSwitch = NULLSwitch;
+    gMyInfo.RaiseSwitch = NULLSwitch;
+    gMyInfo.NextDeskSwitch = NULLSwitch;
+    gMyInfo.PrevDeskSwitch = NULLSwitch;
+    gMyInfo.GoToDeskSwitch = Max_Patches;
 
-	/* Let's see what's already installed.
-	*/
-	CheckForStartupDirs();
-	GetResourceDir("./MyFile.png", FileLocConfig);
-	LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");
+    /* Let's see what's already installed.
+    */
+    CheckForStartupDirs();
+    GetResourceDir("./MyFile.png", FileLocConfig);
+    LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig) , "w+");
 
 
-	/* Default name for the jack client.
-	*/
-	strcpy(JackName, "default");
+    /* Default name for the jack client.
+    */
+    strcpy(JackName, "default");
 
-	parse_cmdline(argc, argv);
+    parse_cmdline(argc, argv);
 
-	printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
-	printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
+    printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
+    printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
 
-	/* Handle any HID pedals,
-	Must be called before gtk_init
-	*/
-//	InitHIDGrab();
+    /* Handle any HID pedals,
+    Must be called before gtk_init
+    */
+    //	InitHIDGrab();
 
-	/* initialize the GTK+ library */
-	gtk_init(&argc, &argv);
+    /* initialize the GTK+ library */
+    gtk_init(&argc, &argv);
 
-	myScreen = gdk_screen_get_default();
-	printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
-	ScreenSize = 0;
-	ButtonSize = 95;
+    myScreen = gdk_screen_get_default();
+    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
+    ScreenSize = 0;
+    ButtonSize = 95;
 
-	/* Based on the sreen, size the buttons.
-	*/
-	if (gdk_screen_get_width(myScreen) > 1400) {
-		ScreenSize = 1;
-		ButtonSize = 115;
-	}
+    /* Based on the sreen, size the buttons.
+    */
+    if (gdk_screen_get_width(myScreen) > 1400) {
+        ScreenSize = 1;
+        ButtonSize = 115;
+    }
 
-	if (gdk_screen_get_width(myScreen) > 1800) {
-		ScreenSize = 2;
-		ButtonSize = 130;
-	}
-	printd(LogInfo, "Button Size %d %d\n", ButtonSize);
+    if (gdk_screen_get_width(myScreen) > 1800) {
+        ScreenSize = 2;
+        ButtonSize = 130;
+    }
+
+    printd(LogInfo, "Button Size %d %d\n", ButtonSize);
 
 #if 0
-	GtkCssProvider *provider = gtk_css_provider_new();
-//	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
-	gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
-	                                 "* {border-color: #CC0000}",
-	                                 -1, NULL);
-	gtk_css_provider_load_from_data (provider,
-	                                 "}\n", -1, NULL);
-	FaderControl.png
-	.scale.slider,
-	.scale.slider.horizontal {
+    GtkCssProvider *provider = gtk_css_provider_new();
+    //	gtk_css_provider_load_from_data(provider, ".frame{border:10px solid red;}", -1, NULL);
+    gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
+                                    "* {border-color: #CC0000}",
+                                    -1, NULL);
+    gtk_css_provider_load_from_data(provider,
+                                    "}\n", -1, NULL);
+    FaderControl.png
+    .scale.slider,
+    .scale.slider.horizontal {
 background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url("assets/scale-slider-horz-dark@2.png"));
-	}
+    }
 
-	/*---------------- CSS ----------------------------------------------------------------------------*/
-	provider = gtk_css_provider_new ();
-	display = gdk_display_get_default ();
-	screen = gdk_display_get_default_screen (display);
-	gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    /*---------------- CSS ----------------------------------------------------------------------------*/
+    provider = gtk_css_provider_new();
+    display = gdk_display_get_default();
+    screen = gdk_display_get_default_screen(display);
+    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-	gsize bytes_written, bytes_read;
+    gsize bytes_written, bytes_read;
 
-	const gchar* home = "YourPathHere"; // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
+    const gchar* home = "YourPathHere"; // your path, for instance: /home/zerohour/Documents/programming/cssexternal.css
 
-	GError *error = 0;
+    GError *error = 0;
 
-	gtk_css_provider_load_from_path (provider,
-	                                 g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
-	                                 NULL);
-	g_object_unref (provider);
-	/*-------------------------------------------------------------------------------------------------*/
+    gtk_css_provider_load_from_path(provider,
+                                    g_filename_to_utf8(home, strlen(home), &bytes_read, &bytes_written, &error),
+                                    NULL);
+    g_object_unref(provider);
+    /*-------------------------------------------------------------------------------------------------*/
 
-	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 #endif
 
-	/*
-	 * Initialize the XML reader/writer and set some basic values here.
-	 */
-	InitPref();
+    /*
+     * Initialize the XML reader/writer and set some basic values here.
+     */
+    InitPref();
 
-	/* History saves the charts you open.
-	I forget what I worked on at rehearsal,
-	this helps me remeber.
-	*/
-	InitHistoryFile();
-
-
-	/*
-	 create an instance of the GladeXML object and build widgets within
-	 the window1 root node.
-	 */
-	gxml = gtk_builder_new();
-
-	/* Choose the glad file based on the layout we are using.
-	*/
-	sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
-	if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf, FileLocConfig), &error)) {
-		g_warning("Couldn't load builder file: %s", error->message);
-		g_error_free(error);
-	}
-
-	/*
-	 * get the window widget from the glade XML file
-	 */
-	theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
-
-	/*------------- CSS  --------------------------------------------------------------------------*/
-	provider = gtk_css_provider_new();
-	display = gdk_display_get_default();
-	screen = gdk_display_get_default_screen(display);
-
-	gtk_style_context_add_provider_for_screen(screen,
-	        GTK_STYLE_PROVIDER(provider),
-	        GTK_STYLE_PROVIDER_PRIORITY_USER);
-
-	printd(LogInfo, "ejk About to load\n");
-//	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
-
-//	g_object_unref(provider);
+    /* History saves the charts you open.
+    I forget what I worked on at rehearsal,
+    this helps me remeber.
+    */
+    InitHistoryFile();
 
 
-	/* Connect the close button.
-	*/
-	g_signal_connect(G_OBJECT (theMainWindow), "destroy", G_CALLBACK (on_window1_destroy), NULL);
-	gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
-//	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
-	gtk_window_set_icon(GTK_WINDOW(theMainWindow), NULL);
+    /*
+     create an instance of the GladeXML object and build widgets within
+     the window1 root node.
+     */
+    gxml = gtk_builder_new();
+
+    /* Choose the glad file based on the layout we are using.
+    */
+    sprintf(TempStrBuf, "%s.%d", GLADE_FILE, KeyLayout);
+
+    if (!gtk_builder_add_from_file(gxml, GetResourceDir(TempStrBuf, FileLocConfig), &error)) {
+        g_warning("Couldn't load builder file: %s", error->message);
+        g_error_free(error);
+    }
+
+    /*
+     * get the window widget from the glade XML file
+     */
+    theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
+
+    /*------------- CSS  --------------------------------------------------------------------------*/
+    provider = gtk_css_provider_new();
+    display = gdk_display_get_default();
+    screen = gdk_display_get_default_screen(display);
+
+    gtk_style_context_add_provider_for_screen(screen,
+            GTK_STYLE_PROVIDER(provider),
+            GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+    printd(LogInfo, "ejk About to load\n");
+    //	gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), CSSFileName, &err);
+
+    //	g_object_unref(provider);
 
 
-	/* Get the button sizes.
-	*/
-	BButtonX = ButtonSize;
-	BButtonY = (int) ((float) ButtonSize * 0.65);
-	MButtonX = (int) ((float) ButtonSize * 0.80);
-	MButtonY = (int) ((float) ButtonSize * 0.6);
-
-	MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                        GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("MainSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("PatchSwitchOn.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
-	PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("PatchSwitchOff.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
-	NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
-	                         GetResourceDir("NoteBSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-	NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
-	                          GetResourceDir("NoteBSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
-//	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
-	NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
-
-	/*
-	 * Open the persistent main tab.
-	 */
-	g_signal_connect(GTK_NOTEBOOK( NoteBookPane ), "switch-page",
-	                 (GCallback ) tab_focus_callback, gxml);
-
-	/*
-	 * Setup and initialize our status bar and Mode indicator
-	 */
-	MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
-	PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
-	gtk_widget_set_tooltip_text(PlayerCurWid, "Player Countdown to markers.");
-
-	/*
-	 * Clear the Status bar buffer.
-	 */
-	HoldStatusIndex = 0;
-	memset(HoldStatus, 0, sizeof(HoldStatus));
-
-	/*
-	 * Get the metronome button loaded and displayed.
-	 */
-	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml, "Tempo"));
+    /* Connect the close button.
+    */
+    g_signal_connect(G_OBJECT(theMainWindow), "destroy", G_CALLBACK(on_window1_destroy), NULL);
+    gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
+    //	gtk_window_set_icon(GTK_WINDOW(theMainWindow), create_pixbuf(Icon_FILE));
+    gtk_window_set_icon(GTK_WINDOW(theMainWindow), NULL);
 
 
-	/* Set up my buttons.
-	*/
-	MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
+    /* Get the button sizes.
+    */
+    BButtonX = ButtonSize;
+    BButtonY = (int)((float) ButtonSize * 0.65);
+    MButtonX = (int)((float) ButtonSize * 0.80);
+    MButtonY = (int)((float) ButtonSize * 0.6);
 
-	/* Update the metronome button.
-	*/
-	if (gMyInfo.MetronomeOn) {
-		MyImageButtonSetText(&TempoDraw, "On");
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonDownImage);
-	} else {
-		MyImageButtonSetText(&TempoDraw, "Off");
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonUpImage);
-	}
+    MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+                            GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+    MainButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+                             GetResourceDir("MainSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+    PatchButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+                             GetResourceDir("PatchSwitchOn.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
+    PatchButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+                              GetResourceDir("PatchSwitchOff.png", FileLocConfig), BButtonX, BButtonY, NULL, NULL);
+    NoteBButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
+                             GetResourceDir("NoteBSwitchOn.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+    NoteBButtonOffImage = gdk_pixbuf_new_from_file_at_scale(
+                              GetResourceDir("NoteBSwitchOff.png", FileLocConfig), MButtonX, MButtonY, NULL, NULL);
+    //	GdkPixbuf *gdk_pixbuf_scale_simple (const GdkPixbuf *src, 135,65,  GDK_INTERP_NEAREST);
+    NoteBookPane = GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-press-event",
-	                 G_CALLBACK(on_Tempo_Button),
-	                 &TempoDraw);
+    /*
+     * Open the persistent main tab.
+     */
+    g_signal_connect(GTK_NOTEBOOK(NoteBookPane), "switch-page",
+                     (GCallback) tab_focus_callback, gxml);
 
-	/*
-	 * The about window.
-	 */
-	widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
-	g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
+    /*
+     * Setup and initialize our status bar and Mode indicator
+     */
+    MainStatus = GTK_WIDGET(gtk_builder_get_object(gxml, "MainStatusBar"));
+    PlayerCurWid = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayTimeStat"));
+    gtk_widget_set_tooltip_text(PlayerCurWid, "Player Countdown to markers.");
+
+    /*
+     * Clear the Status bar buffer.
+     */
+    HoldStatusIndex = 0;
+    memset(HoldStatus, 0, sizeof(HoldStatus));
+
+    /*
+     * Get the metronome button loaded and displayed.
+     */
+    EventBox = GTK_WIDGET(
+                   gtk_builder_get_object(gxml, "Tempo"));
+
+
+    /* Set up my buttons.
+    */
+    MyImageButtonInit(&TempoDraw, EventBox, MainButtonOnImage, MainButtonOffImage);
+
+    /* Update the metronome button.
+    */
+    if (gMyInfo.MetronomeOn) {
+        MyImageButtonSetText(&TempoDraw, "On");
+        gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),TempoDraw.ButtonDownImage);
+
+    } else {
+        MyImageButtonSetText(&TempoDraw, "Off");
+        gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),TempoDraw.ButtonUpImage);
+    }
+
+    g_signal_connect(G_OBJECT(EventBox),
+                     "button-press-event",
+                     G_CALLBACK(on_Tempo_Button),
+                     &TempoDraw);
+
+    /*
+     * The about window.
+     */
+    widget = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutButton"));
+    g_signal_connect_data(G_OBJECT(widget), "clicked", G_CALLBACK(on_About_clicked), NULL, NULL, 0);
 
 #if 0
-	/*
-	 * The OK Button on the About Box
-	 */
-	g_signal_connect(G_OBJECT(theMainWindow),
-	                 "key_press_event",
-	                 G_CALLBACK(
-	                     button_press_notify_cb),
-	                 NULL);
-	/*
-	 * Create the HTML page from our preferences.
-	 */
-	CreateHTMLGuide(&gMyInfo);
+    /*
+     * The OK Button on the About Box
+     */
+    g_signal_connect(G_OBJECT(theMainWindow),
+                     "key_press_event",
+                     G_CALLBACK(
+                         button_press_notify_cb),
+                     NULL);
+    /*
+     * Create the HTML page from our preferences.
+     */
+    CreateHTMLGuide(&gMyInfo);
 #endif
 
-	/*
-	 * Initialize the WebKit (HTML) engine
-	 */
-	InitHTML(gxml);
-	printd(LogInfo, "After InitHTML\n");
+    /*
+     * Initialize the WebKit (HTML) engine
+     */
+    InitHTML(gxml);
+    printd(LogInfo, "After InitHTML\n");
 
-	/*
-	 * Set up the Midi Sequencer ports
-	 */
-	MyAlsaInit();
-	printd(LogInfo, "After MyAlsaInit\n");
-	InitMidiLooper();
+    /*
+     * Set up the Midi Sequencer ports
+     */
+    MyAlsaInit();
+    printd(LogInfo, "After MyAlsaInit\n");
+    InitMidiLooper();
 
-	/* OSC controls sooperlooper and jack-volume.
-	*/
-	MyOSCInit();
+    /* OSC controls sooperlooper and jack-volume.
+    */
+    MyOSCInit();
 
-	/* If the options are for Jack Master.
-	*/
-	if (JackMaster)
-		InitJackTransport();
+    /* If the options are for Jack Master.
+    */
+    if (JackMaster)
+        InitJackTransport();
 
-	/*
-	 * Set up the buttons, text and patches.
-	 */
-	CreateMainButtons();
-	SetUpMainButtons(&gMyInfo.MyPatchInfo);
-	CreateTabButtons();
+    /*
+     * Set up the buttons, text and patches.
+     */
+    CreateMainButtons();
+    SetUpMainButtons(&gMyInfo.MyPatchInfo);
+    CreateTabButtons();
 
-	/* Get the Mode switch button,
-	 */
-	EventBox = GTK_WIDGET(
-	               gtk_builder_get_object(gxml,
-	                                      "LayoutEvent"));
-	printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
-	MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,
-	                  MainButtonOffImage);
+    /* Get the Mode switch button,
+     */
+    EventBox = GTK_WIDGET(
+                   gtk_builder_get_object(gxml,
+                                          "LayoutEvent"));
+    printd(LogInfo, "LayoutEvent %x\n", (unsigned int) EventBox);
+    MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage,MainButtonOffImage);
 
-	MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
+    MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
 
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-press-event",
-	                 G_CALLBACK(
-	                     layout_click_handler),
-	                 &LayoutButton);
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-release-event",
-	                 G_CALLBACK(
-	                     layout_release_handler),
-	                 &LayoutButton);
-	/*
-	 * Set up the connections between applications.
-	 */
-	InitConnections();
+    g_signal_connect(G_OBJECT(EventBox),
+                     "button-press-event",
+                     G_CALLBACK(
+                         layout_click_handler),
+                     &LayoutButton);
+    g_signal_connect(G_OBJECT(EventBox),
+                     "button-release-event",
+                     G_CALLBACK(
+                         layout_release_handler),
+                     &LayoutButton);
+    /*
+    * Set up the connections between applications.
+    */
+    InitConnections();
 
-	/*
-	 * Set the up Chord page in case we need it later.
-	 */
-	ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
-	ChorderMain(theMainWindow, ChordWidget);
+    /*
+    * Set the up Chord page in case we need it later.
+    */
+    ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
+    ChorderMain(theMainWindow, ChordWidget);
 
-	/*
-	 * Set the initial Volumes.
-	 */
-	printd(LogInfo, "Setting Default Volumes\n");
-	SetVolume1(gMyInfo.AnalogVolume);
-	SetVolume2(gMyInfo.MidiVolume);
+    /*
+    * Set the initial Volumes.
+    */
+    printd(LogInfo, "Setting Default Volumes\n");
+    SetVolume1(gMyInfo.AnalogVolume);
+    SetVolume2(gMyInfo.MidiVolume);
 
-	printd(LogInfo, "Entering gtk_main\n");
+    printd(LogInfo, "Entering gtk_main\n");
 
-	/*
-	 * Start the timers
-	 */
-	MyTimerInit();
+    /*
+    * Start the timers
+    */
+    MyTimerInit();
 
-	/*
-	 * Add and Idle for non interrupt based processing.
-	 */
-//	g_idle_add(GTKIdel_cb, theMainWindow);
+    /*
+    * Add and Idle for non interrupt based processing.
+    */
+    //	g_idle_add(GTKIdel_cb, theMainWindow);
 
-	/*
-	 * Set up the Live Player
-	 */
-	PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
-	LivePlayerInit(theMainWindow, PlayerWidget);
-	WaitingforMidi = WaitingforMidiHold = 0;
+    /*
+    * Set up the Live Player
+    */
+    PlayerWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "PlayerFrame"));
+    LivePlayerInit(theMainWindow, PlayerWidget);
+    WaitingforMidi = WaitingforMidiHold = 0;
 
-	/*
-	 * Set up the GUI for making changes to the preferences.
-	 */
-	InitGuiPrefs();
+    /*
+    * Set up the GUI for making changes to the preferences.
+    */
+    InitGuiPrefs();
 
-	/*
-	 * Create the popup Menu's (ctrl-click) now that we have the presets.
-	 */
-	CreatePatchPopupMenu ();
-
-
-	gtk_widget_add_events(
-	    theMainWindow, GDK_KEY_PRESS_MASK);
-
-	g_signal_connect (
-	    G_OBJECT (theMainWindow),
-	    "key_press_event",
-	    G_CALLBACK (my_keypress_function),
-	    NULL);
-
-	DisableTextInput = FALSE;
-
-	/*
-	 * Show the main window and let the show begin.
-	 */
-	gtk_widget_show_all(theMainWindow);
-	MyOSCJackVol(127, 10);
-	MyOSCJackVol(127, 0);
-	MyOSCJackVol(127, 1);
-	MyOSCJackVol(127, 2);
-
-	/*
-	 * And they're off.
-	 */
-	printd(LogInfo, "And we're off \n");
-	WeAreRunning = TRUE;
-	gtk_main();
-	WeAreRunning = FALSE;
+    /*
+    * Create the popup Menu's (ctrl-click) now that we have the presets.
+    */
+    CreatePatchPopupMenu();
 
 
-	/*
-	 * After we quit we should write back the changes.
-	 */
-//	CloseHIDGrab();
-	WritePrefs();
-	MyAlsaClose();
-	MyOSCClose();
-	CloseJackTransport();
-	LivePlayerClose();
+    gtk_widget_add_events(
+        theMainWindow, GDK_KEY_PRESS_MASK);
 
-	/* No printd after this.
-	*/
-	fclose(LogFile);
+    g_signal_connect(
+        G_OBJECT(theMainWindow),
+        "key_press_event",
+        G_CALLBACK(my_keypress_function),
+        NULL);
 
-	return 0;
+    DisableTextInput = FALSE;
+
+    /*
+    * Show the main window and let the show begin.
+    */
+    gtk_widget_show_all(theMainWindow);
+    MyOSCJackVol(127, 10);
+    MyOSCJackVol(127, 0);
+    MyOSCJackVol(127, 1);
+    MyOSCJackVol(127, 2);
+
+    /*
+    * And they're off.
+    */
+    printd(LogInfo, "And we're off \n");
+    WeAreRunning = TRUE;
+    gtk_main();
+    WeAreRunning = FALSE;
+
+
+    /*
+    * After we quit we should write back the changes.
+    */
+    //	CloseHIDGrab();
+    WritePrefs();
+    MyAlsaClose();
+    MyOSCClose();
+    CloseJackTransport();
+    LivePlayerClose();
+
+    /* No printd after this.
+    */
+    fclose(LogFile);
+
+    return 0;
 }
 
 /*--------------------------------------------
- * Function:		GetResourceDir
- *
- * Description:		Return the full path for the file.
- *
- *---------------------------------------------*/
-char *GetResourceDir(char *FileName, char WhichLoc) {
+* Function:		GetResourceDir
+*
+* Description:		Return the full path for the file.
+*
+*---------------------------------------------*/
+char *GetResourceDir(char *FileName, char WhichLoc)
+{
 
-	/* Location of resource files needed.
-	*/
-	if (WhichLoc == FileLocConfig) {
-		strcpy(ResourceFileName, homedir);
-		strcat(ResourceFileName, "/.config/LiveMusicApp/");
-	}
+    /* Location of resource files needed.
+    */
+    if (WhichLoc == FileLocConfig) {
+        strcpy(ResourceFileName, homedir);
+        strcat(ResourceFileName, "/.config/LiveMusicApp/");
+    }
 
-	/* Default location of the Songs files.
-	*/
-	if (WhichLoc == FileLocTunes) {
-		strcpy(ResourceFileName, homedir);
-		strcat(ResourceFileName, "/MySongs/");
-	}
+    /* Default location of the Songs files.
+    */
+    if (WhichLoc == FileLocTunes) {
+        strcpy(ResourceFileName, homedir);
+        strcat(ResourceFileName, "/MySongs/");
+    }
 
-	/* The location the user selected. Must load prefs
-	file before using this option.
-	*/
-	if (WhichLoc == FileLocUser) {
-		strcpy(ResourceFileName, (gMyInfo.BasePath));
-		dirname(ResourceFileName);
-	}
+    /* The location the user selected. Must load prefs
+    file before using this option.
+    */
+    if (WhichLoc == FileLocUser) {
+        strcpy(ResourceFileName, (gMyInfo.BasePath));
+        dirname(ResourceFileName);
+        strcat(ResourceFileName, "/");
+    }
 
-	strcat(ResourceFileName, FileName);
-	return (ResourceFileName);
+    strcat(ResourceFileName, FileName);
+    return (ResourceFileName);
 }
 
 /*--------------------------------------------
- * Function:		Check for the .config dirs
- *
- * Description:
- *
- *---------------------------------------------*/
-void CheckForStartupDirs(void) {
-	struct stat s;
-	int err;
-	char FileString[255];
-	char CommandString[400];
-	char *UserName;
+* Function:		Check for the .config dirs
+*
+* Description:
+*
+*---------------------------------------------*/
+void CheckForStartupDirs(void)
+{
+    struct stat s;
+    int err;
+    char FileString[255];
+    char CommandString[400];
+    char *UserName;
 
-	/* Get home directory.
-	*/
-	if ((homedir = getenv("HOME")) == NULL) {
-		homedir = getpwuid(getuid())->pw_dir;
-	}
+    /* Get home directory.
+    */
+    if ((homedir = getenv("HOME")) == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
 
-	UserName = getenv("USER");
+    UserName = getenv("USER");
 
-	NewInstall = 0;
-	sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
-	err = stat(FileString, &s);
-	if (-1 == err) {
+    NewInstall = 0;
+    sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
+    err = stat(FileString, &s);
 
-		printf("Not Found %s\n", FileString);
-		sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
-		system(CommandString);
-	}
+    if (-1 == err) {
 
-	sprintf(FileString, "%s/MySongs", homedir);
-	err = stat(FileString, &s);
-	if (-1 == err) {
-		sprintf(CommandString, "mv %s/.config/LiveMusicApp/MySongs %s/", homedir, homedir);
-		system(CommandString);
-		NewInstall = 1;
-	}
+        printf("Not Found %s\n", FileString);
+        sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
+        system(CommandString);
+    }
 }
 
 /*--------------------------------------------
- * Function:            my_keypress_function
- *
- * Description: Get keyboard events.
- *---------------------------------------------*/
-gboolean my_keypress_function (GtkWidget *widget, GdkEventKey *event, gpointer data) {
+* Function:            my_keypress_function
+*
+* Description: Get keyboard events.
+*---------------------------------------------*/
+gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
 
-	printd(LogDebug, "Event %x %x\n",
-	       event->keyval,
-	       event->state);
+    printd(LogDebug, "Event %x %x\n",
+           event->keyval,
+           event->state);
 
-	if (DisableTextInput) {
-		printd(LogDebug, "Key Disabled\n");
-		return (FALSE);
-	}
+    if (DisableTextInput) {
+        printd(LogDebug, "Key Disabled\n");
+        return (FALSE);
+    }
 
-	if (event->keyval >= 0x31 &&
-	        event->keyval <= 0x39 &&
-	        event->state == 4) {
-		printd(LogDebug, "Patch\n");
-		LayoutSwitchPatch(event->keyval - 0x31, true);
-		return (TRUE);
-	}
+    if (event->keyval >= 0x31 &&
+        event->keyval <= 0x39 &&
+        event->state == 4) {
+        printd(LogDebug, "Patch\n");
+        LayoutSwitchPatch(event->keyval - 0x31, true);
+        return (TRUE);
+    }
 
-	switch (event->keyval) {
+    switch (event->keyval) {
 
-	case GDK_KEY_q:
-		if (event->state == 4) {
-			printd(LogDebug, "Found quit\n");
-			gtk_window_close(GTK_WINDOW(theMainWindow));
-		}
+    case GDK_KEY_q:
+        if (event->state == 4) {
+            printd(LogDebug, "Found quit\n");
+            gtk_window_close(GTK_WINDOW(theMainWindow));
+        }
 
-	case GDK_KEY_l:
-		if (event->state == 4) {
-			printd(LogDebug, "GDK_KEY_l\n");
-			plLoopToggle();
-		}
+    case GDK_KEY_l:
+        if (event->state == 4) {
+            printd(LogDebug, "GDK_KEY_l\n");
+            plLoopToggle();
+        }
 
-//	if (event->keyval == GDK_KEY_p && event->state == 0) {
-	case GDK_KEY_space:
-		if (event->state == 4) {
-			printd(LogDebug, "GDK_KEY_space\n");
-			plPausePlay();
-		}
+    //	if (event->keyval == GDK_KEY_p && event->state == 0) {
+    case GDK_KEY_space:
+        if (event->state == 4) {
+            printd(LogDebug, "GDK_KEY_space\n");
+            plPausePlay();
+        }
 
-	case GDK_KEY_a:
-		if (event->state == 4) {
-			printd(LogDebug, "GDK_KEY_a\n");
-			plSetA();
-		}
+    case GDK_KEY_a:
+        if (event->state == 4) {
+            printd(LogDebug, "GDK_KEY_a\n");
+            plSetA();
+        }
 
-	case GDK_KEY_b:
-		if (event->state == 4) {
-			printd(LogDebug, "GDK_KEY_b\n");
-			plSetB();
-		}
+    case GDK_KEY_b:
+        if (event->state == 4) {
+            printd(LogDebug, "GDK_KEY_b\n");
+            plSetB();
+        }
 
-	// case GDK_KEY_Return:
-	// 	printd(LogDebug, "GDK_KEY_Return\n");
-	// 	return (TRUE);
-	// 	break;
+    // case GDK_KEY_Return:
+    // 	printd(LogDebug, "GDK_KEY_Return\n");
+    // 	return (TRUE);
+    // 	break;
 
-	// case GDK_KEY_BackSpace:
-	// 	printd(LogDebug, "GDK_KEY_BackSpace\n");
-	// 	return (TRUE);
-	// 	break;
+    // case GDK_KEY_BackSpace:
+    // 	printd(LogDebug, "GDK_KEY_BackSpace\n");
+    // 	return (TRUE);
+    // 	break;
 
-	case GDK_KEY_Tab:
-		printd(LogDebug, "GDK_KEY_Tab\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Tab:
+        printd(LogDebug, "GDK_KEY_Tab\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Multi_key:
-		printd(LogDebug, "GDK_KEY_Multi_key\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Multi_key:
+        printd(LogDebug, "GDK_KEY_Multi_key\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Page_Up:
-		printd(LogDebug, "GDK_KEY_Page_Up\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Page_Up:
+        printd(LogDebug, "GDK_KEY_Page_Up\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Page_Down:
-		printd(LogDebug, "GDK_KEY_Page_Down\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Page_Down:
+        printd(LogDebug, "GDK_KEY_Page_Down\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_F1:
-		printd(LogDebug, "GDK_KEY_F1\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_F1:
+        printd(LogDebug, "GDK_KEY_F1\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Control_L:
-		printd(LogDebug, "GDK_KEY_Control_L\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Control_L:
+        printd(LogDebug, "GDK_KEY_Control_L\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Meta_L:
-		printd(LogDebug, "GDK_KEY_Meta_L\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Meta_L:
+        printd(LogDebug, "GDK_KEY_Meta_L\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Super_L:
-		printd(LogDebug, "GDK_KEY_Super_L\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Super_L:
+        printd(LogDebug, "GDK_KEY_Super_L\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Begin:
-		printd(LogDebug, "GDK_KEY_Begin\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Begin:
+        printd(LogDebug, "GDK_KEY_Begin\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Alt_L:
-		printd(LogDebug, "GDK_KEY_Alt_L\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Alt_L:
+        printd(LogDebug, "GDK_KEY_Alt_L\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Down:
-		printd(LogDebug, "GDK_KEY_Down\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Down:
+        printd(LogDebug, "GDK_KEY_Down\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Up:
-		printd(LogDebug, "GDK_KEY_Up\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Up:
+        printd(LogDebug, "GDK_KEY_Up\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Right:
-		printd(LogDebug, "GDK_KEY_Right\n");
-		return (TRUE);
-		break;
+    case GDK_KEY_Right:
+        printd(LogDebug, "GDK_KEY_Right\n");
+        return (TRUE);
+        break;
 
-	case GDK_KEY_Num_Lock:
-		printd(LogDebug, "GDK_KEY_Num_Lock\n");
-		return TRUE;
-		break;
+    case GDK_KEY_Num_Lock:
+        printd(LogDebug, "GDK_KEY_Num_Lock\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Space:
-		printd(LogDebug, "GDK_KEY_KP_Space\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Space:
+        printd(LogDebug, "GDK_KEY_KP_Space\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Tab:
-		printd(LogDebug, "GDK_KEY_KP_Tab\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Tab:
+        printd(LogDebug, "GDK_KEY_KP_Tab\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Enter:
-		printd(LogDebug, "GDK_KEY_KP_Enter\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Enter:
+        printd(LogDebug, "GDK_KEY_KP_Enter\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_F1:
-		printd(LogDebug, "GDK_KEY_KP_F1\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_F1:
+        printd(LogDebug, "GDK_KEY_KP_F1\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_F2:
-		printd(LogDebug, "GDK_KEY_KP_F2\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_F2:
+        printd(LogDebug, "GDK_KEY_KP_F2\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_F3:
-		printd(LogDebug, "GDK_KEY_KP_F3\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_F3:
+        printd(LogDebug, "GDK_KEY_KP_F3\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_F4:
-		printd(LogDebug, "GDK_KEY_KP_F4\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_F4:
+        printd(LogDebug, "GDK_KEY_KP_F4\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Home:
-		printd(LogDebug, "GDK_KEY_KP_Home\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Home:
+        printd(LogDebug, "GDK_KEY_KP_Home\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Left:
-		printd(LogDebug, "GDK_KEY_KP_Left\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Left:
+        printd(LogDebug, "GDK_KEY_KP_Left\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Up:
-		printd(LogDebug, "GDK_KEY_KP_Up\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Up:
+        printd(LogDebug, "GDK_KEY_KP_Up\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Right:
-		printd(LogDebug, "GDK_KEY_KP_Right\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Right:
+        printd(LogDebug, "GDK_KEY_KP_Right\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Down:
-		printd(LogDebug, "GDK_KEY_KP_Down\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Down:
+        printd(LogDebug, "GDK_KEY_KP_Down\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Page_Up:
-		printd(LogDebug, "GDK_KEY_KP_Page_Up\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Page_Up:
+        printd(LogDebug, "GDK_KEY_KP_Page_Up\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Page_Down:
-		printd(LogDebug, "GDK_KEY_KP_Page_Down\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Page_Down:
+        printd(LogDebug, "GDK_KEY_KP_Page_Down\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_End:
-		printd(LogDebug, "GDK_KEY_KP_End\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_End:
+        printd(LogDebug, "GDK_KEY_KP_End\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Begin:
-		printd(LogDebug, "GDK_KEY_KP_Begin\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Begin:
+        printd(LogDebug, "GDK_KEY_KP_Begin\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Insert:
-		printd(LogDebug, "GDK_KEY_KP_Insert\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Insert:
+        printd(LogDebug, "GDK_KEY_KP_Insert\n");
+        return TRUE;
+        break;
 
-	// case GDK_KEY_KP_Delete:
-	// 	printd(LogDebug, "GDK_KEY_KP_Delete\n");
-	// 	return TRUE;
-	// 	break;
+    // case GDK_KEY_KP_Delete:
+    // 	printd(LogDebug, "GDK_KEY_KP_Delete\n");
+    // 	return TRUE;
+    // 	break;
 
-	case GDK_KEY_KP_Equal:
-		printd(LogDebug, "GDK_KEY_KP_Equal\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Equal:
+        printd(LogDebug, "GDK_KEY_KP_Equal\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Multiply:
-		printd(LogDebug, "GDK_KEY_KP_Multiply\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Multiply:
+        printd(LogDebug, "GDK_KEY_KP_Multiply\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Add:
-		printd(LogDebug, "GDK_KEY_KP_Add\n");
-		SetExpressionControl(VolumeControllerNum,
-		                     GetExpressionControl(VolumeControllerNum) + 5);
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Add:
+        printd(LogDebug, "GDK_KEY_KP_Add\n");
+        SetExpressionControl(VolumeControllerNum,
+                             GetExpressionControl(VolumeControllerNum) + 5);
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Separator:
-		printd(LogDebug, "GDK_KEY_KP_Separator\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Separator:
+        printd(LogDebug, "GDK_KEY_KP_Separator\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Subtract:
-		printd(LogDebug, "GDK_KEY_KP_Subtract\n");
-		SetExpressionControl(VolumeControllerNum,
-		                     GetExpressionControl(VolumeControllerNum) - 5);
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Subtract:
+        printd(LogDebug, "GDK_KEY_KP_Subtract\n");
+        SetExpressionControl(VolumeControllerNum,
+                             GetExpressionControl(VolumeControllerNum) - 5);
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Decimal:
-		printd(LogDebug, "GDK_KEY_KP_Decimal\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Decimal:
+        printd(LogDebug, "GDK_KEY_KP_Decimal\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_Divide:
-		printd(LogDebug, "GDK_KEY_KP_Divide\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_Divide:
+        printd(LogDebug, "GDK_KEY_KP_Divide\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_0:
-		printd(LogDebug, "GDK_KEY_KP_0\n");
-		VolumeControllerNum = 1;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_0:
+        printd(LogDebug, "GDK_KEY_KP_0\n");
+        VolumeControllerNum = 1;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_1:
-		printd(LogDebug, "GDK_KEY_KP_1\n");
-		VolumeControllerNum = 2;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_1:
+        printd(LogDebug, "GDK_KEY_KP_1\n");
+        VolumeControllerNum = 2;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_2:
-		printd(LogDebug, "GDK_KEY_KP_2\n");
-		VolumeControllerNum = 3;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_2:
+        printd(LogDebug, "GDK_KEY_KP_2\n");
+        VolumeControllerNum = 3;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_3:
-		printd(LogDebug, "GDK_KEY_KP_3\n");
-		VolumeControllerNum = 4;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_3:
+        printd(LogDebug, "GDK_KEY_KP_3\n");
+        VolumeControllerNum = 4;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_4:
-		printd(LogDebug, "GDK_KEY_KP_4\n");
-		VolumeControllerNum = 5;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_4:
+        printd(LogDebug, "GDK_KEY_KP_4\n");
+        VolumeControllerNum = 5;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_5:
-		printd(LogDebug, "GDK_KEY_KP_5\n");
-		VolumeControllerNum = 6;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_5:
+        printd(LogDebug, "GDK_KEY_KP_5\n");
+        VolumeControllerNum = 6;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_6:
-		printd(LogDebug, "GDK_KEY_KP_6\n");
-		VolumeControllerNum = 7;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_6:
+        printd(LogDebug, "GDK_KEY_KP_6\n");
+        VolumeControllerNum = 7;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_7:
-		printd(LogDebug, "GDK_KEY_KP_7\n");
-		VolumeControllerNum = 8;
-		return TRUE;
-		break;
+    case GDK_KEY_KP_7:
+        printd(LogDebug, "GDK_KEY_KP_7\n");
+        VolumeControllerNum = 8;
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_8:
-		printd(LogDebug, "GDK_KEY_KP_8\n");
-		return TRUE;
-		break;
+    case GDK_KEY_KP_8:
+        printd(LogDebug, "GDK_KEY_KP_8\n");
+        return TRUE;
+        break;
 
-	case GDK_KEY_KP_9:
-		printd(LogDebug, "GDK_KEY_KP_9\n");
-		return TRUE;
-		break;
-	}
+    case GDK_KEY_KP_9:
+        printd(LogDebug, "GDK_KEY_KP_9\n");
+        return TRUE;
+        break;
+    }
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return FALSE;
+    return FALSE;
 }
 
 /*--------------------------------------------
- * Function:            GTKIdel_cb
- *
- * Description: Startup some Gui.
- *---------------------------------------------*/
+* Function:            GTKIdel_cb
+*
+* Description: Startup some Gui.
+*---------------------------------------------*/
 unsigned long int IdleCounter;
-int GTKIdel_cb(gpointer data) {
-	char ForString[100];
+int GTKIdel_cb(gpointer data)
+{
+    char ForString[100];
 
-	/* Can't call this from the thread so the
-	 thread sets the structure and then the action
-	 gets performed here.
-	 Expression control of active GUI sliders.
-	*/
-	IdleCounter++;
-	if ((IdleCounter > 100)) {
-		printf("*** Timer Problem %d\n",
-		       IdleCounter);
-	}
+    /* Can't call this from the thread so the
+    thread sets the structure and then the action
+    gets performed here.
+    Expression control of active GUI sliders.
+    */
+    IdleCounter++;
 
-	printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
+    if ((IdleCounter > 100)) {
+        printd(LogError, "*** Timer Problem %d\n",
+               IdleCounter);
+    }
 
-// gMyInfo.SliderGUIUpdate
-//	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
-	if (gMyInfo.SliderGUIUpdate) {
-		printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
-		switch (gMyInfo.SliderGUINumber) {
-//		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
-		case Slider1:
-			printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
-			SetVolume1(gMyInfo.SliderGUIUpdate / 1.27);
-			break;
+    printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
-		case Slider2:
-			printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
-			SetVolume2(gMyInfo.SliderGUIUpdate / 1.27);
-			break;
+    // gMyInfo.SliderGUIUpdate
+    //	if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+    if (gMyInfo.SliderGUIUpdate) {
+        printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
 
-		case Slider3:
-			printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
-			SetVolume3(gMyInfo.SliderGUIUpdate / 1.27);
-			break;
+        switch (gMyInfo.SliderGUINumber) {
+        //		switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
+        case Slider1:
+            printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
+            SetVolume1(gMyInfo.SliderGUIUpdate / 1.27);
+            break;
 
-		case Slider4:
-			printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
-//			SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
+        case Slider2:
+            printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
+            SetVolume2(gMyInfo.SliderGUIUpdate / 1.27);
+            break;
 
-		default:
-//			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
-			printd(LogTest, "GTKIdel_cb Default\n");
-//			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
-			SetVolume4(gMyInfo.SliderGUIUpdate / 1.26);
-			break;
-		}
+        case Slider3:
+            printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
+            SetVolume3(gMyInfo.SliderGUIUpdate / 1.27);
+            break;
 
-		/* Clear it until next message set
-		*/
-		AlsaEvent.data.control.param = 0;
-//		gMyInfo.SliderGUINumber = 0;
-		gMyInfo.SliderGUIUpdate = 0;
-	}
+        case Slider4:
+            printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
 
-	if (gMyInfo.SetMP3PlayVolBool) {
-		SetMP3PlayVol(gMyInfo.SetMP3PlayVolBool);
-		gMyInfo.SetMP3PlayVolBool = 0;
-	}
+        //			SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
 
-	if (gMyInfo.ScrollUpdate) {
-		ScrollCtrl(gMyInfo.ScrollUpdate);
-		gMyInfo.ScrollUpdate = 0;
-	}
+        default:
+            //			printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
+            printd(LogTest, "GTKIdel_cb Default\n");
+            //			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
+            SetVolume4(gMyInfo.SliderGUIUpdate / 1.26);
+            break;
+        }
 
-	/* Check to see if a TAB was switched.
-	*/
-	if (gMyInfo.TabSwitch != NULLSwitch) {
-		printd(LogDebug, "TabSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
-		SwitchToTab(gMyInfo.TabSwitch);
-		gMyInfo.TabSwitch = NULLSwitch;
-		printd(LogDebug, "TabSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
-	}
+        /* Clear it until next message set
+        */
+        AlsaEvent.data.control.param = 0;
+        //		gMyInfo.SliderGUINumber = 0;
+        gMyInfo.SliderGUIUpdate = 0;
+    }
 
-	/* Check to see if a Window was switched.
-	*/
-	if (gMyInfo.RaiseSwitch != NULLSwitch) {
-		printd(LogDebug, "RaiseSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
-		RaiseWindowsNum(gMyInfo.RaiseSwitch);
-		gMyInfo.RaiseSwitch = NULLSwitch;
-		printd(LogDebug, "RaiseSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
-	}
+    if (gMyInfo.SetMP3PlayVolBool) {
+        SetMP3PlayVol(gMyInfo.SetMP3PlayVolBool);
+        gMyInfo.SetMP3PlayVolBool = 0;
+    }
 
-	/* Can't call this in the alsa thread.
-	*/
-	if (gMyInfo.GuitarMidiCall == GuitarMidiCallStart) {
-		printd(LogDebug, "GuitarMidiCallStart %d\n", gMyInfo.GuitarMidiCallParam1);
-		GuitarMidiPreset(gMyInfo.GuitarMidiCallParam1);
-		gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
-	}
+    if (gMyInfo.ScrollUpdate) {
+        ScrollCtrl(gMyInfo.ScrollUpdate);
+        gMyInfo.ScrollUpdate = 0;
+    }
 
-	if (gMyInfo.GuitarMidiCall == GuitarMidiCallComplete) {
-		printd(LogDebug, "GuitarMidiCallComplete %d\n", gMyInfo.GuitarMidiCallParam1);
-		GuitarMidiPresetComplete(gMyInfo.GuitarMidiCallParam1);
-		gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
-	}
+    /* Check to see if a TAB was switched.
+    */
+    if (gMyInfo.TabSwitch != NULLSwitch) {
+        printd(LogDebug, "TabSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+        SwitchToTab(gMyInfo.TabSwitch);
+        gMyInfo.TabSwitch = NULLSwitch;
+        printd(LogDebug, "TabSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+    }
 
-	if (gMyInfo.LayoutCall) {
-		printd(LogDebug, "LayoutCall %d\n", gMyInfo.LayoutCall);
-		LayoutSwitchPatch(gMyInfo.LayoutCallParam1, gMyInfo.LayoutCallParam2);
-		gMyInfo.LayoutCall = FALSE;
-		gMyInfo.LayoutCallParam1 = 0;
-		gMyInfo.LayoutCallParam2 = 0;
-	}
+    /* Check to see if a Window was switched.
+    */
+    if (gMyInfo.RaiseSwitch != NULLSwitch) {
+        printd(LogDebug, "RaiseSwitch %d\n", gMyInfo.GuitarMidiCallParam1);
+        RaiseWindowsNum(gMyInfo.RaiseSwitch);
+        gMyInfo.RaiseSwitch = NULLSwitch;
+        printd(LogDebug, "RaiseSwitch End %d\n", gMyInfo.GuitarMidiCallParam1);
+    }
 
-	if (gMyInfo.NextDeskSwitch) {
-		NextDesktop();
-		gMyInfo.NextDeskSwitch = FALSE;
-	}
+    /* Can't call this in the alsa thread.
+    */
+    if (gMyInfo.GuitarMidiCall == GuitarMidiCallStart) {
+        printd(LogDebug, "GuitarMidiCallStart %d\n", gMyInfo.GuitarMidiCallParam1);
+        GuitarMidiPreset(gMyInfo.GuitarMidiCallParam1);
+        gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
+    }
 
-	if (gMyInfo.PrevDeskSwitch) {
-		PrevDesktop();
-		gMyInfo.PrevDeskSwitch = FALSE;
-	}
+    if (gMyInfo.GuitarMidiCall == GuitarMidiCallComplete) {
+        printd(LogDebug, "GuitarMidiCallComplete %d\n", gMyInfo.GuitarMidiCallParam1);
+        GuitarMidiPresetComplete(gMyInfo.GuitarMidiCallParam1);
+        gMyInfo.GuitarMidiCall = GuitarMidiCallNo;
+    }
 
-	if (gMyInfo.GoToDeskSwitch) {
-		GoToDesktop(gMyInfo.GoToDeskSwitch);
-		gMyInfo.GoToDeskSwitch = Max_Patches;
-	}
+    if (gMyInfo.LayoutCall) {
+        printd(LogDebug, "LayoutCall %d\n", gMyInfo.LayoutCall);
+        LayoutSwitchPatch(gMyInfo.LayoutCallParam1, gMyInfo.LayoutCallParam2);
+        gMyInfo.LayoutCall = FALSE;
+        gMyInfo.LayoutCallParam1 = 0;
+        gMyInfo.LayoutCallParam2 = 0;
+    }
 
-	if (gMyInfo.IncrementSwitch) {
-		IncrementMode();
-		gMyInfo.IncrementSwitch = 0;
-		MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
-		gtk_image_set_from_pixbuf(GTK_IMAGE(LayoutButton.Image), LayoutButton.ButtonDownImage);
-	}
+    if (gMyInfo.NextDeskSwitch) {
+        NextDesktop();
+        gMyInfo.NextDeskSwitch = FALSE;
+    }
 
-	if (gMyInfo.PatchUpdate) {
-		LayoutSwitchPatch(gMyInfo.PatchUpdate - 1, true);
-		gMyInfo.PatchUpdate = NULL;
-	}
+    if (gMyInfo.PrevDeskSwitch) {
+        PrevDesktop();
+        gMyInfo.PrevDeskSwitch = FALSE;
+    }
 
-	if (RemoveMuteCount) {
-		printd(LogTest, "RemoveMuteCount %d\n", RemoveMuteCount);
-		if (RemoveMuteCount-- == 1 ) {
-			MyOSCJackMute(0, 0xff);
-			RemoveMuteCount = 0;
-		}
-	}
+    if (gMyInfo.GoToDeskSwitch) {
+        GoToDesktop(gMyInfo.GoToDeskSwitch);
+        gMyInfo.GoToDeskSwitch = Max_Patches;
+    }
 
-	/* If new information about the slider.
-	*/
-	if (gMyInfo.SliderUpdate > 0 && gMyInfo.SliderUpdate < Max_Patches) {
-		printd(LogDebug, "SliderUpdate %d\n", gMyInfo.SliderUpdate);
-		if (gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].CustomCommand == cmdSetExpr) {
-			printd(LogDebug, "SliderUpdate \n");
-			SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
-		}
-		gMyInfo.SliderUpdate = 0;
-	}
+    if (gMyInfo.IncrementSwitch) {
+        IncrementMode();
+        gMyInfo.IncrementSwitch = 0;
+        MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
+        gtk_image_set_from_pixbuf(GTK_IMAGE(LayoutButton.Image), LayoutButton.ButtonDownImage);
+    }
 
-	/* Needs to update more quickly.
-	*/
-	PlayerPoll(TRUE);
+    if (gMyInfo.PatchUpdate) {
+        LayoutSwitchPatch(gMyInfo.PatchUpdate - 1, true);
+        gMyInfo.PatchUpdate = NULL;
+    }
 
-	/* If the timer went off, update the metronome.
-	*/
-	if (UIUpdateFromTimer == TRUE) {
-		UIUpdateFromTimer = FALSE;
-		printd(LogRealTime, "Reset *** %d\n", IdleCounter);
-		IdleCounter = 0;
-		printd(LogRealTime, "UIUpdateFromTimer 1\n");
-		MyImageButtonSetText(&TempoDraw, TempoUpdateString);
+    if (RemoveMuteCount) {
+        printd(LogTest, "RemoveMuteCount %d\n", RemoveMuteCount);
 
-		/* Make sure the buttons are all up after being pressed.
-		*/
-		ClearMainButtons();
+        if (RemoveMuteCount-- == 1) {
+            MyOSCJackMute(0, 0xff);
+            RemoveMuteCount = 0;
+        }
+    }
 
-		/* With these off doesn't
-		seem to lock up.
-		*/
-		if (JackMaster)
-			jack_poll();
+    /* If new information about the slider.
+    */
+    if (gMyInfo.SliderUpdate > 0 && gMyInfo.SliderUpdate < Max_Patches) {
+        printd(LogDebug, "SliderUpdate %d\n", gMyInfo.SliderUpdate);
 
-		MyOSCPoll(FALSE);
-//		HIDPoll();
+        if (gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].CustomCommand == cmdSetExpr) {
+            printd(LogDebug, "SliderUpdate \n");
+            SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
+        }
+
+        gMyInfo.SliderUpdate = 0;
+    }
+
+    /* Needs to update more quickly.
+    */
+    PlayerPoll(TRUE);
+
+    /* If the timer went off, update the metronome.
+    */
+    if (UIUpdateFromTimer == TRUE) {
+        UIUpdateFromTimer = FALSE;
+        printd(LogRealTime, "Reset *** %d\n", IdleCounter);
+        IdleCounter = 0;
+        printd(LogRealTime, "UIUpdateFromTimer 1\n");
+        MyImageButtonSetText(&TempoDraw, TempoUpdateString);
+
+        /* Make sure the buttons are all up after being pressed.
+        */
+        ClearMainButtons();
+
+        /* With these off doesn't
+        seem to lock up.
+        */
+        if (JackMaster)
+            jack_poll();
+
+        MyOSCPoll(FALSE);
+        //		HIDPoll();
 
 
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 0 );
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 0 );
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 0 );
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 0 );
-		/*  Turn Pedal lights off
-		*/
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3Off );
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED4Off );
-	} else {
-		printd(LogRealTime, "No Timer %d\n", IdleCounter);
-	}
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE5, (int) 0);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE6, (int) 0);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE7, (int) 0);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE8, (int) 0);
+        /*  Turn Pedal lights off
+        */
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4Off);
 
-	// Update the player time if playing.
-	gtk_widget_override_font(PlayerCurWid,
-	                         pango_font_description_from_string("Sans Bold 16"));
-	sprintf(ForString, "%3.1f\n%s", PlayerDisTime, PlayerDisSection);
-	gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
+    } else {
+        printd(LogRealTime, "No Timer %d\n", IdleCounter);
+    }
 
-//	printd(LogDebug, "GTKIdel_cb out\n");
-	return (FALSE);
-//	return (TRUE);
+    // Update the player time if playing.
+    gtk_widget_override_font(PlayerCurWid,
+                             pango_font_description_from_string("Sans Bold 16"));
+    sprintf(ForString, "%3.1f\n%s", PlayerDisTime, PlayerDisSection);
+    gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
+
+    //	printd(LogDebug, "GTKIdel_cb out\n");
+    return (FALSE);
+    //	return (TRUE);
 }
 
 /*--------------------------------------------
@@ -1218,31 +1225,32 @@ int GTKIdel_cb(gpointer data) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------*/
-void SwitchToTab(char Tab) {
-	int Loop;
+void SwitchToTab(char Tab)
+{
+    int Loop;
 
-	// Check for a valid tab number
-	if (Tab < 0 || Tab >= tabpageMAX)
-		return;
+    // Check for a valid tab number
+    if (Tab < 0 || Tab >= tabpageMAX)
+        return;
 
-	if (Tab == tabpagePrefs)
-		DisableTextInput = TRUE;
-	else
-		DisableTextInput = FALSE;
+    if (Tab == tabpagePrefs)
+        DisableTextInput = TRUE;
+    else
+        DisableTextInput = FALSE;
 
-	// Clear all of the tab buttons.
-	for (Loop = 0; Loop < tabpageMAX; Loop++) {
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
-		                          TabButtons[Loop].ButtonUpImage);
-	}
+    // Clear all of the tab buttons.
+    for (Loop = 0; Loop < tabpageMAX; Loop++) {
+        gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
+                                  TabButtons[Loop].ButtonUpImage);
+    }
 
-	Loop = Tab;
-	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
-	                          TabButtons[Loop].ButtonDownImage);
+    Loop = Tab;
+    gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[Loop].Image),
+                              TabButtons[Loop].ButtonDownImage);
 
-//	PreviousTab = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPane));
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
-	printd(LogDebug, "Switch to Tab %x %d %d\n", NoteBookPane, PreviousTab, Tab);
+    //	PreviousTab = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPane));
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Tab);
+    printd(LogDebug, "Switch to Tab %x %d %d\n", NoteBookPane, PreviousTab, Tab);
 }
 
 #if 0
@@ -1253,13 +1261,14 @@ void SwitchToTab(char Tab) {
  * 	buttons we get dispatched here.
  *
  *---------------------------------------------*/
-void on_button_clicked(GtkButton *button, gpointer user_data) {
-//	tPatchIndex PatchIndex;
+void on_button_clicked(GtkButton *button, gpointer user_data)
+{
+    //	tPatchIndex PatchIndex;
 
-	printd(LogInfo, "on_button_clicked %d\n", (int) user_data);
-//	PatchIndex = LayoutSwitchPatch(user_data, true);
-	LayoutSwitchPatch(user_data, true);
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    printd(LogInfo, "on_button_clicked %d\n", (int) user_data);
+    //	PatchIndex = LayoutSwitchPatch(user_data, true);
+    LayoutSwitchPatch(user_data, true);
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
 }
 #endif
@@ -1273,18 +1282,19 @@ void on_button_clicked(GtkButton *button, gpointer user_data) {
  *---------------------------------------------*/
 gboolean layout_click_handler(GtkWidget *widget,
                               GdkEvent *event,
-                              gpointer user_data) {
-	theImageButtons *theButton;
+                              gpointer user_data)
+{
+    theImageButtons *theButton;
 
-	theButton = (theImageButtons *) user_data;
-	printd(LogInfo, "layout_click %x\n", theButton);
-	IncrementMode();
-	MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonDownImage);
+    theButton = (theImageButtons *) user_data;
+    printd(LogInfo, "layout_click %x\n", theButton);
+    IncrementMode();
+    MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonDownImage);
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return TRUE; /* stop event propagation */
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------
@@ -1295,12 +1305,13 @@ gboolean layout_click_handler(GtkWidget *widget,
  *---------------------------------------------*/
 gboolean layout_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
-                                gpointer user_data) {
-	theImageButtons *theButton;
-	theButton = (theImageButtons *) user_data;
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
-	g_idle_add(GTKIdel_cb, theMainWindow);
-	return TRUE; /* stop event propagation */
+                                gpointer user_data)
+{
+    theImageButtons *theButton;
+    theButton = (theImageButtons *) user_data;
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
+    g_idle_add(GTKIdel_cb, theMainWindow);
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------
@@ -1309,11 +1320,12 @@ gboolean layout_release_handler(GtkWidget *widget,
  * Description:		It's all about ME !
  *
  *---------------------------------------------*/
-void on_About_clicked(GtkButton *button, gpointer user_data) {
-	GtkWidget *window;
+void on_About_clicked(GtkButton *button, gpointer user_data)
+{
+    GtkWidget *window;
 
-	window = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutDialog"));
-	gtk_widget_show(window);
+    window = GTK_WIDGET(gtk_builder_get_object(gxml, "AboutDialog"));
+    gtk_widget_show(window);
 }
 
 /*--------------------------------------------
@@ -1322,12 +1334,13 @@ void on_About_clicked(GtkButton *button, gpointer user_data) {
  * Description:		That's IT, I'm outta here.
  *
  *---------------------------------------------*/
-void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
+void on_window1_destroy(GtkWidget *widget, gpointer user_data)
+{
 
-	/* break gtk_main() loop */
-//	printd(LogInfo, "In Destroy\n");
-	WritePrefs();
-	gtk_main_quit();
+    /* break gtk_main() loop */
+    //	printd(LogInfo, "In Destroy\n");
+    WritePrefs();
+    gtk_main_quit();
 }
 
 /*--------------------------------------------
@@ -1336,24 +1349,27 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
  * Description:		Turn the Metrognome on or off
  *
  *---------------------------------------------*/
-void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
 
-	// Put Dialog here.
-	if (event->button.state & GDK_CONTROL_MASK) {
-		printd(LogInfo, "CTRL and Tempo\n");
-//		gMyInfo.Tempo = 132;
-	}
+    // Put Dialog here.
+    if (event->button.state & GDK_CONTROL_MASK) {
+        printd(LogInfo, "CTRL and Tempo\n");
+        //		gMyInfo.Tempo = 132;
+    }
 
-	if (gMyInfo.MetronomeOn) {
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonUpImage);
-		gMyInfo.MetronomeOn = 0;
-	} else {
-		gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
-		                          TempoDraw.ButtonDownImage);
-		gMyInfo.MetronomeOn = 1;
-	}
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    if (gMyInfo.MetronomeOn) {
+        gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+                                  TempoDraw.ButtonUpImage);
+        gMyInfo.MetronomeOn = 0;
+
+    } else {
+        gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
+                                  TempoDraw.ButtonDownImage);
+        gMyInfo.MetronomeOn = 1;
+    }
+
+    g_idle_add(GTKIdel_cb, theMainWindow);
 }
 
 /*--------------------------------------------
@@ -1362,9 +1378,10 @@ void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------*/
-gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
-	SetUpMainButtons(&gMyInfo.MyPatchInfo);
-	return true;
+gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data)
+{
+    SetUpMainButtons(&gMyInfo.MyPatchInfo);
+    return true;
 }
 
 /*--------------------------------------------
@@ -1372,21 +1389,23 @@ gboolean tab_focus_callback(GtkNotebook *notebook, gint *arg1, gpointer data) {
  *
  * Description: Make sure the buttons are all up.
  *---------------------------------------------*/
-void ClearMainButtons(void) {
-	int Loop;
+void ClearMainButtons(void)
+{
+    int Loop;
 
-	if (MainButtonCountOn == 1) {
-		for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-//			if (MainButtons[Loop].State) {
-			gtk_image_set_from_pixbuf(GTK_IMAGE(
-			                              MainButtons[Loop].Image),
-			                          MainButtons[Loop].ButtonUpImage);
-			MainButtons[Loop].State = 0;
-			MainButtonCountOn = 0;
-//			}
-		}
-	} else if (MainButtonCountOn)
-		MainButtonCountOn--;
+    if (MainButtonCountOn == 1) {
+        for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+            //			if (MainButtons[Loop].State) {
+            gtk_image_set_from_pixbuf(GTK_IMAGE(
+                                          MainButtons[Loop].Image),
+                                      MainButtons[Loop].ButtonUpImage);
+            MainButtons[Loop].State = 0;
+            MainButtonCountOn = 0;
+            //			}
+        }
+
+    } else if (MainButtonCountOn)
+        MainButtonCountOn--;
 }
 
 
@@ -1395,83 +1414,87 @@ void ClearMainButtons(void) {
  *
  * Description: 	Deal with command line arguments.
  *---------------------------------------------*/
-void parse_cmdline(int argc, char *argv[]) {
-	int c;
-	int digit_optind = 0;
+void parse_cmdline(int argc, char *argv[])
+{
+    int c;
+    int digit_optind = 0;
 
-//	printf("Arg 0 %s\n", argv[0]);
-	while (1)  {
-		int this_option_optind = optind ? optind : 1;
-		int option_index = 0;
-		static struct option long_options[] = {
-			{ "verbose", no_argument, 0, 'v' },
-			{ "FontSize", required_argument, 0, 'f' },
-			{ "jack", required_argument, 0, 'j' },
-			{ "enable jack", no_argument, 0, 'e' },
-			{ "layout", required_argument, 0, 'l' },
-			{ "IncludeFile", no_argument, 0, 'i' },
-//			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
-			{ 0, 0, 0, 0 }
-		};
+    //	printf("Arg 0 %s\n", argv[0]);
+    while (1)  {
+        int this_option_optind = optind ? optind : 1;
+        int option_index = 0;
+        static struct option long_options[] = {
+            { "verbose", no_argument, 0, 'v' },
+            { "FontSize", required_argument, 0, 'f' },
+            { "jack", required_argument, 0, 'j' },
+            { "enable jack", no_argument, 0, 'e' },
+            { "layout", required_argument, 0, 'l' },
+            { "IncludeFile", no_argument, 0, 'i' },
+            //			{ "IncludeFile", required_argument, &GenerateHFile, 1 },
+            { 0, 0, 0, 0 }
+        };
 
-		c = getopt_long(argc, argv, "?hiev:f:j:l:",
-		                long_options, &option_index);
-		if (c == -1)
-			break;
+        c = getopt_long(argc, argv, "?hiev:f:j:l:",
+                        long_options, &option_index);
 
-		switch (c) {
-		case 'i':
-			printf("IncludeFile \n");
-			GenerateHFile = 1;
-			break;
+        if (c == -1)
+            break;
 
-		case 'f':
-			ButtonSize = atoi(optarg);
-			printd(LogInfo, "Font Size %d\n", ButtonSize);
-			break;
+        switch (c) {
+        case 'i':
+            printf("IncludeFile \n");
+            GenerateHFile = 1;
+            break;
 
-		case 'j':
-			strncpy(JackName, optarg, MaxStringPortName);
-			printd(LogInfo, "JackName %s\n", JackName);
-			break;
+        case 'f':
+            ButtonSize = atoi(optarg);
+            printd(LogInfo, "Font Size %d\n", ButtonSize);
+            break;
 
-		case 'l':
-			KeyLayout = atoi(optarg);
-			printd(LogInfo, "Layout %d\n", KeyLayout);
-			break;
+        case 'j':
+            strncpy(JackName, optarg, MaxStringPortName);
+            printd(LogInfo, "JackName %s\n", JackName);
+            break;
 
-		case 'v':
-//			RunLogLevel = atoi(optarg);
-			sscanf(optarg, "%x", &RunLogLevel);
-			printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
-			break;
+        case 'l':
+            KeyLayout = atoi(optarg);
+            printd(LogInfo, "Layout %d\n", KeyLayout);
+            break;
 
-		case 'e':
-			JackMaster = 1;
-			printd(LogInfo, "JackMaster off\n");
-			break;
+        case 'v':
+            //			RunLogLevel = atoi(optarg);
+            sscanf(optarg, "%x", &RunLogLevel);
+            printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
+            break;
 
-		default:
-		case 'h':
-			printf("Live Music CLI Usage\n");
-			printf(" v verbose - Debug output level hex 0xfff \n");
-			printf(" f FontSize - Font Size for smaller screens.\n");
-			printf(" j jack - Jack master name.\n");
-			printf(" e enable-jack - Connect to jackserver.\n");
-			printf(" l Layout - Glade layout file.\n");
-			printf(" i IncludeFile - Generate include file on exit.\n");
+        case 'e':
+            JackMaster = 1;
+            printd(LogInfo, "JackMaster off\n");
+            break;
 
-			exit(0);
-			break;
-		}
-	}
+        default:
+        case 'h':
+            printf("Live Music CLI Usage\n");
+            printf(" v verbose - Debug output level hex 0xfff \n");
+            printf(" f FontSize - Font Size for smaller screens.\n");
+            printf(" j jack - Jack master name.\n");
+            printf(" e enable-jack - Connect to jackserver.\n");
+            printf(" l Layout - Glade layout file.\n");
+            printf(" i IncludeFile - Generate include file on exit.\n");
 
-	if (optind < argc) {
-		printd(LogInfo, "non-option ARGV-elements: ");
-		while (optind < argc)
-			printd(LogInfo, "%s ", argv[optind++]);
-		printd(LogInfo, "\n");
-	}
+            exit(0);
+            break;
+        }
+    }
+
+    if (optind < argc) {
+        printd(LogInfo, "non-option ARGV-elements: ");
+
+        while (optind < argc)
+            printd(LogInfo, "%s ", argv[optind++]);
+
+        printd(LogInfo, "\n");
+    }
 }
 
 /*--------------------------------------------
@@ -1480,39 +1503,40 @@ void parse_cmdline(int argc, char *argv[]) {
  * 	sure that they completed. It's hard to tell with a foot pedal .
  *
  *---------------------------------------------*/
-void UpdateStatus(char *String) {
-	GtkStyle *hold;
-	char DisString[MaxStatusHold * (MaxUpdateLength + 20)];
-//	char DisString[1500];
-	int Loop;
-	int StringOff = 0;
+void UpdateStatus(char *String)
+{
+    GtkStyle *hold;
+    char DisString[MaxStatusHold * (MaxUpdateLength + 20)];
+    //	char DisString[1500];
+    int Loop;
+    int StringOff = 0;
 
-	/* Check for string length
-	*/
-	if (strlen(String) > 11)
-		String[11] = 0;
+    /* Check for string length
+    */
+    if (strlen(String) > 11)
+        String[11] = 0;
 
-	/* Move everything up to add new entry on the bottom.
-	*/
-	for (Loop = 0; Loop < MaxStatusHold - 1; Loop++) {
-		strcpy(HoldStatus[Loop], HoldStatus[Loop + 1]);
-		StringOff += sprintf((DisString + StringOff),
-		                     "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
-		                     gMyInfo.StatusTextColor,
-		                     (char*) &HoldStatus[Loop]);
-	}
+    /* Move everything up to add new entry on the bottom.
+    */
+    for (Loop = 0; Loop < MaxStatusHold - 1; Loop++) {
+        strcpy(HoldStatus[Loop], HoldStatus[Loop + 1]);
+        StringOff += sprintf((DisString + StringOff),
+                             "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
+                             gMyInfo.StatusTextColor,
+                             (char*) &HoldStatus[Loop]);
+    }
 
-	strcpy(HoldStatus[MaxStatusHold - 1], String);
-	sprintf((DisString + StringOff),
-	        "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
-	        gMyInfo.StatusTextColor,
-	        (char*) String);
+    strcpy(HoldStatus[MaxStatusHold - 1], String);
+    sprintf((DisString + StringOff),
+            "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
+            gMyInfo.StatusTextColor,
+            (char*) String);
 
-	/* Actually draw the text to the window.
-	 */
-	gtk_widget_override_font(MainStatus,
-	                         pango_font_description_from_string("Sans Bold 12"));
-	gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
+    /* Actually draw the text to the window.
+     */
+    gtk_widget_override_font(MainStatus,
+                             pango_font_description_from_string("Sans Bold 12"));
+    gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
 
 
 }
@@ -1523,27 +1547,29 @@ void UpdateStatus(char *String) {
  *---------------------------------------------*/
 gboolean click_handler(GtkWidget *widget,
                        GdkEvent *event,
-                       gpointer user_data) {
-	int Loop;
-	GdkEvent *theEvent;
+                       gpointer user_data)
+{
+    int Loop;
+    GdkEvent *theEvent;
 
-	theEvent = gtk_get_current_event();
-	printd(LogInfo, "Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
+    theEvent = gtk_get_current_event();
+    printd(LogInfo, "Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
 
-	Loop = (int) user_data;
-	CurrentPreset = Loop;
-	if (theEvent->button.state & GDK_CONTROL_MASK) {
-		printd(LogInfo, "We have Control Down\n");
-		ShowPatchListSelect(GTK_WINDOW(widget), Loop);
-	}
+    Loop = (int) user_data;
+    CurrentPreset = Loop;
 
-	/* Only call make the call if we are not adding,
-	a new patch to the button.
-	*/
-	else
-		LayoutSwitchPatch(Loop, true);
+    if (theEvent->button.state & GDK_CONTROL_MASK) {
+        printd(LogInfo, "We have Control Down\n");
+        ShowPatchListSelect(GTK_WINDOW(widget), Loop);
+    }
 
-	return TRUE; /* stop event propagation */
+    /* Only call make the call if we are not adding,
+    a new patch to the button.
+    */
+    else
+        LayoutSwitchPatch(Loop, true);
+
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------
@@ -1553,16 +1579,17 @@ gboolean click_handler(GtkWidget *widget,
  *---------------------------------------------*/
 gboolean release_handler(GtkWidget *widget,
                          GdkEvent *event,
-                         gpointer user_data) {
-	int Loop;
+                         gpointer user_data)
+{
+    int Loop;
 
-	Loop = (int) user_data;
-	gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
-	                          MainButtons[Loop].ButtonUpImage);
+    Loop = (int) user_data;
+    gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[Loop].Image),
+                              MainButtons[Loop].ButtonUpImage);
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return TRUE; /* stop event propagation */
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------
@@ -1572,17 +1599,18 @@ gboolean release_handler(GtkWidget *widget,
  *---------------------------------------------*/
 gboolean Notebook_click_handler(GtkWidget *widget,
                                 GdkEvent *event,
-                                gpointer user_data) {
-	int Loop;
+                                gpointer user_data)
+{
+    int Loop;
 
-	Loop = (int) user_data;
-//	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
-	SwitchToTab(Loop);
-	PreviousTab = CurrentTab;
-	CurrentTab = Loop;
+    Loop = (int) user_data;
+    //	gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPane), Loop);
+    SwitchToTab(Loop);
+    PreviousTab = CurrentTab;
+    CurrentTab = Loop;
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
-	return TRUE; /* stop event propagation */
+    g_idle_add(GTKIdel_cb, theMainWindow);
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------
@@ -1590,30 +1618,31 @@ gboolean Notebook_click_handler(GtkWidget *widget,
  *
  * Description:		Build the notebook tab
  *---------------------------------------------*/
-void CreateTabButtons(void) {
-	int Loop;
-	char Buffer[40];
-	GtkWidget *MainButtonImage;
-	GtkWidget *EventBox;
+void CreateTabButtons(void)
+{
+    int Loop;
+    char Buffer[40];
+    GtkWidget *MainButtonImage;
+    GtkWidget *EventBox;
 
-	for (Loop = 0; Loop < tabpageMAX; Loop++) {
-		sprintf(Buffer, "NTab%d", Loop + 1);
-		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
-		MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage, NoteBButtonOffImage);
+    for (Loop = 0; Loop < tabpageMAX; Loop++) {
+        sprintf(Buffer, "NTab%d", Loop + 1);
+        EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
+        MyImageButtonInit(&TabButtons[Loop], EventBox, NoteBButtonOnImage, NoteBButtonOffImage);
 
-		g_signal_connect(G_OBJECT(EventBox),
-		                 "button-press-event",
-		                 G_CALLBACK(Notebook_click_handler),
-		                 Loop);
-	}
+        g_signal_connect(G_OBJECT(EventBox),
+                         "button-press-event",
+                         G_CALLBACK(Notebook_click_handler),
+                         Loop);
+    }
 
-	MyImageButtonSetText(&TabButtons[0], "Patch");
-	MyImageButtonSetText(&TabButtons[1], "Chart");
-	MyImageButtonSetText(&TabButtons[2], "Player");
-	MyImageButtonSetText(&TabButtons[3], "Chords");
-	MyImageButtonSetText(&TabButtons[4], "Prefs");
-	gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[0].Image),
-	                          TabButtons[0].ButtonDownImage);
+    MyImageButtonSetText(&TabButtons[0], "Patch");
+    MyImageButtonSetText(&TabButtons[1], "Chart");
+    MyImageButtonSetText(&TabButtons[2], "Player");
+    MyImageButtonSetText(&TabButtons[3], "Chords");
+    MyImageButtonSetText(&TabButtons[4], "Prefs");
+    gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[0].Image),
+                              TabButtons[0].ButtonDownImage);
 
 }
 
@@ -1622,64 +1651,67 @@ void CreateTabButtons(void) {
  *
  * Description:		Build the main button screen
  *---------------------------------------------*/
-void CreateMainButtons(void) {
-	int Loop, Row = 0, Col = 0;
-	GtkWidget *ButtonFrame;
-	GtkWidget *Table;
-	char Buffer[40];
-	GtkWidget *MainButtonImage;
-	GtkWidget *EventBox;
+void CreateMainButtons(void)
+{
+    int Loop, Row = 0, Col = 0;
+    GtkWidget *ButtonFrame;
+    GtkWidget *Table;
+    char Buffer[40];
+    GtkWidget *MainButtonImage;
+    GtkWidget *EventBox;
 
 #ifdef UsingImageButtons
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-		sprintf(Buffer, "eventbox%d", Loop + 1);
-		EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
-//		gtk_widget_get_usize(EventBox);
 
-		MyImageButtonInit(&MainButtons[Loop], EventBox, PatchButtonOnImage,
-		                  PatchButtonOffImage);
-		gtk_widget_set_tooltip_text(MainButtons[Loop].EventBox, "CTRL-Click to set button.");
+    for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+        sprintf(Buffer, "eventbox%d", Loop + 1);
+        EventBox = GTK_WIDGET(gtk_builder_get_object(gxml, Buffer));
+        //		gtk_widget_get_usize(EventBox);
 
-		g_signal_connect(G_OBJECT(EventBox),
-		                 "button-press-event",
-		                 G_CALLBACK(click_handler),
-		                 Loop);
-		g_signal_connect(G_OBJECT(EventBox),
-		                 "button-release-event",
-		                 G_CALLBACK(release_handler),
-		                 Loop);
-	}
+        MyImageButtonInit(&MainButtons[Loop], EventBox, PatchButtonOnImage,
+                          PatchButtonOffImage);
+        gtk_widget_set_tooltip_text(MainButtons[Loop].EventBox, "CTRL-Click to set button.");
+
+        g_signal_connect(G_OBJECT(EventBox),
+                         "button-press-event",
+                         G_CALLBACK(click_handler),
+                         Loop);
+        g_signal_connect(G_OBJECT(EventBox),
+                         "button-release-event",
+                         G_CALLBACK(release_handler),
+                         Loop);
+    }
+
 #endif
-	GtkWidget *Label;
+    GtkWidget *Label;
 
-	VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
-	Adjustment1 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Analog"));
-	g_signal_connect(G_OBJECT (VScale1), "value_changed",
-	                 G_CALLBACK (VScale1_Changed), NULL);
-	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[0]].Name);
+    VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
+    Adjustment1 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Analog"));
+    g_signal_connect(G_OBJECT(VScale1), "value_changed",
+                     G_CALLBACK(VScale1_Changed), NULL);
+    Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[0]].Name);
 
 
-	VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
-	Adjustment2 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Midi"));
-	g_signal_connect(G_OBJECT (VScale2), "value_changed",
-	                 G_CALLBACK (VScale2_Changed), NULL);
-	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[1]].Name);
+    VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
+    Adjustment2 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Midi"));
+    g_signal_connect(G_OBJECT(VScale2), "value_changed",
+                     G_CALLBACK(VScale2_Changed), NULL);
+    Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[1]].Name);
 
-	VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
-	Adjustment3 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Master"));
-	g_signal_connect(G_OBJECT (VScale3), "value_changed",
-	                 G_CALLBACK (VScale3_Changed), NULL);
-	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[2]].Name);
+    VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
+    Adjustment3 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Master"));
+    g_signal_connect(G_OBJECT(VScale3), "value_changed",
+                     G_CALLBACK(VScale3_Changed), NULL);
+    Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[2]].Name);
 
-	VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
-	Adjustment4 = (GtkAdjustment *) (gtk_builder_get_object(gxml, "adj_Express"));
-	g_signal_connect(G_OBJECT (VScale4), "value_changed",
-	                 G_CALLBACK (VScale4_Changed), NULL);
-	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
-	gtk_label_set_text((Label), (gchar *)gMyInfo.MyPatchInfo[gMyInfo.HardSlider[3]].Name);
+    VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
+    Adjustment4 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Express"));
+    g_signal_connect(G_OBJECT(VScale4), "value_changed",
+                     G_CALLBACK(VScale4_Changed), NULL);
+    Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[3]].Name);
 
 }
 
@@ -1689,12 +1721,13 @@ void CreateMainButtons(void) {
  * Description:		Volume 4 Label
  *
  *---------------------------------------------*/
-void SetScale4Label(char *String) {
-	GtkWidget *Label;
+void SetScale4Label(char *String)
+{
+    GtkWidget *Label;
 
-	Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
-	printd(LogDebug, "SetScale4Label %d %s\n", Label, String);
-	gtk_label_set_text((Label), (gchar *)String);
+    Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
+    printd(LogDebug, "SetScale4Label %d %s\n", Label, String);
+    gtk_label_set_text((Label), (gchar *) String);
 }
 
 /*--------------------------------------------
@@ -1704,29 +1737,30 @@ void SetScale4Label(char *String) {
  * 				All values from 0-127
  *
  *---------------------------------------------*/
-void VScale1_Changed(GtkAdjustment *adj) {
-	int ThisPatchNum;
-	PatchInfo *ThisPatch;
-	unsigned int NewValue;
+void VScale1_Changed(GtkAdjustment *adj)
+{
+    int ThisPatchNum;
+    PatchInfo *ThisPatch;
+    unsigned int NewValue;
 
-	/* Set the number of decimal places to which adj->value is rounded */
-	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	NewValue = gtk_adjustment_get_value(Adjustment1);
-	printd(LogDebug, "Vscale 1 %d\n", NewValue);
-	ThisPatchNum = gMyInfo.HardSlider[0];
-	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+    /* Set the number of decimal places to which adj->value is rounded */
+    //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+    NewValue = gtk_adjustment_get_value(Adjustment1);
+    printd(LogDebug, "Vscale 1 %d\n", NewValue);
+    ThisPatchNum = gMyInfo.HardSlider[0];
+    ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+    //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 
-	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(NewValue, 0);
-	else
-		SendMidi(SND_SEQ_EVENT_CONTROLLER,
-		         ThisPatch->OutPort,
-		         ThisPatch->Channel,
-		         ThisPatch->Patch,
-		         (char) NewValue * 1.27);
+    if (ThisPatch->OutPort == InternalPort)
+        MyOSCJackVol(NewValue, 0);
+    else
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 ThisPatch->OutPort,
+                 ThisPatch->Channel,
+                 ThisPatch->Patch,
+                 (char) NewValue * 1.27);
 
-	printd(LogDebug, "Vscale 1 End %d\n", NewValue);
+    printd(LogDebug, "Vscale 1 End %d\n", NewValue);
 
 }
 
@@ -1736,30 +1770,31 @@ void VScale1_Changed(GtkAdjustment *adj) {
  * Description:		Volume Sliders changed.
  *
  *---------------------------------------------*/
-void VScale2_Changed(GtkAdjustment *adj) {
-	int ThisPatchNum;
-	PatchInfo *ThisPatch;
-	unsigned int NewValue;
-	unsigned int LogValue;
+void VScale2_Changed(GtkAdjustment *adj)
+{
+    int ThisPatchNum;
+    PatchInfo *ThisPatch;
+    unsigned int NewValue;
+    unsigned int LogValue;
 
-	/* Set the number of decimal places to which adj->value is rounded */
-	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	NewValue = gtk_adjustment_get_value(Adjustment2);
-	printd(LogInfo, "Vscale 2 %d\n", NewValue);
-	ThisPatchNum = gMyInfo.HardSlider[1];
-	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-	gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
+    /* Set the number of decimal places to which adj->value is rounded */
+    //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+    NewValue = gtk_adjustment_get_value(Adjustment2);
+    printd(LogInfo, "Vscale 2 %d\n", NewValue);
+    ThisPatchNum = gMyInfo.HardSlider[1];
+    ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+    gMyInfo.MidiVolume = (char) gtk_adjustment_get_value(Adjustment2) * 1.25;
 
-	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+    LogValue = (int)(pow(NewValue, 0.6) * 6.35);
 
-	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(NewValue, 1);
-	else
-		SendMidi(SND_SEQ_EVENT_CONTROLLER,
-		         ThisPatch->OutPort,
-		         ThisPatch->Channel,
-		         ThisPatch->Patch,
-		         (char) LogValue);
+    if (ThisPatch->OutPort == InternalPort)
+        MyOSCJackVol(NewValue, 1);
+    else
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 ThisPatch->OutPort,
+                 ThisPatch->Channel,
+                 ThisPatch->Patch,
+                 (char) LogValue);
 }
 
 /*--------------------------------------------
@@ -1768,29 +1803,30 @@ void VScale2_Changed(GtkAdjustment *adj) {
  * Description:		Volume Sliders changed.
  *
  *---------------------------------------------*/
-void VScale3_Changed(GtkAdjustment *adj) {
-	int ThisPatchNum;
-	PatchInfo *ThisPatch;
-	unsigned int NewValue;
-	unsigned int LogValue;
+void VScale3_Changed(GtkAdjustment *adj)
+{
+    int ThisPatchNum;
+    PatchInfo *ThisPatch;
+    unsigned int NewValue;
+    unsigned int LogValue;
 
-	/* Set the number of decimal places to which adj->value is rounded */
-	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	NewValue = gtk_adjustment_get_value(Adjustment3);
-	printd(LogInfo, "Vscale 3 %d\n", NewValue);
-	ThisPatchNum = gMyInfo.HardSlider[2];
-	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+    /* Set the number of decimal places to which adj->value is rounded */
+    //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+    NewValue = gtk_adjustment_get_value(Adjustment3);
+    printd(LogInfo, "Vscale 3 %d\n", NewValue);
+    ThisPatchNum = gMyInfo.HardSlider[2];
+    ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-	LogValue = (int)( pow(NewValue, 0.6) * 6.35);
+    LogValue = (int)(pow(NewValue, 0.6) * 6.35);
 
-	if (ThisPatch->OutPort == InternalPort)
-		MyOSCJackVol(LogValue * 1.27, 0xff);
-	else
-		SendMidi(SND_SEQ_EVENT_CONTROLLER,
-		         ThisPatch->OutPort,
-		         ThisPatch->Channel,
-		         ThisPatch->Patch,
-		         (char) LogValue * 1.27);
+    if (ThisPatch->OutPort == InternalPort)
+        MyOSCJackVol(LogValue * 1.27, 0xff);
+    else
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 ThisPatch->OutPort,
+                 ThisPatch->Channel,
+                 ThisPatch->Patch,
+                 (char) LogValue * 1.27);
 }
 
 /*--------------------------------------------
@@ -1799,30 +1835,32 @@ void VScale3_Changed(GtkAdjustment *adj) {
  * Description:		Volume Sliders changed.
  *
  *---------------------------------------------*/
-void VScale4_Changed(GtkAdjustment *adj) {
-	int ThisPatchNum;
-	PatchInfo *ThisPatch;
-	unsigned int NewValue;
+void VScale4_Changed(GtkAdjustment *adj)
+{
+    int ThisPatchNum;
+    PatchInfo *ThisPatch;
+    unsigned int NewValue;
 
-	/* Set the number of decimal places to which adj->value is rounded */
-	//   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-	NewValue = gtk_adjustment_get_value(Adjustment4);
-	ThisPatchNum = gMyInfo.ExpreP1Slider;
-	ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-	printd(LogInfo, "Vscale 4 %d P=%d\n",
-	       NewValue, ThisPatch->Channel);
+    /* Set the number of decimal places to which adj->value is rounded */
+    //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
+    NewValue = gtk_adjustment_get_value(Adjustment4);
+    ThisPatchNum = gMyInfo.ExpreP1Slider;
+    ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
+    printd(LogInfo, "Vscale 4 %d P=%d\n",
+           NewValue, ThisPatch->Channel);
 
-//	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
+    //	gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 
-	if (ThisPatch->OutPort == InternalPort) {
-		MyOSCJackVol(NewValue, 0);
-	} else {
-		SendMidi(SND_SEQ_EVENT_CONTROLLER,
-		         ThisPatch->OutPort,
-		         ThisPatch->Channel,
-		         ThisPatch->Patch,
-		         (char) NewValue * 1.27);
-	}
+    if (ThisPatch->OutPort == InternalPort) {
+        MyOSCJackVol(NewValue, 0);
+
+    } else {
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 ThisPatch->OutPort,
+                 ThisPatch->Channel,
+                 ThisPatch->Patch,
+                 (char) NewValue * 1.27);
+    }
 }
 
 /*--------------------------------------------
@@ -1830,17 +1868,18 @@ void VScale4_Changed(GtkAdjustment *adj) {
  *
  * Description:	Change the Volume Slider based on midi input.
  *---------------------------------------------*/
-int SetVolume1(int Value) {
-	gtk_adjustment_set_value(Adjustment1, Value);
-	printd(LogDebug, "Slider 1\n");
+int SetVolume1(int Value)
+{
+    gtk_adjustment_set_value(Adjustment1, Value);
+    printd(LogDebug, "Slider 1\n");
 
-	if (Value > 100)
-		Value = 100;
+    if (Value > 100)
+        Value = 100;
 
-	gMyInfo.AnalogVolume = Value;
-	gtk_range_set_adjustment(VScale1, Adjustment1);
+    gMyInfo.AnalogVolume = Value;
+    gtk_range_set_adjustment(VScale1, Adjustment1);
 
-	return (Value);
+    return (Value);
 }
 
 /*--------------------------------------------
@@ -1848,17 +1887,18 @@ int SetVolume1(int Value) {
  *
  * Description:	Change the Volume Slider based on midi input.
  *---------------------------------------------*/
-int SetVolume2(int Value) {
-	printd(LogDebug, "Slider 2 %x %d\n",
-	       Adjustment2, Value);
+int SetVolume2(int Value)
+{
+    printd(LogDebug, "Slider 2 %x %d\n",
+           Adjustment2, Value);
 
-	if (Value > 100)
-		Value = 100;
+    if (Value > 100)
+        Value = 100;
 
-	gtk_adjustment_set_value(Adjustment2, Value);
-	gMyInfo.MidiVolume = (Value * 1.27);
-	gtk_range_set_adjustment(VScale2, Adjustment2);
-	return (Value);
+    gtk_adjustment_set_value(Adjustment2, Value);
+    gMyInfo.MidiVolume = (Value * 1.27);
+    gtk_range_set_adjustment(VScale2, Adjustment2);
+    return (Value);
 }
 
 /*--------------------------------------------
@@ -1866,17 +1906,18 @@ int SetVolume2(int Value) {
  *
  * Description:
  *---------------------------------------------*/
-int SetVolume3(int Value) {
-	printd(LogDebug, "Slider 3 %x %d\n",
-	       Adjustment2, Value);
+int SetVolume3(int Value)
+{
+    printd(LogDebug, "Slider 3 %x %d\n",
+           Adjustment2, Value);
 
-	if (Value > 100)
-		Value = 100;
+    if (Value > 100)
+        Value = 100;
 
-	gtk_adjustment_set_value(Adjustment3, Value);
-	gMyInfo.V3Volume = Value;
-	gtk_range_set_adjustment(VScale3, Adjustment3);
-	return (Value);
+    gtk_adjustment_set_value(Adjustment3, Value);
+    gMyInfo.V3Volume = Value;
+    gtk_range_set_adjustment(VScale3, Adjustment3);
+    return (Value);
 }
 
 /*--------------------------------------------
@@ -1884,17 +1925,18 @@ int SetVolume3(int Value) {
  *
  * Description:
  *---------------------------------------------*/
-int SetVolume4(int Value) {
-	printd(LogTest, "SetVol Slider 4 %x %d\n",
-	       Adjustment2, Value);
+int SetVolume4(int Value)
+{
+    printd(LogTest, "SetVol Slider 4 %x %d\n",
+           Adjustment2, Value);
 
-	if (Value > 100)
-		Value = 100;
+    if (Value > 100)
+        Value = 100;
 
-	gtk_adjustment_set_value(Adjustment4, Value);
-	gMyInfo.V4Volume = Value;
-	gtk_range_set_adjustment(VScale4, Adjustment4);
-	return (Value);
+    gtk_adjustment_set_value(Adjustment4, Value);
+    gMyInfo.V4Volume = Value;
+    gtk_range_set_adjustment(VScale4, Adjustment4);
+    return (Value);
 }
 
 /*--------------------------------------------
@@ -1903,44 +1945,49 @@ int SetVolume4(int Value) {
  * Description:		Set the title of all of the buttons
  *
  *---------------------------------------------*/
-void SetUpMainButtons(PatchInfo *myPatchInfo) {
-	GtkWidget *myButton;
-	GtkWidget *myChild;
-	tPatchIndex Loop;
-	tPatchIndex PatchIndex;
-	GdkColor color;
-	char String[PatchNameSize];
-	int StringLen;
+void SetUpMainButtons(PatchInfo *myPatchInfo)
+{
+    GtkWidget *myButton;
+    GtkWidget *myChild;
+    tPatchIndex Loop;
+    tPatchIndex PatchIndex;
+    GdkColor color;
+    char String[PatchNameSize];
+    int StringLen;
 
 #ifdef UsingImageButtons
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
-		printd(LogInfo, "SetUpMainButtons1:IMG %d %d \n", Loop, PatchIndex);
 
-		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
-			StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-			sprintf(String, "     %02d     \n%*s",
-			        Loop + 1,
-			        (14 + StringLen) / 2,
-			        gMyInfo.MyPatchInfo[PatchIndex].Name);
-			printd(LogInfo, "SetUpMainButtons:IMG %d %d %s \n", Loop, PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
+    for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+        PatchIndex = LayoutSwitchPatch(Loop, FALSE);
+        printd(LogInfo, "SetUpMainButtons1:IMG %d %d \n", Loop, PatchIndex);
 
-			MyImageButtonSetText(&MainButtons[Loop], String);
-		}
-	}
+        if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
+            StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
+            sprintf(String, "     %02d     \n%*s",
+                    Loop + 1,
+                    (14 + StringLen) / 2,
+                    gMyInfo.MyPatchInfo[PatchIndex].Name);
+            printd(LogInfo, "SetUpMainButtons:IMG %d %d %s \n", Loop, PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+            MyImageButtonSetText(&MainButtons[Loop], String);
+        }
+    }
+
 #else
-	for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
-		myButton = MainButtons[Loop];
-		PatchIndex = LayoutSwitchPatch(Loop, FALSE);
 
-		if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
-			sprintf(String, "%02d-%s", Loop + 1,
-			        gMyInfo.MyPatchInfo[PatchIndex].Name);
-			printd(LogInfo, "SetUpMainButtons %d %s \n", PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
-			myChild = gtk_bin_get_child(GTK_BIN(myButton));
-			gtk_label_set_text((myChild), String);
-		}
-	}
+    for (Loop = 0; Loop < Max_Main_Buttons; Loop++) {
+        myButton = MainButtons[Loop];
+        PatchIndex = LayoutSwitchPatch(Loop, FALSE);
+
+        if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
+            sprintf(String, "%02d-%s", Loop + 1,
+                    gMyInfo.MyPatchInfo[PatchIndex].Name);
+            printd(LogInfo, "SetUpMainButtons %d %s \n", PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
+            myChild = gtk_bin_get_child(GTK_BIN(myButton));
+            gtk_label_set_text((myChild), String);
+        }
+    }
+
 #endif
 }
 
@@ -1950,35 +1997,37 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
  * Description:         <Description/Comments>
  *
  *---------------------------------------------*/
-tPatchIndex DoPatch(PatchInfo *thePatch) {
-	int Next;
-	PatchInfo *NextPatch;
-	int NextCommand = 1;
+tPatchIndex DoPatch(PatchInfo *thePatch)
+{
+    int Next;
+    PatchInfo *NextPatch;
+    int NextCommand = 1;
 
-	NextPatch = thePatch;
-	WriteToHistory(NextPatch->Name);
-	printd(LogInfo, "DoPatch: Start \n");
+    NextPatch = thePatch;
+    WriteToHistory(NextPatch->Name);
+    printd(LogInfo, "DoPatch: Start \n");
 
-	// Execute a patch and any chain patches.
-	do {
-		printd(LogInfo, "DoPatch: %s \n", NextPatch->Name);
-		SendMidiPatch(NextPatch);
+    // Execute a patch and any chain patches.
+    do {
+        printd(LogInfo, "DoPatch: %s \n", NextPatch->Name);
+        SendMidiPatch(NextPatch);
 
-		UpdateStatus(NextPatch->Name);
+        UpdateStatus(NextPatch->Name);
 
-		if (NextPatch->Chain[0] != 0) {
-			NextCommand = FindString(fsPatchNames, NextPatch->Chain);
-			NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
+        if (NextPatch->Chain[0] != 0) {
+            NextCommand = FindString(fsPatchNames, NextPatch->Chain);
+            NextPatch = &gMyInfo.MyPatchInfo[NextCommand];
 
-			if (NextCommand != -1)
-				usleep(150000);
-		} else
-			NextCommand = -1;
+            if (NextCommand != -1)
+                usleep(150000);
+
+        } else
+            NextCommand = -1;
 
 
-	} while (NextCommand != -1);
+    } while (NextCommand != -1);
 
-	return (0);
+    return (0);
 }
 
 /*--------------------------------------------
@@ -1987,9 +2036,10 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
  * Description:		Bring the App/Window into the forground.
  *
  *---------------------------------------------*/
-void RaiseWindowsNum(int AppNumber) {
-	printd(LogInfo, "Raise Window %s\n", gMyInfo.Apps[AppNumber].Name);
-	RaiseWindows(&gMyInfo.Apps[AppNumber].Name);
+void RaiseWindowsNum(int AppNumber)
+{
+    printd(LogInfo, "Raise Window %s\n", gMyInfo.Apps[AppNumber].Name);
+    RaiseWindows(&gMyInfo.Apps[AppNumber].Name);
 }
 
 /*--------------------------------------------
@@ -1998,46 +2048,49 @@ void RaiseWindowsNum(int AppNumber) {
  * Description:		Based on the current mode convert an index.
  *
  *---------------------------------------------*/
-tPatchIndex GetModePreset(tPatchIndex Value) {
-	tPatchIndex NewValue;
+tPatchIndex GetModePreset(tPatchIndex Value)
+{
+    tPatchIndex NewValue;
 
-	NewValue = FindString(fsPatchNames,
-	                      gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
+    NewValue = FindString(fsPatchNames,
+                          gMyInfo.LayoutPresets[CurrentLayout].Presets[Value]);
 
-	printd(LogInfo, "GetModePreset %d %d %d\n",
-	       Value,
-	       NewValue,
-	       CurrentLayout
-	      );
+    printd(LogInfo, "GetModePreset %d %d %d\n",
+           Value,
+           NewValue,
+           CurrentLayout
+          );
 #if 0
-	switch (CurrentLayout) {
-	case ModeDefault:
-		NewValue = Value;
-		break;
 
-	case ModeRehearsal:
-		NewValue = Value;
-		break;
+    switch (CurrentLayout) {
+    case ModeDefault:
+        NewValue = Value;
+        break;
 
-	case ModePractice:
-		NewValue = preModePractice[Value];
-		break;
+    case ModeRehearsal:
+        NewValue = Value;
+        break;
 
-	case ModePerformance:
-		NewValue = Value;
-		break;
+    case ModePractice:
+        NewValue = preModePractice[Value];
+        break;
 
-	case ModeLooper:
-		NewValue = preModeLooper[Value];
-		break;
+    case ModePerformance:
+        NewValue = Value;
+        break;
 
-	default:
-		NewValue = Value;
-		break;
-	}
+    case ModeLooper:
+        NewValue = preModeLooper[Value];
+        break;
+
+    default:
+        NewValue = Value;
+        break;
+    }
+
 #endif
-//	printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
-	return (NewValue);
+    //	printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
+    return (NewValue);
 }
 
 /*--------------------------------------------
@@ -2046,21 +2099,22 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
  * Description:		Based on the current mode do a different.
  *
  *---------------------------------------------*/
-void IncrementMode(void) {
+void IncrementMode(void)
+{
 
-	// Check for wrap around.
-	if (gMyInfo.LayoutPresets[++CurrentLayout].Name[0] == 0) {
-		CurrentLayout = 0;
-	}
+    // Check for wrap around.
+    if (gMyInfo.LayoutPresets[++CurrentLayout].Name[0] == 0) {
+        CurrentLayout = 0;
+    }
 
-//	printd(LogInfo, "IncrementMode %d %s", CurrentLayout,
-//		gMyInfo.LayoutPresets[CurrentLayout].Name);
-//	gtk_widget_override_font(CurrentLayoutWid,
-//		pango_font_description_from_string("Sans Bold 16"));
-//	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
-	SetUpMainButtons(&gMyInfo.MyPatchInfo);
+    //	printd(LogInfo, "IncrementMode %d %s", CurrentLayout,
+    //		gMyInfo.LayoutPresets[CurrentLayout].Name);
+    //	gtk_widget_override_font(CurrentLayoutWid,
+    //		pango_font_description_from_string("Sans Bold 16"));
+    //	gtk_label_set_text(CurrentLayoutWid, LayoutPresets[CurrentLayout].Name);
+    SetUpMainButtons(&gMyInfo.MyPatchInfo);
 
-	printd(LogDebug, "Increment Mode %d\n", CurrentLayout);
+    printd(LogDebug, "Increment Mode %d\n", CurrentLayout);
 }
 
 /*--------------------------------------------
@@ -2069,70 +2123,72 @@ void IncrementMode(void) {
  * Description:		Based on the current mode do a different.
  *
  *---------------------------------------------*/
-tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
-	tPatchIndex Preset;
-	tPatchIndex RetVal;
-	tPatchIndex FinalRetVal;
-	int Loop;
+tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction)
+{
+    tPatchIndex Preset;
+    tPatchIndex RetVal;
+    tPatchIndex FinalRetVal;
+    int Loop;
 
-	Preset = GetModePreset(MidiIn);
-	printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, Preset,
-	       &gMyInfo.MyPatchInfo[(char) Preset]);
+    Preset = GetModePreset(MidiIn);
+    printd(LogInfo, "In LayoutSwitchPatch Mid In %d %d %d\n", MidiIn, Preset,
+           &gMyInfo.MyPatchInfo[(char) Preset]);
 
-	if (MidiIn >= Max_Patches) {
-		printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
-		return (Patch_Not_Found);
-	}
+    if (MidiIn >= Max_Patches) {
+        printd(LogError, "MidiIn %d >= %d\n", MidiIn, Max_Patches);
+        return (Patch_Not_Found);
+    }
 
-	/*
-	 * Toggle the on screen buttons if the midi input is used.
-	 */
-	if (DoAction) {
-		gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[MidiIn].Image),
-		                          MainButtons[MidiIn].ButtonDownImage);
-		MainButtons[MidiIn].State = 1;
-		MainButtonCountOn = 2;
-	}
+    /*
+     * Toggle the on screen buttons if the midi input is used.
+     */
+    if (DoAction) {
+        gtk_image_set_from_pixbuf(GTK_IMAGE(MainButtons[MidiIn].Image),
+                                  MainButtons[MidiIn].ButtonDownImage);
+        MainButtons[MidiIn].State = 1;
+        MainButtonCountOn = 2;
+    }
 
-	RetVal = Preset;
-	if (RetVal >= Max_Patches || RetVal < 0) {
-		printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
-		return (Patch_Not_Found);
-	}
+    RetVal = Preset;
 
-	FinalRetVal = RetVal;
+    if (RetVal >= Max_Patches || RetVal < 0) {
+        printd(LogError, "GetModePreset %d >= %d\n", MidiIn, Max_Patches);
+        return (Patch_Not_Found);
+    }
 
-	/* If the command is a preset lookup the patch.
-	*/
-	if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
-		printd(LogInfo, "LayoutSwitchPatch1 Preset M%d R%d D%d\n", MidiIn,
-		       RetVal, DoAction);
+    FinalRetVal = RetVal;
 
-		/* Walk thru the preset buttons.
-		*/
-		for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
+    /* If the command is a preset lookup the patch.
+    */
+    if (gMyInfo.MyPatchInfo[RetVal].CustomCommand == cmdPreset) {
+        printd(LogInfo, "LayoutSwitchPatch1 Preset M%d R%d D%d\n", MidiIn,
+               RetVal, DoAction);
 
-			/* Find which button it is.
-			*/
-			if (gMyInfo.MyPatchInfo[RetVal].Patch == (Loop + 1))
-				if (gMyInfo.WebPresets.thePreset[Loop] != -1) {
-					FinalRetVal = gMyInfo.WebPresets.thePreset[Loop];
-				}
-		}
-	}
+        /* Walk thru the preset buttons.
+        */
+        for (Loop = 0; Loop < MaxPresetButtons; Loop++) {
 
-	if (FinalRetVal > Max_Patches)
-		FinalRetVal = RetVal;
+            /* Find which button it is.
+            */
+            if (gMyInfo.MyPatchInfo[RetVal].Patch == (Loop + 1))
+                if (gMyInfo.WebPresets.thePreset[Loop] != -1) {
+                    FinalRetVal = gMyInfo.WebPresets.thePreset[Loop];
+                }
+        }
+    }
 
-	/* If we should act on it then call for a change.
-	*/
-	if (DoAction) {
-		if (FinalRetVal >= 0 && FinalRetVal < Max_Patches)
-			DoPatch(&gMyInfo.MyPatchInfo[(int) FinalRetVal]);
-	}
+    if (FinalRetVal > Max_Patches)
+        FinalRetVal = RetVal;
 
-// ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
-	return (FinalRetVal);
+    /* If we should act on it then call for a change.
+    */
+    if (DoAction) {
+        if (FinalRetVal >= 0 && FinalRetVal < Max_Patches)
+            DoPatch(&gMyInfo.MyPatchInfo[(int) FinalRetVal]);
+    }
+
+    // ejk event_ptr->data.control.value > 127 || event_ptr->data.control.value < 0 ? "???": gm_get_instrument_name(event_ptr->data.control.value));
+    return (FinalRetVal);
 }
 
 /*--------------------------------------------
@@ -2141,26 +2197,27 @@ tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction) {
  * Description:		Wait for a preset from the Midi Guitar.
  *
  *---------------------------------------------*/
-int GuitarMidiPreset(char Wait) {
+int GuitarMidiPreset(char Wait)
+{
 
-	printd(LogTest, "GuitarMidiPreset Start Wait=%d\n", Wait);
+    printd(LogTest, "GuitarMidiPreset Start Wait=%d\n", Wait);
 
-	/* Switch to the patch tab so we can see
-	what we want to select.
-	*/
-	SwitchToTab(0);
+    /* Switch to the patch tab so we can see
+    what we want to select.
+    */
+    SwitchToTab(0);
 
-	// MyOSCJackVol(NewValue);
-	MyOSCJackMute(1, 0xff);
-	WaitingforMidi = 1;
+    // MyOSCJackVol(NewValue);
+    MyOSCJackMute(1, 0xff);
+    WaitingforMidi = 1;
 
-	/* If we are wait for a specific release queue.
-	*/
-	if (Wait) {
-		WaitingforMidiHold = 1;
-	}
+    /* If we are wait for a specific release queue.
+    */
+    if (Wait) {
+        WaitingforMidiHold = 1;
+    }
 
-	return (0);
+    return (0);
 }
 
 /*--------------------------------------------
@@ -2169,39 +2226,43 @@ int GuitarMidiPreset(char Wait) {
  * Description:		Wait for a preset from the Midi Guitar.
  *
  *---------------------------------------------*/
-int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
-	tPatchIndex PatchChange;
+int GuitarMidiPresetComplete(tPatchIndex MidiNote)
+{
+    tPatchIndex PatchChange;
 
-	printd(LogTest, "GuitarMidiPresetComplete Start %d\n", MidiNote);
+    printd(LogTest, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
-	if (MidiNote < Max_Patches) {
-		PatchChange = MidiNote - gMyInfo.MidiBaseNote;
-		if (PatchChange >= 0 && PatchChange < Max_Patches)
-			LayoutSwitchPatch(PatchChange, TRUE);
-//		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
-	}
+    if (MidiNote < Max_Patches) {
+        PatchChange = MidiNote - gMyInfo.MidiBaseNote;
 
-	printd(LogTest, "GuitarMidiPresetComplete end Patch %d %d %d\n", gMyInfo.MidiBaseNote,
-	       PreviousTab, PatchChange);
+        if (PatchChange >= 0 && PatchChange < Max_Patches)
+            LayoutSwitchPatch(PatchChange, TRUE);
 
-	/* Switch back to what ever we were looking at.
-	*/
-	SwitchToTab(PreviousTab);
+        //		DoPatch(&gMyInfo.MyPatchInfo[PatchChange]);
+    }
 
-	if (WaitingforMidiHold == 0) {
-		WaitingforMidi = 0;
-		printd(LogTest, "WaitingforMidiHold \n");
-		/* In case the note rings.
-		*/
-		RemoveMuteCount = MuteCountDelay;
-	} else if (MidiNote >= Max_Patches) {
-		printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
-		WaitingforMidi = 0;
-		MyOSCJackMute(0, 0xff);
-		WaitingforMidiHold = 0;
-	}
+    printd(LogTest, "GuitarMidiPresetComplete end Patch %d %d %d\n", gMyInfo.MidiBaseNote,
+           PreviousTab, PatchChange);
 
-	return (0);
+    /* Switch back to what ever we were looking at.
+    */
+    SwitchToTab(PreviousTab);
+
+    if (WaitingforMidiHold == 0) {
+        WaitingforMidi = 0;
+        printd(LogTest, "WaitingforMidiHold \n");
+        /* In case the note rings.
+        */
+        RemoveMuteCount = MuteCountDelay;
+
+    } else if (MidiNote >= Max_Patches) {
+        printd(LogTest, "WaitingforMidiHold >Max_Patches \n");
+        WaitingforMidi = 0;
+        MyOSCJackMute(0, 0xff);
+        WaitingforMidiHold = 0;
+    }
+
+    return (0);
 }
 
 /*--------------------------------------------
@@ -2209,39 +2270,42 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
  *
  * Description:	Find the offset into a list of strings.
  *---------------------------------------------*/
-int FindString(int StringList, char *String) {
-	int Loop;
+int FindString(int StringList, char *String)
+{
+    int Loop;
 
-//	if (String[0] == 0)
-//		return(-1);
-	printd(LogDebug, "FindString %d %s\n",
-	       StringList, String);
+    //	if (String[0] == 0)
+    //		return(-1);
+    printd(LogDebug, "FindString %d %s\n",
+           StringList, String);
 
-	if (StringList == fsPatchNames) {
-		for (Loop = 0; Loop < Max_Patches; Loop++) {
-			// printd(LogDebug,"FindString %d %s %s\n",
-			// 		Loop, String,
-			// 		gMyInfo.MyPatchInfo[Loop].Name);
+    if (StringList == fsPatchNames) {
+        for (Loop = 0; Loop < Max_Patches; Loop++) {
+            // printd(LogDebug,"FindString %d %s %s\n",
+            // 		Loop, String,
+            // 		gMyInfo.MyPatchInfo[Loop].Name);
 
-			if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String))
-				return (Loop);
-		}
-		return (-1);
-	}
+            if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String))
+                return (Loop);
+        }
 
-	if (StringList == fsPortNames) {
-		for (Loop = 0; Loop < MaxOutPorts; Loop++) {
-			gMyInfo.OutPortName[Loop];
-		}
-	}
+        return (-1);
+    }
 
-	if (StringList == fsAppNames) {
-		for (Loop = 0; Loop < MaxApps; Loop++) {
-			gMyInfo.Apps[Loop].Name;
-		}
+    if (StringList == fsPortNames) {
+        for (Loop = 0; Loop < MaxOutPorts; Loop++) {
+            gMyInfo.OutPortName[Loop];
+        }
+    }
 
-	}
-	return (0);
+    if (StringList == fsAppNames) {
+        for (Loop = 0; Loop < MaxApps; Loop++) {
+            gMyInfo.Apps[Loop].Name;
+        }
+
+    }
+
+    return (0);
 }
 
 /*--------------------------------------------
@@ -2250,33 +2314,36 @@ int FindString(int StringList, char *String) {
  * Description:		When the sliders are changed on the main screen.
  *
  *---------------------------------------------*/
-int InitHistoryFile(void) {
+int InitHistoryFile(void)
+{
 
-	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");
-//	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");
-	printd(LogDebug, "File History %x\n", FileHistory);
+    FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocUser) , "a+");
+    //	FileHistory = fopen(GetResourceDir(HistoryFileName, FileLocConfig) , "a+");
+    printd(LogDebug, "File History %x\n", FileHistory);
 
-	if (FileHistory) {
-		fseek(FileHistory, 0, SEEK_END);
-		printd(LogDebug, FileHistory, "*****************\n");
-		fflush(FileHistory);
-	}
+    if (FileHistory) {
+        fseek(FileHistory, 0, SEEK_END);
+        printd(LogDebug, FileHistory, "*****************\n");
+        fflush(FileHistory);
+    }
 }
 
-int WriteToHistory(char *str) {
-	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
+int WriteToHistory(char *str)
+{
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
 
-	if (FileHistory) {
-		fprintf(FileHistory, "%d-%d-%d %d:%d:%d->", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-		fprintf(FileHistory, "%s\n", str);
-		fflush(FileHistory);
-	}
+    if (FileHistory) {
+        fprintf(FileHistory, "%d-%d-%d %d:%d:%d->", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        fprintf(FileHistory, "%s\n", str);
+        fflush(FileHistory);
+    }
 }
 
-int CloseHistoryFile(void) {
-	fflush(FileHistory);
-	fclose(FileHistory);
+int CloseHistoryFile(void)
+{
+    fflush(FileHistory);
+    fclose(FileHistory);
 }
 
 /*--------------------------------------------
@@ -2285,104 +2352,106 @@ int CloseHistoryFile(void) {
  * Description:		Control multiple volumes/expression
  *
  *---------------------------------------------*/
-int SetExpressionControl(int Controller, int Value) {
-	int ReturnVal = 0;
-	int LogValue = 0;
+int SetExpressionControl(int Controller, int Value)
+{
+    int ReturnVal = 0;
+    int LogValue = 0;
 
-	if (Value < 0)
-		Value = 0;
+    if (Value < 0)
+        Value = 0;
 
-	if (Value > 126 )
-		Value = 127;
+    if (Value > 126)
+        Value = 127;
 
-	// Convert to Audio (log)-ish
-	LogValue = (int)( pow(Value, 0.6) * 6.35);
-
-
-	switch (Controller) {
-	case ecGuitarVolume:
-		// Guitar Volume
-		ReturnVal = gMyInfo.AnalogVolume;
-		gMyInfo.SliderGUINumber = Slider1;
-		gMyInfo.SliderGUIUpdate = Value;
-		gMyInfo.AnalogVolume = Value;
-//		MyOSCJackVol(LogValue, 0);
-		break;
-
-	case ecMidiVolume:
-		// Midi Volume
-		ReturnVal = gMyInfo.MidiVolume;
-		gMyInfo.SliderGUINumber = Slider2;
-		gMyInfo.SliderGUIUpdate = Value;
-//		SetVolume2(Value);
-		break;
-
-	case ecMasterVolume:
-		// Master Volume (OSC)
-		ReturnVal = gMyInfo.V3Volume;
-		gMyInfo.SliderGUINumber = Slider3;
-		gMyInfo.SliderGUIUpdate = Value;
-//		SetVolume3(Value);
-		break;
-
-	case ecTempChange:
-		// Tempo
-		ReturnVal = gMyInfo.Tempo;
-		gMyInfo.Tempo = Value + 50;
-		break;
-
-	case ecMP3Volume:
-		// MPS volume
-		ReturnVal = gMyInfo.SetMP3PlayVolBool;
-		gMyInfo.SetMP3PlayVolBool = Value;
-		break;
-
-	case ecExpress6:
-		ReturnVal = gMyInfo.V6Volume;
-		gMyInfo.V6Volume = Value;
-		break;
-
-	case ecPedalControl:
-		// Pedal Volume
-		ReturnVal = gMyInfo.V4Volume;
-		gMyInfo.SliderGUINumber = Slider4;
-		gMyInfo.SliderGUIUpdate = Value;
-//		SetVolume4(Value);
-		break;
-
-	case ecMidiThreshold:
-		ReturnVal = gMyInfo.MidiThresholdLevel;
-		gMyInfo.MidiThresholdLevel = Value;
-		break;
-
-	case ecLooper:
-//		ReturnVal = gMyInfo.MidiThresholdLevel;
-		MyOSCJackVol(Value, 3);
-		break;
+    // Convert to Audio (log)-ish
+    LogValue = (int)(pow(Value, 0.6) * 6.35);
 
 
+    switch (Controller) {
+    case ecGuitarVolume:
+        // Guitar Volume
+        ReturnVal = gMyInfo.AnalogVolume;
+        gMyInfo.SliderGUINumber = Slider1;
+        gMyInfo.SliderGUIUpdate = Value;
+        gMyInfo.AnalogVolume = Value;
+        //		MyOSCJackVol(LogValue, 0);
+        break;
 
-	case ecMidiAnaMix:
-		ReturnVal = gMyInfo.MidiAnalMixLevel;
-		gMyInfo.MidiAnalMixLevel = Value;
-		ReturnVal = gMyInfo.AnalogVolume;
-		ReturnVal = gMyInfo.MidiVolume;
+    case ecMidiVolume:
+        // Midi Volume
+        ReturnVal = gMyInfo.MidiVolume;
+        gMyInfo.SliderGUINumber = Slider2;
+        gMyInfo.SliderGUIUpdate = Value;
+        //		SetVolume2(Value);
+        break;
 
-		if (Value > 64) {
+    case ecMasterVolume:
+        // Master Volume (OSC)
+        ReturnVal = gMyInfo.V3Volume;
+        gMyInfo.SliderGUINumber = Slider3;
+        gMyInfo.SliderGUIUpdate = Value;
+        //		SetVolume3(Value);
+        break;
 
+    case ecTempChange:
+        // Tempo
+        ReturnVal = gMyInfo.Tempo;
+        gMyInfo.Tempo = Value + 50;
+        break;
 
-		} else {
+    case ecMP3Volume:
+        // MPS volume
+        ReturnVal = gMyInfo.SetMP3PlayVolBool;
+        gMyInfo.SetMP3PlayVolBool = Value;
+        break;
 
+    case ecExpress6:
+        ReturnVal = gMyInfo.V6Volume;
+        gMyInfo.V6Volume = Value;
+        break;
 
-		}
+    case ecPedalControl:
+        // Pedal Volume
+        ReturnVal = gMyInfo.V4Volume;
+        gMyInfo.SliderGUINumber = Slider4;
+        gMyInfo.SliderGUIUpdate = Value;
+        //		SetVolume4(Value);
+        break;
+
+    case ecMidiThreshold:
+        ReturnVal = gMyInfo.MidiThresholdLevel;
+        gMyInfo.MidiThresholdLevel = Value;
+        break;
+
+    case ecLooper:
+        //		ReturnVal = gMyInfo.MidiThresholdLevel;
+        MyOSCJackVol(Value, 3);
+        break;
 
 
 
-//		SetExpressionControl
-		break;
+    case ecMidiAnaMix:
+        ReturnVal = gMyInfo.MidiAnalMixLevel;
+        gMyInfo.MidiAnalMixLevel = Value;
+        ReturnVal = gMyInfo.AnalogVolume;
+        ReturnVal = gMyInfo.MidiVolume;
 
-	}
-	return (ReturnVal);
+        if (Value > 64) {
+
+
+        } else {
+
+
+        }
+
+
+
+        //		SetExpressionControl
+        break;
+
+    }
+
+    return (ReturnVal);
 }
 
 /*--------------------------------------------
@@ -2391,44 +2460,45 @@ int SetExpressionControl(int Controller, int Value) {
  * Description:		Control multiple volumes/expression
  *
  *---------------------------------------------*/
-int GetExpressionControl(int Controller) {
-	int ReturnVal = 0;
+int GetExpressionControl(int Controller)
+{
+    int ReturnVal = 0;
 
-	switch (Controller) {
-	case ecGuitarVolume:
-		ReturnVal = gMyInfo.AnalogVolume;
-		break;
+    switch (Controller) {
+    case ecGuitarVolume:
+        ReturnVal = gMyInfo.AnalogVolume;
+        break;
 
-	case ecMidiVolume:
-		ReturnVal = gMyInfo.MidiVolume;
-		break;
+    case ecMidiVolume:
+        ReturnVal = gMyInfo.MidiVolume;
+        break;
 
-	case ecMasterVolume:
-		ReturnVal = gMyInfo.V3Volume;
-		break;
+    case ecMasterVolume:
+        ReturnVal = gMyInfo.V3Volume;
+        break;
 
-	case ecTempChange:
-		ReturnVal = gMyInfo.Tempo;
-		break;
+    case ecTempChange:
+        ReturnVal = gMyInfo.Tempo;
+        break;
 
-	case ecMP3Volume:
-		ReturnVal = gMyInfo.SetMP3PlayVolBool;
-		break;
+    case ecMP3Volume:
+        ReturnVal = gMyInfo.SetMP3PlayVolBool;
+        break;
 
-	case ecExpress6:
-		ReturnVal = gMyInfo.V6Volume;
-		break;
+    case ecExpress6:
+        ReturnVal = gMyInfo.V6Volume;
+        break;
 
-	case ecPedalControl:
-		ReturnVal = gMyInfo.V4Volume;
-		break;
+    case ecPedalControl:
+        ReturnVal = gMyInfo.V4Volume;
+        break;
 
-	case ecMidiThreshold:
-		ReturnVal = gMyInfo.MidiThresholdLevel;
-		break;
-	}
+    case ecMidiThreshold:
+        ReturnVal = gMyInfo.MidiThresholdLevel;
+        break;
+    }
 
-	return (ReturnVal);
+    return (ReturnVal);
 }
 
 /*--------------------------------------------
@@ -2437,126 +2507,127 @@ int GetExpressionControl(int Controller) {
  * Description:
  *
  *---------------------------------------------*/
-void LEDControl(char Beat, char State) {
+void LEDControl(char Beat, char State)
+{
 
-	// DAW Lights Off
-	SendMidi(dLEDMIDI, DAWPort,
-	         dLEDChan, (int) dLEDBeat1, 00);
-	SendMidi(dLEDMIDI, DAWPort,
-	         dLEDChan, (int) dLEDBeat2, 00);
-	SendMidi(dLEDMIDI, DAWPort,
-	         dLEDChan, (int) dLEDBeat3, 00);
-	SendMidi(dLEDMIDI, DAWPort,
-	         dLEDChan, (int) dLEDBeat4, 00);
+    // DAW Lights Off
+    SendMidi(dLEDMIDI, DAWPort,
+             dLEDChan, (int) dLEDBeat1, 00);
+    SendMidi(dLEDMIDI, DAWPort,
+             dLEDChan, (int) dLEDBeat2, 00);
+    SendMidi(dLEDMIDI, DAWPort,
+             dLEDChan, (int) dLEDBeat3, 00);
+    SendMidi(dLEDMIDI, DAWPort,
+             dLEDChan, (int) dLEDBeat4, 00);
 
-	switch (Beat) {
-	case 1:
+    switch (Beat) {
+    case 1:
 
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat1, 127);
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat1, 127);
 
-		// LPD8
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE5, (int) 1 );
+        // LPD8
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE5, (int) 1);
 
-		// Click Track
-		if (gMyInfo.MetronomeOn)
-			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+        // Click Track
+        if (gMyInfo.MetronomeOn)
+            SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                     DrumMidiChannel, 00, (int) gMyInfo.Drum1);
 
-		// Floor Pedal
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED4On);
+        // Floor Pedal
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4On);
 
-		break;
+        break;
 
-	case 2:
+    case 2:
 
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat2, 127);
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat2, 127);
 
-		// LPD8
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1 );
+        // LPD8
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE6, (int) 1);
 
-		// Click Track
-		if (gMyInfo.MetronomeOn)
-			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+        // Click Track
+        if (gMyInfo.MetronomeOn)
+            SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                     DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
-		// Floor Pedal
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3On );
-		break;
+        // Floor Pedal
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+        break;
 
-	case 3:
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat3, 127);
+    case 3:
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat3, 127);
 
-		// LPD8
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1 );
+        // LPD8
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE7, (int) 1);
 
-		// Click Track
-		if (gMyInfo.MetronomeOn)
-			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+        // Click Track
+        if (gMyInfo.MetronomeOn)
+            SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                     DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
-		// Floor Pedal
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3On );
-		break;
+        // Floor Pedal
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+        break;
 
-	case 4:
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat4, 127);
+    case 4:
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat4, 127);
 
-		// LPD8
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-		         1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1 );
+        // LPD8
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, MIDI_CTL_GENERAL_PURPOSE8, (int) 1);
 
-		// Click Track
-		if (gMyInfo.MetronomeOn)
-			SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-			         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+        // Click Track
+        if (gMyInfo.MetronomeOn)
+            SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                     DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
 
-		// Floor Pedal
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3On );
-		break;
+        // Floor Pedal
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+        break;
 
-	case 7:
-		// DAW Lights On
-		SendMidi(dLEDMIDI, DAWPort,
-		         dLEDChan, (int) dLEDBeat6, 0);
-		SendMidi(dLEDMIDI, DAWPort,
-		         dLEDChan, (int) dLEDBeat7, 0);
-		SendMidi(dLEDMIDI, DAWPort,
-		         dLEDChan, (int) dLEDBeat8, 0);
-		break;
+    case 7:
+        // DAW Lights On
+        SendMidi(dLEDMIDI, DAWPort,
+                 dLEDChan, (int) dLEDBeat6, 0);
+        SendMidi(dLEDMIDI, DAWPort,
+                 dLEDChan, (int) dLEDBeat7, 0);
+        SendMidi(dLEDMIDI, DAWPort,
+                 dLEDChan, (int) dLEDBeat8, 0);
+        break;
 
-	case 8:
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat6, 127);
-		break;
+    case 8:
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat6, 127);
+        break;
 
-	case 9:
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat7, 127);
-		break;
+    case 9:
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat7, 127);
+        break;
 
-	case 10:
-		// DAW Lights On
-		SendMidi(dLEDMIDIO, DAWPort,
-		         dLEDChan, (int) dLEDBeat8, 127);
-		break;
-	}
+    case 10:
+        // DAW Lights On
+        SendMidi(dLEDMIDIO, DAWPort,
+                 dLEDChan, (int) dLEDBeat8, 127);
+        break;
+    }
 }
 
 #if 0
@@ -2566,37 +2637,48 @@ void LEDControl(char Beat, char State) {
  * Description:	CallBack function for motion.
  *---------------------------------------------*/
 gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
-                            GtkWidget *widget) {
+                            GtkWidget *widget)
+{
 
 #if 0
-	switch (event->keyval) {
-	case GDK_p:
-		printd(LogInfo, "key pressed: %s\n", "p");
-		break;
-	case GDK_s:
-		if (event->state & GDK_SHIFT_MASK) {
-			printd(LogInfo, "key pressed: %s\n", "shift + s");
-		} else if (event->state & GDK_CONTROL_MASK) {
-			printd(LogInfo, "key pressed: %s\n", "ctrl + s");
-		} else {
-			printd(LogInfo, "key pressed: %s\n", "s");
-		}
-		break;
-	case GDK_m:
-		if (event->state & GDK_SHIFT_MASK) {
-			printd(LogInfo, "key pressed: %s\n", "shift + m");
-		} else if (event->state & GDK_CONTROL_MASK) {
-			printd(LogInfo, "key pressed: %s\n", "ctrl + m");
-		} else {
-			printd(LogInfo, "key pressed: %s\n", "m");
-		}
-		break;
 
-	default:
-		return FALSE;
-	}
+    switch (event->keyval) {
+    case GDK_p:
+        printd(LogInfo, "key pressed: %s\n", "p");
+        break;
+
+    case GDK_s:
+        if (event->state & GDK_SHIFT_MASK) {
+            printd(LogInfo, "key pressed: %s\n", "shift + s");
+
+        } else if (event->state & GDK_CONTROL_MASK) {
+            printd(LogInfo, "key pressed: %s\n", "ctrl + s");
+
+        } else {
+            printd(LogInfo, "key pressed: %s\n", "s");
+        }
+
+        break;
+
+    case GDK_m:
+        if (event->state & GDK_SHIFT_MASK) {
+            printd(LogInfo, "key pressed: %s\n", "shift + m");
+
+        } else if (event->state & GDK_CONTROL_MASK) {
+            printd(LogInfo, "key pressed: %s\n", "ctrl + m");
+
+        } else {
+            printd(LogInfo, "key pressed: %s\n", "m");
+        }
+
+        break;
+
+    default:
+        return FALSE;
+    }
+
 #endif
-	return (FALSE);
+    return (FALSE);
 }
 
 /*--------------------------------------------
@@ -2605,52 +2687,58 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
  * Description:		Writes and HTML file for the presets.
  *
  *---------------------------------------------*/
-void CreateHTMLGuide(LiveMusicInfo *myInfo) {
-	FILE *MyFile;
-	char FileName[255];
-	int Loop;
-	int Loop1;
+void CreateHTMLGuide(LiveMusicInfo *myInfo)
+{
+    FILE *MyFile;
+    char FileName[255];
+    int Loop;
+    int Loop1;
 
-	strcpy(FileName, myInfo->BasePath);
-	strcat(FileName, "/aaFootSwitch.html");
+    strcpy(FileName, myInfo->BasePath);
+    strcat(FileName, "/aaFootSwitch.html");
 
-	MyFile = fopen(FileName, "w");
-	if (!MyFile)
-		return;
+    MyFile = fopen(FileName, "w");
 
-	fprintf(MyFile,
-	        "<html><head>\n<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">\n<title>FootSwitchController\n</title>\n</head><body><h3>Foot Switch Controller&nbsp; - Elias<br> </h3>");
-	fprintf(MyFile,
-	        "<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
-	Loop1 = 0;
-	for (Loop = 0; Loop < Max_Patches; Loop++) {
-		printd(LogInfo, "Create HTML %d %d\n", Loop, Loop1);
-		if (Loop1 == 0) {
-			fprintf(MyFile,
-			        "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\"><big><big><big>%d</big></big></big><br>\n</td>\n",
-			        Loop);
-			fprintf(MyFile,
-			        "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">\n");
-			fprintf(MyFile,
-			        "<table style=\"text-align: left; width: 716px; height: 32px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
-		}
+    if (!MyFile)
+        return;
 
-		fprintf(MyFile,
-		        "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">%d - %s<br>\n</td>\n",
-		        Loop, myInfo->MyPatchInfo[Loop].Name);
+    fprintf(MyFile,
+            "<html><head>\n<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">\n<title>FootSwitchController\n</title>\n</head><body><h3>Foot Switch Controller&nbsp; - Elias<br> </h3>");
+    fprintf(MyFile,
+            "<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
+    Loop1 = 0;
 
-		if (++Loop1 == 5) {
-			printd(LogInfo, "Loop %d %d\n", Loop, Loop1);
-			fprintf(MyFile, "</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n");
-			Loop1 = 0;
-			if (((Loop + 1) % 10) == 0)
-				fprintf(MyFile,
-				        "</tbody>\n</table>\n<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>");
-		}
+    for (Loop = 0; Loop < Max_Patches; Loop++) {
+        printd(LogInfo, "Create HTML %d %d\n", Loop, Loop1);
 
-//		myInfo->OutPortName[Loop]
-	}
-	fclose(MyFile);
+        if (Loop1 == 0) {
+            fprintf(MyFile,
+                    "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\"><big><big><big>%d</big></big></big><br>\n</td>\n",
+                    Loop);
+            fprintf(MyFile,
+                    "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">\n");
+            fprintf(MyFile,
+                    "<table style=\"text-align: left; width: 716px; height: 32px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>\n");
+        }
+
+        fprintf(MyFile,
+                "<td style=\"vertical-align: top; font-weight: bold; width: 75px;\">%d - %s<br>\n</td>\n",
+                Loop, myInfo->MyPatchInfo[Loop].Name);
+
+        if (++Loop1 == 5) {
+            printd(LogInfo, "Loop %d %d\n", Loop, Loop1);
+            fprintf(MyFile, "</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n");
+            Loop1 = 0;
+
+            if (((Loop + 1) % 10) == 0)
+                fprintf(MyFile,
+                        "</tbody>\n</table>\n<table style=\"text-align: left; width: 849px; height: 83px;\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n<tbody>\n<tr>");
+        }
+
+        //		myInfo->OutPortName[Loop]
+    }
+
+    fclose(MyFile);
 }
 
 /*--------------------------------------------
@@ -2659,14 +2747,17 @@ void CreateHTMLGuide(LiveMusicInfo *myInfo) {
  * Description:		Load an icon file for the application
  *
  *---------------------------------------------*/
-GdkPixbuf *create_pixbuf(const gchar * filename) {
-	GdkPixbuf *pixbuf;
-	GError *error = NULL;
+GdkPixbuf *create_pixbuf(const gchar * filename)
+{
+    GdkPixbuf *pixbuf;
+    GError *error = NULL;
 #if 0
-	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-	if (!pixbuf)
-		fprintf(stderr, "%s\n", error->message);
-	g_error_free(error);
+    pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+
+    if (!pixbuf)
+        fprintf(stderr, "%s\n", error->message);
+
+    g_error_free(error);
 }
 return pixbuf;
 #endif
@@ -2680,7 +2771,8 @@ return (NULL);
  * Description:		<Description/Comments>
  *
  *---------------------------------------------*/
-void CheckConnectionData(LiveMusicInfo *myInfo) {
+void CheckConnectionData(LiveMusicInfo *myInfo)
+{
 
 }
 /*--------------------------------------------
@@ -2689,17 +2781,18 @@ void CheckConnectionData(LiveMusicInfo *myInfo) {
  * Description:		<Description/Comments>
  *
  *---------------------------------------------*/
-void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
-	PangoFontDescription *pfd;
-	pfd = pango_font_description_from_string(fload);
+void apply_font_to_widget(GtkWidget *widget, gchar *fload)
+{
+    PangoFontDescription *pfd;
+    pfd = pango_font_description_from_string(fload);
 
-	if (GTK_IS_LABEL(widget))
-		gtk_widget_override_font(widget, pfd);
-	else
-		gtk_widget_override_fo(GTK_WIDGET(gtk_bin_get_child (GTK_BIN(widget))),
-		                       pfd);
+    if (GTK_IS_LABEL(widget))
+        gtk_widget_override_font(widget, pfd);
+    else
+        gtk_widget_override_fo(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(widget))),
+                               pfd);
 
-	pango_font_description_free(pfd);
+    pango_font_description_free(pfd);
 }
 
 
@@ -2709,12 +2802,13 @@ void apply_font_to_widget(GtkWidget *widget, gchar *fload) {
  * Description:		When the sliders are changed on the main screen.
  *
  *---------------------------------------------*/
-void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data) {
-	gdouble val;
+void on_hscale1_value_changed(GtkWidget *widget, gpointer user_data)
+{
+    gdouble val;
 
-	val = gtk_range_get_value(GTK_RANGE(widget));
-	/* print to screen */
-	printd(LogInfo, "Range value: %d\n", (guint) val);
-	SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
+    val = gtk_range_get_value(GTK_RANGE(widget));
+    /* print to screen */
+    printd(LogInfo, "Range value: %d\n", (guint) val);
+    SendMidi(SND_SEQ_EVENT_CONTROLLER, 0, DefaultMidiChannel, 07, (int) val);
 }
 #endif
