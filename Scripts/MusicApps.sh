@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #   File:   LiveMusicApps
 #
@@ -11,7 +11,7 @@
 #   Copyright ©:    2020 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 echo "MusicApp -> ${1}  ${2} ${3}"
 
 if [ "${1}" == "html" ] ; then
@@ -72,6 +72,9 @@ if [ "${1}" == "EffectsProcessorApp" ] ; then
     GDK_BACKEND=x11 nice -15 \
     /AppImages/guitarix-0.39-x86_64.AppImage \
     -p 7000 &
+
+#    /AppImages/guitarix-0.39-x86_64.AppImage \
+
     exit 0
 fi
 
@@ -86,6 +89,7 @@ fi
 # A PDF file.
 if [ "${1}" == "pdf" ] ; then
      okular  "${2}"  &
+     exit 0
 fi
 
 # A PDF file with a page number offset..

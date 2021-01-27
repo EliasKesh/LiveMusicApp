@@ -187,7 +187,7 @@ int InitHIDGrab() {
   struct input_id id;
   int result = 0;
   char name[256] = "Unknown";
-  char path[64];
+  char path[FileNameMaxLength];
   int scan_fd = -1;
 
   count = scandir("/dev/input", &files, 0, 0) - 1;

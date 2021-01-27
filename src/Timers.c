@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*------------------------------------------------
 |
 |	File: 	Timers
 |
@@ -24,7 +24,7 @@
 |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
-|---------------------------------------------------------------------*/
+|------------------------------------------------*/
 
 #define Timers_c
 
@@ -77,11 +77,11 @@ int SubBeats;
 unsigned int OldTempo = 0;
 
 #ifdef GTKTimer
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		MyTimerInit
  * Description:		Setup the timers used to Tempo and MTC
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void MyTimerInit(void) {
 
 	CountInActiveState = cntStateWaitingIdle;
@@ -95,12 +95,12 @@ void MyTimerInit(void) {
 	SetTempo(120);
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Set the tempo
  * Description:		Set the tempo to a new value. Re-setup the timer
  * 	interrupts to handle double the tempo.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
 	if (NewTempo <= 0)
@@ -139,12 +139,12 @@ void SetTempo(unsigned int NewTempo) {
 //      gMyInfo.Timer1Count = 0;
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Timer Callback
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
 	printd(LogRealTime, " IN time_handler GTK\n");
@@ -158,11 +158,11 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 
 #ifdef AlsaTimer
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		MyTimerInit
  * Description:		Setup the timers used to Tempo and MTC
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void MyTimerInit(void) {
 
 	CountInActiveState = cntStateWaitingIdle;
@@ -174,12 +174,12 @@ void MyTimerInit(void) {
 	SetTempo(100);
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Set the tempo
  * Description:		Set the tempo to a new value. Re-setup the timer
  * 	interrupts to handle double the tempo.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
 	if (NewTempo <= 30)
@@ -197,12 +197,12 @@ void SetTempo(unsigned int NewTempo) {
 	SetupAlsaTimer(NewTempo);
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Tempo callback.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
 	printd(LogRealTime, " IN time_handler Alsa\n");
@@ -219,11 +219,11 @@ static gboolean tempo_handler(GtkWidget *widget) {
 #endif
 
 #ifdef RTTimer
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		MyTimerInit
  * Description:		Setup the timers used to Tempo and MTC
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void MyTimerInit(void) {
 
 	CountInActiveState = cntStateWaitingIdle;
@@ -262,12 +262,12 @@ void MyTimerInit(void) {
 	SetTempo(111);
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Set the tempo
  * Description:		Set the tempo to a new value. Re-setup the timer
  * 	interrupts to handle double the tempo.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 	int Ret;
 	struct itimerspec in;
@@ -340,12 +340,12 @@ void SetTempo(unsigned int NewTempo) {
 	printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 }
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		Timer Callback
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
 		ToggleTempo();
 
@@ -364,13 +364,13 @@ static void time_handlerRT (union sigval val) {
 #endif
 
 
-/*--------------------------------------------------------------------
+/*-----------------------------------------------
  * Function:		ToggleTempo
  *
  * Description:		Toggle based on the common tempo.
  * 	Tempostate is the current index * 24
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void ToggleTempo(void) {
 //	char Count;
 //	int	Loop;

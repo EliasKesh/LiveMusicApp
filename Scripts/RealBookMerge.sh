@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #	File: 	RealBookMerge.sh
 #
@@ -11,7 +11,7 @@
 #	Copyright ©: 	2019 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 rm temp.csv temp1.csv TotalData1.csv TotalData2.csv TotalData.csv
 for i in `ls -v *.csv` ; do
 

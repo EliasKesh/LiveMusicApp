@@ -1,11 +1,11 @@
 # ejk file.
 
-(connect "Clementine:out_autoaudiosink-(.*)_1" "jack-volume:input_4")
 # (connect "Clementine:out_autoaudiosink-(.*)_2" "jack-volume:input_4")
 (disconnect 
 "Clementine:out_autoaudiosink-(.*)" "system:playback_(.*)")
 (disconnect "Clementine:out_autoaudiosink-.*" "system:playback_.*")
-
+Clementine:out_autoaudiosink-109-actual-sink-jackaudio_1
+(connect "Clementine:out_autoaudiosink-(.*)_1" "jack-volume:input_4")
 
 
 # Connect Vol All V to Play 1

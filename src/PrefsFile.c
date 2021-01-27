@@ -22,7 +22,8 @@
  *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
+
 
 #define PrefsFile_c
 
@@ -80,7 +81,7 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo);
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void
 InitPref (void) {
 	int Count;
@@ -177,7 +178,7 @@ InitPref (void) {
  *
  * Description:		Make any assignments not included in the prefs
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 int PostProcessPrefs(LiveMusicInfo *MyInfo) {
 	int Index;
 
@@ -195,7 +196,7 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo) {
  *
  * Description:		Print out the data structure in an "#include" format
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 	int Loop;
 	int Loop1;
@@ -299,8 +300,8 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 
 		fprintf (PrefsFile, " %d, /* AnalogVolume   */\n", myInfo->AnalogVolume);
 		fprintf (PrefsFile, " %d, /* MidiVolume   */\n", myInfo->MidiVolume);
-		fprintf (PrefsFile, " 0x%x, /* StatusTextColor   */\n", myInfo->StatusTextColor);
-		fprintf (PrefsFile, " 0x%x, /* ButtonTextColor   */\n", myInfo->ButtonTextColor);
+		fprintf (PrefsFile, " 0x%x, /* StatusTextColor   */\n", (unsigned int)myInfo->StatusTextColor);
+		fprintf (PrefsFile, " 0x%x, /* ButtonTextColor   */\n", (unsigned int)myInfo->ButtonTextColor);
 
 		fprintf (PrefsFile, " \"%s\", /* OSCIPAddress   */\n", myInfo->OSCIPAddress);
 		fprintf (PrefsFile, " \"%s\", /* OSCPortNumLooper   */\n", myInfo->OSCPortNumLooper);
@@ -392,7 +393,7 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
 		}
 
 		if (PrefsFile)
-			fprintf (PrefsFile, "},}, \n", gMyInfo.LayoutPresets[Loop].Name);
+			fprintf (PrefsFile, "},}, \n");
 	}
 
 	if (PrefsFile) {
@@ -413,7 +414,7 @@ void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef) {
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void WritePrefs (void) {
 	xmlDocPtr doc = NULL;		/* document pointer */
 	xmlNodePtr root_node = NULL, node = NULL, node0 = NULL, node1 = NULL, node2 = NULL;	/* node pointers */
@@ -472,10 +473,10 @@ void WritePrefs (void) {
 	sprintf (buff, "%03d", gMyInfo.MidiVolume);
 	xmlNewChild (root_node, NULL, BAD_CAST "MidiVolume", BAD_CAST buff);
 
-	sprintf (buff, "0x%x", gMyInfo.StatusTextColor);
+	sprintf (buff, "0x%x", (unsigned int)gMyInfo.StatusTextColor);
 	xmlNewChild (root_node, NULL, BAD_CAST "StatusTextColor", BAD_CAST buff);
 
-	sprintf (buff, "0x%x", gMyInfo.ButtonTextColor);
+	sprintf (buff, "0x%x", (unsigned int)gMyInfo.ButtonTextColor);
 	xmlNewChild (root_node, NULL, BAD_CAST "ButtonTextColor", BAD_CAST buff);
 
 	sprintf (buff, "%s", gMyInfo.OSCIPAddress);
@@ -610,7 +611,7 @@ int MainPatchIndex;
  * Description:		Take the data from the XML and put it into
  * 	the global data structure.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void LoadXMLPair(ParseData *theData) {
 	char NodeType = 1;
 	char *name;
@@ -717,7 +718,8 @@ void LoadXMLPair(ParseData *theData) {
 		sscanf (theData[2].name, "App%03d", &HoldIndex);
 
 		if (!strcmp ("Name", theData[3].name))
-			strcpy (gMyInfo.ControlRoute[HoldIndex].OutPort, theData[3].value);
+			gMyInfo.ControlRoute[HoldIndex].OutPort = atoi(theData[3].value);
+//			strcpy (gMyInfo.ControlRoute[HoldIndex].OutPort, (char *)theData[3].value);
 		else if (!strcmp ("PortID", theData[3].name)) {
 			gMyInfo.ControlRoute[HoldIndex].OutControl = atoi (theData[3].value);
 
@@ -837,12 +839,12 @@ void LoadXMLPair(ParseData *theData) {
 
 	if (!strcmp ("StatusTextColor", name)) {
 		printd (LogDebug, "dTopLevelStatusTextColor %s\n", value);
-		sscanf(value, "%x", &gMyInfo.StatusTextColor);
+		sscanf(value, "%x", (unsigned int *)&gMyInfo.StatusTextColor);
 	}
 
 	if (!strcmp ("ButtonTextColor", name)) {
 		printd (LogDebug, "dTopLevelButtonTextColor %s\n", value);
-		sscanf(value, "%x", &gMyInfo.ButtonTextColor);
+		sscanf(value, "%x", (unsigned int *)&gMyInfo.ButtonTextColor);
 	}
 
 	if (!strcmp ("OSCIPAddress", name)) {
@@ -872,7 +874,7 @@ void LoadXMLPair(ParseData *theData) {
  *
  * Description:		Debug to print values as they are parsed XML.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 int LoadXMLData(ParseData *theData) {
 	int Level = 0;
 
@@ -901,7 +903,7 @@ int LoadXMLData(ParseData *theData) {
  * Description:		Read the next node of XML and copy the info to the
  * 	ParseData structure.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 static int
 processNode(xmlTextReaderPtr reader, ParseData *theData) {
 	const xmlChar *name, *value;
@@ -1034,7 +1036,7 @@ streamFile(const char *filename) {
  *
  * Description:		Abstraction interface to XML
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 int ReadPrefs () {
 
 	printd (LogDebug, "----------------------\n");

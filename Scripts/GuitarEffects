@@ -221,6 +221,10 @@ function FindDevice {
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         echo "We have " $Device" "$USBDevice" "$USBName
+#  idVendor           0x20b1 XMOS Ltd
+#  idProduct          0x2018 
+
+
         export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
         export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
         export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
@@ -228,13 +232,13 @@ function FindDevice {
         echo "We have 1" $Device" "$USBDevice" "$USBName
         
         # mplayer crackling at 96K,64,2
-        AudioSampleRate=96000
-        JBuffer=128
-        JPeriod=4
+        # AudioSampleRate=96000
+        # JBuffer=128
+        # JPeriod=4
         
-        # AudioSampleRate=48000
-        # JBuffer=64
-        # JPeriod=3
+        AudioSampleRate=48000
+        JBuffer=64
+        JPeriod=3
         
         # AudioSampleRate=192000
         AudioDevice="$Device"
@@ -781,7 +785,7 @@ function SetPlacement1920 {
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,586,420,1000,450    
-    wmctrl -r qsynth -e 0,870,0,1000,330
+    wmctrl -r qsynth -e 0,640,40,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
@@ -858,7 +862,7 @@ function SetPlacement1200 {
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,80,0,900,600
     
-    wmctrl -r qsynth -e 0,80,0,400,300
+    wmctrl -r qsynth -e 0,640,0,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
     wmctrl -r clementine -e 1,0,150,1000,600

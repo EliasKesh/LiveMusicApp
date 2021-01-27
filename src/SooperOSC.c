@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*-------------------------------------------------
 |
 |	File: 	SooperOSC
 |
@@ -24,7 +24,7 @@
 |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
-|---------------------------------------------------------------------*/
+|-------------------------------------------------*/
 
 #define SooperOSC_c
 
@@ -59,12 +59,12 @@ static lo_server osc_server1 = 0;
 static char our_url[100];
 static char CurrentLoop;
 // http://essej.net/sooperlooper/doc_osc.html
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		OSCCommand.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 int OSCCommand(int Command, char Option) {
 	char NewCommand[100];
 
@@ -171,13 +171,13 @@ int OSCCommand(int Command, char Option) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		ctrl_handler.
  *
  * Description:		Return command from the one sent in
  * 	the poll.
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int argc,
                         void *data, void *user_data) {
 	int index = argv[0]->i;
@@ -198,12 +198,12 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 	return 0;
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		pingack_handler.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 static int pingack_handler(const char *path, const char *types, lo_arg **argv, int argc,
                            void *data, void *user_data) {
 	// pingack expects: s:engine_url s:version i:loopcount
@@ -218,12 +218,12 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCInit.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCInit(void) {
 
 	printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
@@ -272,12 +272,12 @@ void MyOSCInit(void) {
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCPoll.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
 	char NewCommand[100];
 
@@ -287,22 +287,22 @@ void MyOSCPoll(char DownBeat) {
 	lo_send(SLOSCaddr, NewCommand, "sss", "loop_pos", our_url, "/ctrl");
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCTap.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
 	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCClose.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCClose(void) {
 
 	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
@@ -313,12 +313,12 @@ void MyOSCClose(void) {
 	lo_server_free (osc_server);
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCClose.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCSetSync(char Type) {
 	char NewCommand[100];
 
@@ -368,12 +368,12 @@ void MyOSCSetSync(char Type) {
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCClose.
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCLoadFile(char *FileName) {
 
 	/* Load the file and send the results back to the SL GUI */
@@ -382,12 +382,12 @@ void MyOSCLoadFile(char *FileName) {
 }
 
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCJackVol.
  *
  * Description:		Set Jack Master Volume
  * 		Values 0 - 127
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
 	float VolumeFloat;
 
@@ -417,12 +417,12 @@ void MyOSCJackVol(int Volume, int channel) {
 	}
 }
 
-/*--------------------------------------------------------------------
+/*------------------------------------------------
  * Function:		MyOSCJackMute.
  *
  * Description:		Set Jack Master Volume
  * 		Values 0 - 127
- *---------------------------------------------------------------------*/
+ *-------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel) {
 
 	if (Mute == 1) {

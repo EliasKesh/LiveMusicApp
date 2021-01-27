@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #	File: 	ReIndexAll
 #
@@ -11,7 +11,7 @@
 #	Copyright ©: 	2020 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 
 cd /home/Music/
 chown elias: Learn  -R
@@ -28,6 +28,7 @@ LiveMusicCharts.py ah_A7b5Licks -vcfp
 LiveMusicCharts.py ah_customfusion1 -vcfp
 LiveMusicCharts.py ah_customfusion2 -vcfp
 LiveMusicCharts.py ah_customfusion3 -vcfp
+LiveMusicCharts.py ah_bluesextensions -vcfp
 LiveMusicCharts.py ks_ultimateguitarworkout -vcfp
 LiveMusicCharts.py LatinLicks -vcfp
 LiveMusicCharts.py lm_legatomasterclass_intermediate -vcfp
@@ -89,6 +90,12 @@ LiveMusicCharts.py JazzFusionLicks -vcfp
 LiveMusicCharts.py Sweep -vcfp
 LiveMusicCharts.py . -i
 
+/home/Music/Learn/CoffeeBreakGroove/JazzFusionPremium4
+cd /home/Music/Learn/CoffeeBreakGroove/
+echo `pwd`
+LiveMusicCharts.py JazzFusionPremium4 -vcfp
+LiveMusicCharts.py . -i
+
 
 cd /home/Music/Learn/GuitarPlayback
 echo `pwd`
@@ -112,18 +119,29 @@ LiveMusicCharts.py FusionScales -vcfp
 LiveMusicCharts.py FusionPads -vcfp
 LiveMusicCharts.py . -i
 
+cd /home/Music/Learn/MBonus
+echo `pwd`
+LiveMusicCharts.py Adv_StringSkipping -vcfp
+LiveMusicCharts.py GuitarChords -vcfp
+LiveMusicCharts.py BasicJazzChords -vcfp
+LiveMusicCharts.py FingerstyleGuitar -vcfp
+LiveMusicCharts.py HardRockTapping -vcfp
+LiveMusicCharts.py StringSkipping -vcfp
+LiveMusicCharts.py SweepPicking -vcfp
+LiveMusicCharts.py . -i
+
+
 cd /home/Music/Learn/
 echo `pwd`
 # LiveMusicCharts.py RickBeato -vcf
 LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py 50RockLicks -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
-# LiveMusicCharts.py MBonus -vcfp
+LiveMusicCharts.py JazzGuitar -vcfp
 
 cd /home/Music/Learn/
 echo `pwd`
 LiveMusicCharts.py . -i
-
 
 #cd /home/Music/BackingTracks
 
@@ -133,24 +151,27 @@ LiveMusicCharts.py . -a
 # cd /home/Music/Practice
 # LiveMusicCharts.py . -a
 
-cd /home/elias/
+cd /home/
 chown elias: MySongs  -R
 chmod 700 MySongs
 
-cd /home/elias/MySongs
+cd /home/MySongs
 find ./ -type d -exec chmod 700 {} \;
 find ./ -type f -exec chmod 600 {} \;
 
-cd /home/elias/MySongs/Solo
+cd /home/MySongs/Solo
 LiveMusicCharts.py . -a
 
-cd /home/elias/MySongs/OtherTunes
+cd /home/MySongs/OtherTunes
 LiveMusicCharts.py . -a
 
-cd /home/elias/MySongs/NewScores
+cd /home/MySongs/NewScores
 LiveMusicCharts.py . -a
 
-cd /home/elias/MySongs/FusionBlue
+cd /home/MySongs/FusionBlue
+LiveMusicCharts.py . -a
+
+cd /home/MySongs/Alternates
 LiveMusicCharts.py . -a
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;

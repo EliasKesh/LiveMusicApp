@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*------------------------------------------------
 |
 |	File: 	HTML.c
 |
@@ -26,7 +26,7 @@
 |
 |
 |
-|---------------------------------------------------------------------*/
+|------------------------------------------------*/
 /*
  * HTML.h
  *
@@ -56,6 +56,7 @@ void InitHTML(GtkBuilder *gxml);
 void  OpenSetListSong(int SongNumber);
 int ScrollCtrl(float Amount);
 float ScrollGetPosition(void);
+tPatchIndex AssignPreset(int PresetNum, char *String);
 
 enum { 
     ScrollPgDn = 1, 

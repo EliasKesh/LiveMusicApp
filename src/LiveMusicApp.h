@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*------------------------------------------------
  |
  |	File: 	LiveMusicApp.h
  |
@@ -25,7 +25,7 @@
  |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  |
  |
- |---------------------------------------------------------------------*/
+ |------------------------------------------------*/
 
 #ifndef LiveMusicApp_h
 #define LiveMusicApp_h
@@ -384,6 +384,7 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define fsPortNames		2
 #define fsAppNames		3
 
+#if 0
 /*
  * Sounds Banks in Fluid Synth.
  * These are dynamic now.
@@ -400,6 +401,7 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define SFFlute  9
 #define SFDrums		128
 #define SFDrumsElias 129
+#endif
 #define NoBank		0xff
 
 enum {
@@ -643,4 +645,8 @@ char *GetResourceDir(char *FileName, char WhichLoc);
 int SetExpressionControl(int Controller, int Value);
 int GetExpressionControl(int Controller);
 void LEDControl(char Beat, char State);
+void UpdateStatus(char *String);
+void jack_poll(void);
+void SetMetronomeStatus(char State);
+
 #endif

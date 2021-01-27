@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #	File: 	CopyToEffects
 #
@@ -11,7 +11,7 @@
 #	Copyright ©: 	2015 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 # DestDir="/home/GDriveKesh/Music/LiveEffects/"
 # DestDir="/home/Dropbox/LiveEffects/"
 DestDir="/home/elias/LiveEffects/"

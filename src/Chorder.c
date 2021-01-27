@@ -152,6 +152,9 @@ char scRomanianMin[] =
 char scByzantine[] =
 { 0, 1, 4, 5, 7, 8, 11, EOfscl };
 
+char scHiroJoshi[] =
+{ 0, 2, 3, SN, 7, 8, SN, EOfscl };
+
 char scWholeNote[] =
 { 0, 2, 4, 6, 8, SN, 10, EOfscl };
 char scWholeHalf[] =
@@ -209,6 +212,8 @@ ChordMenu myChordMenu[] = {
 	{ scNeapolitanMin, "Neopolitan Min" },
 	{ scRomanianMin, "Romanian Min" },
 	{ scByzantine, "Byzantine" },
+	{ scHiroJoshi, "HiroJoshi" },
+
 	{ NULL, "" }
 };
 

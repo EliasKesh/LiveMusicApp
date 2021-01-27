@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------
+/*------------------------------------------------
 |
 |	File: 	PrefsGui
 |
@@ -24,7 +24,7 @@
 |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
-|---------------------------------------------------------------------*/
+|------------------------------------------------*/
 
 #define PrefsGui_c
 
@@ -89,7 +89,7 @@ GtkWidget *Prefs_Regenerate;
  *
  * Description:		<Description/Comments>
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void on_BasePath_changed(GtkButton *button, gpointer user_data) {
 //	DoPatch(&gMyInfo.MyPatchInfo[(char )user_data-1]);
 	printd(LogDebug, "Base string Changed %s\n", gtk_entry_get_text(button));
@@ -101,7 +101,7 @@ void on_BasePath_changed(GtkButton *button, gpointer user_data) {
  *
  * Description:		Get data from number spin boxes.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
                                   gpointer user_data) {
 //	theImageButtons *theButton;
@@ -154,7 +154,7 @@ gboolean Prefs_click_spin_handler(GtkWidget *widget, GdkEvent *event,
  *
  * Description:		Get data from text boxes.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
                                   gpointer user_data) {
 
@@ -189,7 +189,7 @@ gboolean Prefs_click_text_handler(GtkWidget *widget, GdkEvent *event,
  *
  * Description:		Generate the Index File.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
                                   gpointer user_data) {
 
@@ -206,7 +206,7 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
  *
  * Description:		Handle the close button.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
                                    gpointer user_data) {
 
@@ -221,7 +221,7 @@ gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
  * Description:		Load the widgets from glade for the
  * preferences user interface.
  *
- *---------------------------------------------------------------------*/
+ *------------------------------------------------*/
 void InitGuiPrefs(void) {
 	GtkWidget *Patch_Pane;
 	GtkWidget *view;
@@ -383,7 +383,7 @@ void InitGuiPrefs(void) {
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 static GtkTreeModel *CreatePatchModel(void) {
 	GtkTreeIter toplevel, child;
 	unsigned int Loop;
@@ -424,7 +424,7 @@ static GtkTreeModel *CreatePatchModel(void) {
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
                             gchar * new_text, gpointer user_data) {
 	GtkTreeView *treeview = (GtkTreeView *) user_data;
@@ -526,7 +526,7 @@ static void PatchListEdited(GtkCellRendererText * cell, gchar * path_string,
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 GtkTreeModel *create_combo_Output_model(void) {
 	GtkTreeModel *model1;
 	GtkTreeIter iter;
@@ -548,7 +548,7 @@ GtkTreeModel *create_combo_Output_model(void) {
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 GtkTreeModel *create_combo_model(void) {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -570,7 +570,7 @@ GtkTreeModel *create_combo_model(void) {
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 static void text_editing_started(GtkCellRenderer ATTRIBUTE_UNUSED *cell,
                                  GtkCellEditable *editable, const gchar *path, GCallback data) {
 	printd(LogDebug, "text_editing_started\n");
@@ -588,7 +588,7 @@ static void text_editing_started(GtkCellRenderer ATTRIBUTE_UNUSED *cell,
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 static void text_editing_cancelled(GtkCellEditable *editable,
 	gpointer user_data) {
 	printd(LogDebug, "text_editing_cancelled\n");
@@ -600,7 +600,7 @@ static void text_editing_cancelled(GtkCellEditable *editable,
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 void row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path,
                       GtkTreeViewColumn *column) {
 	GtkTreeIter iter;
@@ -628,7 +628,7 @@ void row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path,
 *
 * Description:		<Description/Comments>
 *
-*---------------------------------------------------------------------*/
+*------------------------------------------------*/
 static GtkWidget *CreatePatchViewModel(void) {
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
@@ -707,18 +707,18 @@ static GtkWidget *CreatePatchViewModel(void) {
 	             GTK_CELL_RENDERER_MODE_ACTIVATABLE, "editable", TRUE, "has-entry",
 	             FALSE,
 	             NULL);
-	col = gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+	col = (GtkTreeViewColumn *)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
 	        Output_COLUMN, "OutPort", renderer, 
 	        "text", Output_COLUMN,
 //	        "default-width", 300,
-	        NULL);
+	        (void *)NULL);
 
 //	gtk_tree_view_column_set_min_width(GTK_TREE_VIEW(col), 600);
 	g_object_set_data(G_OBJECT(renderer), "column",
 	                  GUINT_TO_POINTER(Output_COLUMN));
 	g_signal_connect(renderer, "edited", (GCallback ) PatchListEdited, view);
 	g_signal_connect(G_OBJECT(renderer), "editing-started",
-	                 G_CALLBACK(text_editing_started), Output_COLUMN);
+        G_CALLBACK(text_editing_started), Output_COLUMN);
 
 	// g_signal_connect(G_OBJECT(renderer), "editing-done",
 	//                  G_CALLBACK(text_editing_cancelled), Output_COLUMN);

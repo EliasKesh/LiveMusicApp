@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #	File: 	LiveMusicCharts
 #
@@ -11,7 +11,7 @@
 #	Copyright: 	2020 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 import os
 import argparse
 from PyPDF2 import PdfFileReader, PdfFileWriter
@@ -802,8 +802,8 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=True):
             # Check for Background and logo images.
             if ( not os.path.exists(Root+"/background.png")):
               print (Root+"/background.png")
-              copyfile("/home/elias/MySongs/background.png", Root+"/background.png")
-              copyfile("/home/elias/MySongs/logo.jpg", Root+"/logo.jpg")
+              copyfile("/home/MySongs/background.png", Root+"/background.png")
+              copyfile("/home/MySongs/logo.jpg", Root+"/logo.jpg")
 
 #   If we did find a valid html and were asked to create one.
     if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.') ):
@@ -819,7 +819,7 @@ if (CreateIndexFIle):
     GenerateIndex(BaseDir, MySongList,ReferenceCreate)
 
 
-
+# find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 
 # print("Done")
 

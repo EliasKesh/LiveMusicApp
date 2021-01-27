@@ -8,7 +8,7 @@
 |
 |	Written By: 	Elias Keshishoglou
 |
-|	Copyright �: 	2014 Elias Keshishoglou all rights reserved.
+|	Copyright : 	2014 Elias Keshishoglou all rights reserved.
 |
 |	This program is free software; you can redistribute it and/or
 |	modify it under the terms of the GNU General Public License
@@ -35,7 +35,6 @@
  */
 
 #include <gtk/gtk.h>
-#include "HTML.h"
 #define WebKit2 1
 #include <webkit2/webkit2.h>
 #include "LiveMusicApp.h"
@@ -48,6 +47,7 @@
 #include <unistd.h>
 #include "SooperOSC.h"
 #include <sys/time.h>
+#include "HTML.h"
 
 /*
  * Place defines and Typedefs here
@@ -62,7 +62,6 @@
 
 int Search_in_File(const char *fname, WebLoadPresets *thePresets);
 int ScalePage(void);
-tPatchIndex AssignPreset(int PresetNum, char *String);
 void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value);
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void
@@ -80,6 +79,7 @@ HoverLink_cb(WebKitWebView *web_view,
 
 
 static void DrumFav_cb(gpointer *Data);
+static void SaveFav_cb(gpointer *Data);
 static void EditChart_cb(gpointer *Data);
 
 
@@ -105,6 +105,7 @@ char  SetListFileName[FileNameMaxLength];
 FILE *SetListFile;
 char  BasePathName[FileNameMaxLength];
 char  LastDrumName[FileNameMaxLength];
+char  LastClickURI[FileNameMaxLength];
 int   ScrollPosition;
 int   JavaScrollPosition;
 int  WaitForCallBack;
@@ -320,7 +321,7 @@ web_view_javascript_finished(GObject      *object,
         str_value = jsc_value_to_string(value);
         exception = jsc_context_get_exception(jsc_value_get_context(value));
 
-        if (user_data == 1) {
+        if ((intptr_t)user_data == 1) {
             JavaScrollPosition = atoi(str_value);
             //			printf("Java Scroll %s %d\n", str_value, JavaScrollPosition);
         }
@@ -413,10 +414,9 @@ float ScrollGetPosition(void)
 
     WaitForCallBack = 10000;
     webkit_web_view_run_javascript(web_view,
-                                   "window.pageYOffset.toString();",
-                                   NULL,
-                                   web_view_javascript_finished,
-                                   1);
+        "window.pageYOffset.toString();",
+        NULL,
+        web_view_javascript_finished, (void *)1);
 
     while (--WaitForCallBack > 0);
 
@@ -564,7 +564,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
 
     theEvent = gtk_get_current_event();
 
-    CPatch = (int) user_data;
+    CPatch = (intptr_t) user_data;
     printd(LogDebug, "In Button Preset %d\n", CPatch);
 
     /* Check to make sure the preset value is valid.	*/
@@ -618,8 +618,8 @@ gboolean on_patch__release_handler(GtkWidget *widget,
     theButton = (theImageButtons *) user_data;
     //	PatchIndex = LayoutSwitchPatch(user_data, true);
 
-    gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[(int) user_data].Image),
-                              PresetButtons[(int) user_data].ButtonUpImage);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(PresetButtons[(intptr_t)user_data].Image),
+                              PresetButtons[(intptr_t) user_data].ButtonUpImage);
     return TRUE; /* stop event propagation */
 }
 
@@ -714,15 +714,15 @@ void PageLoaded(WebKitWebView  *web_view,
                 WebKitLoadEvent load_event,
                 gpointer        user_data)
 {
-    gchar *CurrentURI;
+    gchar *MyCurrentURI;
     char *Pointer;
     int   Loop;
-    char  FileName[200];
+    char  FileName[FileNameMaxLength];
 
     /* Get the URL that was selected.
     */
-    CurrentURI = webkit_web_view_get_uri(web_view);
-    printd(LogDebug, "load_status_cb %s event %d \n", CurrentURI, load_event);
+    MyCurrentURI = (gchar *)webkit_web_view_get_uri(web_view);
+    printd(LogDebug, "load_status_cb %s event %d \n", MyCurrentURI, load_event);
     ScrollPosition = 0;
 
     /* We only care about the completed event.
@@ -737,7 +737,7 @@ void PageLoaded(WebKitWebView  *web_view,
     /* We need an absolue path. For files in the current
     song folder add the full path before the name.
     */
-    strcpy(BasePathName, CurrentURI);
+    strcpy(BasePathName, MyCurrentURI);
 
     for (Loop = strlen(BasePathName); Loop >= 0; Loop--)
         if (BasePathName[Loop] == '/') {
@@ -762,13 +762,14 @@ void PageLoaded(WebKitWebView  *web_view,
 
     /* Keep a record
     */
-    WriteToHistory(CurrentURI);
-    //	Pointer = strstr(CurrentURI, ".html");
+    WriteToHistory(MyCurrentURI);
+    strcpy(LastClickURI, MyCurrentURI);
+    //	Pointer = strstr(MyCurrentURI, ".html");
 
     /* Let's check to see if this is an HTML file.
     */
-    if (strstr(CurrentURI, ".html")) {
-        Search_in_File(CurrentURI, &gMyInfo.WebPresets);
+    if (strstr(MyCurrentURI, ".html")) {
+        Search_in_File(MyCurrentURI, &gMyInfo.WebPresets);
 
         // Pointer = webkit_web_view_get_title(web_view);
         // if (Pointer)
@@ -776,18 +777,18 @@ void PageLoaded(WebKitWebView  *web_view,
 
         /* Add the file to the status.
         */
-        if (!strstr(CurrentURI, "index"))
+        if (!strstr(MyCurrentURI, "index"))
             UpdateStatus("---Load---");
     }
 
-    else if (strstr(CurrentURI, ".mp3")) {
+    else if (strstr(MyCurrentURI, ".mp3")) {
         printd(LogDebug, "*** MP3 file.\n");
         //		UpdateStatus(FileName);
 
         return;
     }
 
-    else if (strstr(CurrentURI, ".mid")) {
+    else if (strstr(MyCurrentURI, ".mid")) {
         printd(LogDebug, "*** mid file.\n");
         //		UpdateStatus(FileName);
 
@@ -1293,9 +1294,8 @@ gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char
     WebKitContextMenuItem *MyItem;
 
     // ---------------------- Drum Fav
-    action = g_simple_action_new("external_handler", NULL);
-    g_signal_connect_swapped(G_OBJECT(action), "activate",
-                             G_CALLBACK(DrumFav_cb), page);
+    action = g_simple_action_new("Drum Fav", NULL);
+    g_signal_connect_swapped(G_OBJECT(action), "activate",G_CALLBACK(DrumFav_cb), page);
     MyItem = webkit_context_menu_item_new_from_gaction((GAction *) action, "Drum Fav", NULL);
     g_object_unref(action);
 
@@ -1303,13 +1303,24 @@ gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char
     // ----------------------
 
     // ---------------------- Edit Chart
-    action = g_simple_action_new("external_handler", NULL);
+    action = g_simple_action_new("Edit Chart", NULL);
     g_signal_connect_swapped(G_OBJECT(action), "activate", G_CALLBACK(EditChart_cb), page);
     MyItem = webkit_context_menu_item_new_from_gaction((GAction *) action, "Edit Chart", NULL);
     g_object_unref(action);
 
     webkit_context_menu_append(menu, MyItem);
     // ----------------------
+
+
+   // ---------------------- Save link
+    action = g_simple_action_new("Save link", NULL);
+    g_signal_connect_swapped(G_OBJECT(action), "activate",G_CALLBACK(SaveFav_cb), page);
+    MyItem = webkit_context_menu_item_new_from_gaction((GAction *) action, "Save link", NULL);
+    g_object_unref(action);
+
+    webkit_context_menu_append(menu, MyItem);
+    // ----------------------
+
 
     return (false);
 }
@@ -1328,14 +1339,43 @@ static void DrumFav_cb(gpointer *Data)
     thepage = (WebKitWebView*) Data;
 
 
-    sprintf(lFileName, "echo %s >> %s\n", LastDrumName, GetResourceDir("DrumFav.txt", FileLocUser));
+//    sprintf(lFileName, "echo %s >> %s\n", LastDrumName, GetResourceDir("DrumFav.txt", FileLocUser));
+    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n", 
+        LastDrumName, LastDrumName, 
+        GetResourceDir("DrumFav.html", FileLocUser));
 
-    printf("DrumFav %s\n", lFileName);
+    printd(LogDebug,"DrumFav %s\n", lFileName);
     system(lFileName);
 
     //	printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
 }
 
+/*----------------------------------------------
+ * Function: SaveFav CallBack.
+ *
+ * Description: Setup the context Menu.
+ *
+ *-----------------------------------------------*/
+static void SaveFav_cb(gpointer *Data)
+{
+    WebKitWebView *thepage;
+    gchar *CurrentURI;
+    char lFileName[FileNameMaxLength * 2];
+
+    // Get current Name minus the file://
+//    CurrentURI = webkit_web_view_get_uri(web_view) + 7;
+
+    CurrentURI = LastClickURI;
+
+    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n", 
+        CurrentURI, CurrentURI, 
+        GetResourceDir("SaveFav.html", FileLocUser));
+
+    printd(LogDebug,"SaveFav %s\n", lFileName);
+    system(lFileName);
+
+    //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
+}
 
 /*----------------------------------------------
  * Function: EditChart_cb CallBack.
