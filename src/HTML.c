@@ -90,7 +90,7 @@ static void EditChart_cb(gpointer *Data);
 static WebKitWebView* web_view;
 theImageButtons PresetButtons[MaxPresetButtons];
 theImageButtons SaveWebButton;
-theImageButtons ScaleButton;
+theImageButtons DrumLoopButton;
 theImageButtons ForwardButton;
 theImageButtons BackButton;
 theImageButtons SetListButton;
@@ -433,6 +433,7 @@ float ScrollGetPosition(void)
  *-----------------------------------------------*/
 int ScalePage(void)
 {
+
     gfloat UpperH, UpperV;
     GtkAdjustment *Adjust;
     gint Horiz, Vert;
@@ -460,19 +461,20 @@ int ScalePage(void)
 }
 
 /*----------------------------------------------
- * Function:		on_scalebutton_clicked
+ * Function:		on_DrumLoopButton_clicked
  *
  * Description:	Scale the graphics to fit the page
  *
  *-----------------------------------------------*/
-void on_scalebutton_clicked(GtkWidget *widget, gpointer data)
+void on_DrumLoopButton_clicked(GtkWidget *widget, gpointer data)
 {
 
     //	 webkit_web_view_reload(web_view);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(ScaleButton.Image),
-                              ScaleButton.ButtonDownImage);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(DrumLoopButton.Image),
+                              DrumLoopButton.ButtonDownImage);
 
-    ScalePage();
+    ToggleMidiLoop();
+//    ScalePage();
 }
 
 unsigned int CurTapTempo;
@@ -763,7 +765,6 @@ void PageLoaded(WebKitWebView  *web_view,
     /* Keep a record
     */
     WriteToHistory(MyCurrentURI);
-    strcpy(LastClickURI, MyCurrentURI);
     //	Pointer = strstr(MyCurrentURI, ".html");
 
     /* Let's check to see if this is an HTML file.
@@ -891,6 +892,11 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     */
     ext = strrchr(theURI, '.');
 
+    // This is for the Save Favorites link.
+    if (ext != NULL)
+        strcpy(LastClickURI, (theURI + 7));
+
+
     /* If it's a web page we want to display,
     Let the WebKit handle it.
     */
@@ -964,7 +970,6 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         printf("*** Midi file. %s\n", FileName);
 
         UpdateStatus(FileName);
-
 
         /*
          * This tells webkit we are dealing with it.
@@ -1155,12 +1160,12 @@ void InitHTML(GtkBuilder * gxml)
 
     EventBox = GTK_WIDGET(
                    gtk_builder_get_object(gxml, "ScaleButton"));
-    MyImageButtonInit(&ScaleButton, EventBox, MainButtonOnImage, MainButtonOffImage);
-    MyImageButtonSetText(&ScaleButton, "Scale");
+    MyImageButtonInit(&DrumLoopButton, EventBox, MainButtonOnImage, MainButtonOffImage);
+    MyImageButtonSetText(&DrumLoopButton, "Drum");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
-                     G_CALLBACK(on_scalebutton_clicked), &ScaleButton);
+                     G_CALLBACK(on_DrumLoopButton_clicked), &DrumLoopButton);
     g_signal_connect(G_OBJECT(EventBox), "button-release-event", G_CALLBACK(normal_release_handler),
-                     &ScaleButton);
+                     &DrumLoopButton);
 
     EventBox = GTK_WIDGET(
                    gtk_builder_get_object(gxml, "TapTempo"));

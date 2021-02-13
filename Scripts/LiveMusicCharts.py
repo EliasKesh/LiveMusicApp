@@ -105,8 +105,8 @@ def WriteFile(fname, dirname):
   for x in range(0, sHREFIndex):
     FileName=sHREFFile[x]
     FileRef=sHREFFile[x]
-    if (len(FileName) > 25):
-        FileName=FileName[0:25]
+    if (len(FileName) > 30):
+        FileName=FileName[0:30]
 
     if (FileRef.find("mp3") > 0):
         theFile.write("<a style=\"color:red\" href=\""+FileRef+"\">["+FileName+"]</a>\n")
@@ -545,7 +545,7 @@ def ExtractPDF(Files, dirname):
 #        if (theFile.endswith("pdf.conv")):
         if (theFile.endswith("pdf")):
             f = dirname+"/"+theFile
-#            print ("The ** pdf ", f)
+            print ("The ** pdf ", f)
             with(Image(filename=f, resolution=450)) as source: 
                for i, image in enumerate(source.sequence):
 #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'

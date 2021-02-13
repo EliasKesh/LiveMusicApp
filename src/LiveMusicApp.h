@@ -375,6 +375,7 @@ enum {
 	cmdSetExpr,
 	cmdHardSlider,
 	cmdMidiOnOff,
+	cmdDrumToggle,
 	MaxCommands
 };
 

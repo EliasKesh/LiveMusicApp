@@ -51,9 +51,9 @@
 /*
  * Place Static variables here
  */
-static lo_address SLOSCaddr;
-static lo_address JackVoladdr;
-static lo_address Hydrogenaddr;
+static lo_address SLOSCaddr = NULL;
+static lo_address JackVoladdr = NULL;
+static lo_address Hydrogenaddr = NULL;
 static lo_server osc_server = 0;
 static lo_server osc_server1 = 0;
 static char our_url[100];
@@ -69,6 +69,9 @@ int OSCCommand(int Command, char Option) {
 	char NewCommand[100];
 
 	printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
+	if (SLOSCaddr == NULL)
+		return;
+
 	switch (Command) {
 	case  OSCSelect:
 		CurrentLoop = Option;
@@ -281,6 +284,9 @@ void MyOSCInit(void) {
 void MyOSCPoll(char DownBeat) {
 	char NewCommand[100];
 
+	if (SLOSCaddr == NULL)
+		return;
+
 	lo_server_recv_noblock(osc_server, 2);
 //    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
 	sprintf(NewCommand, "/sl/%d/get", CurrentLoop);
@@ -294,6 +300,10 @@ void MyOSCPoll(char DownBeat) {
  *
  *-------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
+
+	if (SLOSCaddr == NULL)
+		return;
+
 	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 }
 
@@ -376,6 +386,9 @@ void MyOSCSetSync(char Type) {
  *-------------------------------------------------*/
 void MyOSCLoadFile(char *FileName) {
 
+	if (SLOSCaddr == NULL)
+		return;
+
 	/* Load the file and send the results back to the SL GUI */
 	lo_send(SLOSCaddr, "/load_session", "sss", FileName,
 	        "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
@@ -393,6 +406,9 @@ void MyOSCJackVol(int Volume, int channel) {
 
 	VolumeFloat = ((float)Volume / 127);
 //	printf("Vol Change %d %f\n", Volume, VolumeFloat);
+
+	if (JackVoladdr == NULL)
+		return;
 
 	switch (channel) {
 	case 0xff:
@@ -435,6 +451,8 @@ void MyOSCJackMute(int Mute, int channel) {
 		         DrumMidiChannel, 04, (int) PedalLED7Off );
 	}
 
+	if (JackVoladdr == NULL)
+		return;
 
 	switch (channel) {
 	case 0xff:

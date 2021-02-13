@@ -788,6 +788,13 @@ int SendMidiPatch(PatchInfo * thePatch)
 
         break;
 
+    case cmdDrumToggle:
+        ToggleMidiLoop();
+        break;
+
+
+
+
     // SND_SEQ_EVENT_SETPOS_TIME
     // SND_SEQ_EVENT_TEMPO
 

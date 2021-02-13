@@ -130,6 +130,9 @@ void ToggleMidiLoop ( void )
 *------------------------------------------------*/
 void StopMidiLoop ( void )
 {
+
+    printd ( LogDebug, "Stop\n");
+
     MidiLooping = false;
     snd_seq_drain_output ( seq );
     snd_seq_reset_pool_output ( seq );
@@ -148,8 +151,8 @@ void StopMidiLoop ( void )
 void StartMidiLoop ( char *filename )
 {
 
-    if ( MidiLooping )
-        StopMidiLoop();
+//    if ( MidiLooping )
+//        StopMidiLoop();
 
     if ( filename != NULL )
         strcpy ( file_name, filename );
@@ -189,7 +192,7 @@ void SetLoopTempo ( int NewTempo )
     snd_seq_event_t ev;
     int err;
     printd ( LogDebug, "SetLoopTempo %d\n", NewTempo );
-    printd ( LogTest, "SetLoopTempo %d\n", NewTempo );
+    printd ( LogDebug, "SetLoopTempo %d\n", NewTempo );
 
     ev.type = SND_SEQ_EVENT_TEMPO;
     ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
@@ -209,6 +212,8 @@ void SetLoopTempo ( int NewTempo )
 int MyAlsaLoopClose ( void )
 {
     int ret;
+
+    printd ( LogDebug, "MyAlsaLoopClose\n");
 
     snd_seq_close ( seq );
     sleep ( 1 );
@@ -779,6 +784,8 @@ static void play_midi ( void )
     snd_seq_event_t ev;
     int i, max_tick, err;
 
+    printd ( LogDebug, "play_midi\n");
+
     /* calculate length of the entire file */
     max_tick = -1;
 
@@ -973,7 +980,7 @@ static int play_file ( void )
         printd ( LogDebug, "Cannot open [%s] - %s\n", file_name, strerror ( errno ) );
         return ( true );
     }
-
+    
     printd ( LogDebug, "Play_File name %s\n", file_name );
     file_offset = 0;
     ok = 0;
@@ -1029,7 +1036,7 @@ int alsa_loop_init ( void )
 
     /* set the priority; others are unchanged */
 
-    param.sched_priority = 99;
+//    param.sched_priority = 99;
 
     /* setting the new scheduling param */
     ret = pthread_attr_setschedparam ( &tattr, &param );
@@ -1045,9 +1052,10 @@ int alsa_loop_init ( void )
 void *alsa_Loop_thread ( void * context_ptr )
 {
 
-    printd ( LogDebug, "alsa_Loop_thread\n" );
+//    printd ( LogDebug, "alsa_Loop_thread\n" );
 
     while ( 1 ) {
+        printd ( LogDebug, "alsa_Loop_thread\n" );
 
         if ( MidiLooping ) {
             printd ( LogDebug, "alsa_Loop_thread before play\n" );
@@ -1058,7 +1066,8 @@ void *alsa_Loop_thread ( void * context_ptr )
             }
 
             printd ( LogDebug, "alsa_Loop_thread after play\n" );
-        }
+        } 
+        sleep(1);
     }
 }
 

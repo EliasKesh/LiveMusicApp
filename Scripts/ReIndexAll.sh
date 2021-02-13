@@ -130,6 +130,12 @@ LiveMusicCharts.py StringSkipping -vcfp
 LiveMusicCharts.py SweepPicking -vcfp
 LiveMusicCharts.py . -i
 
+cd /home/Music/Learn/DLP
+echo `pwd`
+LiveMusicCharts.py Example -vcfp
+LiveMusicCharts.py Licks -vcfp
+LiveMusicCharts.py Sample -vcfp
+LiveMusicCharts.py . -i
 
 cd /home/Music/Learn/
 echo `pwd`
@@ -138,6 +144,9 @@ LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py 50RockLicks -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
 LiveMusicCharts.py JazzGuitar -vcfp
+
+LiveMusicCharts.py PentaTrick -vcfp
+
 
 cd /home/Music/Learn/
 echo `pwd`

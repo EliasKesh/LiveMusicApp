@@ -124,7 +124,8 @@ char scMelMinUp[] =
 char scMelMinDown[] =
 { 0, 2, 3, 5, 7, 8, 10, EOfscl };
 
-
+char scAugmented[] =
+{ 0, 3, 4, SN, 7, 8, 11, EOfscl };
 char scAcoustic[] =
 { 0, 2, 4, 6, 7, 9, 10, EOfscl };
 char scHungMaj1[] =
@@ -200,6 +201,7 @@ ChordMenu myChordMenu[] = {
 	{ scLydian, "Lydian" },
 	{ scMinPent, "Min Pent" },
 
+	{ scAugmented, "Augmented" },
 	{ scAcoustic, "Acoustic" },
 	{ scHungMaj1, "Hungarian Maj1" },
 	{ scHungMaj2, "Hungarian Maj2" },

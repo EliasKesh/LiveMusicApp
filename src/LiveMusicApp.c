@@ -545,7 +545,6 @@ background - image: -gtk - scaled(url("assets/scale-slider-horz-dark.png"), url(
     */
     CreatePatchPopupMenu();
 
-
     gtk_widget_add_events(
         theMainWindow, GDK_KEY_PRESS_MASK);
 
