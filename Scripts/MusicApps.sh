@@ -50,6 +50,7 @@ if [ "${1}" == "mscz" ] ; then
 fi
 
 if [ "${1}" == "gp3" ] |
+[ "${1}" == "gp" ] |
 [ "${1}" == "gp4" ] |
 [ "${1}" == "gp5" ] |
 [ "${1}" == "gp6" ] |
@@ -72,7 +73,8 @@ if [ "${1}" == "EffectsProcessorApp" ] ; then
     GDK_BACKEND=x11 nice -15 \
     /AppImages/guitarix-0.39-x86_64.AppImage \
     -p 7000 &
-
+   
+#    guitarix \
 #    /AppImages/guitarix-0.39-x86_64.AppImage \
 
     exit 0

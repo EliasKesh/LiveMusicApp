@@ -27,6 +27,7 @@
 |------------------------------------------------*/
 
 #define RightMenuClick_c
+#define GDK_DISABLE_DEPRECATION_WARNINGS
 
 /*
  * Place Includes Here
@@ -52,8 +53,7 @@
  *
  *------------------------------------------------*/
 void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
-                     gpointer userdata)
-{
+                     gpointer userdata) {
     GtkWidget *menu, *menuitem;
 
     menu = gtk_menu_new();
@@ -73,7 +73,7 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
     /* Note: event can be NULL here when called from view_onPopupMenu;
      *  gdk_event_get_time() accepts a NULL argument */
     gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, (event != NULL) ? event->button : 0,
-         gdk_event_get_time((GdkEvent*) event));
+                   gdk_event_get_time((GdkEvent*) event));
 }
 
 /*-----------------------------------------------
@@ -81,10 +81,9 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
  * Description:
  *
  *------------------------------------------------*/
-void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata)
-{
+void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
     char String[20];
-    unsigned int MyValue=(unsigned int)userdata;
+    uintptr_t MyValue = (uintptr_t)userdata;
 
     /* we passed the view as userdata when we connected the signal */
     //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
@@ -101,8 +100,9 @@ void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata)
     */
     if (CurrentPreset > Max_Patches && CurrentPreset <= Preset6Patch) {
         sprintf(String, "%d", MyValue);
-        printf("In CTRL Preset %d %s\n", CurrentPreset-Max_Patches, String);
-        gMyInfo.WebPresets.thePreset[CurrentPreset-Max_Patches - 1] = AssignPreset(CurrentPreset-Max_Patches, String);
+        printf("In CTRL Preset %d %s\n", CurrentPreset - Max_Patches, String);
+
+        gMyInfo.WebPresets.thePreset[CurrentPreset - Max_Patches - 1] = AssignPreset(CurrentPreset - Max_Patches, String);
     }
 }
 
@@ -111,8 +111,7 @@ void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata)
  * Description:
  *
  *------------------------------------------------*/
-void CreatePatchPopupMenu(void)
-{
+void CreatePatchPopupMenu(void) {
     GtkWidget *menuitem;
     int	Loop;
 
@@ -136,8 +135,7 @@ void CreatePatchPopupMenu(void)
  *
  *
  *------------------------------------------------*/
-int	 ShowPatchListSelect(GtkWidget *Temp, int Current)
-{
+int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 
     GtkWidget *treeview;
     printd(LogInfo, "On Butting Pressed CB\n");
@@ -166,8 +164,7 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current)
  * Description:
  *
  *------------------------------------------------*/
-void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata)
-{
+void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata) {
     /* we passed the view as userdata when we connected the signal */
     //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
     //	g_print("Do something! %d\n", (int)userdata);
@@ -187,8 +184,7 @@ void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata)
  *
  *------------------------------------------------*/
 gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
-                              gpointer userdata)
-{
+                              gpointer userdata) {
     printd(LogInfo, "On Butting Pressed CB\n");
 
     /* single click with the right mouse button? */
@@ -202,8 +198,7 @@ gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
     return FALSE; /* we did not handle this */
 }
 
-gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata)
-{
+gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata) {
     view_popup_menu(treeview, NULL, userdata);
 
     return TRUE; /* we handled this */
@@ -214,8 +209,7 @@ gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata)
  * Description:		Here is where is initialize the Popup
  *
  *------------------------------------------------*/
-void create_Popup_view(GtkWidget *view)
-{
+void create_Popup_view(GtkWidget *view) {
     //	GtkWidget *view;
     printd(LogInfo, "Before TreeView\n");
 

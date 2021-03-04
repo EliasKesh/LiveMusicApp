@@ -16,5 +16,6 @@ int SendMidiPatch(PatchInfo *thePatch);
 void SetAlsaCaptureVolume(long volume);
 void SetAlsaMasterVolume(long volume);
 bool alsa_input_init(const char * name);
+void SetDAWLed(int Button, int Value);
 
 #endif /* ALSAUTILS_H_ */

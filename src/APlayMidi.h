@@ -31,6 +31,7 @@ void SetLoopTempo ( int NewTempo );
 void StopMidiLoop ( void );
 void StartMidiLoop ( char *filename );
 int InitMidiLooper ( void );
+bool ToggleMidiLoop ( void );
 
 /*
  * Place Static variables here.

@@ -157,6 +157,9 @@ LiveMusicCharts.py . -i
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
 
+cd /home/Music/EliasOriginals
+LiveMusicCharts.py . -a
+
 # cd /home/Music/Practice
 # LiveMusicCharts.py . -a
 

@@ -66,112 +66,115 @@ static char CurrentLoop;
  *
  *-------------------------------------------------*/
 int OSCCommand(int Command, char Option) {
-	char NewCommand[100];
+    char NewCommand[100];
 
-	printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
-	if (SLOSCaddr == NULL)
-		return;
+    printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
+    if (SLOSCaddr == NULL) {
+        return(1);
+    }
 
-	switch (Command) {
-	case  OSCSelect:
-		CurrentLoop = Option;
+    switch (Command) {
+    case  OSCSelect:
+        CurrentLoop = Option;
 
-		if (CurrentLoop >= 0)
-			CurrentLoop = Option - 1;
+        if (CurrentLoop >= 0) {
+            CurrentLoop = Option - 1;
+        }
 
-		break;
+        break;
 
-	case  OSCRec:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCRec %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "record");
-		gMyInfo.LoopTempo = gMyInfo.Tempo;
-		break;
+    case  OSCRec:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCRec %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "record");
+        gMyInfo.LoopTempo = gMyInfo.Tempo;
+        break;
 
-	case  OSCPause:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCPause %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "pause");
-		break;
+    case  OSCPause:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCPause %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "pause");
+        break;
 
-	case  OSCTrig:
+    case  OSCTrig:
 
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCTrig %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "trigger");
-		break;
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCTrig %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "trigger");
+        break;
 
-	case  OSCUndo:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCUndo %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "undo");
-		break;
+    case  OSCUndo:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCUndo %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "undo");
+        break;
 
-	case OSCAddLoop:
-		printd(LogDebug, "OSC Add\n");
-		lo_send(SLOSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
-		break;
+    case OSCAddLoop:
+        printd(LogDebug, "OSC Add\n");
+        lo_send(SLOSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
+        break;
 
-	case OSCMute:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCMute %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "mute");
-		break;
+    case OSCMute:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCMute %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "mute");
+        break;
 
-	case OSCStartRecord:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "record");
-		break;
+    case OSCStartRecord:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "record");
+        break;
 
-	case OSCStopRecord:
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "record");
-		break;
+    case OSCStopRecord:
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "record");
+        break;
 
-	case OSCSyncOn:
-		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
-		printd(LogDebug, "Sync On %s\n", NewCommand);
-		break;
+    case OSCSyncOn:
+        sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+        lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
+        printd(LogDebug, "Sync On %s\n", NewCommand);
+        break;
 
-	case OSCSyncOff:
-		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		printd(LogDebug, "Sync Off %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "sf", "sync", 0.0);
-		break;
+    case OSCSyncOff:
+        sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+        printd(LogDebug, "Sync Off %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "sf", "sync", 0.0);
+        break;
 
-	case OSCSyncSource:
+    case OSCSyncSource:
 //		sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
 
-		printd(LogDebug, "OSCSyncSource %d\n", Option);
-		lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
-		break;
+        printd(LogDebug, "OSCSyncSource %d\n", Option);
+        lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
+        break;
 
-	case OSCRecThres:
-		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		printd(LogDebug, "Sync Off %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option / 127 );
-		break;
+    case OSCRecThres:
+        sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+        printd(LogDebug, "Sync Off %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option / 127 );
+        break;
 
-	case OSCRecLoop:
-		sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-		lo_send(SLOSCaddr, NewCommand, "si", "sync", 1);
-		printd(LogDebug, "Sync On %s\n", NewCommand);
+    case OSCRecLoop:
+        sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
+        lo_send(SLOSCaddr, NewCommand, "si", "sync", 1);
+        printd(LogDebug, "Sync On %s\n", NewCommand);
 
+        sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "OSCRecLP %s\n", NewCommand);
+        lo_send(SLOSCaddr, NewCommand, "s", "record");
 
-		sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "OSCRecLP %s\n", NewCommand);
-		lo_send(SLOSCaddr, NewCommand, "s", "record");
-		gMyInfo.LoopTempo = gMyInfo.Tempo;
-		gMyInfo.RecordStopLoop = gMyInfo.LoopPosition;
-		break;
+        gMyInfo.LoopTempo = gMyInfo.Tempo;
+        gMyInfo.RecordStopLoop = gMyInfo.LoopPosition;
+        break;
 
 //oscsend localhost 9951 /set si "sync_source" -3
 
 // lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
-	}
+    }
+return(0);
 }
 
 /*------------------------------------------------
@@ -183,22 +186,22 @@ int OSCCommand(int Command, char Option) {
  *-------------------------------------------------*/
 static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int argc,
                         void *data, void *user_data) {
-	int index = argv[0]->i;
-	float val  = argv[2]->f;
+    int index = argv[0]->i;
+    float val  = argv[2]->f;
 
-	printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
-	gMyInfo.LoopPosition = val;
+    printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
+    gMyInfo.LoopPosition = val;
 
-	/* Check to see if we should send the
-	record off command.
-	*/
-	if (val > 0 && (gMyInfo.RecordStopLoop >= 0)) {
-		printd(LogDebug, "ctrl_handler Stop Loop\n");
-		gMyInfo.RecordStopLoop = -1;
-		OSCCommand(OSCRec, 0);
-	}
+    /* Check to see if we should send the
+    record off command.
+    */
+    if (val > 0 && (gMyInfo.RecordStopLoop >= 0)) {
+        printd(LogDebug, "ctrl_handler Stop Loop\n");
+        gMyInfo.RecordStopLoop = -1;
+        OSCCommand(OSCRec, 0);
+    }
 
-	return 0;
+    return 0;
 }
 
 /*------------------------------------------------
@@ -209,15 +212,15 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
  *-------------------------------------------------*/
 static int pingack_handler(const char *path, const char *types, lo_arg **argv, int argc,
                            void *data, void *user_data) {
-	// pingack expects: s:engine_url s:version i:loopcount
-	// 1st arg is instance, 2nd ctrl string, 3nd is float value
-	//int index = argv[0]->i;
-	//string eurl(&argv[0]->s);
-	//string vers (&argv[1]->s);
-	//int loops = argv[2]->i;
-	printd(LogDebug, "pingack_handler %d %s d=%f\n", argv[0], argv[1], argv[2]);
+    // pingack expects: s:engine_url s:version i:loopcount
+    // 1st arg is instance, 2nd ctrl string, 3nd is float value
+    //int index = argv[0]->i;
+    //string eurl(&argv[0]->s);
+    //string vers (&argv[1]->s);
+    //int loops = argv[2]->i;
+    printd(LogDebug, "pingack_handler %d %s d=%f\n", argv[0], argv[1], argv[2]);
 //	_acked = TRUE;
-	return 0;
+    return 0;
 }
 
 
@@ -229,49 +232,49 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
  *-------------------------------------------------*/
 void MyOSCInit(void) {
 
-	printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
-	       gMyInfo.OSCIPAddress,
-	       gMyInfo.OSCPortNumLooper,
-	       gMyInfo.OSCPortNumJackVol,
-	       gMyInfo.OSCPortNumHydrogen );
+    printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
+           gMyInfo.OSCIPAddress,
+           gMyInfo.OSCPortNumLooper,
+           gMyInfo.OSCPortNumJackVol,
+           gMyInfo.OSCPortNumHydrogen );
 
-	/* Used as a trigger to stop recording.
-	*/
-	gMyInfo.RecordStopLoop = -1;
+    /* Used as a trigger to stop recording.
+    */
+    gMyInfo.RecordStopLoop = -1;
 
-	SLOSCaddr = lo_address_new(
-	                gMyInfo.OSCIPAddress,
-	                gMyInfo.OSCPortNumLooper );
+    SLOSCaddr = lo_address_new(
+                gMyInfo.OSCIPAddress,
+                gMyInfo.OSCPortNumLooper );
 
-	JackVoladdr = lo_address_new(
-	                  gMyInfo.OSCIPAddress,
-	                  gMyInfo.OSCPortNumJackVol );
+    JackVoladdr = lo_address_new(
+                  gMyInfo.OSCIPAddress,
+                  gMyInfo.OSCPortNumJackVol );
 
-	Hydrogenaddr = lo_address_new(
-	                   gMyInfo.OSCIPAddress,
-	                   gMyInfo.OSCPortNumHydrogen );
+    Hydrogenaddr = lo_address_new(
+                   gMyInfo.OSCIPAddress,
+                   gMyInfo.OSCPortNumHydrogen );
 
-	printd(LogDebug, "Init Second OSC \n");
+    printd(LogDebug, "Init Second OSC \n");
 
-	osc_server = lo_server_new(NULL, NULL);
-	strcpy(our_url, lo_server_get_url (osc_server) );
-	printd(LogDebug, "MyOSCInit Leave %s  %d\n",
-	       our_url,
-	       osc_server );
+    osc_server = lo_server_new(NULL, NULL);
+    strcpy(our_url, lo_server_get_url (osc_server) );
+    printd(LogDebug, "MyOSCInit Leave %s  %d\n",
+           our_url,
+           osc_server );
 #if 0
-	osc_server1 = lo_server_new(NULL, NULL);
-	strcpy(our_url, lo_server_get_url (osc_server1) );
-	printd(LogDebug, "MyOSCInit Leave %s  %d\n",
-	       our_url,
-	       osc_server );
+    osc_server1 = lo_server_new(NULL, NULL);
+    strcpy(our_url, lo_server_get_url (osc_server1) );
+    printd(LogDebug, "MyOSCInit Leave %s  %d\n",
+           our_url,
+           osc_server );
 #endif
-	lo_server_add_method(osc_server,
-	                     NULL, NULL, ctrl_handler, NULL);
+    lo_server_add_method(osc_server,
+                         NULL, NULL, ctrl_handler, NULL);
 //	                     "/ctrl", "isf", ctrl_handler, NULL);
 
-	lo_server_add_method(osc_server,
-	                     "/pingack", "ssi", pingack_handler, NULL);
-	CurrentLoop = 0;
+    lo_server_add_method(osc_server,
+                         "/pingack", "ssi", pingack_handler, NULL);
+    CurrentLoop = 0;
 }
 
 
@@ -282,15 +285,16 @@ void MyOSCInit(void) {
  *
  *-------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
-	char NewCommand[100];
+    char NewCommand[100];
 
-	if (SLOSCaddr == NULL)
-		return;
+    if (SLOSCaddr == NULL) {
+        return;
+    }
 
-	lo_server_recv_noblock(osc_server, 2);
+    lo_server_recv_noblock(osc_server, 2);
 //    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
-	sprintf(NewCommand, "/sl/%d/get", CurrentLoop);
-	lo_send(SLOSCaddr, NewCommand, "sss", "loop_pos", our_url, "/ctrl");
+    sprintf(NewCommand, "/sl/%d/get", CurrentLoop);
+    lo_send(SLOSCaddr, NewCommand, "sss", "loop_pos", our_url, "/ctrl");
 }
 
 /*------------------------------------------------
@@ -301,10 +305,11 @@ void MyOSCPoll(char DownBeat) {
  *-------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
 
-	if (SLOSCaddr == NULL)
-		return;
+    if (SLOSCaddr == NULL) {
+        return;
+    }
 
-	lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
+    lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1.0);
 }
 
 /*------------------------------------------------
@@ -315,12 +320,12 @@ void MyOSCTap(char DownBeat) {
  *-------------------------------------------------*/
 void MyOSCClose(void) {
 
-	printd(LogDebug, "MyOSCClose: %x\n", osc_server);
-	lo_address_free (SLOSCaddr);
-	lo_address_free (JackVoladdr);
-	lo_address_free (Hydrogenaddr);
+    printd(LogDebug, "MyOSCClose: %x\n", osc_server);
+    lo_address_free (SLOSCaddr);
+    lo_address_free (JackVoladdr);
+    lo_address_free (Hydrogenaddr);
 
-	lo_server_free (osc_server);
+    lo_server_free (osc_server);
 }
 
 /*------------------------------------------------
@@ -330,53 +335,51 @@ void MyOSCClose(void) {
  *
  *-------------------------------------------------*/
 void MyOSCSetSync(char Type) {
-	char NewCommand[100];
+    char NewCommand[100];
 
-	// Start recording.
-	if (Type == 1) {
+    // Start recording.
+    if (Type == 1) {
 
-		OSCCommand(OSCSelect,1);
+        // Select Loop 1
+        OSCCommand(OSCSelect, 1);
 
-		// sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
-		printd(LogDebug, "MyOSCSetSync %d\n", Type);
+        // sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+        printd(LogDebug, "MyOSCSetSync %d\n", Type);
 
-		// Set the sync to 8th notes.
-		lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 4);
+        // Set the sync to 8th notes.
+        lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 4);
 
-		// Quantize loop end on 8th note
-		lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 2);
+        // Quantize loop end on 8th note
+        lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 2);
 
-		// Loop 0 sync on
-		lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", "1");
+        // Loop 0 sync on
+        lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", 1);
 
-		/* Sync Internal	*/
-		//  sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed) 
-		lo_send(SLOSCaddr, "/set", "si", "sync_source", -3);
+        /* Sync Internal	*/
+        //  sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)
+        lo_send(SLOSCaddr, "/set", "si", "sync_source", -3);
 
-	} else {
-		// After recording.
-		lo_send(SLOSCaddr, "/set", "si", "sync_source", 1);
+    }
+    else {
+        // After recording.
+        lo_send(SLOSCaddr, "/set", "si", "sync_source", 1);
 
-		lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", 0);
+        lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", 1);
 
-		// Quantize to loop 
-		lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 3);
+        // Quantize to loop
+        lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 3);
 
-		// Set the sync to 8th notes.
-		lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 16);
+        // Set the sync to 8th notes.
+        lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 16);
 
-		// Turn this off or the recording start
-		// will be anywhere..
-		lo_send(SLOSCaddr, "/set", "si", "relative_sync", 0);
-
+        // Turn this off or the recording start
+        // will be anywhere..
+        lo_send(SLOSCaddr, "/sl/-1/set", "si", "relative_sync", 0);
+// oscsend localhost 9951 /sl/-1/set sf "relative_sync" 0
 //		OSCCommand(OSCSyncSource, 1);
 //		OSCCommand(OSCSyncOn, 0);
-
-
-	}
-
+    }
 }
-
 
 /*------------------------------------------------
  * Function:		MyOSCClose.
@@ -386,14 +389,17 @@ void MyOSCSetSync(char Type) {
  *-------------------------------------------------*/
 void MyOSCLoadFile(char *FileName) {
 
-	if (SLOSCaddr == NULL)
-		return;
+    if (SLOSCaddr == NULL) {
+        return;
+    }
 
-	/* Load the file and send the results back to the SL GUI */
-	lo_send(SLOSCaddr, "/load_session", "sss", FileName,
-	        "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
+ //   printf("MyOSCLoadFile %x %s\n",SLOSCaddr, FileName);
+    /* Load the file and send the results back to the SL GUI */
+    lo_send(SLOSCaddr, "/load_session", "sss", FileName,
+            "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
 }
 
+//oscsend localhost 9951 /load_session sss "/home/Music/EliasOriginals/Looper/Looper.slsess" osc.udp: //localhost:9952/ osc.udp://localhost:9952/
 
 /*------------------------------------------------
  * Function:		MyOSCJackVol.
@@ -402,35 +408,36 @@ void MyOSCLoadFile(char *FileName) {
  * 		Values 0 - 127
  *-------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
-	float VolumeFloat;
+    float VolumeFloat;
 
-	VolumeFloat = ((float)Volume / 127);
+    VolumeFloat = ((float)Volume / 127);
 //	printf("Vol Change %d %f\n", Volume, VolumeFloat);
 
-	if (JackVoladdr == NULL)
-		return;
+    if (JackVoladdr == NULL) {
+        return;
+    }
 
-	switch (channel) {
-	case 0xff:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", VolumeFloat);
-		break;
+    switch (channel) {
+    case 0xff:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", VolumeFloat);
+        break;
 
-	case 0:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0", "f", VolumeFloat);
-		break;
+    case 0:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0", "f", VolumeFloat);
+        break;
 
-	case 1:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1", "f", VolumeFloat);
-		break;
+    case 1:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1", "f", VolumeFloat);
+        break;
 
-	case 2:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2", "f", VolumeFloat);
-		break;
+    case 2:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2", "f", VolumeFloat);
+        break;
 
-	case 3:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3", "f", VolumeFloat);
-		break;
-	}
+    case 3:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3", "f", VolumeFloat);
+        break;
+    }
 }
 
 /*------------------------------------------------
@@ -441,40 +448,42 @@ void MyOSCJackVol(int Volume, int channel) {
  *-------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel) {
 
-	if (Mute == 1) {
-		printd(LogDebug, "MyOSCJackMute On\n");
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED7On );
-	} else {
-		printd(LogDebug, "MyOSCJackMute Off\n");
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED7Off );
-	}
+    if (Mute == 1) {
+        printd(LogDebug, "MyOSCJackMute On\n");
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED7On );
+    }
+    else {
+        printd(LogDebug, "MyOSCJackMute Off\n");
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED7Off );
+    }
 
-	if (JackVoladdr == NULL)
-		return;
+    if (JackVoladdr == NULL) {
+        return;
+    }
 
-	switch (channel) {
-	case 0xff:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
-		break;
+    switch (channel) {
+    case 0xff:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master/mute", "i", Mute);
+        break;
 
-	case 0:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0/mute", "i", Mute);
-		break;
+    case 0:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0/mute", "i", Mute);
+        break;
 
-	case 1:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1/mute", "i", Mute);
-		break;
+    case 1:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1/mute", "i", Mute);
+        break;
 
-	case 2:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2/mute", "i", Mute);
-		break;
+    case 2:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2/mute", "i", Mute);
+        break;
 
-	case 3:
-		lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3/mute", "i", Mute);
-		break;
-	}
+    case 3:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3/mute", "i", Mute);
+        break;
+    }
 
 }
 
@@ -534,22 +543,22 @@ sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop num
 
 
                                      The 8th / cycle parameter defines how many 8th notes as defined by the current tempo (there are 2 eighths per beat) are in a cycle of a current loop, or a potential loop. As described below, the cycle length is useful as a quantization boundary, as well as an eighth - note itself.
-	                                     oscsend localhost 9951 / set sf "eighth_per_cycle" 10
-	                                     oscsend localhost 9951 / sl / -1 / set sf "overdub_quantized" 0
-	                                     oscsend localhost 9951 / sl / -1 / set sf "replace_quantized" 0
-	                                     oscsend localhost 9951 / sl / -1 / set sf "round" 1
-	                                     oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
-	                                     oscsend localhost 9951 / set sf "smart_eighths" 0
+                                         oscsend localhost 9951 / set sf "eighth_per_cycle" 10
+                                         oscsend localhost 9951 / sl / -1 / set sf "overdub_quantized" 0
+                                         oscsend localhost 9951 / sl / -1 / set sf "replace_quantized" 0
+                                         oscsend localhost 9951 / sl / -1 / set sf "round" 1
+oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
+                                         oscsend localhost 9951 / set sf "smart_eighths" 0
 
-	                                     If the sync option is checked for a particular loop, operations will be quantized to the selected boundary. This includes Record, Multiply, Replace, Substitute, Insert, Reverse, Trigger, and Once. Note that Overdub is never quantized. When a command is performed, the actual operation wont start / stop until the precise moment of the next sync boundary arrives. For instance, when the sync source is a loop, and the quantize parameter is Cycle, a Record operation will start and stop on an exact cycle boundary of the source loop. More interesting polyrhythms are possible when using 8ths as the quantize parameter, for example.
-		                                     oscsend localhost 9951 / sl / -1 / set sf sync 1
-		                                     oscsend localhost 9951 / sl / -1 / set sf playback_sync 1
+                                         If the sync option is checked for a particular loop, operations will be quantized to the selected boundary. This includes Record, Multiply, Replace, Substitute, Insert, Reverse, Trigger, and Once. Note that Overdub is never quantized. When a command is performed, the actual operation wont start / stop until the precise moment of the next sync boundary arrives. For instance, when the sync source is a loop, and the quantize parameter is Cycle, a Record operation will start and stop on an exact cycle boundary of the source loop. More interesting polyrhythms are possible when using 8ths as the quantize parameter, for example.
+                                             oscsend localhost 9951 / sl / -1 / set sf sync 1
+                                             oscsend localhost 9951 / sl / -1 / set sf playback_sync 1
 
-		                                     The quantize parameter defines when operations sync to in reference to the sync source. The available choices are Off, Cycle, 8th, and Loop. Note that no sync will ever occur if this value is set to Off. When the sync source is another loop, the choices are all valid.
-			                                     oscsend localhost 9951 / sl / -1 / set si quantize 1
-			                                     oscsend localhost 9951 / sl / -1 / set si mute_quantized 1
-			                                     oscsend localhost 9951 / sl / -1 / hit s mute
-			                                     oscsend localhost 9951 / sl / -1 / hit s trigger
+                                             The quantize parameter defines when operations sync to in reference to the sync source. The available choices are Off, Cycle, 8th, and Loop. Note that no sync will ever occur if this value is set to Off. When the sync source is another loop, the choices are all valid.
+                                                 oscsend localhost 9951 / sl / -1 / set si quantize 1
+                                                 oscsend localhost 9951 / sl / -1 / set si mute_quantized 1
+                                                 oscsend localhost 9951 / sl / -1 / hit s mute
+                                                 oscsend localhost 9951 / sl / -1 / hit s trigger
 
 
 #endif

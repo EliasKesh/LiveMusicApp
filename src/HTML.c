@@ -118,8 +118,7 @@ int  WaitForCallBack;
  * Description:	write any changes to the file.
  * Cheesy way of doing this.
  *-----------------------------------------------*/
-char SavePresetChanges(char *FileName)
-{
+char SavePresetChanges(char *FileName) {
     FILE *InFile;
     FILE *OutFile;
     char FileLine[200];
@@ -211,11 +210,13 @@ char SavePresetChanges(char *FileName)
         if (strstr(FileLine, "Tempo")) {
             sprintf(FileLine, "<meta name=\"Tempo\" content=\"%d\" >\n", gMyInfo.Tempo);
 
-            if (gMyInfo.Tempo < 60)
+            if (gMyInfo.Tempo < 60) {
                 gMyInfo.Tempo = 60;
+            }
 
-            if (gMyInfo.Tempo > 160)
+            if (gMyInfo.Tempo > 160) {
                 gMyInfo.Tempo = 160;
+            }
 
         }
 
@@ -244,8 +245,7 @@ char SavePresetChanges(char *FileName)
  * Description:	Web browser back button
  *
  *-----------------------------------------------*/
-void on_Back_clicked(GtkButton * button, gpointer user_data)
-{
+void on_Back_clicked(GtkButton * button, gpointer user_data) {
     const gchar *CurrentURI;
 
     ScrollPosition = 0;
@@ -275,8 +275,7 @@ void on_Back_clicked(GtkButton * button, gpointer user_data)
  * Description:	Web browser forward button
  *
  *-----------------------------------------------*/
-void on_Forward_clicked(GtkButton * button, gpointer user_data)
-{
+void on_Forward_clicked(GtkButton * button, gpointer user_data) {
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(ForwardButton.Image),
                               ForwardButton.ButtonDownImage);
@@ -294,8 +293,7 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data)
 static void
 web_view_javascript_finished(GObject      *object,
                              GAsyncResult *result,
-                             gpointer      user_data)
-{
+                             gpointer      user_data) {
     WebKitJavascriptResult *js_result;
     JSCValue               *value;
     GError                 *error = NULL;
@@ -333,8 +331,7 @@ web_view_javascript_finished(GObject      *object,
 static void
 scroll_js_finished_cb(GObject      *object,
                       GAsyncResult *result,
-                      gpointer      user_data)
-{
+                      gpointer      user_data) {
     WebKitJavascriptResult *js_result;
     GError *error = NULL;
 
@@ -353,8 +350,7 @@ scroll_js_finished_cb(GObject      *object,
  * Description:	Scroll the music
  *
  *-----------------------------------------------*/
-int ScrollCtrl(float Amount)
-{
+int ScrollCtrl(float Amount) {
     GtkAdjustment *Adjust;
     gdouble  UpperV, VIncrement;
     gdouble Value;
@@ -386,11 +382,13 @@ int ScrollCtrl(float Amount)
         ScrollPosition -= 25;
     }
 
-    if (Amount > 20)
+    if (Amount > 20) {
         ScrollPosition = Amount;
+    }
 
-    if (ScrollPosition < 0)
+    if (ScrollPosition < 0) {
         ScrollPosition = 0;
+    }
 
     //	sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
     printf("Scroll Control %f %d\n", Amount, ScrollPosition);
@@ -409,14 +407,13 @@ int ScrollCtrl(float Amount)
  * Description:	Get the Current Scolling position
  *
  *-----------------------------------------------*/
-float ScrollGetPosition(void)
-{
+float ScrollGetPosition(void) {
 
     WaitForCallBack = 10000;
     webkit_web_view_run_javascript(web_view,
-        "window.pageYOffset.toString();",
-        NULL,
-        web_view_javascript_finished, (void *)1);
+                                   "window.pageYOffset.toString();",
+                                   NULL,
+                                   web_view_javascript_finished, (void *)1);
 
     while (--WaitForCallBack > 0);
 
@@ -431,8 +428,7 @@ float ScrollGetPosition(void)
  * Description:	Scale to fit routine. Doesn't work well.
  *
  *-----------------------------------------------*/
-int ScalePage(void)
-{
+int ScalePage(void) {
 
     gfloat UpperH, UpperV;
     GtkAdjustment *Adjust;
@@ -446,15 +442,19 @@ int ScalePage(void)
     UpperV = gtk_adjustment_get_upper(Adjust);
     printf("ScalePage %x %f\n", Adjust, UpperV);
 
-    if (UpperH != 0)
+    if (UpperH != 0) {
         ScaleH = ((gfloat) Horiz) / (gfloat) UpperH;
-    else
+    }
+    else {
         ScaleH = 1.0;
+    }
 
-    if (UpperV != 0)
+    if (UpperV != 0) {
         ScaleV = ((gfloat) Vert) / (gfloat) UpperV;
-    else
+    }
+    else {
         ScaleV = 1.0;
+    }
 
     webkit_web_view_set_zoom_level(web_view, MIN(ScaleV, ScaleH) + 0.001);
     return (0);
@@ -466,8 +466,7 @@ int ScalePage(void)
  * Description:	Scale the graphics to fit the page
  *
  *-----------------------------------------------*/
-void on_DrumLoopButton_clicked(GtkWidget *widget, gpointer data)
-{
+void on_DrumLoopButton_clicked(GtkWidget *widget, gpointer data) {
 
     //	 webkit_web_view_reload(web_view);
     gtk_image_set_from_pixbuf(GTK_IMAGE(DrumLoopButton.Image),
@@ -485,8 +484,7 @@ struct timeval Time0;
  * Description:	Tap Tempo
  *
  *-----------------------------------------------*/
-gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data)
-{
+gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
     char String[20];
     struct timeval Time1;
     long long elapsedTime;
@@ -514,15 +512,18 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
         printf("Neg %ld\n", NowTime);
     }
 
-    else
+    else {
         printf("Nor %ld\n", NowTime);
+    }
 
 #endif
 
-    if (Time1.tv_usec - Time0.tv_usec)
+    if (Time1.tv_usec - Time0.tv_usec) {
         elapsedTime = (long)(60000000 / (((long long)(Time1.tv_sec - Time0.tv_sec) * 1000000) + ((long long)(Time1.tv_usec - Time0.tv_usec) / 1000)))  ;
-    else
+    }
+    else {
         elapsedTime = 0;
+    }
 
     Time0 = Time1;
 
@@ -558,8 +559,7 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
  *-----------------------------------------------*/
 gboolean on_patch_clicked(GtkWidget *widget,
                           GdkEvent *event,
-                          gpointer user_data)
-{
+                          gpointer user_data) {
     tPatchIndex Preset;
     int CPatch;
     GdkEvent *theEvent;
@@ -574,8 +574,9 @@ gboolean on_patch_clicked(GtkWidget *widget,
         Preset = gMyInfo.WebPresets.thePreset[CPatch];
     }
 
-    else
+    else {
         return (false);
+    }
 
     if (theEvent->button.state & GDK_CONTROL_MASK) {
         printd(LogInfo, "We have Control Down\n");
@@ -591,8 +592,9 @@ gboolean on_patch_clicked(GtkWidget *widget,
 
     /* Make sure the preset is at least in the correct range.
     */
-    if (Preset < 0  ||  Preset > Max_Patches)
+    if (Preset < 0  ||  Preset > Max_Patches) {
         return (false);
+    }
 
     printd(LogDebug, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
@@ -614,8 +616,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
  *-----------------------------------------------*/
 gboolean on_patch__release_handler(GtkWidget *widget,
                                    GdkEvent *event,
-                                   gpointer user_data)
-{
+                                   gpointer user_data) {
     theImageButtons *theButton;
     theButton = (theImageButtons *) user_data;
     //	PatchIndex = LayoutSwitchPatch(user_data, true);
@@ -632,8 +633,7 @@ gboolean on_patch__release_handler(GtkWidget *widget,
  * Description:	Save the changes to the file
  *
  *-----------------------------------------------*/
-void on_SaveWeb_clicked(GtkWidget *widget, gpointer data)
-{
+void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
     const gchar *CurrentURI;
     const char *Buffer;
     GString* theBuffer;
@@ -680,8 +680,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data)
  * Description:	Save the changes to the file
  *
  *-----------------------------------------------*/
-void on_SaveWeb_clicked(GtkWidget *widget, gpointer data)
-{
+void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
     const gchar *CurrentURI;
     char ExecuteString[200];
 
@@ -714,8 +713,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data)
  *-----------------------------------------------*/
 void PageLoaded(WebKitWebView  *web_view,
                 WebKitLoadEvent load_event,
-                gpointer        user_data)
-{
+                gpointer        user_data) {
     gchar *MyCurrentURI;
     char *Pointer;
     int   Loop;
@@ -732,8 +730,9 @@ void PageLoaded(WebKitWebView  *web_view,
     WEBKIT_LOAD_COMMITTED, WEBKIT_LOAD_FINISHED
     *** Use WEBKIT_LOAD_FINISHED to reload after ever click.
     */
-    if (load_event != WEBKIT_LOAD_COMMITTED)
+    if (load_event != WEBKIT_LOAD_COMMITTED) {
         return;
+    }
 
 #if 1
     /* We need an absolue path. For files in the current
@@ -778,36 +777,38 @@ void PageLoaded(WebKitWebView  *web_view,
 
         /* Add the file to the status.
         */
-        if (!strstr(MyCurrentURI, "index"))
+        if (!strstr(MyCurrentURI, "index")) {
             UpdateStatus("---Load---");
+        }
     }
 
-    else if (strstr(MyCurrentURI, ".mp3")) {
-        printd(LogDebug, "*** MP3 file.\n");
-        //		UpdateStatus(FileName);
+    else
+        if (strstr(MyCurrentURI, ".mp3")) {
+            printd(LogDebug, "*** MP3 file.\n");
+            //		UpdateStatus(FileName);
 
-        return;
-    }
+            return;
+        }
 
-    else if (strstr(MyCurrentURI, ".mid")) {
-        printd(LogDebug, "*** mid file.\n");
-        //		UpdateStatus(FileName);
+        else
+            if (strstr(MyCurrentURI, ".mid")) {
+                printd(LogDebug, "*** mid file.\n");
+                //		UpdateStatus(FileName);
 
-        return;
-    }
+                return;
+            }
 
-    else {
-        printd(LogDebug, "Not HTML File\n");
-        return;
-    }
+            else {
+                printd(LogDebug, "Not HTML File\n");
+                return;
+            }
 
 
     //	webkit_web_view_set_editable(web_view, FALSE);
     webkit_web_view_set_zoom_level(web_view, 1);
 }
 
-int ishex(int x)
-{
+int ishex(int x) {
     return	(x >= '0' && x <= '9')	||
             (x >= 'a' && x <= 'f')	||
             (x >= 'A' && x <= 'F');
@@ -815,8 +816,7 @@ int ishex(int x)
 
 /* Get rid of URL funky characters, like %20
 */
-int DecodeURI(char *s, char *dec)
-{
+int DecodeURI(char *s, char *dec) {
     char *o;
     char *end = s + strlen(s);
     int c;
@@ -824,15 +824,19 @@ int DecodeURI(char *s, char *dec)
     for (o = dec; s <= end; o++) {
         c = *s++;
 
-        if (c == '+')
+        if (c == '+') {
             c = ' ';
-        else if (c == '%' && (!ishex(*s++)	||
-                              !ishex(*s++)	||
-                              !sscanf(s - 2, "%2x", &c)))
-            return -1;
+        }
+        else
+            if (c == '%' && (!ishex(*s++)	||
+                             !ishex(*s++)	||
+                             !sscanf(s - 2, "%2x", &c))) {
+                return -1;
+            }
 
-        if (dec)
+        if (dec) {
             *o = c;
+        }
     }
 
     return o - dec;
@@ -848,8 +852,7 @@ int DecodeURI(char *s, char *dec)
 gboolean NavigationPolicy(WebKitWebView * web_view,
                           WebKitPolicyDecision    * decision,
                           WebKitPolicyDecisionType decision_type,
-                          gpointer user_data)
-{
+                          gpointer user_data) {
     char *theOrgURI;
     char theURI[250];
     char string[1000];
@@ -861,17 +864,18 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     int	PageNumber;
     char *FileName;
 
-    if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE)
+    if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE) {
         return FALSE;
+    }
 
     WebKitResponsePolicyDecision *responseDecision =
-        WEBKIT_RESPONSE_POLICY_DECISION(decision);
+    WEBKIT_RESPONSE_POLICY_DECISION(decision);
     WebKitWebResource *mainResource =
-        webkit_web_view_get_main_resource(web_view);
+    webkit_web_view_get_main_resource(web_view);
     WebKitURIRequest *request =
-        webkit_response_policy_decision_get_request(responseDecision);
+    webkit_response_policy_decision_get_request(responseDecision);
     char *requestURI =
-        webkit_uri_request_get_uri(request);
+    webkit_uri_request_get_uri(request);
 
     printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
 
@@ -893,8 +897,9 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     ext = strrchr(theURI, '.');
 
     // This is for the Save Favorites link.
-    if (ext != NULL)
+    if (ext != NULL) {
         strcpy(LastClickURI, (theURI + 7));
+    }
 
 
     /* If it's a web page we want to display,
@@ -987,8 +992,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
  * Description:	If we have a set list saved then open a song from it.
  *
  *-----------------------------------------------*/
-void OpenSetListSong(int SongNumber)
-{
+void OpenSetListSong(int SongNumber) {
     int Loop;
     char temp[MAXLINE];
     char Copy[MAXLINE];
@@ -1062,8 +1066,7 @@ void OpenSetListSong(int SongNumber)
  * Description:	Save the changes to the file
  *
  *-----------------------------------------------*/
-void on_SetList_clicked(GtkWidget * widget, gpointer data)
-{
+void on_SetList_clicked(GtkWidget * widget, gpointer data) {
     const gchar *CurrentURI;
     char *BasePtr;
     int Length;
@@ -1076,8 +1079,9 @@ void on_SetList_clicked(GtkWidget * widget, gpointer data)
     Length =  strlen(SetListFileName);
 
     for (Loop = Length; Loop; Loop--)
-        if (SetListFileName[Loop] == '/')
+        if (SetListFileName[Loop] == '/') {
             break;
+        }
 
     //	BasePtr = basename(SetListFileName);
     BasePtr = &SetListFileName[Loop + 1];
@@ -1096,8 +1100,7 @@ void on_SetList_clicked(GtkWidget * widget, gpointer data)
  * Description:	Set up the WebKit environment.
  *
  *-----------------------------------------------*/
-void InitHTML(GtkBuilder * gxml)
-{
+void InitHTML(GtkBuilder * gxml) {
     char FileName[255];
     GtkWidget *Widget;
     int Loop;
@@ -1130,7 +1133,7 @@ void InitHTML(GtkBuilder * gxml)
     }
 
     ChartGTKView = GTK_WIDGET(
-                       gtk_builder_get_object(gxml, "scrolledwindow1"));
+                   gtk_builder_get_object(gxml, "scrolledwindow1"));
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -1141,7 +1144,7 @@ void InitHTML(GtkBuilder * gxml)
     gtk_container_add(GTK_CONTAINER(ChartGTKView), GTK_WIDGET(web_view));
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object((GtkBuilder *) gxml, "BackButton"));
+               gtk_builder_get_object((GtkBuilder *) gxml, "BackButton"));
     MyImageButtonInit(&BackButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&BackButton, "Back");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1150,7 +1153,7 @@ void InitHTML(GtkBuilder * gxml)
                      G_CALLBACK(normal_release_handler), &BackButton);
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "ForwardButton"));
+               gtk_builder_get_object(gxml, "ForwardButton"));
     MyImageButtonInit(&ForwardButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&ForwardButton, "Forward");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1159,7 +1162,7 @@ void InitHTML(GtkBuilder * gxml)
                      &ForwardButton);
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "ScaleButton"));
+               gtk_builder_get_object(gxml, "ScaleButton"));
     MyImageButtonInit(&DrumLoopButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&DrumLoopButton, "Drum");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1168,7 +1171,7 @@ void InitHTML(GtkBuilder * gxml)
                      &DrumLoopButton);
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "TapTempo"));
+               gtk_builder_get_object(gxml, "TapTempo"));
     MyImageButtonInit(&TapTempoButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&TapTempoButton, "Tap");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1178,7 +1181,7 @@ void InitHTML(GtkBuilder * gxml)
 
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "SaveWeb"));
+               gtk_builder_get_object(gxml, "SaveWeb"));
     MyImageButtonInit(&SaveWebButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&SaveWebButton, "Edit");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1187,7 +1190,7 @@ void InitHTML(GtkBuilder * gxml)
     gtk_widget_set_tooltip_text(SaveWebButton.EventBox, "Open HTML editor.");
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "SetList"));
+               gtk_builder_get_object(gxml, "SetList"));
     MyImageButtonInit(&SetListButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&SetListButton, "SetList");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1196,7 +1199,7 @@ void InitHTML(GtkBuilder * gxml)
     gtk_widget_set_tooltip_text(SetListButton.EventBox, "With a valid HTML file open this will make it the default setlist allowing the patches to switch between charts.");
 
     EventBox = GTK_WIDGET(
-                   gtk_builder_get_object(gxml, "PlayPause"));
+               gtk_builder_get_object(gxml, "PlayPause"));
     MyImageButtonInit(&PlayPauseButton, EventBox, MainButtonOnImage, MainButtonOffImage);
     MyImageButtonSetText(&PlayPauseButton, "Play");
     g_signal_connect(G_OBJECT(EventBox), "button-press-event",
@@ -1271,8 +1274,7 @@ void
 HoverLink_cb(WebKitWebView *web_view,
              gchar         *title,
              gchar         *uri,
-             gpointer       user_data)
-{
+             gpointer       user_data) {
 
 
     printf("In Hover\n");
@@ -1292,15 +1294,14 @@ HoverLink_cb(WebKitWebView *web_view,
 // https://github.com/vain/lariza/issues/54
 //
 
-gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char *hitTestResult, gpointer contextMenuCallback)
-{
+gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char *hitTestResult, gpointer contextMenuCallback) {
     GSimpleAction *action = NULL;
 
     WebKitContextMenuItem *MyItem;
 
     // ---------------------- Drum Fav
     action = g_simple_action_new("Drum Fav", NULL);
-    g_signal_connect_swapped(G_OBJECT(action), "activate",G_CALLBACK(DrumFav_cb), page);
+    g_signal_connect_swapped(G_OBJECT(action), "activate", G_CALLBACK(DrumFav_cb), page);
     MyItem = webkit_context_menu_item_new_from_gaction((GAction *) action, "Drum Fav", NULL);
     g_object_unref(action);
 
@@ -1317,9 +1318,9 @@ gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char
     // ----------------------
 
 
-   // ---------------------- Save link
+    // ---------------------- Save link
     action = g_simple_action_new("Save link", NULL);
-    g_signal_connect_swapped(G_OBJECT(action), "activate",G_CALLBACK(SaveFav_cb), page);
+    g_signal_connect_swapped(G_OBJECT(action), "activate", G_CALLBACK(SaveFav_cb), page);
     MyItem = webkit_context_menu_item_new_from_gaction((GAction *) action, "Save link", NULL);
     g_object_unref(action);
 
@@ -1336,8 +1337,7 @@ gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char
  * Description:	Setup the context Menu.
  *
  *-----------------------------------------------*/
-static void DrumFav_cb(gpointer *Data)
-{
+static void DrumFav_cb(gpointer *Data) {
     WebKitWebView *thepage;
     char lFileName[FileNameMaxLength * 2];
 
@@ -1345,11 +1345,11 @@ static void DrumFav_cb(gpointer *Data)
 
 
 //    sprintf(lFileName, "echo %s >> %s\n", LastDrumName, GetResourceDir("DrumFav.txt", FileLocUser));
-    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n", 
-        LastDrumName, LastDrumName, 
-        GetResourceDir("DrumFav.html", FileLocUser));
+    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n",
+            LastDrumName, LastDrumName,
+            GetResourceDir("DrumFav.html", FileLocUser));
 
-    printd(LogDebug,"DrumFav %s\n", lFileName);
+    printd(LogDebug, "DrumFav %s\n", lFileName);
     system(lFileName);
 
     //	printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
@@ -1361,8 +1361,7 @@ static void DrumFav_cb(gpointer *Data)
  * Description: Setup the context Menu.
  *
  *-----------------------------------------------*/
-static void SaveFav_cb(gpointer *Data)
-{
+static void SaveFav_cb(gpointer *Data) {
     WebKitWebView *thepage;
     gchar *CurrentURI;
     char lFileName[FileNameMaxLength * 2];
@@ -1372,11 +1371,11 @@ static void SaveFav_cb(gpointer *Data)
 
     CurrentURI = LastClickURI;
 
-    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n", 
-        CurrentURI, CurrentURI, 
-        GetResourceDir("SaveFav.html", FileLocUser));
+    sprintf(lFileName, "echo '<a href=\"%s\">%s</a>' >> %s\n",
+            CurrentURI, CurrentURI,
+            GetResourceDir("SaveFav.html", FileLocUser));
 
-    printd(LogDebug,"SaveFav %s\n", lFileName);
+    printd(LogDebug, "SaveFav %s\n", lFileName);
     system(lFileName);
 
     //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
@@ -1388,8 +1387,7 @@ static void SaveFav_cb(gpointer *Data)
  * Description:	Setup the context Menu.
  *
  *-----------------------------------------------*/
-static void EditChart_cb(gpointer *Data)
-{
+static void EditChart_cb(gpointer *Data) {
     WebKitWebView *thepage;
     char ExecuteString[FileNameMaxLength];
     const gchar *CurrentURI;
@@ -1414,8 +1412,7 @@ static void EditChart_cb(gpointer *Data)
  * Description:	Look thru the file and find presets.
  *
  *-----------------------------------------------*/
-int Search_in_File(const char *fname, WebLoadPresets * thePresets)
-{
+int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     FILE *fp;
     char temp[MAXLINE];
     char Copy[MAXLINE];
@@ -1441,8 +1438,9 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets)
         return (-1);
     }
 
-    for (Count = 0; Count < MaxPresetButtons; Count++)
+    for (Count = 0; Count < MaxPresetButtons; Count++) {
         thePresets->thePreset[Count] = -1;
+    }
 
     DrumFile[0] = 0;
     LoopFile[0] = 0;
@@ -1484,8 +1482,9 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets)
             Found += 7 + ContentTagLen;
             Value = atoi(Found);
 
-            if (Value > 60 && Value < 160)
+            if (Value > 60 && Value < 160) {
                 thePresets->theTempo = Value;
+            }
 
             printd(LogInfo, "Tempo %d\n", Value);
             gMyInfo.Tempo = Value;
@@ -1536,7 +1535,6 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets)
             printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
             MyOSCLoadFile(gMyInfo.LoopFileName);
             strncpy(temp, Copy, MAXLINE);
-
         }
 
         /* Get the Drum File patch.
@@ -1551,8 +1549,9 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets)
             strcpy(DrumFile, tokenizer);
             strncpy(temp, Copy, MAXLINE);
 
-            if (DrumFile[0] == 62)
+            if (DrumFile[0] == 62) {
                 DrumFile[0] = 0;
+            }
 
             if (!strcmp(DrumFile, "/dev/null")) {
                 DrumFile[0] = 0;
@@ -1630,8 +1629,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets)
  * Description:	Parse for the value of the preset given.
  *
  *-----------------------------------------------*/
-tPatchIndex AssignPreset(int PresetNum, char *String)
-{
+tPatchIndex AssignPreset(int PresetNum, char *String) {
     int Value;
     char *tokenizer;
 
@@ -1651,19 +1649,22 @@ tPatchIndex AssignPreset(int PresetNum, char *String)
         Value = atoi(String);
         printd(LogDebug, "***** Assign Value %s %d\n", String, Value);
 
-        if (Value >= Max_Patches)
+        if (Value >= Max_Patches) {
             Value = 0;
+        }
     }
 
     printd(LogDebug, "Preset %d %d %s\n", PresetNum, Value,
            gMyInfo.MyPatchInfo[Value].Name);
 
-    if (Value < 0 || Value >= Max_Patches)
+    if (Value < 0 || Value >= Max_Patches) {
         return (Value);
+    }
 
 
-    if (PresetNum == 0)
+    if (PresetNum == 0) {
         DoPatch(&gMyInfo.MyPatchInfo[Value]);
+    }
 
     if (PresetNum > 0 && PresetNum < 9) {
         printd(LogDebug, "*********PresetNum Case %d\n", PresetNum);
@@ -1717,8 +1718,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String)
  * Description:	When we load patched, rename the buttons.
  *
  *-----------------------------------------------*/
-void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value)
-{
+void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
     char String[PatchNameSize];
     int StringLen;
 
@@ -1733,8 +1733,7 @@ void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value)
 
 #if 0
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
-                      gpointer data)
-{
+                      gpointer data) {
     printd(LogDebug, "Finished downloading %s\n",
            webkit_web_view_get_uri(web_view));
     ScalePage();
@@ -1744,8 +1743,7 @@ void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
 
 /* Handle the viewport-attributes-recompute-requested signal to override the device width */
 static void viewport_recompute_cb(WebKitWebView* web_view,
-                                  WebKitViewportAttributes* attributes, GtkWidget* window)
-{
+                                  WebKitViewportAttributes* attributes, GtkWidget* window) {
     gint override_available_width = 700;
 
     g_object_get(G_OBJECT(attributes), "width", &override_available_width,
@@ -1759,8 +1757,7 @@ static void viewport_recompute_cb(WebKitWebView* web_view,
 
 /* Handle the viewport-attributes-changed signal to recompute the initial scale factor */
 static void viewport_changed_cb(WebKitWebView* web_view,
-                                WebKitViewportAttributes* attributes, gpointer data)
-{
+                                WebKitViewportAttributes* attributes, gpointer data) {
     gfloat initialScale;
     g_object_get(G_OBJECT(attributes), "initial-scale-factor", &initialScale,
                  NULL);
@@ -1769,21 +1766,20 @@ static void viewport_changed_cb(WebKitWebView* web_view,
 
 /* Handle the notify::valid signal to initialize the zoom level */
 static void viewport_valid_changed_cb(WebKitViewportAttributes* attributes,
-                                      GParamSpec* pspec, WebKitWebView* web_view)
-{
+                                      GParamSpec* pspec, WebKitWebView* web_view) {
     gboolean is_valid;
     g_object_get(attributes, "valid", &is_valid, NULL);
 
-    if (!is_valid)
+    if (!is_valid) {
         webkit_web_view_set_zoom_level(web_view, 1.0);
+    }
 }
 #endif
 #if 0
 gboolean
 DownloadRequestcb(WebKitWebView *web_view,
                   WebKitDownload *download,
-                  gpointer user_data)
-{
+                  gpointer user_data) {
 
     printd(LogDebug, "DownloadRequestcb %s\n", download);
 
@@ -1792,8 +1788,7 @@ DownloadRequestcb(WebKitWebView *web_view,
 gboolean
 PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
                 WebKitNetworkRequest* request, const char* mime_type,
-                WebKitWebPolicyDecision* decision, gpointer data)
-{
+                WebKitWebPolicyDecision* decision, gpointer data) {
     //    char* type = (char*)data;
 
     printd(LogDebug, "PolicyRequestCD %s %s\n", mime_type, data);
@@ -1804,35 +1799,37 @@ PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
         g_assert(!webkit_web_view_can_show_mime_type(view, mime_type));
     }
 
-    else if (g_str_equal(type, "html")) {
-        g_assert_cmpstr(mime_type, ==, "text/html");
-        g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
-    }
-
-    else if (g_str_equal(type, "text")) {
-        WebKitNetworkResponse* response = webkit_web_frame_get_network_response(frame);
-        SoupMessage* message = webkit_network_response_get_message(response);
-        char* disposition;
-
-        g_assert(message);
-        soup_message_headers_get_content_disposition(message->response_headers,
-                &disposition, NULL);
-        g_object_unref(response);
-
-        g_assert_cmpstr(disposition, ==, "attachment");
-        g_free(disposition);
-
-        g_assert_cmpstr(mime_type, ==, "text/plain");
-        g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
-    }
-
     else
+        if (g_str_equal(type, "html")) {
+            g_assert_cmpstr(mime_type, ==, "text/html");
+            g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+        }
+
+        else
+            if (g_str_equal(type, "text")) {
+                WebKitNetworkResponse* response = webkit_web_frame_get_network_response(frame);
+                SoupMessage* message = webkit_network_response_get_message(response);
+                char* disposition;
+
+                g_assert(message);
+                soup_message_headers_get_content_disposition(message->response_headers,
+                        &disposition, NULL);
+                g_object_unref(response);
+
+                g_assert_cmpstr(disposition, ==, "attachment");
+                g_free(disposition);
+
+                g_assert_cmpstr(mime_type, ==, "text/plain");
+                g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+            }
+
+            else
 #endif
 
-        if (g_str_equal(mime_type, "audio/mpeg")) {
-            g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
-            printd(LogDebug, "PolicyRequestCD MP3 Found %s \n", mime_type);
-        }
+                if (g_str_equal(mime_type, "audio/mpeg")) {
+                    g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
+                    printd(LogDebug, "PolicyRequestCD MP3 Found %s \n", mime_type);
+                }
 
     //   g_free(type);
 
@@ -1843,31 +1840,26 @@ PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
 #if 0
 
 if (Amount == ScrollPgDn)
-    if ((VIncrement + Value) >= UpperV)
-    {
+    if ((VIncrement + Value) >= UpperV) {
         gtk_adjustment_set_value(Adjust, 0);
         printd(LogDebug, "ScrollDown Rolling Over\n");
     }
 
-    else
-    {
+    else {
         gtk_adjustment_set_value(Adjust, VIncrement + Value);
     }
 
 if (Amount == ScrollPgUp)
-    if ((Value - VIncrement) < 0)
-    {
+    if ((Value - VIncrement) < 0) {
         gtk_adjustment_set_value(Adjust, 0);
         printd(LogDebug, "ScrollDown Rolling Over\n");
     }
 
-    else
-    {
+    else {
         gtk_adjustment_set_value(Adjust, Value - VIncrement);
     }
 
-if (Amount >= 0)
-{
+if (Amount >= 0) {
     gtk_adjustment_set_value(Adjust, Amount);
 
 }
@@ -1881,8 +1873,8 @@ GtkWidget *viewport;
 printf("Adjustment %d %d\n", gtk_widget_get_margin_left(scrolled_window),
        gtk_widget_get_margin_right(scrolled_window));
 viewport =
-    gtk_viewport_new(gtk_scrolled_window_get_hadjustment(scrolled_window),
-                     gtk_scrolled_window_get_vadjustment(scrolled_window));
+gtk_viewport_new(gtk_scrolled_window_get_hadjustment(scrolled_window),
+                 gtk_scrolled_window_get_vadjustment(scrolled_window));
 gtk_container_set_focus_hadjustment(GTK_CONTAINER(viewport),
                                     gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window)));
 gtk_container_set_focus_vadjustment(GTK_CONTAINER(viewport),
@@ -1929,8 +1921,7 @@ printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
  * not to deal with it.
  */
 
-if (strstr(theURI, ".mp3"))
-{
+if (strstr(theURI, ".mp3")) {
     /*
      * Tell web kit not to o anything with it.
      */
@@ -1947,8 +1938,7 @@ if (strstr(theURI, ".mp3"))
 
 #ifdef AllowInternalMP4
 
-if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg"))
-{
+if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg")) {
     /*
      * Tell web kit not to o anything with it.
      */
@@ -1965,8 +1955,7 @@ if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg"))
 
 #else // AllowInternalMP4
 
-if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg"))
-{
+if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg")) {
     /*
      * Tell web kit not to o anything with it.
      */
@@ -1985,8 +1974,7 @@ if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg"))
 
 #endif // AllowInternalMP4
 
-if (strstr(theURI, ".mid") || strstr(theURI, ".med"))
-{
+if (strstr(theURI, ".mid") || strstr(theURI, ".med")) {
     /*
      * Tell web kit not to o anything with it.
      */
@@ -2008,8 +1996,7 @@ if (strstr(theURI, ".mid") || strstr(theURI, ".med"))
 
 printf("About to check for mscz [%s]\n", theURI);
 
-if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb"))
-{
+if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb")) {
 
     printf("MusicApps.sh %s \'%s\' \n", ext + 1, &theURI[7]);
 
@@ -2029,15 +2016,16 @@ if (strstr(theURI, ".mscz")  || strstr(theURI, ".gp") || strstr(theURI, ".ptb"))
     /*
      * This tells webkit we are dealing with it.
      */
-    if (!SysRet)
+    if (!SysRet) {
         return (true);
-    else
+    }
+    else {
         return (false);
+    }
 }
 
 
-if (strstr(theURI, ".tg"))
-{
+if (strstr(theURI, ".tg")) {
     /*
      * Tell web kit not to o anything with it.
      */
@@ -2053,8 +2041,7 @@ if (strstr(theURI, ".tg"))
     return (true);
 }
 
-if (strstr(theURI, ".pdf"))
-{
+if (strstr(theURI, ".pdf")) {
     char *PageIndex;
     int	PageNumber;
 
@@ -2095,8 +2082,7 @@ we will handle it.
 */
 #if 0
 
-if (strstr(theURI, ".pdf"))
-{
+if (strstr(theURI, ".pdf")) {
     printf("PDF 1 [%s]\n", theURI);
     PageIndex = strstr(theURI, "#page=");
 
@@ -2107,8 +2093,9 @@ if (strstr(theURI, ".pdf"))
         sprintf(string, "MusicApps.sh %s \'%s\' %d", ext + 1, &theURI[7], PageNumber);
     }
 
-    else
+    else {
         sprintf(string, "MusicApps.sh %s \'%s\' ", ext + 1, &theURI[7]);
+    }
 
     printf("PDF 2 [%s]\n", string);
 

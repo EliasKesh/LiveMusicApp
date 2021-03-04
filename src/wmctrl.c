@@ -102,8 +102,7 @@ static struct {
 
 static gboolean envir_utf8;
 
-void RaiseWindows(char *AppName)
-{
+void RaiseWindows(char *AppName) {
     Display *disp = NULL;
     memset(&options, 0, sizeof(options)); /* just for sure */
 
@@ -117,8 +116,7 @@ void RaiseWindows(char *AppName)
     XCloseDisplay(disp);
 }
 
-void NextDesktop(void)
-{
+void NextDesktop(void) {
     Display *disp;
     int error;
     memset(&options, 0, sizeof(options)); /* just for sure */
@@ -130,16 +128,16 @@ void NextDesktop(void)
     }
 
     list_desktops(disp);
-    if (++CurDesktop >= NumDesktops)
+    if (++CurDesktop >= NumDesktops) {
         CurDesktop = 0;
+    }
 
     error = client_msg(disp, DefaultRootWindow(disp), "_NET_CURRENT_DESKTOP",
                        (unsigned long) CurDesktop, 0, 0, 0, 0);
     XCloseDisplay(disp);
 }
 
-void PrevDesktop(void)
-{
+void PrevDesktop(void) {
     Display *disp;
     int error;
     memset(&options, 0, sizeof(options)); /* just for sure */
@@ -151,16 +149,16 @@ void PrevDesktop(void)
     }
 
     list_desktops(disp);
-    if (--CurDesktop > 0)
+    if (--CurDesktop > 0) {
         CurDesktop = NumDesktops;
+    }
 
     error = client_msg(disp, DefaultRootWindow(disp), "_NET_CURRENT_DESKTOP",
                        (unsigned long) CurDesktop, 0, 0, 0, 0);
     XCloseDisplay(disp);
 }
 
-void GoToDesktop(char Number)
-{
+void GoToDesktop(char Number) {
     Display *disp;
     int error;
     memset(&options, 0, sizeof(options)); /* just for sure */
@@ -176,8 +174,7 @@ void GoToDesktop(char Number)
     XCloseDisplay(disp);
 }
 
-int wmctl(int argc, char **argv)   /* {{{ */
-{
+int wmctl(int argc, char **argv) { /* {{{ */
     int opt;
     int action = 0;
     int ret = EXIT_SUCCESS;
@@ -196,10 +193,12 @@ int wmctl(int argc, char **argv)   /* {{{ */
         if (strcmp(argv[1], "--help") == 0) {
             fputs(HELP, stdout);
             return EXIT_SUCCESS;
-        } else if (strcmp(argv[1], "--version") == 0) {
-            puts(VERSION);
-            return EXIT_SUCCESS;
         }
+        else
+            if (strcmp(argv[1], "--version") == 0) {
+                puts(VERSION);
+                return EXIT_SUCCESS;
+            }
     }
 
     while ((opt = getopt(argc, argv,
@@ -253,7 +252,8 @@ int wmctl(int argc, char **argv)   /* {{{ */
         case 'w':
             if (strcmp(optarg, "DESKTOP_TITLES_INVALID_UTF8") == 0) {
                 options.wa_desktop_titles_invalid_utf8 = 1;
-            } else {
+            }
+            else {
                 fprintf(stderr, "Unknown workaround: %s\n", optarg);
                 return EXIT_FAILURE;
             }
@@ -320,7 +320,8 @@ int wmctl(int argc, char **argv)   /* {{{ */
         }
         if (options.match_by_id) {
             ret = action_window_pid(disp, action);
-        } else {
+        }
+        else {
             ret = action_window_str(disp, action);
         }
         break;
@@ -343,12 +344,11 @@ int wmctl(int argc, char **argv)   /* {{{ */
 }
 /* }}} */
 
-static void init_charset(void)  /*{{{*/
-{
+static void init_charset(void) { /*{{{*/
     const gchar *charset; /* unused */
     gchar *lang = getenv("LANG") ? g_ascii_strup(getenv("LANG"), -1) : NULL;
     gchar *lc_ctype =
-        getenv("LC_CTYPE") ? g_ascii_strup(getenv("LC_CTYPE"), -1) : NULL;
+    getenv("LC_CTYPE") ? g_ascii_strup(getenv("LC_CTYPE"), -1) : NULL;
 
     /* this glib function doesn't work on my system ... */
     envir_utf8 = g_get_charset(&charset);
@@ -356,9 +356,11 @@ static void init_charset(void)  /*{{{*/
     /* ... therefore we will examine the environment variables */
     if (lc_ctype && (strstr(lc_ctype, "UTF8") || strstr(lc_ctype, "UTF-8"))) {
         envir_utf8 = TRUE;
-    } else if (lang && (strstr(lang, "UTF8") || strstr(lang, "UTF-8"))) {
-        envir_utf8 = TRUE;
     }
+    else
+        if (lang && (strstr(lang, "UTF8") || strstr(lang, "UTF-8"))) {
+            envir_utf8 = TRUE;
+        }
 
     g_free(lang);
     g_free(lc_ctype);
@@ -371,8 +373,7 @@ static void init_charset(void)  /*{{{*/
 
 static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
                       unsigned long data0, unsigned long data1, unsigned long data2,
-                      unsigned long data3, unsigned long data4)
-{
+                      unsigned long data3, unsigned long data4) {
     XEvent event;
     long mask = SubstructureRedirectMask | SubstructureNotifyMask;
 
@@ -391,14 +392,14 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
 
     if (XSendEvent(disp, DefaultRootWindow(disp), False, mask, &event)) {
         return EXIT_SUCCESS;
-    } else {
+    }
+    else {
         fprintf(stderr, "Cannot send %s event.\n", msg);
         return EXIT_FAILURE;
     }
 }/*}}}*/
 
-static gchar *get_output_str(gchar *str, gboolean is_utf8)  /*{{{*/
-{
+static gchar *get_output_str(gchar *str, gboolean is_utf8) { /*{{{*/
     gchar *out;
 
     if (str == NULL) {
@@ -408,21 +409,24 @@ static gchar *get_output_str(gchar *str, gboolean is_utf8)  /*{{{*/
     if (envir_utf8) {
         if (is_utf8) {
             out = g_strdup(str);
-        } else {
+        }
+        else {
             if (!(out = g_locale_to_utf8(str, -1, NULL, NULL, NULL))) {
                 p_verbose(
-                    "Cannot convert string from locale charset to UTF-8.\n");
+                "Cannot convert string from locale charset to UTF-8.\n");
                 out = g_strdup(str);
             }
         }
-    } else {
+    }
+    else {
         if (is_utf8) {
             if (!(out = g_locale_from_utf8(str, -1, NULL, NULL, NULL))) {
                 p_verbose(
-                    "Cannot convert string from UTF-8 to locale charset.\n");
+                "Cannot convert string from UTF-8 to locale charset.\n");
                 out = g_strdup(str);
             }
-        } else {
+        }
+        else {
             out = g_strdup(str);
         }
     }
@@ -430,8 +434,7 @@ static gchar *get_output_str(gchar *str, gboolean is_utf8)  /*{{{*/
     return out;
 }/*}}}*/
 
-static int wm_info(Display *disp)  /*{{{*/
-{
+static int wm_info(Display *disp) { /*{{{*/
     Window *sup_window = NULL;
     gchar *wm_name = NULL;
     gchar *wm_class = NULL;
@@ -495,14 +498,16 @@ static int wm_info(Display *disp)  /*{{{*/
 
     if (wm_pid) {
         printf("PID: %lu\n", *wm_pid);
-    } else {
+    }
+    else {
         printf("PID: N/A\n");
     }
 
     if (showing_desktop) {
         printf("Window manager's \"showing the desktop\" mode: %s\n",
                *showing_desktop == 1 ? "ON" : "OFF");
-    } else {
+    }
+    else {
         printf("Window manager's \"showing the desktop\" mode: N/A\n");
     }
 #endif
@@ -517,57 +522,58 @@ static int wm_info(Display *disp)  /*{{{*/
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static int showing_desktop(Display *disp)  /*{{{*/
-{
+static int showing_desktop(Display *disp) { /*{{{*/
     unsigned long state;
 
     if (strcmp(options.param, "on") == 0) {
         state = 1;
-    } else if (strcmp(options.param, "off") == 0) {
-        state = 0;
-    } else {
-        fputs(
+    }
+    else
+        if (strcmp(options.param, "off") == 0) {
+            state = 0;
+        }
+        else {
+            fputs(
             "The argument to the -k option must be either \"on\" or \"off\"\n",
             stderr);
-        return EXIT_FAILURE;
-    }
+            return EXIT_FAILURE;
+        }
 
     return client_msg(disp, DefaultRootWindow(disp), "_NET_SHOWING_DESKTOP",
                       state, 0, 0, 0, 0);
 }/*}}}*/
 
-static int change_viewport(Display *disp)  /*{{{*/
-{
+static int change_viewport(Display *disp) { /*{{{*/
     unsigned long x, y;
     const char *argerr =
-        "The -o option expects two integers separated with a comma.\n";
+    "The -o option expects two integers separated with a comma.\n";
 
     if (sscanf(options.param, "%lu,%lu", &x, &y) == 2) {
         return client_msg(disp, DefaultRootWindow(disp),
                           "_NET_DESKTOP_VIEWPORT", x, y, 0, 0, 0);
-    } else {
+    }
+    else {
         fputs(argerr, stderr);
         return EXIT_FAILURE;
     }
 }/*}}}*/
 
-static int change_geometry(Display *disp)  /*{{{*/
-{
+static int change_geometry(Display *disp) { /*{{{*/
     unsigned long x, y;
     const char *argerr =
-        "The -g option expects two integers separated with a comma.\n";
+    "The -g option expects two integers separated with a comma.\n";
 
     if (sscanf(options.param, "%lu,%lu", &x, &y) == 2) {
         return client_msg(disp, DefaultRootWindow(disp),
                           "_NET_DESKTOP_GEOMETRY", x, y, 0, 0, 0);
-    } else {
+    }
+    else {
         fputs(argerr, stderr);
         return EXIT_FAILURE;
     }
 }/*}}}*/
 
-static int change_number_of_desktops(Display *disp)  /*{{{*/
-{
+static int change_number_of_desktops(Display *disp) { /*{{{*/
     unsigned long n;
 
     if (sscanf(options.param, "%lu", &n) != 1) {
@@ -579,8 +585,7 @@ static int change_number_of_desktops(Display *disp)  /*{{{*/
                       n, 0, 0, 0, 0);
 }/*}}}*/
 
-static int switch_desktop(Display *disp)  /*{{{*/
-{
+static int switch_desktop(Display *disp) { /*{{{*/
     int target = -1;
 
     target = atoi(options.param);
@@ -594,15 +599,15 @@ static int switch_desktop(Display *disp)  /*{{{*/
 }/*}}}*/
 
 static void window_set_title(Display *disp, Window win, /* {{{ */
-                             char *title, char mode)
-{
+                             char *title, char mode) {
     gchar *title_utf8;
     gchar *title_local;
 
     if (envir_utf8) {
         title_utf8 = g_strdup(title);
         title_local = NULL;
-    } else {
+    }
+    else {
         if (!(title_utf8 = g_locale_to_utf8(title, -1, NULL, NULL, NULL))) {
             title_utf8 = g_strdup(title);
         }
@@ -614,12 +619,13 @@ static void window_set_title(Display *disp, Window win, /* {{{ */
         if (title_local) {
             XChangeProperty(disp, win, XA_WM_NAME, XA_STRING, 8,
                             PropModeReplace, title_local, strlen(title_local));
-        } else {
+        }
+        else {
             XDeleteProperty(disp, win, XA_WM_NAME);
         }
         (disp, win, XInternAtom(disp, "_NET_WM_NAME", False), XInternAtom(disp,
                 "UTF8_STRING", False), 8, PropModeReplace, title_utf8, strlen(
-             title_utf8));
+         title_utf8));
     }
 
     if (mode == 'T' || mode == 'I') {
@@ -627,7 +633,8 @@ static void window_set_title(Display *disp, Window win, /* {{{ */
         if (title_local) {
             XChangeProperty(disp, win, XA_WM_ICON_NAME, XA_STRING, 8,
                             PropModeReplace, title_local, strlen(title_local));
-        } else {
+        }
+        else {
             XDeleteProperty(disp, win, XA_WM_ICON_NAME);
         }
         XChangeProperty(disp, win,
@@ -641,8 +648,7 @@ static void window_set_title(Display *disp, Window win, /* {{{ */
 
 }/*}}}*/
 
-static int window_to_desktop(Display *disp, Window win, int desktop)  /*{{{*/
-{
+static int window_to_desktop(Display *disp, Window win, int desktop) { /*{{{*/
     unsigned long *cur_desktop = NULL;
     Window root = DefaultRootWindow(disp);
 
@@ -666,8 +672,7 @@ static int window_to_desktop(Display *disp, Window win, int desktop)  /*{{{*/
 }/*}}}*/
 
 static int activate_window(Display *disp, Window win, /* {{{ */
-                           gboolean switch_desktop)
-{
+                           gboolean switch_desktop) {
     unsigned long *desktop;
 
     /* desktop ID */
@@ -693,19 +698,17 @@ static int activate_window(Display *disp, Window win, /* {{{ */
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static int close_window(Display *disp, Window win)  /*{{{*/
-{
+static int close_window(Display *disp, Window win) { /*{{{*/
     return client_msg(disp, win, "_NET_CLOSE_WINDOW", 0, 0, 0, 0, 0);
 }/*}}}*/
 
-static int window_state(Display *disp, Window win, char *arg)  /*{{{*/
-{
+static int window_state(Display *disp, Window win, char *arg) { /*{{{*/
     unsigned long action;
     Atom prop1 = 0;
     Atom prop2 = 0;
     char *p1, *p2;
     const char *argerr =
-        "The -b option expects a list of comma separated parameters: \"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
+    "The -b option expects a list of comma separated parameters: \"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
 
     if (!arg || strlen(arg) == 0) {
         fputs(argerr, stderr);
@@ -720,15 +723,20 @@ static int window_state(Display *disp, Window win, char *arg)  /*{{{*/
         /* action */
         if (strcmp(arg, "remove") == 0) {
             action = _NET_WM_STATE_REMOVE;
-        } else if (strcmp(arg, "add") == 0) {
-            action = _NET_WM_STATE_ADD;
-        } else if (strcmp(arg, "toggle") == 0) {
-            action = _NET_WM_STATE_TOGGLE;
-        } else {
-            fputs("Invalid action. Use either remove, add or toggle.\n",
-                  stderr);
-            return EXIT_FAILURE;
         }
+        else
+            if (strcmp(arg, "add") == 0) {
+                action = _NET_WM_STATE_ADD;
+            }
+            else
+                if (strcmp(arg, "toggle") == 0) {
+                    action = _NET_WM_STATE_TOGGLE;
+                }
+                else {
+                    fputs("Invalid action. Use either remove, add or toggle.\n",
+                          stderr);
+                    return EXIT_FAILURE;
+                }
         p1++;
 
         /* the second property */
@@ -741,7 +749,7 @@ static int window_state(Display *disp, Window win, char *arg)  /*{{{*/
                 return EXIT_FAILURE;
             }
             tmp_prop2 = g_strdup_printf("_NET_WM_STATE_%s", tmp2 =
-                                            g_ascii_strup(p2, -1));
+                                        g_ascii_strup(p2, -1));
             p_verbose("State 2: %s\n", tmp_prop2);
             prop2 = XInternAtom(disp, tmp_prop2, False);
             g_free(tmp2);
@@ -762,14 +770,14 @@ static int window_state(Display *disp, Window win, char *arg)  /*{{{*/
 
         return client_msg(disp, win, "_NET_WM_STATE", action,
                           (unsigned long) prop1, (unsigned long) prop2, 0, 0);
-    } else {
+    }
+    else {
         fputs(argerr, stderr);
         return EXIT_FAILURE;
     }
 }/*}}}*/
 
-static gboolean wm_supports(Display *disp, const gchar *prop)  /*{{{*/
-{
+static gboolean wm_supports(Display *disp, const gchar *prop) { /*{{{*/
     Atom xa_prop = XInternAtom(disp, prop, False);
     Atom *list;
     unsigned long size;
@@ -792,12 +800,11 @@ static gboolean wm_supports(Display *disp, const gchar *prop)  /*{{{*/
     return FALSE;
 }/*}}}*/
 
-static int window_move_resize(Display *disp, Window win, char *arg)  /*{{{*/
-{
+static int window_move_resize(Display *disp, Window win, char *arg) { /*{{{*/
     signed long grav, x, y, w, h;
     unsigned long grflags;
     const char *argerr =
-        "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
+    "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
 
     if (!arg || strlen(arg) == 0) {
         fputs(argerr, stderr);
@@ -811,20 +818,24 @@ static int window_move_resize(Display *disp, Window win, char *arg)  /*{{{*/
 
     if (grav < 0) {
         fputs(
-            "Value of gravity mustn't be negative. Use zero to use the default gravity of the window.\n",
-            stderr);
+        "Value of gravity mustn't be negative. Use zero to use the default gravity of the window.\n",
+        stderr);
         return EXIT_FAILURE;
     }
 
     grflags = grav;
-    if (x != -1)
+    if (x != -1) {
         grflags |= (1 << 8);
-    if (y != -1)
+    }
+    if (y != -1) {
         grflags |= (1 << 9);
-    if (w != -1)
+    }
+    if (w != -1) {
         grflags |= (1 << 10);
-    if (h != -1)
+    }
+    if (h != -1) {
         grflags |= (1 << 11);
+    }
 
     p_verbose("grflags: %lu\n", grflags);
 
@@ -832,22 +843,26 @@ static int window_move_resize(Display *disp, Window win, char *arg)  /*{{{*/
         return client_msg(disp, win, "_NET_MOVERESIZE_WINDOW", grflags,
                           (unsigned long) x, (unsigned long) y, (unsigned long) w,
                           (unsigned long) h);
-    } else {
+    }
+    else {
         p_verbose(
-            "WM doesn't support _NET_MOVERESIZE_WINDOW. Gravity will be ignored.\n");
+        "WM doesn't support _NET_MOVERESIZE_WINDOW. Gravity will be ignored.\n");
         if ((w < 1 || h < 1) && (x >= 0 && y >= 0)) {
             XMoveWindow(disp, win, x, y);
-        } else if ((x < 0 || y < 0) && (w >= 1 && h >= -1)) {
-            XResizeWindow(disp, win, w, h);
-        } else if (x >= 0 && y >= 0 && w >= 1 && h >= 1) {
-            XMoveResizeWindow(disp, win, x, y, w, h);
         }
+        else
+            if ((x < 0 || y < 0) && (w >= 1 && h >= -1)) {
+                XResizeWindow(disp, win, w, h);
+            }
+            else
+                if (x >= 0 && y >= 0 && w >= 1 && h >= 1) {
+                    XMoveResizeWindow(disp, win, x, y, w, h);
+                }
         return EXIT_SUCCESS;
     }
 }/*}}}*/
 
-static int action_window(Display *disp, Window win, char mode)  /*{{{*/
-{
+static int action_window(Display *disp, Window win, char mode) { /*{{{*/
     p_verbose("Using window: 0x%.8lx\n", win);
     switch (mode) {
     case 'a':
@@ -874,7 +889,8 @@ static int action_window(Display *disp, Window win, char mode)  /*{{{*/
             usleep(100000); /* 100 ms - make sure the WM has enough
 				 time to move the window, before we activate it */
             return activate_window(disp, win, FALSE);
-        } else {
+        }
+        else {
             return EXIT_FAILURE;
         }
 
@@ -890,8 +906,7 @@ static int action_window(Display *disp, Window win, char mode)  /*{{{*/
     }
 }/*}}}*/
 
-static int action_window_pid(Display *disp, char mode)  /*{{{*/
-{
+static int action_window_pid(Display *disp, char mode) { /*{{{*/
     unsigned long wid;
 
     if (sscanf(options.param_window, "0x%lx", &wid) != 1
@@ -904,8 +919,7 @@ static int action_window_pid(Display *disp, char mode)  /*{{{*/
     return action_window(disp, (Window) wid, mode);
 }/*}}}*/
 
-static int action_window_str(Display *disp, char mode)  /*{{{*/
-{
+static int action_window_str(Display *disp, char mode) { /*{{{*/
     Window activate = 0;
     Window *client_list;
     unsigned long client_list_size;
@@ -916,7 +930,8 @@ static int action_window_str(Display *disp, char mode)  /*{{{*/
         activate = Select_Window(disp);
         if (activate) {
             return action_window(disp, activate, mode);
-        } else {
+        }
+        else {
             return EXIT_FAILURE;
         }
     }
@@ -924,10 +939,12 @@ static int action_window_str(Display *disp, char mode)  /*{{{*/
         activate = get_active_window(disp);
         if (activate) {
             return action_window(disp, activate, mode);
-        } else {
+        }
+        else {
             return EXIT_FAILURE;
         }
-    } else {
+    }
+    else {
         if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
             return EXIT_FAILURE;
         }
@@ -936,7 +953,8 @@ static int action_window_str(Display *disp, char mode)  /*{{{*/
             gchar *match_utf8;
             if (options.show_class) {
                 match_utf8 = get_window_class(disp, client_list[i]); /* UTF8 */
-            } else {
+            }
+            else {
                 match_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
             }
             if (match_utf8) {
@@ -946,7 +964,8 @@ static int action_window_str(Display *disp, char mode)  /*{{{*/
                 if (envir_utf8) {
                     match = g_strdup(options.param_window);
                     match_cf = g_utf8_casefold(options.param_window, -1);
-                } else {
+                }
+                else {
                     if (!(match = g_locale_to_utf8(options.param_window, -1,
                                                    NULL, NULL, NULL))) {
                         match = g_strdup(options.param_window);
@@ -981,14 +1000,14 @@ static int action_window_str(Display *disp, char mode)  /*{{{*/
 
         if (activate) {
             return action_window(disp, activate, mode);
-        } else {
+        }
+        else {
             return EXIT_FAILURE;
         }
     }
 }/*}}}*/
 
-static int list_desktops(Display *disp)  /*{{{*/
-{
+static int list_desktops(Display *disp) { /*{{{*/
     unsigned long *num_desktops = NULL;
     unsigned long *cur_desktop = NULL;
     unsigned long desktop_list_size = 0;
@@ -1050,7 +1069,7 @@ static int list_desktops(Display *disp)  /*{{{*/
                              DefaultRootWindow(disp),
                              XA_CARDINAL, "_NET_DESKTOP_GEOMETRY", &desktop_geometry_size))) {
         p_verbose(
-            "Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");
+        "Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");
     }
 
     /* desktop viewport */
@@ -1058,7 +1077,7 @@ static int list_desktops(Display *disp)  /*{{{*/
                              DefaultRootWindow(disp),
                              XA_CARDINAL, "_NET_DESKTOP_VIEWPORT", &desktop_viewport_size))) {
         p_verbose(
-            "Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
+        "Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
     }
 
     /* desktop workarea */
@@ -1093,26 +1112,29 @@ static int list_desktops(Display *disp)  /*{{{*/
         if (desktop_geometry_size == 2 * sizeof(*desktop_geometry)) {
             /* only one value - use it for all desktops */
             p_verbose(
-                "WM provides _NET_DESKTOP_GEOMETRY value common for all desktops.\n");
+            "WM provides _NET_DESKTOP_GEOMETRY value common for all desktops.\n");
             for (i = 0; i < *num_desktops; i++) {
                 desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
                                           desktop_geometry[0], desktop_geometry[1]);
             }
-        } else {
+        }
+        else {
             /* seperate values for desktops of different size */
             p_verbose(
-                "WM provides separate _NET_DESKTOP_GEOMETRY value for each desktop.\n");
+            "WM provides separate _NET_DESKTOP_GEOMETRY value for each desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i < desktop_geometry_size / sizeof(*desktop_geometry) / 2) {
                     desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
                                               desktop_geometry[i * 2],
                                               desktop_geometry[i * 2 + 1]);
-                } else {
+                }
+                else {
                     desktop_geometry_str[i] = g_strdup("N/A");
                 }
             }
         }
-    } else {
+    }
+    else {
         for (i = 0; i < *num_desktops; i++) {
             desktop_geometry_str[i] = g_strdup("N/A");
         }
@@ -1124,28 +1146,32 @@ static int list_desktops(Display *disp)  /*{{{*/
         if (desktop_viewport_size == 2 * sizeof(*desktop_viewport)) {
             /* only one value - use it for current desktop */
             p_verbose(
-                "WM provides _NET_DESKTOP_VIEWPORT value only for the current desktop.\n");
+            "WM provides _NET_DESKTOP_VIEWPORT value only for the current desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i == *cur_desktop) {
                     desktop_viewport_str[i] = g_strdup_printf("%lu,%lu",
                                               desktop_viewport[0], desktop_viewport[1]);
-                } else {
+                }
+                else {
                     desktop_viewport_str[i] = g_strdup("N/A");
                 }
             }
-        } else {
+        }
+        else {
             /* seperate values for each of desktops */
             for (i = 0; i < *num_desktops; i++) {
                 if (i < desktop_viewport_size / sizeof(*desktop_viewport) / 2) {
                     desktop_viewport_str[i] = g_strdup_printf("%lu,%lu",
                                               desktop_viewport[i * 2],
                                               desktop_viewport[i * 2 + 1]);
-                } else {
+                }
+                else {
                     desktop_viewport_str[i] = g_strdup("N/A");
                 }
             }
         }
-    } else {
+    }
+    else {
         for (i = 0; i < *num_desktops; i++) {
             desktop_viewport_str[i] = g_strdup("N/A");
         }
@@ -1157,17 +1183,19 @@ static int list_desktops(Display *disp)  /*{{{*/
         if (desktop_workarea_size == 4 * sizeof(*desktop_workarea)) {
             /* only one value - use it for current desktop */
             p_verbose(
-                "WM provides _NET_WORKAREA value only for the current desktop.\n");
+            "WM provides _NET_WORKAREA value only for the current desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i == *cur_desktop) {
                     desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu",
                                               desktop_workarea[0], desktop_workarea[1],
                                               desktop_workarea[2], desktop_workarea[3]);
-                } else {
+                }
+                else {
                     desktop_workarea_str[i] = g_strdup("N/A");
                 }
             }
-        } else {
+        }
+        else {
             /* seperate values for each of desktops */
             for (i = 0; i < *num_desktops; i++) {
                 if (i < desktop_workarea_size / sizeof(*desktop_workarea) / 4) {
@@ -1176,12 +1204,14 @@ static int list_desktops(Display *disp)  /*{{{*/
                                               desktop_workarea[i * 4 + 1],
                                               desktop_workarea[i * 4 + 2],
                                               desktop_workarea[i * 4 + 3]);
-                } else {
+                }
+                else {
                     desktop_workarea_str[i] = g_strdup("N/A");
                 }
             }
         }
-    } else {
+    }
+    else {
         for (i = 0; i < *num_desktops; i++) {
             desktop_workarea_str[i] = g_strdup("N/A");
         }
@@ -1208,7 +1238,8 @@ static int list_desktops(Display *disp)  /*{{{*/
     ret = EXIT_SUCCESS;
     goto cleanup;
 
-cleanup: g_free(names);
+cleanup:
+    g_free(names);
     g_free(num_desktops);
     g_free(cur_desktop);
     g_free(desktop_geometry);
@@ -1222,8 +1253,7 @@ cleanup: g_free(names);
     return ret;
 }/*}}}*/
 
-static int longest_str(gchar **strv)  /*{{{*/
-{
+static int longest_str(gchar **strv) { /*{{{*/
     int max = 0;
     int i = 0;
 
@@ -1237,8 +1267,7 @@ static int longest_str(gchar **strv)  /*{{{*/
     return max;
 }/*}}}*/
 
-static Window *get_client_list(Display *disp, unsigned long *size)  /*{{{*/
-{
+static Window *get_client_list(Display *disp, unsigned long *size) { /*{{{*/
     Window *client_list;
 
     if ((client_list = (Window *) get_property(disp, DefaultRootWindow(disp),
@@ -1256,8 +1285,7 @@ static Window *get_client_list(Display *disp, unsigned long *size)  /*{{{*/
     return client_list;
 }/*}}}*/
 
-static int list_windows(Display *disp)  /*{{{*/
-{
+static int list_windows(Display *disp) { /*{{{*/
     Window *client_list;
     unsigned long client_list_size;
     int i;
@@ -1339,8 +1367,7 @@ static int list_windows(Display *disp)  /*{{{*/
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static gchar *get_window_class(Display *disp, Window win)  /*{{{*/
-{
+static gchar *get_window_class(Display *disp, Window win) { /*{{{*/
     gchar *class_utf8;
     gchar *wm_class;
     unsigned long size;
@@ -1352,7 +1379,8 @@ static gchar *get_window_class(Display *disp, Window win)  /*{{{*/
             *(p_0) = '.';
         }
         class_utf8 = g_locale_to_utf8(wm_class, -1, NULL, NULL, NULL);
-    } else {
+    }
+    else {
         class_utf8 = NULL;
     }
 
@@ -1361,8 +1389,7 @@ static gchar *get_window_class(Display *disp, Window win)  /*{{{*/
     return class_utf8;
 }/*}}}*/
 
-static gchar *get_window_title(Display *disp, Window win)  /*{{{*/
-{
+static gchar *get_window_title(Display *disp, Window win) { /*{{{*/
     gchar *title_utf8;
     gchar *wm_name;
     gchar *net_wm_name;
@@ -1373,10 +1400,12 @@ static gchar *get_window_title(Display *disp, Window win)  /*{{{*/
 
     if (net_wm_name) {
         title_utf8 = g_strdup(net_wm_name);
-    } else {
+    }
+    else {
         if (wm_name) {
             title_utf8 = g_locale_to_utf8(wm_name, -1, NULL, NULL, NULL);
-        } else {
+        }
+        else {
             title_utf8 = NULL;
         }
     }
@@ -1388,8 +1417,7 @@ static gchar *get_window_title(Display *disp, Window win)  /*{{{*/
 }/*}}}*/
 
 static gchar *get_property(Display *disp, Window win, /*{{{*/
-                           Atom xa_prop_type, gchar *prop_name, unsigned long *size)
-{
+                           Atom xa_prop_type, gchar *prop_name, unsigned long *size) {
     Atom xa_prop_name;
     Atom xa_ret_type;
     int ret_format;
@@ -1432,8 +1460,9 @@ static gchar *get_property(Display *disp, Window win, /*{{{*/
     /* null terminate the result to make string handling easier */
     tmp_size = (ret_format / 8) * ret_nitems;
     /* Correct 64 Architecture implementation of 32 bit data */
-    if (ret_format == 32)
+    if (ret_format == 32) {
         tmp_size *= sizeof(long) / 4;
+    }
     ret = g_malloc(tmp_size + 1);
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
@@ -1446,8 +1475,7 @@ static gchar *get_property(Display *disp, Window win, /*{{{*/
     return ret;
 }/*}}}*/
 
-static Window Select_Window(Display *dpy)  /*{{{*/
-{
+static Window Select_Window(Display *dpy) { /*{{{*/
     /*
      * Routine to let user select a window using the mouse
      * Taken from xfree86.
@@ -1482,14 +1510,16 @@ static Window Select_Window(Display *dpy)  /*{{{*/
         case ButtonPress:
             if (target_win == None) {
                 target_win = event.xbutton.subwindow; /* window selected */
-                if (target_win == None)
+                if (target_win == None) {
                     target_win = root;
+                }
             }
             buttons++;
             break;
         case ButtonRelease:
-            if (buttons > 0) /* there may have been some down before we started */
+            if (buttons > 0) { /* there may have been some down before we started */
                 buttons--;
+            }
             break;
         }
     }
@@ -1504,8 +1534,7 @@ static Window Select_Window(Display *dpy)  /*{{{*/
     return (target_win);
 }/*}}}*/
 
-static Window get_active_window(Display *disp)  /*{{{*/
-{
+static Window get_active_window(Display *disp) { /*{{{*/
     char *prop;
     unsigned long size;
     Window ret = (Window) 0;

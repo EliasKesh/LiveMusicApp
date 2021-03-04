@@ -5,7 +5,7 @@
 |	Contains:
 |
 |
-|	Written By: Alsa-Utils package.	
+|	Written By: Alsa-Utils package.
 |   Modified By: Elias Keshishoglou on Tue Nov 17 02:31:07 PM PST 2020
 ||
 |
@@ -84,8 +84,7 @@ volatile int MidiLooping;
 *
 * Description:           Initialize the Midifile looper
 *---------------------------------------------*/
-int InitMidiLooper ( void )
-{
+int InitMidiLooper ( void ) {
     snd_seq_port_info_t *pinfo;
     int err;
 
@@ -112,15 +111,17 @@ int InitMidiLooper ( void )
 * Description:  Description
 *
 *----------------------------------------------*/
-void ToggleMidiLoop ( void )
-{
+bool ToggleMidiLoop ( void ) {
 
     if ( MidiLooping ) {
         StopMidiLoop();
 
-    } else {
+    }
+    else {
         StartMidiLoop ( NULL );
     }
+
+    return (MidiLooping);
 }
 
 /*-------------------------------------------------
@@ -128,8 +129,7 @@ void ToggleMidiLoop ( void )
 *
 * Description:           Stop and clear buffer
 *------------------------------------------------*/
-void StopMidiLoop ( void )
-{
+void StopMidiLoop ( void ) {
 
     printd ( LogDebug, "Stop\n");
 
@@ -148,14 +148,14 @@ void StopMidiLoop ( void )
 *
 * Description: Pass midi file and open.
 *---------------------------------------------*/
-void StartMidiLoop ( char *filename )
-{
+void StartMidiLoop ( char *filename ) {
 
 //    if ( MidiLooping )
 //        StopMidiLoop();
 
-    if ( filename != NULL )
+    if ( filename != NULL ) {
         strcpy ( file_name, filename );
+    }
 
     printd ( LogDebug, "Start File [%s]\n", file_name );
     gLooperWaitForSync = true;
@@ -168,8 +168,7 @@ void StartMidiLoop ( char *filename )
 * Description:  Sync start with MetroNome.
 *
 *----------------------------------------------*/
-void SetLoopStartSync ( void )
-{
+void SetLoopStartSync ( void ) {
     snd_seq_event_t ev;
 
     snd_seq_start_queue ( seq, queue, &ev );
@@ -182,11 +181,11 @@ void SetLoopStartSync ( void )
 *
 * Description: Adjust the playback speed
 *---------------------------------------------*/
-void SetLoopTempo ( int NewTempo )
-{
+void SetLoopTempo ( int NewTempo ) {
 
-    if ( !MidiLooping )
+    if ( !MidiLooping ) {
         return;
+    }
 
     MyTempo = NewTempo;
     snd_seq_event_t ev;
@@ -209,8 +208,7 @@ void SetLoopTempo ( int NewTempo )
 * Description: Close the midi queue
 *
 *-------------------------------------------*/
-int MyAlsaLoopClose ( void )
-{
+int MyAlsaLoopClose ( void ) {
     int ret;
 
     printd ( LogDebug, "MyAlsaLoopClose\n");
@@ -235,8 +233,7 @@ int MyAlsaLoopClose ( void )
 * Description:  Description
 *
 *----------------------------------------------*/
-static void init_seq ( void )
-{
+static void init_seq ( void ) {
     int err;
 
     /* open sequencer */
@@ -249,15 +246,13 @@ static void init_seq ( void )
 //	printd(LogDebug, "get client id %d\n", client);
 }
 
-static int read_byte ( void )
-{
+static int read_byte ( void ) {
     ++file_offset;
     return getc ( file );
 }
 
 /* reads a little-endian 32-bit integer */
-static int read_32_le ( void )
-{
+static int read_32_le ( void ) {
     int value;
     value = read_byte();
     value |= read_byte() << 8;
@@ -267,32 +262,31 @@ static int read_32_le ( void )
 }
 
 /* reads a 4-character identifier */
-static int read_id ( void )
-{
+static int read_id ( void ) {
     return read_32_le();
 }
 #define MAKE_ID(c1, c2, c3, c4) ((c1) | ((c2) << 8) | ((c3) << 16) | ((c4) << 24))
 
 /* reads a fixed-size big-endian number */
-static int read_int ( int bytes )
-{
+static int read_int ( int bytes ) {
     int c, value = 0;
 
     do {
         c = read_byte();
 
-        if ( c == EOF )
+        if ( c == EOF ) {
             return -1;
+        }
 
         value = ( value << 8 ) | c;
-    } while ( --bytes );
+    }
+    while ( --bytes );
 
     return value;
 }
 
 /* reads a variable-length number */
-static int read_var ( void )
-{
+static int read_var ( void ) {
     int value, c;
 
     c = read_byte();
@@ -310,8 +304,9 @@ static int read_var ( void )
                 c = read_byte();
                 value = ( value << 7 ) | c;
 
-                if ( c & 0x80 )
+                if ( c & 0x80 ) {
                     return -1;
+                }
             }
         }
     }
@@ -320,8 +315,7 @@ static int read_var ( void )
 }
 
 /* allocates a new event */
-static struct event *new_event ( struct track *track, int sysex_length )
-{
+static struct event *new_event ( struct track *track, int sysex_length ) {
     struct event *event;
 
     event = malloc ( sizeof ( struct event ) + sysex_length );
@@ -330,25 +324,26 @@ static struct event *new_event ( struct track *track, int sysex_length )
     event->next = NULL;
 
     /* append at the end of the track's linked list */
-    if ( track->current_event )
+    if ( track->current_event ) {
         track->current_event->next = event;
-    else
+    }
+    else {
         track->first_event = event;
+    }
 
     track->current_event = event;
 
     return event;
 }
 
-static void skip ( int bytes )
-{
-    while ( bytes > 0 )
+static void skip ( int bytes ) {
+    while ( bytes > 0 ) {
         read_byte(), --bytes;
+    }
 }
 
 /* reads one complete track from the file */
-static int read_track ( struct track *track, int track_end )
-{
+static int read_track ( struct track *track, int track_end ) {
     int tick = 0;
     unsigned char last_cmd = 0;
     unsigned char port = 0;
@@ -361,31 +356,36 @@ static int read_track ( struct track *track, int track_end )
 
         delta_ticks = read_var();
 
-        if ( delta_ticks < 0 )
+        if ( delta_ticks < 0 ) {
             break;
+        }
 
         tick += delta_ticks;
 
         c = read_byte();
 
-        if ( c < 0 )
+        if ( c < 0 ) {
             break;
+        }
 
         if ( c & 0x80 ) {
             /* have command */
             cmd = c;
 
-            if ( cmd < 0xf0 )
+            if ( cmd < 0xf0 ) {
                 last_cmd = cmd;
+            }
 
-        } else {
+        }
+        else {
             /* running status */
             ungetc ( c, file );
             file_offset--;
             cmd = last_cmd;
 
-            if ( !cmd )
+            if ( !cmd ) {
                 goto _error;
+            }
         }
 
         switch ( cmd >> 4 ) {
@@ -430,11 +430,13 @@ static int read_track ( struct track *track, int track_end )
             case 0xf7: /* continued sysex, or escaped commands */
                 len = read_var();
 
-                if ( len < 0 )
+                if ( len < 0 ) {
                     goto _error;
+                }
 
-                if ( cmd == 0xf0 )
+                if ( cmd == 0xf0 ) {
                     ++len;
+                }
 
                 event = new_event ( track, len );
                 event->type = SND_SEQ_EVENT_SYSEX;
@@ -446,12 +448,14 @@ static int read_track ( struct track *track, int track_end )
                     event->sysex[0] = 0xf0;
                     c = 1;
 
-                } else {
+                }
+                else {
                     c = 0;
                 }
 
-                for ( ; c < len; ++c )
+                for ( ; c < len; ++c ) {
                     event->sysex[c] = read_byte();
+                }
 
                 break;
 
@@ -459,13 +463,15 @@ static int read_track ( struct track *track, int track_end )
                 c = read_byte();
                 len = read_var();
 
-                if ( len < 0 )
+                if ( len < 0 ) {
                     goto _error;
+                }
 
                 switch ( c ) {
                 case 0x21: /* port number */
-                    if ( len < 1 )
+                    if ( len < 1 ) {
                         goto _error;
+                    }
 
 //					port = read_byte() % port_count;
                     printf ( "Port %d\n", port );
@@ -478,14 +484,16 @@ static int read_track ( struct track *track, int track_end )
                     return 1;
 
                 case 0x51: /* tempo */
-                    if ( len < 3 )
+                    if ( len < 3 ) {
                         goto _error;
+                    }
 
                     if ( smpte_timing ) {
                         /* SMPTE timing doesn't change */
                         skip ( len );
 
-                    } else {
+                    }
+                    else {
                         event = new_event ( track, 0 );
                         event->type = SND_SEQ_EVENT_TEMPO;
                         event->port = port;
@@ -523,8 +531,7 @@ _error:
 }
 
 /* reads an entire MIDI file */
-static int read_smf ( void )
-{
+static int read_smf ( void ) {
     int header_len, type, time_division, i, err;
     snd_seq_queue_tempo_t *queue_tempo;
 
@@ -532,7 +539,7 @@ static int read_smf ( void )
     header_len = read_int ( 4 );
 
     if ( header_len < 6 ) {
-invalid_format:
+    invalid_format:
         errormsg ( "%s: invalid file format", file_name );
         return 0;
     }
@@ -563,8 +570,9 @@ invalid_format:
 
     time_division = read_int ( 2 );
 
-    if ( time_division < 0 )
+    if ( time_division < 0 ) {
         goto invalid_format;
+    }
 
     printd ( LogDebug, "ejk read_smf %d\n",
              time_division );
@@ -582,7 +590,8 @@ invalid_format:
 
         snd_seq_queue_tempo_set_ppq ( queue_tempo, time_division );
 
-    } else {
+    }
+    else {
         printd ( LogDebug, "Loop smpte_timing %d\n" );
 
         /* upper byte is negative frames per second */
@@ -654,21 +663,22 @@ invalid_format:
                 return 0;
             }
 
-            if ( id == MAKE_ID ( 'M', 'T', 'r', 'k' ) )
+            if ( id == MAKE_ID ( 'M', 'T', 'r', 'k' ) ) {
                 break;
+            }
 
             skip ( len );
         }
 
-        if ( !read_track ( &tracks[i], file_offset + len ) )
+        if ( !read_track ( &tracks[i], file_offset + len ) ) {
             return 0;
+        }
     }
 
     return 1;
 }
 
-static int read_riff ( void )
-{
+static int read_riff ( void ) {
     /* skip file length */
     read_byte();
     read_byte();
@@ -677,7 +687,7 @@ static int read_riff ( void )
 
     /* check file type ("RMID" = RIFF MIDI) */
     if ( read_id() != MAKE_ID ( 'R', 'M', 'I', 'D' ) ) {
-invalid_format:
+    invalid_format:
         errormsg ( "%s: invalid file format", file_name );
         return 0;
     }
@@ -688,29 +698,31 @@ invalid_format:
         int len = read_32_le();
 
         if ( feof ( file ) ) {
-data_not_found:
+        data_not_found:
             errormsg ( "%s: data chunk not found", file_name );
             return 0;
         }
 
-        if ( id == MAKE_ID ( 'd', 'a', 't', 'a' ) )
+        if ( id == MAKE_ID ( 'd', 'a', 't', 'a' ) ) {
             break;
+        }
 
-        if ( len < 0 )
+        if ( len < 0 ) {
             goto data_not_found;
+        }
 
         skip ( ( len + 1 ) & ~1 );
     }
 
     /* the "data" chunk must contain data in SMF format */
-    if ( read_id() != MAKE_ID ( 'M', 'T', 'h', 'd' ) )
+    if ( read_id() != MAKE_ID ( 'M', 'T', 'h', 'd' ) ) {
         goto invalid_format;
+    }
 
     return read_smf();
 }
 
-static void cleanup_file_data ( void )
-{
+static void cleanup_file_data ( void ) {
     int i;
     struct event *event;
 
@@ -735,16 +747,16 @@ static void cleanup_file_data ( void )
 * Description:  Description
 *
 *----------------------------------------------*/
-static void handle_big_sysex ( snd_seq_event_t *ev )
-{
+static void handle_big_sysex ( snd_seq_event_t *ev ) {
     unsigned int length;
     ssize_t event_size;
     int err;
 
     length = ev->data.ext.len;
 
-    if ( length > MIDI_BYTES_PER_SEC )
+    if ( length > MIDI_BYTES_PER_SEC ) {
         ev->data.ext.len = MIDI_BYTES_PER_SEC;
+    }
 
     event_size = snd_seq_event_length ( ev );
 
@@ -763,8 +775,9 @@ static void handle_big_sysex ( snd_seq_event_t *ev )
         err = snd_seq_sync_output_queue ( seq );
         printd ( LogDebug, "sync output %d\n", err );
 
-        if ( sleep ( 1 ) )
+        if ( sleep ( 1 ) ) {
             printd ( LogDebug, "aborted" );
+        }
 
         ev->data.ext.ptr += MIDI_BYTES_PER_SEC;
         length -= MIDI_BYTES_PER_SEC;
@@ -779,8 +792,7 @@ static void handle_big_sysex ( snd_seq_event_t *ev )
 * Description:  Description
 *
 *----------------------------------------------*/
-static void play_midi ( void )
-{
+static void play_midi ( void ) {
     snd_seq_event_t ev;
     int i, max_tick, err;
 
@@ -790,8 +802,9 @@ static void play_midi ( void )
     max_tick = -1;
 
     for ( i = 0; i < num_tracks; ++i ) {
-        if ( tracks[i].end_tick > max_tick )
+        if ( tracks[i].end_tick > max_tick ) {
             max_tick = tracks[i].end_tick;
+        }
     }
 
     MyTempo = gMyInfo.Tempo;
@@ -803,8 +816,9 @@ static void play_midi ( void )
         printd ( LogDebug, "ejk Starting loop\n" );
 
         /* initialize current position in each track */
-        for ( i = 0; i < num_tracks; ++i )
+        for ( i = 0; i < num_tracks; ++i ) {
             tracks[i].current_event = tracks[i].first_event;
+        }
 
         /* common settings for all our events */
         snd_seq_ev_clear ( &ev );
@@ -836,8 +850,9 @@ static void play_midi ( void )
 
             while ( gLooperWaitForSync );
 
-            if ( !event )
-                break; /* end of song reached */
+            if ( !event ) {
+                break;    /* end of song reached */
+            }
 
             /* advance pointer to next event */
             event_track->current_event = event->next;
@@ -928,7 +943,8 @@ static void play_midi ( void )
             printd ( LogDebug, "drain output %d\n", err
                    );
             gLooperWaitForSync = true;
-        } while ( err > 0 );
+        }
+        while ( err > 0 );
 
         /*
          * There are three possibilities how to wait until all events have
@@ -947,7 +963,8 @@ static void play_midi ( void )
             printd ( LogDebug, "Pending output %d\n", err
                    );
             gLooperWaitForSync = true;
-        } while ( err > 0 );
+        }
+        while ( err > 0 );
 
 #endif
 
@@ -968,8 +985,7 @@ static void play_midi ( void )
 * Description:  Description
 *
 *----------------------------------------------*/
-static int play_file ( void )
-{
+static int play_file ( void ) {
     int ok;
 
     printd ( LogDebug, "Play_file [%s]\n", file_name );
@@ -980,7 +996,7 @@ static int play_file ( void )
         printd ( LogDebug, "Cannot open [%s] - %s\n", file_name, strerror ( errno ) );
         return ( true );
     }
-    
+
     printd ( LogDebug, "Play_File name %s\n", file_name );
     file_offset = 0;
     ok = 0;
@@ -1000,13 +1016,15 @@ static int play_file ( void )
         break;
     }
 
-    if ( file != stdin )
+    if ( file != stdin ) {
         fclose ( file );
+    }
 
     printd ( LogDebug, "About to Call Play Midi\n" );
 
-    if ( ok )
+    if ( ok ) {
         play_midi();
+    }
 
     printd ( LogDebug, "After call to Play Midi\n" );
 
@@ -1020,8 +1038,7 @@ static int play_file ( void )
 * Description:		Setup the Alsa input port.
 *
 *---------------------------------------------*/
-int alsa_loop_init ( void )
-{
+int alsa_loop_init ( void ) {
     int ret;
     snd_seq_port_info_t * port_info = NULL;
     pthread_attr_t tattr;
@@ -1049,8 +1066,7 @@ int alsa_loop_init ( void )
     return ( true );
 }
 
-void *alsa_Loop_thread ( void * context_ptr )
-{
+void *alsa_Loop_thread ( void * context_ptr ) {
 
 //    printd ( LogDebug, "alsa_Loop_thread\n" );
 
@@ -1066,14 +1082,13 @@ void *alsa_Loop_thread ( void * context_ptr )
             }
 
             printd ( LogDebug, "alsa_Loop_thread after play\n" );
-        } 
-        sleep(1);
+        }
+        usleep(0.25);
     }
 }
 
 /* prints an error message to stderr */
-static void errormsg ( const char *msg, ... )
-{
+static void errormsg ( const char *msg, ... ) {
     va_list ap;
 
     va_start ( ap, msg );
@@ -1084,8 +1099,7 @@ static void errormsg ( const char *msg, ... )
 
 #if 0
 /* prints an error message to stderr, and dies */
-static void printd ( LogDebug, const char *msg, ... )
-{
+static void printd ( LogDebug, const char *msg, ... ) {
     va_list ap;
 
     va_start ( ap, msg );
@@ -1096,17 +1110,17 @@ static void printd ( LogDebug, const char *msg, ... )
 }
 
 /* memory allocation error handling */
-static void check_mem ( void *p )
-{
-    if ( !p )
+static void check_mem ( void *p ) {
+    if ( !p ) {
         printd ( LogDebug, "Out of memory" );
+    }
 }
 
 /* error handling for ALSA functions */
-static void check_snd ( const char *operation, int err )
-{
-    if ( err < 0 )
+static void check_snd ( const char *operation, int err ) {
+    if ( err < 0 ) {
         printd ( LogDebug, "Cannot %s - %s", operation, snd_strerror ( err ) );
+    }
 }
 #endif
 

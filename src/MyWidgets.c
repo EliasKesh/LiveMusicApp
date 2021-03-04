@@ -57,39 +57,39 @@
  * Description:         Create a new button from an eventbox..
  *---------------------------------------------*/
 int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
-	GtkWidget *overlay;
+    GtkWidget *overlay;
 
-	/*
-	   * A GtkImage doesn't have a window, so we need to put it inside
-	   * a GtkEventBox so we can capture events.
-	   */
-	GtkWidget *image = gtk_image_new ();
+    /*
+       * A GtkImage doesn't have a window, so we need to put it inside
+       * a GtkEventBox so we can capture events.
+       */
+    GtkWidget *image = gtk_image_new ();
 
-	overlay = gtk_overlay_new ();
-	gtk_container_add(GTK_CONTAINER(overlay), image);
-	gtk_container_add(GTK_CONTAINER(EventBox), overlay);
-	theButton->Label = gtk_label_new("!!PROB!!");
+    overlay = gtk_overlay_new ();
+    gtk_container_add(GTK_CONTAINER(overlay), image);
+    gtk_container_add(GTK_CONTAINER(EventBox), overlay);
+    theButton->Label = gtk_label_new("!!PROB!!");
 
-	MyImageButtonSetText(theButton, "!!PROB!!");
+    MyImageButtonSetText(theButton, "!!PROB!!");
 
 //	          gtk_label_set_markup(GTK_LABEL(theButton->Label),
 //             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
 
-	gtk_overlay_add_overlay (GTK_OVERLAY (overlay), GTK_WIDGET(theButton->Label));
-	theButton->EventBox = EventBox;
-	theButton->Image = image;
-	theButton->Overlay = overlay;
-	theButton->ButtonUpImage = Off;
-	theButton->ButtonDownImage = On;
-	gtk_image_set_from_pixbuf (GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
+    gtk_overlay_add_overlay (GTK_OVERLAY (overlay), GTK_WIDGET(theButton->Label));
+    theButton->EventBox = EventBox;
+    theButton->Image = image;
+    theButton->Overlay = overlay;
+    theButton->ButtonUpImage = Off;
+    theButton->ButtonDownImage = On;
+    gtk_image_set_from_pixbuf (GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
 
 #if 0
-	g_signal_connect(G_OBJECT(EventBox),
-	                 "button-release-event",
-	                 G_CALLBACK(normal_release_handler),
-	                 &theButton);
+    g_signal_connect(G_OBJECT(EventBox),
+                     "button-release-event",
+                     G_CALLBACK(normal_release_handler),
+                     &theButton);
 #endif
-	return (0);
+    return (0);
 }
 
 /*--------------------------------------------
@@ -98,32 +98,32 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
  * Description:         Change or Set the text of a button..
  *---------------------------------------------*/
 int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
-	char		FormatString[200];
+    char		FormatString[200];
 // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
 
-//	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>", 
+//	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>",
 //		gMyInfo.ButtonTextColor, String);
-	sprintf(FormatString, "<span  face=\"monospace\" font=\"10\" color='#%lx'><b>%s</b></span>", 
-		gMyInfo.ButtonTextColor, String);
+    sprintf(FormatString, "<span  face=\"monospace\" font=\"10\" color='#%lx'><b>%s</b></span>",
+            gMyInfo.ButtonTextColor, String);
 
-	printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);
+    printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);
 //	printf("MyImageButtonSetText %x %s \n", theButton, String);
 
-	gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
+    gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 
 //	g_idle_add(GTKIdel_cb, theMainWindow);
-	return (0);
+    return (0);
 }
 
 gboolean normal_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {
-	theImageButtons *theButton;
-	theButton = (theImageButtons *) user_data;
-	//	PatchIndex = LayoutSwitchPatch(user_data, true);
+    theImageButtons *theButton;
+    theButton = (theImageButtons *) user_data;
+    //	PatchIndex = LayoutSwitchPatch(user_data, true);
 
-	gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-	                          theButton->ButtonUpImage);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+                              theButton->ButtonUpImage);
 
-	return TRUE; /* stop event propagation */
+    return TRUE; /* stop event propagation */
 }

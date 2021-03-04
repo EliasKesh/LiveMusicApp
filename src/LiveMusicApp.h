@@ -203,7 +203,7 @@ enum {
 	ecExpress6,
 	ecPedalControl,
 	ecMidiThreshold,
-	ecLooper,
+	ecLooperVolume,
 	ecMidiAnaMix,
 	exMaxItems
 };
@@ -452,10 +452,15 @@ enum { cntStateWaitingIdle = 0,
 #if 0
 // Default Settings for Akai LPD8
 enum {
-	dLEDBeat1 = 36,
+//	dLEDBeat1 = 36,
+	dLEDBeat1 = 64,
 	dLEDBeat2,
 	dLEDBeat3,
-	dLEDBeat4
+	dLEDBeat4,
+	dLEDBeat5,
+	dLEDBeat6,
+	dLEDBeat7,
+	dLEDBeat8
 };
 #define dLEDMIDI	SND_SEQ_EVENT_NOTEOFF
 #define dLEDMIDIO	SND_SEQ_EVENT_NOTEON
@@ -463,7 +468,8 @@ enum {
 #else
 // Default Settings for kayfadr
 enum {
-	dLEDBeat1 = 40,
+//	dLEDBeat1 = 40,
+	dLEDBeat1 = 64,
 	dLEDBeat2,
 	dLEDBeat3,
 	dLEDBeat4,
@@ -474,7 +480,8 @@ enum {
 };
 #define dLEDMIDI	SND_SEQ_EVENT_CONTROLLER
 #define dLEDMIDIO	SND_SEQ_EVENT_CONTROLLER
-#define dLEDChan 2
+#define dLEDChan 1
+//#define dLEDChan 2
 #endif
 
 enum {
@@ -636,7 +643,7 @@ int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
 int InitConnections(void);
 void SwitchToTab(char Tab);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);
-void IncrementMode(void);
+void IncrementLayoutMode(void);
 tPatchIndex LayoutSwitchPatch(tPatchIndex MidiIn, char DoAction);
 tPatchIndex DoPatch(PatchInfo *thePatch);
 void SetScale4Label(char *String);

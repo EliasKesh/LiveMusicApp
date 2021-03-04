@@ -84,15 +84,15 @@ unsigned int OldTempo = 0;
  *------------------------------------------------*/
 void MyTimerInit(void) {
 
-	CountInActiveState = cntStateWaitingIdle;
-	LoopRecBeats = 0;
-	SubBeats = 0;
+    CountInActiveState = cntStateWaitingIdle;
+    LoopRecBeats = 0;
+    SubBeats = 0;
 
-	/* Set up a timer for Tempo.
-	*/
-	gMyInfo.TempoTimerID = 0;
+    /* Set up a timer for Tempo.
+    */
+    gMyInfo.TempoTimerID = 0;
 
-	SetTempo(120);
+    SetTempo(120);
 }
 
 /*-----------------------------------------------
@@ -103,38 +103,39 @@ void MyTimerInit(void) {
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-	if (NewTempo <= 0)
-		return;
+    if (NewTempo <= 0) {
+        return;
+    }
 
-	/* Set the jack transport for timers.
-	*/
-	com_tempo(NewTempo);
+    /* Set the jack transport for timers.
+    */
+    com_tempo(NewTempo);
 
-	Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
-	gMyInfo.Tempo = NewTempo;
+    Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
+    gMyInfo.Tempo = NewTempo;
 //	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
 //	gtk_widget_override_font((TempoChild), Tempofont_desc);
 
-	/* Tell the timer to stop.
-	 */
-	if (gMyInfo.TempoTimerID) {
-		g_source_remove(gMyInfo.TempoTimerID);
-		printd(LogInfo, "********TIMER REMOVED*****\n");
-	}
+    /* Tell the timer to stop.
+     */
+    if (gMyInfo.TempoTimerID) {
+        g_source_remove(gMyInfo.TempoTimerID);
+        printd(LogInfo, "********TIMER REMOVED*****\n");
+    }
 
-	/* Store the tempo information.
-	 */
-	gMyInfo.Tempo = NewTempo;
+    /* Store the tempo information.
+     */
+    gMyInfo.Tempo = NewTempo;
 
-	/*
-	 * This gives us TimerTicksPerQuater ticks per quarter.
-	 */
-	gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
-	printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
+    /*
+     * This gives us TimerTicksPerQuater ticks per quarter.
+     */
+    gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
+    printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
-	/* Start the new timer.
-	 */
-	gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload, (GSourceFunc) tempo_handler, (gpointer) gxml);
+    /* Start the new timer.
+     */
+    gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload, (GSourceFunc) tempo_handler, (gpointer) gxml);
 
 //      gMyInfo.Timer1Count = 0;
 }
@@ -147,11 +148,11 @@ void SetTempo(unsigned int NewTempo) {
  *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
-	printd(LogRealTime, " IN time_handler GTK\n");
-	ToggleTempo();
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    printd(LogRealTime, " IN time_handler GTK\n");
+    ToggleTempo();
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return TRUE;
+    return TRUE;
 }
 
 #endif
@@ -165,13 +166,13 @@ static gboolean tempo_handler(GtkWidget *widget) {
  *------------------------------------------------*/
 void MyTimerInit(void) {
 
-	CountInActiveState = cntStateWaitingIdle;
-	LoopRecBeats = 0;
-	SubBeats = 0;
+    CountInActiveState = cntStateWaitingIdle;
+    LoopRecBeats = 0;
+    SubBeats = 0;
 
-	/* Set up a timer for Tempo.
-	*/
-	SetTempo(100);
+    /* Set up a timer for Tempo.
+    */
+    SetTempo(100);
 }
 
 /*-----------------------------------------------
@@ -182,19 +183,20 @@ void MyTimerInit(void) {
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-	if (NewTempo <= 30)
-		return;
+    if (NewTempo <= 30) {
+        return;
+    }
 
-	SetLoopTempo(NewTempo);
-	/* Set the jack transport for timers.
-	*/
-	com_tempo(NewTempo);
+    SetLoopTempo(NewTempo);
+    /* Set the jack transport for timers.
+    */
+    com_tempo(NewTempo);
 
-	gMyInfo.Tempo = NewTempo;
+    gMyInfo.Tempo = NewTempo;
 
-	/* Send out a message our tempo is changing.
-	 */
-	SetupAlsaTimer(NewTempo);
+    /* Send out a message our tempo is changing.
+     */
+    SetupAlsaTimer(NewTempo);
 }
 
 /*-----------------------------------------------
@@ -205,15 +207,16 @@ void SetTempo(unsigned int NewTempo) {
  *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
 
-	printd(LogRealTime, " IN time_handler Alsa\n");
-	if (!JackRunning)
-		ToggleTempo();
+    printd(LogRealTime, " IN time_handler Alsa\n");
+    if (!JackRunning) {
+        ToggleTempo();
+    }
 
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
 //printd(LogTimer, "Call Toggle from tempo\n");
 //	PlayerPoll(TRUE);
-	return TRUE;
+    return TRUE;
 }
 
 #endif
@@ -226,40 +229,40 @@ static gboolean tempo_handler(GtkWidget *widget) {
  *------------------------------------------------*/
 void MyTimerInit(void) {
 
-	CountInActiveState = cntStateWaitingIdle;
-	LoopRecBeats = 0;
-	SubBeats = 0;
+    CountInActiveState = cntStateWaitingIdle;
+    LoopRecBeats = 0;
+    SubBeats = 0;
 
-	/* Set up a timer for Tempo.
-	*/
-	gMyInfo.TempoTimerID = 0;
-	gMyInfo.TimerCount = 0;
-	gMyInfo.AlsaTimerHandle = 0;
-	printd(LogTimer, "MyTimerInit\n");
+    /* Set up a timer for Tempo.
+    */
+    gMyInfo.TempoTimerID = 0;
+    gMyInfo.TimerCount = 0;
+    gMyInfo.AlsaTimerHandle = 0;
+    printd(LogTimer, "MyTimerInit\n");
 
-	int Ret;
-	timer_t timerid;
-	struct sigevent sig;
-	sig.sigev_notify = SIGEV_THREAD;
-	sig.sigev_notify_function = time_handlerRT;
-	// This get's passed to the handler.
-	sig.sigev_value.sival_int = 20;
-	sig.sigev_value.sival_ptr = &timerid;
-	sig.sigev_notify_attributes = NULL;
-	gMyInfo.TempoTimerID = timerid;
-	/* Let create a timer.
-	*/
-	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
-	printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
+    int Ret;
+    timer_t timerid;
+    struct sigevent sig;
+    sig.sigev_notify = SIGEV_THREAD;
+    sig.sigev_notify_function = time_handlerRT;
+    // This get's passed to the handler.
+    sig.sigev_value.sival_int = 20;
+    sig.sigev_value.sival_ptr = &timerid;
+    sig.sigev_notify_attributes = NULL;
+    gMyInfo.TempoTimerID = timerid;
+    /* Let create a timer.
+    */
+    Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
+    printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
 
-	if (Ret != 0) {
-		printd(LogTimer, "timer_settime() failed with %d\n", errno);
-		//delete the timer.
-		timer_delete(timerid);
-		timerid = 0;
-	}
+    if (Ret != 0) {
+        printd(LogTimer, "timer_settime() failed with %d\n", errno);
+        //delete the timer.
+        timer_delete(timerid);
+        timerid = 0;
+    }
 
-	SetTempo(111);
+    SetTempo(111);
 }
 
 /*-----------------------------------------------
@@ -269,75 +272,77 @@ void MyTimerInit(void) {
  *
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
-	int Ret;
-	struct itimerspec in;
+    int Ret;
+    struct itimerspec in;
 
 
-	printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
+    printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
 
-	/* If the tempo is not reasonable.
-	*/
-	if (NewTempo <= 30)
-		return;
+    /* If the tempo is not reasonable.
+    */
+    if (NewTempo <= 30) {
+        return;
+    }
 
-	/* If the tempo's are the same don't bother.
-	*/
-	if (gMyInfo.Tempo == OldTempo)
-		return;
+    /* If the tempo's are the same don't bother.
+    */
+    if (gMyInfo.Tempo == OldTempo) {
+        return;
+    }
 
-	SetLoopTempo(NewTempo);
+    SetLoopTempo(NewTempo);
 
-	/* Set the jack transport for timers.
-	*/
-	com_tempo(NewTempo);
-	OldTempo = gMyInfo.Tempo = NewTempo;
+    /* Set the jack transport for timers.
+    */
+    com_tempo(NewTempo);
+    OldTempo = gMyInfo.Tempo = NewTempo;
 
 #if 0
-	pthread_attr_init( &attr );
-	parm.sched_priority = 255;
-	pthread_attr_setschedparam(&attr, &parm);
-	sig.sigev_notify_attributes = &attr;
+    pthread_attr_init( &attr );
+    parm.sched_priority = 255;
+    pthread_attr_setschedparam(&attr, &parm);
+    sig.sigev_notify_attributes = &attr;
 #endif
 
 #if 0
-	/* Delete current timer before creating new one.
-	*/
-	if (gMyInfo.TempoTimerID) {
-		printd(LogTimer, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
-		timer_delete(gMyInfo.TempoTimerID);
-		gMyInfo.TempoTimerID = 0;
-	}
+    /* Delete current timer before creating new one.
+    */
+    if (gMyInfo.TempoTimerID) {
+        printd(LogTimer, "***** RT Timer timer_delete %d ****\n", gMyInfo.TempoTimerID);
+        timer_delete(gMyInfo.TempoTimerID);
+        gMyInfo.TempoTimerID = 0;
+    }
 
 
-	sig.sigev_notify = SIGEV_THREAD;
-	sig.sigev_notify_function = time_handlerRT;
-	// This get's passed to the handler.
-	sig.sigev_value.sival_int = 20;
-	sig.sigev_value.sival_ptr = &timerid;
-	sig.sigev_notify_attributes = NULL;
+    sig.sigev_notify = SIGEV_THREAD;
+    sig.sigev_notify_function = time_handlerRT;
+    // This get's passed to the handler.
+    sig.sigev_value.sival_int = 20;
+    sig.sigev_value.sival_ptr = &timerid;
+    sig.sigev_notify_attributes = NULL;
 
-	/* Let create a timer.
-	*/
-	Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
-	printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
-	gMyInfo.TempoTimerID = timerid;
+    /* Let create a timer.
+    */
+    Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
+    printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
+    gMyInfo.TempoTimerID = timerid;
 #endif
 
-	/* Was == 0 but this works much better.
-	*/
-	memset(&in, 0, sizeof(in));
-	// Can't be zero.
-	in.it_value.tv_sec = 1;
-	in.it_value.tv_nsec = 0;
-	in.it_interval.tv_sec = 0;
+    /* Was == 0 but this works much better.
+    */
+    memset(&in, 0, sizeof(in));
+    // Can't be zero.
+    in.it_value.tv_sec = 1;
+    in.it_value.tv_nsec = 0;
+    in.it_interval.tv_sec = 0;
 
 //		in.it_interval.tv_nsec = 30000000000 / NewTempo;
-	// Double the timer interval.
-	in.it_interval.tv_nsec = 7500000000 / NewTempo;
+    // Double the timer interval.
+    in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
-	//issue the periodic timer request here.
-	Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, 0);
-	printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
+    //issue the periodic timer request here.
+    Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, 0);
+    printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
 }
 
 /*-----------------------------------------------
@@ -347,19 +352,19 @@ void SetTempo(unsigned int NewTempo) {
  *
  *------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
-		ToggleTempo();
+    ToggleTempo();
 
-	printd(LogTimer, "IN time_handler %d\n", SubBeats);
+//    printd(LogTimer, "IN time_handler %d\n", SubBeats);
 
-	if (++SubBeats > 7) {
-		SubBeats = 0;
-	}
+    if (++SubBeats > 7) {
+        SubBeats = 0;
+    }
 
-	/* Queue the GUI idle task to draw.
-	*/
-	g_idle_add(GTKIdel_cb, theMainWindow);
+    /* Queue the GUI idle task to draw.
+    */
+    g_idle_add(GTKIdel_cb, theMainWindow);
 
-	return;
+    return;
 }
 #endif
 
@@ -374,185 +379,188 @@ static void time_handlerRT (union sigval val) {
 void ToggleTempo(void) {
 //	char Count;
 //	int	Loop;
-	struct timeval Time0;
+    struct timeval Time0;
 
-	// gettimeofday(&Time0, NULL);
-	// printd(LogTest, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
+    // gettimeofday(&Time0, NULL);
+    // printd(LogTest, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
 
-	/* This is the tempo in BPM
-		Currently we use 4 clocks per quarter.
-	*/
-	if (!(++TempoState % TimerTicksPerQuater)) {
-		gUpdateTempo = 1;
+    /* This is the tempo in BPM
+    	Currently we use 4 clocks per quarter.
+    */
+    if (!(++TempoState % TimerTicksPerQuater)) {
+        gUpdateTempo = 1;
 
-		/* Check for a beat 1.
-		*/
-		if (++BeatCount > gMyInfo.BeatsPerMeasure) {
-			BeatCount = 1;
-			TempoState = 0;
-		}
+        /* Check for a beat 1.
+        */
+        if (++BeatCount > gMyInfo.BeatsPerMeasure) {
+            BeatCount = 1;
+            TempoState = 0;
+        }
 
-		/* Handle any recording for the looper. Make
-		sure this is first.
-		*/
-		switch (CountInActiveState) {
-		case cntStateWaitingforCountIn:
-			printd(LogTimer, "cntStateWaitingforRecCount %d\n", BeatCount);
-			/* Wait for the downbeat.
-			*/
-			if (BeatCount == 1)
-				CountInActiveState = cntStateWaitingforRecCount;
+        /* Handle any recording for the looper. Make
+        sure this is first.
+        */
+        switch (CountInActiveState) {
+        case cntStateWaitingforCountIn:
+            printd(LogTimer, "cntStateWaitingforRecCount %d\n", BeatCount);
+            /* Wait for the downbeat.
+            */
+            if (BeatCount == 1) {
+                CountInActiveState = cntStateWaitingforRecCount;
+            }
 
-			break;
+            break;
 
-		case cntStateWaitingforRecCount:
-			printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+        case cntStateWaitingforRecCount:
+            printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 
-			if (CountInCount-- == gMyInfo.CountInBeats) {
+            if (CountInCount-- == gMyInfo.CountInBeats) {
 
-				MyOSCSetSync(1);
+                MyOSCSetSync(1);
 
-				// In case there is no downbeat.
-				OSCCommand(OSCRecThres, 0);
+                // In case there is no downbeat.
+                OSCCommand(OSCRecThres, 0);
 
-				// Send a start record over OSC
-				com_play();
+                // Send a start record over OSC
+                com_play();
 
-				/* Tell Drums to start.
-				*/
-				SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
-				         0, 0);
+                /* Tell Drums to start.
+                */
+                SendMidi(SND_SEQ_EVENT_START, TransportPort, 1,
+                         0, 0);
 
-				printd(LogTimer, "Start %d %d\n", CountInCount,  TempoState);
+                printd(LogTimer, "Start %d %d\n", CountInCount,  TempoState);
 
-			}
+            }
 
-			if ( CountInCount == 0) {
-				CountInActiveState = cntStateRecording;
+            if ( CountInCount == 0) {
+                CountInActiveState = cntStateRecording;
 
 //							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-				//		OSCCommand(OSCStartRecord, 0);
-				gMyInfo.MetronomeOn = FALSE;
-				printd(LogTimer, "Loop Start 1\n\n");
-			}
+                //		OSCCommand(OSCStartRecord, 0);
+                gMyInfo.MetronomeOn = FALSE;
+                printd(LogTimer, "Loop Start 1\n\n");
+            }
 
-			break;
+            break;
 
-		/* If we are recording and still not done.
-		*/
-		case cntStateRecording:
-			printd(LogTimer, "cntStateRecording %d\n", LoopRecBeats);
+        /* If we are recording and still not done.
+        */
+        case cntStateRecording:
+            printd(LogTimer, "cntStateRecording %d\n", LoopRecBeats);
 
-			if (LoopRecBeats == gMyInfo.LoopRecBeats) {
-				
-				/* Start the looper for recording.
-				*/
-				OSCCommand(OSCSyncSource, 0);
+            if (LoopRecBeats == gMyInfo.LoopRecBeats) {
 
-				OSCCommand(OSCStartRecord, 0);
-				printd(LogTimer, "Start Recording %d\n", LoopRecBeats);
-			}
+                /* Start the looper for recording.
+                */
+                OSCCommand(OSCSyncSource, 0);
 
-			LoopRecBeats--;
+                OSCCommand(OSCStartRecord, 0);
+                printd(LogTimer, "Start Recording %d\n", LoopRecBeats);
+            }
+
+            LoopRecBeats--;
 #if 0
-			if (LoopRecBeats == 0) {
+            if (LoopRecBeats == 0) {
 
-				OSCCommand(OSCStopRecord, 0);
-			}
+                OSCCommand(OSCStopRecord, 0);
+            }
 #endif
 
-			if (LoopRecBeats == 0) {
+            if (LoopRecBeats == 0) {
 
-				/* Send stop to the looper.
-				*/
-				OSCCommand(OSCStopRecord, 0);
+                /* Send stop to the looper.
+                */
+                OSCCommand(OSCStopRecord, 0);
 
 
-				printd(LogTimer, "Stop Recording %d\n", LoopRecBeats);
+                printd(LogTimer, "Stop Recording %d\n", LoopRecBeats);
 
-				/* Stop the Jack timer.
-				*/
-				com_stop();
+                /* Stop the Jack timer.
+                */
+                com_stop();
 
-				/* Set Sync to Loop for the remaining tracks.
-				*/
-				SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
-				         0, 0);
+                /* Set Sync to Loop for the remaining tracks.
+                */
+                SendMidi(SND_SEQ_EVENT_STOP, TransportPort, 1,
+                         0, 0);
 
-				printd(LogTimer, "Loop Off\n\n");
+                printd(LogTimer, "Loop Off\n\n");
 
-				CountInActiveState = cntStatePostRecord;
-			}
-			break;
+                CountInActiveState = cntStatePostRecord;
+            }
+            break;
 
-		case cntStatePostRecord:
-			printd(LogTimer, "Record Post\n\n");
-			CountInActiveState = cntStateWaitingIdle;
+        case cntStatePostRecord:
+            printd(LogTimer, "Record Post\n\n");
+            CountInActiveState = cntStateWaitingIdle;
 
-			MyOSCSetSync(0);
-			break;
+            MyOSCSetSync(0);
+            break;
 
-		/* If we are not recording, but the CountIn has been set let's start Drum machine.
-		*/
-		case cntStateWaitingIdle:
-			/* You need to set the the midi pref in hydrogen to
-			CC 99 Beatcounter not to tap.
-			*/
-			// should change to OSC for compatibility.
-			SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
-			         1, 99, 0);
+        /* If we are not recording, but the CountIn has been set let's start Drum machine.
+        */
+        case cntStateWaitingIdle:
+            /* You need to set the the midi pref in hydrogen to
+            CC 99 Beatcounter not to tap.
+            */
+            // should change to OSC for compatibility.
+            SendMidi(SND_SEQ_EVENT_CONTROLLER, TempoPort,
+                     1, 99, 0);
 
-			// Send the tap tempo to sooperlooper.
-			MyOSCTap(TempoState);
+            // Send the tap tempo to sooperlooper.
+            MyOSCTap(TempoState);
 
-			break;
-		}
+            break;
+        }
 
-		/* On the first beat play a different sound.
-		 */
-		if (gMyInfo.MetronomeOn) {
-			if (BeatCount != 1) {
+        /* On the first beat play a different sound.
+         */
+        if (gMyInfo.MetronomeOn) {
+            if (BeatCount != 1) {
 
-				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
-			} else {
-				gLooperWaitForSync = 0;
-				SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
-				         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
-			}
+                SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                         DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
+            }
+            else {
+                gLooperWaitForSync = 0;
+                SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
+                         DrumMidiChannel, 00, (int) gMyInfo.Drum1);
+            }
 
-			sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
-		} else {
-			gLooperWaitForSync = 0;
-			sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
-		}
+            sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
+        }
+        else {
+            gLooperWaitForSync = 0;
+            sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
+        }
 
-		LEDControl(BeatCount, 1);
-		UIUpdateFromTimer = TRUE;
+        LEDControl(BeatCount, 1);
+        UIUpdateFromTimer = TRUE;
 
-	}
+    }
 
-	if (gMyInfo.Tempo != OldTempo) {
-		SetTempo(gMyInfo.Tempo);
-		// Must return or SegFault.
-		return;
-	}
+    if (gMyInfo.Tempo != OldTempo) {
+        SetTempo(gMyInfo.Tempo);
+        // Must return or SegFault.
+        return;
+    }
 
 #if 0
-	else {
+    else {
 //		if (TempoState == 2) {
-		/*  Turn lights off
-		 */
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED3Off );
+        /*  Turn lights off
+         */
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off );
 
-		SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-		         DrumMidiChannel, 04, (int) PedalLED4Off );
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4Off );
 //		}
-	}
+    }
 #endif
-	/* This is BAD FIXME
-	*/
+    /* This is BAD FIXME
+    */
 //	SetTempo(gMyInfo.Tempo);
 
 }

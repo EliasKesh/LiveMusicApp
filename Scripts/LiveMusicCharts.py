@@ -534,7 +534,7 @@ def CreateNewHTML(fname,dirname,Files):
 <font color=#ff8002>Chords:  </font> <br>\n\
 <font color=#88ffff>Structure:  </font> <br>\n\
 </code>\n"
-  sPresets=['','Str_Pre','Expre Dist','Funky_Pre','','','','','','','','','']
+  sPresets=['','Str_Pre','Expr Dist','Blues_Pre','Jazz_Pre','MidiTog','','','','','','','']
   sSetNow=['PlaceHolder','','','','','','','','','','','','']
   sSetIndex=1
   WriteFile(dirname+"/"+fname+".html", dirname)
@@ -546,7 +546,7 @@ def ExtractPDF(Files, dirname):
         if (theFile.endswith("pdf")):
             f = dirname+"/"+theFile
             print ("The ** pdf ", f)
-            with(Image(filename=f, resolution=450)) as source: 
+            with(Image(filename=f, resolution=200)) as source: 
                for i, image in enumerate(source.sequence):
 #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
                    # -4 is to remove the .pdf
