@@ -103,7 +103,7 @@ void MyTimerInit(void) {
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-    if (NewTempo <= 0) {
+    if (NewTempo <= 40) {
         return;
     }
 
@@ -183,7 +183,7 @@ void MyTimerInit(void) {
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-    if (NewTempo <= 30) {
+    if (NewTempo <= 40) {
         return;
     }
 
@@ -395,12 +395,17 @@ void ToggleTempo(void) {
         if (++BeatCount > gMyInfo.BeatsPerMeasure) {
             BeatCount = 1;
             TempoState = 0;
+
+            if (CountInActiveState == cntStateWaitingforCountIn)
+                CountInActiveState = cntStateWaitingforRecCount;
+
         }
 
         /* Handle any recording for the looper. Make
         sure this is first.
         */
         switch (CountInActiveState) {
+#if 0
         case cntStateWaitingforCountIn:
             printd(LogTimer, "cntStateWaitingforRecCount %d\n", BeatCount);
             /* Wait for the downbeat.
@@ -410,7 +415,7 @@ void ToggleTempo(void) {
             }
 
             break;
-
+#endif
         case cntStateWaitingforRecCount:
             printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
 
@@ -518,7 +523,6 @@ void ToggleTempo(void) {
          */
         if (gMyInfo.MetronomeOn) {
             if (BeatCount != 1) {
-
                 SendMidi(SND_SEQ_EVENT_NOTEON, ClickPort,
                          DrumMidiChannel, 00, (int) gMyInfo.DrumRest);
             }

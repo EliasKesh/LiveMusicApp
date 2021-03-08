@@ -1,30 +1,30 @@
 /*---------------------------------------------
- *	Revision Date:	 2014/04/08
+ *  Revision Date:   2014/04/08
  *
- *	Contains:	<Type in description>
+ *  Contains:   <Type in description>
  *
- *	Written by:	Elias Kesh
+ *  Written by: Elias Kesh
  *
- *	Date:		<Creation Date>
+ *  Date:       2014/04/08
  *
- *	Copyright © 2012 Elias Kesh.  All rights reserved.
+ *  Copyright © 2012 Elias Kesh.  All rights reserved.
  *
  * Parts of the draw fretboard taken from OpenMoko-ChordMaster
  * Authored by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version 2
- *	of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  *
  *---------------------------------------------*/
@@ -44,17 +44,18 @@
  * Constants
  */
 
-#define MaxDisplayFrets	16
-#define MaxNumStrings	TotalMaxStrings
-#define MaxNumFrets		24
+#define MaxDisplayFrets 16
+#define MaxNumStrings   TotalMaxStrings
+#define MaxNumFrets     24
 
 #if (GTK_MAJOR_VERSION == 2)
-#define XOffset		70
-#define YOffset		70
+#define XOffset     70
+#define YOffset     70
 #else
-#define XOffset		5
-#define YOffset		5
+#define XOffset     12
+#define YOffset     30
 #endif
+#define ChordFontSize 16
 
 typedef struct {
     /* Relative position of string number, 1 is the first.
@@ -74,12 +75,12 @@ typedef struct {
     char Fret;
 } thePreChord;
 
-#define EOfscl		-1
-#define SN		-2
-//	C   C#   D   D#   E   F   F#   G   G#   A   A#   B   C
-//	  1    2   3    4   5   6    7    8   9   10   11  12
+#define EOfscl      -1
+#define SN      -2
+//  C   C#   D   D#   E   F   F#   G   G#   A   A#   B   C
+//    1    2   3    4   5   6    7    8   9   10   11  12
 // Chords and Scales
-// 								1	2	3	4	5	6	7	8	9	10	11	12	13	14
+//                              1   2   3   4   5   6   7   8   9   10  11  12  13  14
 char chMajor[] =
 { 0, SN, 4, SN, 7, SN, 11, EOfscl };
 char chMinor[] =
@@ -354,15 +355,15 @@ void SetChord ( char Root, thePreChord *myPreChord );
 
 
 /*--------------------------------------------
- * Function:		SetChordCallBack
+ * Function:        SetChordCallBack
  *
- * Description:		The Scale or Chord call back from button press and
- * 				call the drawing routine.
+ * Description:     The Scale or Chord call back from button press and
+ *              call the drawing routine.
  *---------------------------------------------*/
 static void SetChordCallBack ( GtkWidget *widget, gpointer data ) {
     int ScaleIndex;
 
-//	CurScale = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+    //  CurScale = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
     ScaleIndex = gtk_combo_box_get_active ( GTK_COMBO_BOX ( widget ) );
     CurPreScale = myPreChordMenu[ScaleIndex].PreChord;
     SetChord ( CurRootNote, CurPreScale );
@@ -372,15 +373,15 @@ static void SetChordCallBack ( GtkWidget *widget, gpointer data ) {
 }
 
 /*--------------------------------------------
- * Function:		SetScaleCallBack
+ * Function:        SetScaleCallBack
  *
- * Description:		The Scale or Chord call back from button press and
- * 				call the drawing routine.
+ * Description:     The Scale or Chord call back from button press and
+ *              call the drawing routine.
  *---------------------------------------------*/
 static void SetScaleCallBack ( GtkWidget *widget, gpointer data ) {
     int ScaleIndex;
 
-//	CurScale = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+    //  CurScale = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
     ScaleIndex = gtk_combo_box_get_active ( GTK_COMBO_BOX ( widget ) );
     CurScale = myChordMenu[ScaleIndex].ChordList;
     SetScale ( CurRootNote, CurScale );
@@ -389,39 +390,39 @@ static void SetScaleCallBack ( GtkWidget *widget, gpointer data ) {
 }
 
 /*--------------------------------------------
- * Function:		SetRootCallBack
+ * Function:        SetRootCallBack
  *
- * Description:		Set root note call back from button press and
- * 				call the drawing routine.
+ * Description:     Set root note call back from button press and
+ *              call the drawing routine.
  *---------------------------------------------*/
 static void SetRootCallBack ( GtkWidget *widget, gpointer data ) {
 
     CurRootNote = ( char ) gtk_combo_box_get_active ( GTK_COMBO_BOX ( widget ) );
-//    CurRootNote = (char *)data;
+    //    CurRootNote = (char *)data;
     SetScale ( CurRootNote, CurScale );
     draw_fretboard_background ( MyFretArea, NULL );
     gdk_window_invalidate_rect ( gtk_widget_get_window ( widget ), NULL, true );
 }
 
 /*--------------------------------------------
- * Function:		GetFretPosition
+ * Function:        GetFretPosition
  *
- * Description:		When the fret position is changed by the user.
+ * Description:     When the fret position is changed by the user.
  *---------------------------------------------*/
 static void GetFretPositionCallBack ( GtkWidget *widget, GtkWidget *entry ) {
-//    const gchar *PositionText = gtk_entry_get_text(GTK_ENTRY (entry));
-//	sscanf((char *)PositionText, "%d", &DisplayPosition);
+    //    const gchar *PositionText = gtk_entry_get_text(GTK_ENTRY (entry));
+    //  sscanf((char *)PositionText, "%d", &DisplayPosition);
     DisplayPosition = gtk_combo_box_get_active ( GTK_COMBO_BOX ( widget ) );
     SetScale ( CurRootNote, CurScale );
     draw_fretboard_background ( MyFretArea, NULL );
     gdk_window_invalidate_rect ( gtk_widget_get_window ( widget ), NULL, true );
 
-//		DisplayPosition = atoi(PositionText);
+    //      DisplayPosition = atoi(PositionText);
 }
 /*--------------------------------------------
- * Function:		GetIntervalNote
+ * Function:        GetIntervalNote
  *
- * Description:		Given a root note and an interval get the new note
+ * Description:     Given a root note and an interval get the new note
  *---------------------------------------------*/
 char GetIntervalNote ( char Starting, char Interval ) {
     char NewInt;
@@ -431,9 +432,9 @@ char GetIntervalNote ( char Starting, char Interval ) {
 }
 
 /*--------------------------------------------
- * Function:		PrintBoard
+ * Function:        PrintBoard
  *
- * Description:	Print the board to a terminal -- Test
+ * Description: Print the board to a terminal -- Test
  *---------------------------------------------*/
 void PrintBoard() {
     int FretLoop;
@@ -451,9 +452,9 @@ void PrintBoard() {
 }
 
 /*--------------------------------------------
- * Function:		SetOpenString
+ * Function:        SetOpenString
  *
- * Description:	Set the open string tuning.
+ * Description: Set the open string tuning.
  * ** TODO Make this dynamic based on Preferences
  *---------------------------------------------*/
 void SetOpenString ( void ) {
@@ -479,32 +480,32 @@ void SetOpenString ( void ) {
 }
 
 /*--------------------------------------------
- * Function:		SetupFretBoard
+ * Function:        SetupFretBoard
  *
- * Description:	Based on the open string tuning fill in all the notes
- * 			for every fret on everystring.
+ * Description: Based on the open string tuning fill in all the notes
+ *          for every fret on everystring.
  *---------------------------------------------*/
 void SetupFretBoard ( void ) {
-    int	 FretLoop;
-    int	 StringLoop;
+    int  FretLoop;
+    int  StringLoop;
 
     for ( StringLoop = 0; StringLoop < NumStrings; StringLoop++ ) {
         for ( FretLoop = 1; FretLoop < MaxNumFrets; FretLoop++ ) {
             StringLayout[StringLoop][FretLoop] = GetIntervalNote (
-                                                 StringLayout[StringLoop][FretLoop - 1], 1 );
+                    StringLayout[StringLoop][FretLoop - 1], 1 );
         }
     }
 }
 
 /*--------------------------------------------
- * Function:		SetChord
+ * Function:        SetChord
  *
- * Description:	Clear the chord structure and fill in the notes we
- * 		want to display.
+ * Description: Clear the chord structure and fill in the notes we
+ *      want to display.
  *---------------------------------------------*/
 void SetChord ( char Root, thePreChord *myPreChord ) {
-    int	 Loop;
-//    char	NewNote;
+    int  Loop;
+    //    char  NewNote;
     int String;
     int Fret;
     int Value;
@@ -548,7 +549,7 @@ void SetChord ( char Root, thePreChord *myPreChord ) {
 
     printd ( LogInfo, "Starting String %d Fret %d Root %d\n", String, Fret, Root );
 
-//               myChord.ChordNotes[String][Fret] = Value;
+    //               myChord.ChordNotes[String][Fret] = Value;
     for ( Loop = 0; myPreChord[Loop].Finger != -1; Loop++ ) {
         printd ( LogInfo, "C_String %d, C_Fret %d\n", myPreChord[Loop].String,
                  myPreChord[Loop].Fret );
@@ -571,10 +572,10 @@ void SetChord ( char Root, thePreChord *myPreChord ) {
 }
 
 /*--------------------------------------------
- * Function:		SetScale
+ * Function:        SetScale
  *
- * Description:	Clear the chord structure and fill in the notes we
- * 		want to display.
+ * Description: Clear the chord structure and fill in the notes we
+ *      want to display.
  *---------------------------------------------*/
 void SetScale ( char Root, char *Scale ) {
     int Loop;
@@ -598,9 +599,9 @@ void SetScale ( char Root, char *Scale ) {
 }
 
 /*--------------------------------------------
- * Function:		MarkNote
+ * Function:        MarkNote
  *
- * Description:	Add the note we want to display into the structure.
+ * Description: Add the note we want to display into the structure.
  *---------------------------------------------*/
 void MarkNote ( char Note, char Value ) {
     int String;
@@ -616,7 +617,7 @@ void MarkNote ( char Note, char Value ) {
 }
 
 /*--------------------------------------------
- * Function:		delete_event
+ * Function:        delete_event
  *
  * Description:
  *---------------------------------------------*/
@@ -642,13 +643,13 @@ static void destroy ( GtkWidget *widget, gpointer data ) {
 
 #if (GTK_MAJOR_VERSION == 2)
 /*--------------------------------------------
- * Function:		ChorderMain
+ * Function:        ChorderMain
  *
- * Description:	for GTK 20X
+ * Description: for GTK 20X
  *---------------------------------------------*/
 int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     /* GtkWidget is the storage type for widgets */
-//   GtkWidget *window;
+    //   GtkWidget *window;
     GtkWidget *button;
     GtkWidget *event_box;
     GtkWidget *rootBox;
@@ -661,8 +662,8 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     GdkPixbuf *pix;
     GError *err = NULL;
     GtkWidget *area = NULL;
-//    GdkGC *gc;
-//    GdkPixmap *background;
+    //    GdkGC *gc;
+    //    GdkPixmap *background;
     GtkWidget *RootFixed;
     GtkWidget *RootCombo;
     GtkWidget *ScaleFixed;
@@ -679,9 +680,9 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     printd ( LogInfo, "FretOffset 0\n" );
     /* This is called in all GTK applications. Arguments are parsed
      * from the command line and are returned to the application. */
-//   gtk_init (&argc, &argv);
+    //   gtk_init (&argc, &argv);
     /* create a new window */
-//   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    //   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_get_size ( GTK_WIDGET ( MainWindow ), &width, &height );
     NoteNames = FlatNotes;
     SetOpenString();
@@ -720,7 +721,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     gtk_fixed_put ( GTK_FIXED ( RootFixed ), RootCombo, 0, 25 );
     g_signal_connect ( G_OBJECT ( RootCombo ), "changed",
                        G_CALLBACK ( SetRootCallBack ), ( gpointer ) label1 );
-//	gtk_settings_set_property_value(RootCombo, "gtk-touchscreen-mode", &touchscreen_mode);
+    //  gtk_settings_set_property_value(RootCombo, "gtk-touchscreen-mode", &touchscreen_mode);
     gtk_widget_set_size_request ( RootCombo, 130, 60 );
 
     /* Here is the Scale pulldown.
@@ -810,18 +811,18 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
 #endif
     event_box = gtk_event_box_new();
     rootBox = gtk_hbox_new ( TRUE, 5 );
-//   rootBox1 = gtk_hbox_new(TRUE, 5);
+    //   rootBox1 = gtk_hbox_new(TRUE, 5);
     chdBox = gtk_hbox_new ( TRUE, 5 );
     SclBox = gtk_hbox_new ( TRUE, 5 );
     vbox = gtk_vbox_new ( FALSE, 10 );
     BottomBox = gtk_hbox_new ( FALSE, 10 );
 
-//	Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("./wood.png",FileLocConfig), &err);
+    //  Fingerboard = gdk_pixbuf_new_from_file(GetResourceDir("./wood.png",FileLocConfig), &err);
     Fingerboard = gdk_pixbuf_new_from_file ( GetResourceDir ( "RedWood.png", FileLocConfig ),
                   &err );
 
     FingerboardDot = gdk_pixbuf_new_from_file (
-                     GetResourceDir ( "FretboardDot.png", FileLocConfig ), &err );
+                         GetResourceDir ( "FretboardDot.png", FileLocConfig ), &err );
     BouncieBall = gdk_pixbuf_new_from_file ( GetResourceDir ( "ball.png", FileLocConfig ), &err );
     BouncieBallBl = gdk_pixbuf_new_from_file ( GetResourceDir ( "blueball.png", FileLocConfig ),
                     &err );
@@ -837,7 +838,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
                                   FretOffset * ( MaxDisplayFrets + 1 ) + 30,
                                   StringOffset * NumStrings + 30 );
 
-//    gtk_box_set_homogeneous(vbox, FALSE);
+    //    gtk_box_set_homogeneous(vbox, FALSE);
     gtk_box_pack_start ( GTK_BOX ( vbox ), MyFretArea, TRUE, TRUE, 5 );
     gtk_box_pack_start ( GTK_BOX ( vbox ), rootBox, FALSE, FALSE, 2 );
     gtk_box_pack_start ( GTK_BOX ( rootBox ), RootFixed, FALSE, FALSE, 2 );
@@ -866,21 +867,21 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     /* All GTK applications must have a gtk_main(). Control ends here
      * and waits for an event to occur (like a key press or
      * mouse event). */
-//   gtk_main ();
+    //   gtk_main ();
     return 0;
 }
 
 /*--------------------------------------------
- * Function:		draw_fretboard_background
+ * Function:        draw_fretboard_background
  *
- * Description:	The drawing routine.
+ * Description: The drawing routine.
  *---------------------------------------------*/
 gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) {
     GError* error = NULL;
     int Loop;
     GdkColor labeloffcolor =
     { 0, 0x00 << 8, 0x00 << 8, 0x00 << 8 };
-//	GdkColor labeloffcolor = { 0, 0xff <<8, 0xff <<8, 0xff <<8 };
+    //  GdkColor labeloffcolor = { 0, 0xff <<8, 0xff <<8, 0xff <<8 };
     GdkColor labeloncolor =
     { 0, 0xf0 << 8, 0xa0 << 8, 0xa0 << 8 };
     GdkColor stringcolor1 =
@@ -937,7 +938,7 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
         gdk_gc_set_rgb_fg_color ( gc, &labeloncolor );
         sprintf ( StrBuf, "%d", Loop + myChord.Position );
         pango_layout_set_text ( layout, StrBuf, 2 );
-//		gdk_gc_set_line_attributes(gc, 2, GDK_LINE_ON_OFF_DASH, GDK_CAP_ROUND, GDK_JOIN_MITER );
+        //      gdk_gc_set_line_attributes(gc, 2, GDK_LINE_ON_OFF_DASH, GDK_CAP_ROUND, GDK_JOIN_MITER );
         gdk_draw_layout ( widget->window, gc, XOffset + 30 + Loop * FretOffset,
                           YOffset + 270, layout );
 
@@ -1032,15 +1033,15 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
                  */
                 switch ( myChord.ChordNotes[StringLoop][FretLoop] ) {
                 case 1:
-                    theBall = BouncieBallRed;
-                    break;
-
-                case 3:
                     theBall = BouncieBallYel;
                     break;
 
+                case 3:
+                    theBall = BouncieBallRed;
+                    break;
+
                 case 5:
-                    theBall = BouncieBallGr;
+                    theBall = BouncieBall;
                     break;
 
                 case 6:
@@ -1049,7 +1050,7 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
                     break;
 
                 default:
-                    theBall = BouncieBall;
+                    theBall = BouncieBallGr;
                     break;
                 }
 
@@ -1073,7 +1074,7 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
 }
 #else
 /*--------------------------------------------
- * Function:		ChorderMain
+ * Function:        ChorderMain
  *
  * Description: for GTK 3.X
  *---------------------------------------------*/
@@ -1089,8 +1090,8 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     GdkPixbuf *pix;
     GError *err = NULL;
     GtkWidget *area = NULL;
-//    GdkGC *gc;
-//    GdkPixmap *background;
+    //    GdkGC *gc;
+    //    GdkPixmap *background;
     GtkWidget *RootFixed;
     GtkWidget *RootCombo;
     GtkWidget *ScaleFixed;
@@ -1100,8 +1101,8 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     gboolean touchscreen_mode = TRUE;
     GtkWidget *PreChordFixed;
     GtkWidget *PreChordCombo;
-    int	 Loop;
-    char	Buffer[120];
+    int  Loop;
+    char    Buffer[120];
     gfloat screen_width;
     gfloat screen_height;
     gfloat image_width;
@@ -1120,7 +1121,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     image_width = cairo_image_surface_get_width ( CSurface );
     image_height = cairo_image_surface_get_height ( CSurface );
     gtk_window_get_size ( GTK_WIDGET ( MainWindow ), &Fwidth, &Fheight );
-//  gtk_widget_get_size_request((window), &Fwidth, &Fheight);
+    //  gtk_widget_get_size_request((window), &Fwidth, &Fheight);
 
     printd ( LogInfo, "FretOffset 2 %d %d\n", Fwidth, Fheight );
     Fwidth  = 1000;
@@ -1130,7 +1131,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     NoteNames = FlatNotes;
     SetOpenString();
 
-//  FretOffset = width/MaxDisplayFrets;
+    //  FretOffset = width/MaxDisplayFrets;
     if ( !NumStrings ) {
         return ( 0 );
     }
@@ -1216,7 +1217,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     gchar *UTFString;
     GError *error = NULL;
 
-//    for (Loop = 0; myPreChordMenu[Loop].PreChord; Loop++) {
+    //    for (Loop = 0; myPreChordMenu[Loop].PreChord; Loop++) {
     for ( Loop = 0; myPreChordMenu[Loop].Name[0]; Loop++ ) {
 
         UTFString = g_convert ( myPreChordMenu[Loop].Name, strlen ( myPreChordMenu[Loop].Name ), "UTF-8", "ISO-8859-1",
@@ -1268,22 +1269,22 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     vbox = gtk_box_new ( GTK_ORIENTATION_VERTICAL, 10 );
     BottomBox = gtk_box_new ( GTK_ORIENTATION_HORIZONTAL, 10 );
     Fingerboard = gtk_drawing_area_new ();
-// ejk	gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);
-//    gtk_window_get_size(MainWindow, &Cwidth, &Cheight);
+    // ejk  gtk_container_add (GTK_CONTAINER (MainWindow), Fingerboard);
+    //    gtk_window_get_size(MainWindow, &Cwidth, &Cheight);
 
     FingerboardDot = cairo_image_surface_create_from_png (
-                     GetResourceDir ( "FretboardDot.png", FileLocConfig ) );
+                         GetResourceDir ( "FretboardDot.png", FileLocConfig ) );
     BouncieBall = cairo_image_surface_create_from_png ( GetResourceDir ( "ball.png", FileLocConfig ) );
     BouncieBallBl = cairo_image_surface_create_from_png ( GetResourceDir ( "blueball.png", FileLocConfig ) );
     BouncieBallGr = cairo_image_surface_create_from_png ( GetResourceDir ( "greenball.png", FileLocConfig ) );
     BouncieBallRed = cairo_image_surface_create_from_png ( GetResourceDir ( "redball.png", FileLocConfig ) );
     BouncieBallYel = cairo_image_surface_create_from_png ( GetResourceDir ( "yelball.png", FileLocConfig ) );
 
-//   gtk_widget_set_size_request(MyFretArea,
-//                                FretOffset * (MaxDisplayFrets + 1) + 30,
-//                                StringOffset * NumStrings + 30);
+    //   gtk_widget_set_size_request(MyFretArea,
+    //                                FretOffset * (MaxDisplayFrets + 1) + 30,
+    //                                StringOffset * NumStrings + 30);
 
-//    gtk_box_set_homogeneous(vbox, FALSE);
+    //    gtk_box_set_homogeneous(vbox, FALSE);
     gtk_box_pack_start ( GTK_BOX ( vbox ), MyFretArea, TRUE, TRUE, 5 );
     gtk_box_pack_start ( GTK_BOX ( vbox ), rootBox, FALSE, FALSE, 2 );
     gtk_box_pack_start ( GTK_BOX ( rootBox ), RootFixed, FALSE, FALSE, 2 );
@@ -1292,7 +1293,7 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
     gtk_box_pack_start ( GTK_BOX ( rootBox ), PreChordFixed, FALSE, FALSE, 2 );
 
     gtk_box_pack_start ( GTK_BOX ( vbox ), BottomBox, FALSE, FALSE, 2 );
-//	gtk_box_pack_start(GTK_BOX(BottomBox), button, FALSE, FALSE, 2);
+    //  gtk_box_pack_start(GTK_BOX(BottomBox), button, FALSE, FALSE, 2);
 
     /* This packs the button into the window (a gtk container). */
     gtk_container_add ( GTK_CONTAINER ( window ), vbox );
@@ -1314,12 +1315,12 @@ int ChorderMain ( GtkWidget *MainWindow, GtkWidget *window ) {
 
 #define GDK_DISABLE_DEPRECATION_WARNINGS
 /*--------------------------------------------
- * Function:		draw_fretboard_background
+ * Function:        draw_fretboard_background
  *
- * Description:	The drawing routine.
+ * Description: The drawing routine.
  *---------------------------------------------*/
 gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) {
-//	GError* error = NULL;
+    //  GError* error = NULL;
     int Loop;
 
     char StrBuf[10];
@@ -1327,20 +1328,20 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
     int StringLoop;
     GdkPixbuf *theBall;
 
-//	printf("draw_fretboard_background \n");
+    //  printf("draw_fretboard_background \n");
     /*
      * NEW
      */
 #if 1
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-//    cr = gdk_cairo_create ( gtk_widget_get_window ( widget ) );
-G_GNUC_END_IGNORE_DEPRECATIONS
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    cr = gdk_cairo_create ( gtk_widget_get_window ( widget ) );
+    G_GNUC_END_IGNORE_DEPRECATIONS
 #else
     cr = gdk_window_begin_draw_frame(
-	gdk_drawing_context_get_cairo_context(
-		gtk_widget_get_window ( widget )), NULL );
+             gdk_drawing_context_get_cairo_context(
+                 gtk_widget_get_window ( widget )), NULL );
 #endif
-    
+
     cairo_set_source_surface ( cr, CSurface, 0, 0 );
     cairo_paint ( cr );
 
@@ -1350,7 +1351,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
     PangoLayout* layout = pango_layout_new ( context );
     cairo_set_operator ( cr, CAIRO_OPERATOR_ATOP );
 
-//    CAIRO_OPERATOR_ATOP CAIRO_OPERATOR_SOURCE
+    //    CAIRO_OPERATOR_ATOP CAIRO_OPERATOR_SOURCE
     /* Draw three layers of frets.
      */
     for ( Loop = 0; Loop <= MaxDisplayFrets; ++Loop ) {
@@ -1375,7 +1376,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
         cairo_set_source_rgb ( cr, .95, .75, .75 );
         sprintf ( StrBuf, "%d", Loop + myChord.Position );
         cairo_move_to ( cr, XOffset + 30 + Loop * FretOffset, YOffset + Fheight + 20 );
-        cairo_set_font_size ( cr, 12 );
+        cairo_set_font_size ( cr, ChordFontSize );
         cairo_show_text ( cr, StrBuf );
         cairo_stroke ( cr );
 
@@ -1419,7 +1420,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
     // Draw the strings
     for ( Loop = 0; Loop < NumStrings; ++Loop ) {
         cairo_move_to ( cr, XOffset + 5, YOffset + 25 + Loop * StringOffset );
-        cairo_set_font_size ( cr, 12 );
+        cairo_set_font_size ( cr, ChordFontSize );
 
         if ( StringLayout[Loop][0] == 'x' || StringLayout[Loop][0] == 'X' ) {
             cairo_set_source_rgb ( cr, 0, 0, 0 );
@@ -1481,15 +1482,15 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 
                     switch ( myChord.ChordNotes[StringLoop][FretLoop] ) {
                     case 1:
-                        theBall = ( GdkPixbuf * ) BouncieBallRed;
-                        break;
-
-                    case 3:
                         theBall = ( GdkPixbuf * ) BouncieBallYel;
                         break;
 
+                    case 3:
+                        theBall = ( GdkPixbuf * ) BouncieBallRed;
+                        break;
+
                     case 5:
-                        theBall = ( GdkPixbuf * ) BouncieBallGr;
+                        theBall = ( GdkPixbuf * ) BouncieBall;
                         break;
 
                     case 6:
@@ -1498,7 +1499,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
                         break;
 
                     default:
-                        theBall = ( GdkPixbuf * ) BouncieBall;
+                        theBall = ( GdkPixbuf * ) BouncieBallGr;
                         break;
                     }
 
@@ -1512,7 +1513,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
                     sprintf ( StrBuf, "%d", myChord.ChordNotes[StringLoop][FretLoop] );
                     cairo_move_to ( cr, FretOffset * ( FretLoop + 1 ) + 18,
                                     YOffset + 25 + StringOffset * StringLoop );
-                    cairo_set_font_size ( cr, 12 );
+                    cairo_set_font_size ( cr, ChordFontSize );
 
                     cairo_show_text ( cr, StrBuf );
                     cairo_stroke ( cr );
@@ -1526,18 +1527,18 @@ G_GNUC_END_IGNORE_DEPRECATIONS
             cairo_set_source_rgb ( cr, .7, .7, 1 );
             cairo_move_to ( cr, FretOffset * ( FretLoop ) + 14,
                             YOffset + 4 + StringOffset * StringLoop );
-            cairo_set_font_size ( cr, 12 );
+            cairo_set_font_size ( cr, ChordFontSize );
 
             cairo_show_text ( cr, StrBuf );
             cairo_stroke ( cr );
         }
     }
 
-//	gtk_widget_draw (widget,cr);
+    //  gtk_widget_draw (widget,cr);
 
 
-//	return TRUE;
-//gtk_widget_queue_draw(widget);
+    //  return TRUE;
+    //gtk_widget_queue_draw(widget);
 
     gtk_widget_queue_resize_no_redraw ( widget );
     cairo_destroy ( cr );
@@ -1547,16 +1548,16 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 
 #if 0
 /*--------------------------------------------
- * Function:		hello
+ * Function:        hello
  *
- * Description:		This is a callback function. The data arguments are ignored
+ * Description:     This is a callback function. The data arguments are ignored
  * in this example. More on callbacks below
  *
  *---------------------------------------------*/
 static void hello ( GtkWidget *widget, gpointer data ) {
-//   g_print ("Hello World\n");
-//	SetupFretBoard();
-//	PrintBoard();
+    //   g_print ("Hello World\n");
+    //  SetupFretBoard();
+    //  PrintBoard();
 }
 #endif
 

@@ -32,6 +32,7 @@ void StopMidiLoop ( void );
 void StartMidiLoop ( char *filename );
 int InitMidiLooper ( void );
 bool ToggleMidiLoop ( void );
+void LoadMidiLoop ( char *filename );
 
 /*
  * Place Static variables here.

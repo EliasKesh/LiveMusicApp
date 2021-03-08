@@ -103,7 +103,11 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 
 //	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>",
 //		gMyInfo.ButtonTextColor, String);
-    sprintf(FormatString, "<span  face=\"monospace\" font=\"10\" color='#%lx'><b>%s</b></span>",
+//    sprintf(FormatString, "<span  face=\"monospace\" font=\"12\" color='#%lx'><b>%s</b></span>",
+ //   sprintf(FormatString, "<span  face=\"Ubuntu Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
+//    sprintf(FormatString, "<span  face=\"Noto Sans Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
+//    sprintf(FormatString, "<span  face=\"Sans Sarif\" font=\"12\" color='#%lx'><b>%s</b></span>",
+    sprintf(FormatString, "<span  face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>%s</b></span>",
             gMyInfo.ButtonTextColor, String);
 
     printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);

@@ -143,6 +143,20 @@ void StopMidiLoop ( void ) {
 //	usleep(500);
 }
 
+
+
+/*--------------------------------------------
+* Function:    LoadMidiLoop
+*
+* Description: Pass midi file and open.
+*---------------------------------------------*/
+void LoadMidiLoop ( char *filename ) {
+
+    if ( filename != NULL ) {
+        strcpy ( file_name, filename );
+    }
+}
+
 /*--------------------------------------------
 * Function:    StartMidiLoop
 *

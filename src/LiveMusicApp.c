@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
     myScreen = gdk_screen_get_default();
     //    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
     ScreenSize = 2;
-    ButtonSize = 120;
+    ButtonSize = 140;
 
 #if 0
     /* Based on the sreen, size the buttons.
@@ -336,9 +336,9 @@ int main(int argc, char *argv[]) {
     /* Get the button sizes.
     */
     BButtonX = ButtonSize;
-    BButtonY = (int)((float) ButtonSize * 0.75);
-    MButtonX = (int)((float) ButtonSize * 0.90);
-    MButtonY = (int)((float) ButtonSize * 0.6);
+    BButtonY = (int)((float) ButtonSize * 0.5);
+    MButtonX = (int)((float) ButtonSize * 1.0);
+    MButtonY = (int)((float) ButtonSize * 0.5);
 
     MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
                             GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY,
@@ -1940,10 +1940,21 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
 
         if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
             StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-            sprintf(String, "     %02d     \n%*s",
+
+
+            sprintf(String, "      %03d      \n%*s",
                     Loop + 1,
-                    (14 + StringLen) / 2,
+                    (15 + StringLen) / 2,
                     gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+            // sprintf(String, "%*d\n%*s",
+            //         (14 + StringLen) / 2,
+            //         Loop + 1,
+            //         (14 + StringLen) / 2,
+            //         gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+
+
             printd(LogInfo, "SetUpMainButtons:IMG %d %d %s \n", Loop, PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
 
             MyImageButtonSetText( & MainButtons[Loop], String);

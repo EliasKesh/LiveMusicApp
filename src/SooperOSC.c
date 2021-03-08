@@ -1,27 +1,27 @@
 /*-------------------------------------------------
 |
-|	File: 	SooperOSC
+|   File:   SooperOSC
 |
-|	Contains:
+|   Contains:
 |
 |
-|	Written By: 	Elias Keshishoglou on Wed Sep 20 16:37:34 PDT 2017
+|   Written By:     Elias Keshishoglou on Wed Sep 20 16:37:34 PDT 2017
 |
-|	Copyright ©: 	2017 Elias Keshishoglou all rights reserved.
+|   Copyright ©:   2017 Elias Keshishoglou all rights reserved.
 |
-|	This program is free software; you can redistribute it and/or
-|	modify it under the terms of the GNU General Public License
-|	as published by the Free Software Foundation; either version 2
-|	of the License, or (at your option) any later version.
+|   This program is free software; you can redistribute it and/or
+|   modify it under the terms of the GNU General Public License
+|   as published by the Free Software Foundation; either version 2
+|   of the License, or (at your option) any later version.
 |
-|	This program is distributed in the hope that it will be useful,
-|	but WITHOUT ANY WARRANTY; without even the implied warranty of
-|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-|	GNU General Public License for more details.
+|   This program is distributed in the hope that it will be useful,
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|   GNU General Public License for more details.
 |
-|	You should have received a copy of the GNU General Public License
-|	along with this program; if not, write to the Free Software
-|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|   You should have received a copy of the GNU General Public License
+|   along with this program; if not, write to the Free Software
+|   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
 |-------------------------------------------------*/
@@ -40,7 +40,7 @@
 /*
  * Place defines and Typedefs here
  */
-#define DefaultLoopLength	20.0
+#define DefaultLoopLength   20.0
 
 
 /*
@@ -60,9 +60,9 @@ static char our_url[100];
 static char CurrentLoop;
 // http://essej.net/sooperlooper/doc_osc.html
 /*------------------------------------------------
- * Function:		OSCCommand.
+ * Function:        OSCCommand.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 int OSCCommand(int Command, char Option) {
@@ -70,7 +70,7 @@ int OSCCommand(int Command, char Option) {
 
     printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
     if (SLOSCaddr == NULL) {
-        return(1);
+        return (1);
     }
 
     switch (Command) {
@@ -145,7 +145,7 @@ int OSCCommand(int Command, char Option) {
         break;
 
     case OSCSyncSource:
-//		sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
+        //      sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
 
         printd(LogDebug, "OSCSyncSource %d\n", Option);
         lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
@@ -170,18 +170,18 @@ int OSCCommand(int Command, char Option) {
         gMyInfo.RecordStopLoop = gMyInfo.LoopPosition;
         break;
 
-//oscsend localhost 9951 /set si "sync_source" -3
+        //oscsend localhost 9951 /set si "sync_source" -3
 
-// lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
+        // lo_send(SLOSCaddr, "/sl/-2/set", "sf", "tap_tempo", 1);
     }
-return(0);
+    return (0);
 }
 
 /*------------------------------------------------
- * Function:		ctrl_handler.
+ * Function:        ctrl_handler.
  *
- * Description:		Return command from the one sent in
- * 	the poll.
+ * Description:     Return command from the one sent in
+ *  the poll.
  *
  *-------------------------------------------------*/
 static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int argc,
@@ -205,9 +205,9 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 }
 
 /*------------------------------------------------
- * Function:		pingack_handler.
+ * Function:        pingack_handler.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 static int pingack_handler(const char *path, const char *types, lo_arg **argv, int argc,
@@ -219,15 +219,15 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
     //string vers (&argv[1]->s);
     //int loops = argv[2]->i;
     printd(LogDebug, "pingack_handler %d %s d=%f\n", argv[0], argv[1], argv[2]);
-//	_acked = TRUE;
+    //  _acked = TRUE;
     return 0;
 }
 
 
 /*------------------------------------------------
- * Function:		MyOSCInit.
+ * Function:        MyOSCInit.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCInit(void) {
@@ -243,16 +243,16 @@ void MyOSCInit(void) {
     gMyInfo.RecordStopLoop = -1;
 
     SLOSCaddr = lo_address_new(
-                gMyInfo.OSCIPAddress,
-                gMyInfo.OSCPortNumLooper );
+                    gMyInfo.OSCIPAddress,
+                    gMyInfo.OSCPortNumLooper );
 
     JackVoladdr = lo_address_new(
-                  gMyInfo.OSCIPAddress,
-                  gMyInfo.OSCPortNumJackVol );
+                      gMyInfo.OSCIPAddress,
+                      gMyInfo.OSCPortNumJackVol );
 
     Hydrogenaddr = lo_address_new(
-                   gMyInfo.OSCIPAddress,
-                   gMyInfo.OSCPortNumHydrogen );
+                       gMyInfo.OSCIPAddress,
+                       gMyInfo.OSCPortNumHydrogen );
 
     printd(LogDebug, "Init Second OSC \n");
 
@@ -270,7 +270,7 @@ void MyOSCInit(void) {
 #endif
     lo_server_add_method(osc_server,
                          NULL, NULL, ctrl_handler, NULL);
-//	                     "/ctrl", "isf", ctrl_handler, NULL);
+    //                       "/ctrl", "isf", ctrl_handler, NULL);
 
     lo_server_add_method(osc_server,
                          "/pingack", "ssi", pingack_handler, NULL);
@@ -279,9 +279,9 @@ void MyOSCInit(void) {
 
 
 /*------------------------------------------------
- * Function:		MyOSCPoll.
+ * Function:        MyOSCPoll.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCPoll(char DownBeat) {
@@ -292,15 +292,15 @@ void MyOSCPoll(char DownBeat) {
     }
 
     lo_server_recv_noblock(osc_server, 2);
-//    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
+    //    lo_send(SLOSCaddr, "/ping", "ss", our_url, "/pingack");
     sprintf(NewCommand, "/sl/%d/get", CurrentLoop);
     lo_send(SLOSCaddr, NewCommand, "sss", "loop_pos", our_url, "/ctrl");
 }
 
 /*------------------------------------------------
- * Function:		MyOSCTap.
+ * Function:        MyOSCTap.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCTap(char DownBeat) {
@@ -313,9 +313,9 @@ void MyOSCTap(char DownBeat) {
 }
 
 /*------------------------------------------------
- * Function:		MyOSCClose.
+ * Function:        MyOSCClose.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCClose(void) {
@@ -329,22 +329,22 @@ void MyOSCClose(void) {
 }
 
 /*------------------------------------------------
- * Function:		MyOSCClose.
+ * Function:        MyOSCClose.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCSetSync(char Type) {
     char NewCommand[100];
+
+    // sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
+    printd(LogDebug, "MyOSCSetSync %d\n", Type);
 
     // Start recording.
     if (Type == 1) {
 
         // Select Loop 1
         OSCCommand(OSCSelect, 1);
-
-        // sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "MyOSCSetSync %d\n", Type);
 
         // Set the sync to 8th notes.
         lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 4);
@@ -355,7 +355,7 @@ void MyOSCSetSync(char Type) {
         // Loop 0 sync on
         lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", 1);
 
-        /* Sync Internal	*/
+        /* Sync Internal    */
         //  sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)
         lo_send(SLOSCaddr, "/set", "si", "sync_source", -3);
 
@@ -375,16 +375,16 @@ void MyOSCSetSync(char Type) {
         // Turn this off or the recording start
         // will be anywhere..
         lo_send(SLOSCaddr, "/sl/-1/set", "si", "relative_sync", 0);
-// oscsend localhost 9951 /sl/-1/set sf "relative_sync" 0
-//		OSCCommand(OSCSyncSource, 1);
-//		OSCCommand(OSCSyncOn, 0);
+        // oscsend localhost 9951 /sl/-1/set sf "relative_sync" 0
+        //      OSCCommand(OSCSyncSource, 1);
+        //      OSCCommand(OSCSyncOn, 0);
     }
 }
 
 /*------------------------------------------------
- * Function:		MyOSCClose.
+ * Function:        MyOSCClose.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
 void MyOSCLoadFile(char *FileName) {
@@ -393,7 +393,7 @@ void MyOSCLoadFile(char *FileName) {
         return;
     }
 
- //   printf("MyOSCLoadFile %x %s\n",SLOSCaddr, FileName);
+    //   printf("MyOSCLoadFile %x %s\n",SLOSCaddr, FileName);
     /* Load the file and send the results back to the SL GUI */
     lo_send(SLOSCaddr, "/load_session", "sss", FileName,
             "osc.udp://localhost:9951/", "osc.udp://localhost:9951/");
@@ -402,16 +402,16 @@ void MyOSCLoadFile(char *FileName) {
 //oscsend localhost 9951 /load_session sss "/home/Music/EliasOriginals/Looper/Looper.slsess" osc.udp: //localhost:9952/ osc.udp://localhost:9952/
 
 /*------------------------------------------------
- * Function:		MyOSCJackVol.
+ * Function:        MyOSCJackVol.
  *
- * Description:		Set Jack Master Volume
- * 		Values 0 - 127
+ * Description:     Set Jack Master Volume
+ *      Values 0 - 127
  *-------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel) {
     float VolumeFloat;
 
     VolumeFloat = ((float)Volume / 127);
-//	printf("Vol Change %d %f\n", Volume, VolumeFloat);
+    //  printf("Vol Change %d %f\n", Volume, VolumeFloat);
 
     if (JackVoladdr == NULL) {
         return;
@@ -441,10 +441,10 @@ void MyOSCJackVol(int Volume, int channel) {
 }
 
 /*------------------------------------------------
- * Function:		MyOSCJackMute.
+ * Function:        MyOSCJackMute.
  *
- * Description:		Set Jack Master Volume
- * 		Values 0 - 127
+ * Description:     Set Jack Master Volume
+ *      Values 0 - 127
  *-------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel) {
 
@@ -547,7 +547,7 @@ sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop num
                                          oscsend localhost 9951 / sl / -1 / set sf "overdub_quantized" 0
                                          oscsend localhost 9951 / sl / -1 / set sf "replace_quantized" 0
                                          oscsend localhost 9951 / sl / -1 / set sf "round" 1
-oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
+                                         oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
                                          oscsend localhost 9951 / set sf "smart_eighths" 0
 
                                          If the sync option is checked for a particular loop, operations will be quantized to the selected boundary. This includes Record, Multiply, Replace, Substitute, Insert, Reverse, Trigger, and Once. Note that Overdub is never quantized. When a command is performed, the actual operation wont start / stop until the precise moment of the next sync boundary arrives. For instance, when the sync source is a loop, and the quantize parameter is Cycle, a Record operation will start and stop on an exact cycle boundary of the source loop. More interesting polyrhythms are possible when using 8ths as the quantize parameter, for example.

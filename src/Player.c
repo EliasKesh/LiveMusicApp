@@ -724,6 +724,9 @@ void SetPlayerFile(char *FileName) {
     RestartPlayer = RestartPlayerValue;
     sprintf(PlayerString, "load \"%s\"\n", FileName);
 
+    // EJK check this.
+    ResetPlayer();
+    
 #if 0
     PlayerWrite(PlayerString);
     WeAreLooping = 0;
@@ -940,7 +943,8 @@ void PlayerPoll(char How) {
     /*
      * Wait a few timer cycles before restarting MPlayer.
      */
-    if (RestartPlayer == 3) {
+    if (RestartPlayer == 12) {
+        printd(LogPlayer, "Poll:RestartPlayer->Start\n");
         StartPlayer();
     }
 
@@ -1564,23 +1568,24 @@ int StartPlayer(void) {
     if (WeAreLooping) {
         sprintf(PlayerString,
 //				"-use-filedir-conf=./Prefs/mplayer/
-                "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
+                "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
 //		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
                 gtk_adjustment_get_value(FineStartAdjustment),
                 gtk_adjustment_get_value(FineEndAdjustment),
                 gtk_adjustment_get_value(VolumeAdjustment),
 //		        gtk_adjustment_get_value(SpeedAdjustment),
                 CurrentSpeed, CurrentFile);
+        // -fixed-ao hangs
         printd(LogPlayer, "calling  Loop %s\n", PlayerString);
         printf("Looping %s\n", PlayerString);
 
     }
     else {
         sprintf(PlayerString,
-                "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo -ss %f -volume %f -speed %0.2f -idle \"%s\" >/tmp/LiveMusicIn 2>/dev/null",
+                "mplayer \"%s\" -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null",(char *)CurrentFile,
                 CurrentSongPosition,
                 gtk_adjustment_get_value(VolumeAdjustment),
-                CurrentSpeed, (char *)CurrentFile);
+                CurrentSpeed);
         printd(LogPlayer, "calling %s\n", PlayerString);
     }
 
@@ -1691,6 +1696,7 @@ bool plLoopToggle(void) {
         don't start.
         */
         if (InPlayingState) {
+            printd(LogPlayer, "plLoopToggle:InPlayingState->StartPlayer\n");
             StartPlayer();
         }
     }
@@ -1750,6 +1756,7 @@ bool plPausePlay(void) {
         MyImageButtonSetText(&PlayPauseButton, "Pause");
 
 //		PlayerWrite("pause\n");
+        printd(LogPlayer, "plPausePlay->StartPlayer\n");
         StartPlayer();
         PlayerWrite("get_time_length\n");
 
