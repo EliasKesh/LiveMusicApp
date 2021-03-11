@@ -188,11 +188,11 @@ def ClearVariables():
   sPresets=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSetNow=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSetIndex=0
-  sHREFFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+  sHREFFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sHREFIndex=0
   SongMark=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   SongMarkIndex=0
-  sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','', '','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+  sSrcFile=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
   sSrcIndex=0
   sGlobalNotes=""
 
@@ -439,10 +439,10 @@ def LoadVariables(Files):
             sSrcFile[sSrcIndex]=filename
             sSrcIndex=sSrcIndex+1
 
-        if (filename.endswith("webm")):
+#        if (filename.endswith("webm")):
 #            print ("webm ", filename)
-            sSrcFile[sSrcIndex]=filename
-            sSrcIndex=sSrcIndex+1
+#            sSrcFile[sSrcIndex]=filename
+#            sSrcIndex=sSrcIndex+1
 
 
 
@@ -451,7 +451,10 @@ def LoadVariables(Files):
 def GenerateIndex(Base, List,Reference):
     MaxNameLength=18
     Padding="_____________________________________"
-    theFile = open(Base+"/"+"index.html", 'w+')
+
+    IndexName=os.path.basename(os.getcwd())
+
+    theFile = open(Base+"/"+IndexName+".html", 'w+')
     theFile.write
     theFile.write("<html>\n<head>\n<style type=\
 \"text/css\">\n\
@@ -466,12 +469,12 @@ background-color: #000000;\n\
 height: 100%; }\n\
 </style>\n\
 </head>\n")
-    theFile.write("<title>MainIndex</title>\n")
+    theFile.write("<title>"+IndexName+"_Index</title>\n")
     theFile.write("<p style=\"line-height:135%\">\n<body>\n\n")
     theFile.write("<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt>")
 
 #    print ("\n\n")
-    print ("in GenerateIndex " + Base+"/"+"index.html")
+    print ("in GenerateIndex " + Base+"/"+IndexName+".html")
     if (Reference):
       theFile.write("<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[__A__]</a><a href=\"#Baaa\">[__B__]</a><a href=\"#Caaa\">[__C__]</a><a href=\"#Daaa\">[__D__]</a><a href=\"#Eaaa\">[__E__]</a><a href=\"#Faaa\">[__F__]</a><a href=\"#Gaaa\">[__G__]</a><a href=\"#Haaa\">[__H__]</a><a href=\"#Iaaa\">[__I__]</a><a href=\"#Jaaa\">[__J__]</a><a href=\"#Kaaa\">[__K__]</a><a href=\"#Laaa\">[__L__]</a><a href=\"#Maaa\">[__M__]</a><a href=\"#Naaa\">[__N__]</a><a href=\"#Oaaa\">[__O__]</a><a href=\"#Paaa\">[__P__]</a><a href=\"#Qaaa\">[__Q__]</a><a href=\"#Raaa\">[__R__]</a><a href=\"#Saaa\">[__S__]</a><a href=\"#Taaa\">[__T__]</a><a href=\"#Uaaa\">[__U__]</a><a href=\"#Vaaa\">[__V__]</a><a href=\"#Waaa\">[__W__]</a><a href=\"#Xaaa\">[__X__]</a><a href=\"#Yaaa\">[__Y__]</a><a href=\"#Zaaa\">[__Z__]</a><br>")
 
@@ -503,7 +506,7 @@ height: 100%; }\n\
         theFile.write("[<a href="+x+">"+FileNoExt+PadString+"</a>]\n")
         PreviousIndex=CurrentIndex
 
-    theFile.write("</tr></tt></code></big>\n</code>\n</p>\n</body>\n</html>")
+    theFile.write("<LiveMusic></LiveMusic></tr></tt></code></big>\n</code>\n</p>\n</body>\n</html>")
     theFile.close()
 
 # Create a new html from a folder with content.
@@ -530,10 +533,10 @@ def CreateNewHTML(fname,dirname,Files):
 
   ClearVariables()
   LoadVariables(Files)
-  sGlobalNotes="\n<code>\n\
-<font color=#ff8002>Chords:  </font> <br>\n\
-<font color=#88ffff>Structure:  </font> <br>\n\
-</code>\n"
+  sGlobalNotes="\n<code><pre>\n\
+<font color=#ff8002>Chords:  </font>\n\
+<font color=#88ffff>Structure:  </font>\n\
+</pre></code>\n"
   sPresets=['','Str_Pre','Expr Dist','Blues_Pre','Jazz_Pre','MidiTog','','','','','','','']
   sSetNow=['PlaceHolder','','','','','','','','','','','','']
   sSetIndex=1
@@ -708,12 +711,20 @@ parser.add_argument("BaseDir", help="Base Directory")
 parser.add_argument("-v", action='store_true', help="Verify")
 parser.add_argument("-f", action='store_true', help="Fix additional meta Data")
 parser.add_argument("-i", action='store_true', help="Create index.html")
+parser.add_argument("-l", action='store_true', help="Directory Level")
+# parser.add_argument("-l", type=int, help="Directory Level")
 parser.add_argument("-c", action='store_true', help="Create HTML from folder")
 parser.add_argument("-r", action='store_true', help="Reference on Create")
 parser.add_argument("-p", action='store_true', help="Pdf to JPG")
+parser.add_argument("-g", action='store_true', help="Gp? to mscz")
+parser.add_argument("-v", action='store_true', help="Version Number")
 parser.add_argument("-a", action='store_true', help="All Options")
 args = parser.parse_args()
 #print args.accumulate(args.integers)
+
+if (args.v):
+  Version=1.8.2
+  exit(0)
 
 # look for the base directory
 if (args.BaseDir == "./"):
@@ -723,10 +734,16 @@ else:
     BaseDir=args.BaseDir
 
 ConvertPDF=args.p
+ConvertGP=args.g
 FixMetaData=args.f
 CreateHTML=args.c
 CreateIndexFIle=args.i
 ReferenceCreate=args.r
+
+if (args.l):
+  DirectoryLevel=2
+else:
+  DirectoryLevel=100
 
 if (args.a):
   ConvertPDF=1
@@ -734,17 +751,18 @@ if (args.a):
   CreateHTML=1
   CreateIndexFIle=1
   ReferenceCreate=1
+  ConvertGP=1
+
 
 # print ("Base Dir = ", BaseDir)
 
 # if we need to convert PDFs to jpg do that first.
-if (ConvertPDF):
-  for Root, Dir, Files in os.walk(BaseDir):
-    FoundHTML=0
-    ClearVariables()
-    for filename in Files:
-
+for Root, Dir, Files in os.walk(BaseDir):
+  FoundHTML=0
+  ClearVariables()
+  for filename in Files:
 #        Check for an html file
+      if (ConvertPDF):
         if filename.endswith('.html') and not filename.startswith('.'):
 #            sys.stdout.write("\n 1-"+filename+" ")
             FoundHTML=1
@@ -753,11 +771,30 @@ if (ConvertPDF):
 #                print("Filename ",filename)
                 ExtractPDF(Files,Root)
 
+      if (ConvertGP):
+        if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5","gp6","gp7", "gpx"))):
+#           print ("Guitar Pro ", filename)
+            MuseFileName=os.path.splitext(filename)[0]
+            MuseFileName=Root+"/"+MuseFileName+".mscz"
+            GPFileName=Root+"/"+filename
+#            print ("Guitar New Pro ", MuseFileName)
+#            Command="ConvertGPtoMScore.sh "+filename+" "+MuseFileName
+            if ( not os.path.exists(MuseFileName)): 
+#              print ("File Does not exist")
+              Command="mscore "+Root+"/"+filename+" -o "+MuseFileName
+              print (Command)
+              os.system(Command)
+              Command="mv "+GPFileName+" "+GPFileName+".conv"
+              print (Command)
+              os.system(Command)
+            else:
+              print ("File ***** Does exist")
+
 
 # This returns file in one directry
 # for Files in os.listdir(BaseDir):
 # This is recursive
-for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=True):
+for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
     Files = [f for f in Files if not f[0] == '.']
     Dir[:] = [d for d in Dir if not d[0] == '.']
 #    print (Root, Dir, Files)
@@ -765,52 +802,54 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=True):
     sTitle=os.path.basename(Root)
 
     FoundHTML=0
-    for filename in Files:
 
+    base_depth = Root.rstrip("/").count("/")
 
-#        if filename.endswith('.mp3'):
-#          isMp3Valid(filename)
+    if (base_depth < DirectoryLevel):
+      for filename in Files:
+  #        if filename.endswith('.mp3'):
+  #          isMp3Valid(filename)
 
-        if (filename.endswith(".mp3") or
-          filename.endswith(".mp4") or 
-          filename.endswith(".webm") ):
-          if ( not os.path.exists(Root+"/"+filename+".spec.png") ):
-              subprocess.run(["ffmpeg", "-i", Root+"/"+filename, "-lavfi", "showspectrumpic=s=1395x60:mode=combined:color=plasma:scale=5thrt:fscale=log:legend=off", Root+"/"+filename+".spec.png"])
+          if (filename.endswith(".mp3") or
+            filename.endswith(".mp4") or 
+            filename.endswith(".webm") ):
+            if ( not os.path.exists(Root+"/"+filename+".spec.png") ):
+                subprocess.run(["ffmpeg", "-i", Root+"/"+filename, "-lavfi", "showspectrumpic=s=1395x60:mode=combined:color=plasma:scale=5thrt:fscale=log:legend=off", Root+"/"+filename+".spec.png"])
 
-#        Check for an html file
-        if filename.endswith('.html') and (FoundHTML == 0):
-#            sys.stdout.write("\n "+Root+" ")
-#            sys.stdout.write("\n "+filename+" ")
+  #        Check for an html file
+          if filename.endswith('.html') and (FoundHTML == 0):
+  #            sys.stdout.write("\n "+Root+" ")
+  #            sys.stdout.write("\n "+filename+" ")
 
-            FoundHTML=1
-            ClearVariables()
-#           walk thru a file and pull out meta data.
-#           
-            if (ParseFile(filename,Root) == 0  and not filename.startswith('.')):
-                print ("Adding to list ", filename)
+              FoundHTML=1
+              ClearVariables()
+  #           walk thru a file and pull out meta data.
+  #           
+              if (ParseFile(filename,Root) == 0  and not filename.startswith('.')):
+                  print ("Adding to list ", filename)
 
-#               add the html to the main index list
-                MySongList.append(Root+"/"+filename)
-#                sys.stdout.write(Root+"/"+filename+" ->Added\n")
-#                sys.stdout.write("Added ")
+  #               add the html to the main index list
+                  MySongList.append(Root+"/"+filename)
+  #                sys.stdout.write(Root+"/"+filename+" ->Added\n")
+  #                sys.stdout.write("Added ")
 
-                if (FixMetaData):
-                    LoadVariables(Files)
-                    WriteFile(Root+"/"+filename,Root)
-#                    sys.stdout.write("Write ")
+                  if (FixMetaData):
+                      LoadVariables(Files)
+                      WriteFile(Root+"/"+filename,Root)
+  #                    sys.stdout.write("Write ")
 
-            # Check for Background and logo images.
-            if ( not os.path.exists(Root+"/background.png")):
-              print (Root+"/background.png")
-              copyfile("/home/MySongs/background.png", Root+"/background.png")
-              copyfile("/home/MySongs/logo.jpg", Root+"/logo.jpg")
+              # Check for Background and logo images.
+              if ( not os.path.exists(Root+"/background.png")):
+                print (Root+"/background.png")
+                copyfile("/home/MySongs/background.png", Root+"/background.png")
+                copyfile("/home/MySongs/logo.jpg", Root+"/logo.jpg")
 
-#   If we did find a valid html and were asked to create one.
-    if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.') ):
-        print ("Create file from Directory ", sTitle)
-#        ClearVariables()
-        CreateNewHTML(sTitle,Root,Files)
-        MySongList.append(Root+"/"+sTitle+".html")
+  #   If we did find a valid html and were asked to create one.
+      if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.') ):
+          print ("Create file from Directory ", sTitle)
+  #        ClearVariables()
+          CreateNewHTML(sTitle,Root,Files)
+          MySongList.append(Root+"/"+sTitle+".html")
 
 if (CreateIndexFIle):
     MySongList.sort()

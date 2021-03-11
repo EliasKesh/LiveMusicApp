@@ -538,7 +538,7 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
     }
 
     // Calculate BPM and average with previous value.
-    if (elapsedTime > 0 && elapsedTime < 220) {
+    if (elapsedTime > MinTempoValue && elapsedTime < MaxTempoValue) {
         CurTapTempo = (0.65 * CurTapTempo) + (0.35 * elapsedTime);
     }
 
@@ -1118,7 +1118,7 @@ void InitHTML(GtkBuilder * gxml) {
 
         MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
                           PatchButtonOffImage);
-        MyImageButtonSetText(&PresetButtons[Loop], Buffer);
+        MyImageButtonSetText2(&PresetButtons[Loop], Loop+1, Buffer);
         gtk_widget_set_tooltip_text(PresetButtons[Loop].EventBox, "CTRL-Click to set. This will get saved in the song file.");
 
         g_signal_connect(G_OBJECT(EventBox),
@@ -1721,18 +1721,18 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
  *
  *-----------------------------------------------*/
 void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
-    char String[PatchNameSize];
-    int StringLen;
+//    char String[PatchNameSize];
+//    int StringLen;
 
     printd(LogDebug, "SetPatchTitles %x %s\n", MyButton, Text);
-    StringLen=strlen(Text);
-    sprintf(String, "      %03d      \n%*s",
-            Value,
-            (15 + StringLen) / 2,
-            Text);
+    // StringLen=strlen(Text);
+    // sprintf(String, "      %03d      \n%*s",
+    //         Value,
+    //         (15 + StringLen) / 2,
+    //         Text);
 
-    printd(LogDebug, "SetPatchTitles %s\n", String);
-    MyImageButtonSetText(MyButton, String);
+    printd(LogDebug, "SetPatchTitles %s\n", Text);
+    MyImageButtonSetText2(MyButton, Value, Text);
 }
 
 #if 0

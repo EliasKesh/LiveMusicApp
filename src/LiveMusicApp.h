@@ -73,18 +73,18 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
 #define MaxStringPortName	32
 #if 1
 enum {
-	FluidPort = 0,
-	GuitarixPort,
-	LooperPort,
-	TransportPort,
-	TempoPort,
-	ClickPort,
-	PedalPort,
-	DAWPort,
-	DRLoop,
-	User2,
-	User3,
-	MaxOutPorts
+    FluidPort = 0,
+    GuitarixPort,
+    LooperPort,
+    TransportPort,
+    TempoPort,
+    ClickPort,
+    PedalPort,
+    DAWPort,
+    DRLoop,
+    User2,
+    User3,
+    MaxOutPorts
 };
 #define InternalPort 100
 
@@ -93,12 +93,12 @@ enum {
 
 // Notebook tabs pages Part of Glade File.
 enum {
-	tabpagePatch = 0,
-	tabpageChart,
-	tabpagePlayer,
-	tabpageChords,
-	tabpagePrefs,
-	tabpageMAX
+    tabpagePatch = 0,
+    tabpageChart,
+    tabpagePlayer,
+    tabpageChords,
+    tabpagePrefs,
+    tabpageMAX
 };
 
 // Timer countdown in Miliseconds
@@ -112,48 +112,48 @@ typedef unsigned short tPatchIndex;
 currently not implemented.
 */
 typedef struct {
-	char Name[PatchNameSize];
-	char ID;
+    char Name[PatchNameSize];
+    char ID;
 } AlsaPort;
 
 typedef struct {
-	char Name[PatchNameSize];
-	char ID;
-	char NumPorts;
-	AlsaPort Ports[10];
+    char Name[PatchNameSize];
+    char ID;
+    char NumPorts;
+    AlsaPort Ports[10];
 } AlsaDevice;
 
 typedef struct {
-	char NumDevices;
-	AlsaDevice Devices[20];
+    char NumDevices;
+    AlsaDevice Devices[20];
 } PortsInfo;
 
 #define MaxControllers 8
 typedef struct {
-	int OutPort;
-	int OutControl;
+    int OutPort;
+    int OutControl;
 } ControllerRoute;
 
 
 typedef struct {
-	char Name[PatchNameSize];
-	// Bank select -1 not to send Bank Info
-	unsigned char BankSelect;
-	// The Patch number to send.
-	unsigned int Patch;
-	// Which virtual midi port to send the data
-	char OutPort;
-	// The Midi channel.
-	char Channel;
-	// Anything special we have to do
-	int CustomCommand;
-	// Chaing to Another Command
-	char Chain[PatchNameSize];
+    char Name[PatchNameSize];
+    // Bank select -1 not to send Bank Info
+    unsigned char BankSelect;
+    // The Patch number to send.
+    unsigned int Patch;
+    // Which virtual midi port to send the data
+    char OutPort;
+    // The Midi channel.
+    char Channel;
+    // Anything special we have to do
+    int CustomCommand;
+    // Chaing to Another Command
+    char Chain[PatchNameSize];
 } PatchInfo;
 
 typedef struct {
-	char *Name;
-	char *location;
+    char *Name;
+    char *location;
 } SongInfo;
 
 #define Max_Main_Buttons 80
@@ -178,159 +178,161 @@ typedef struct {
 
 // Total number of patches per layout
 #define MaxLayoutPatches 81
-
+#define MinTempoValue 50
+#define MaxTempoValue 200
 
 typedef struct {
-	char Name[PatchNameSize];
-	char Presets[Max_Patches_W_Presets][PatchNameSize];
+    char Name[PatchNameSize];
+    char Presets[Max_Patches_W_Presets][PatchNameSize];
 } LayoutType;
 
 // Fixed Flider controllers
 enum {
-	Slider1 = 1,
-	Slider2,
-	Slider3,
-	Slider4
+    Slider1 = 1,
+    Slider2,
+    Slider3,
+    Slider4
 };
 
 // SetExpress function control values.
 enum {
-	ecGuitarVolume = 1,
-	ecMidiVolume,
-	ecMasterVolume,
-	ecTempChange,
-	ecMP3Volume,
-	ecExpress6,
-	ecPedalControl,
-	ecMidiThreshold,
-	ecLooperVolume,
-	ecMidiAnaMix,
-	exMaxItems
+    ecGuitarVolume = 1,
+    ecMidiVolume,
+    ecMasterVolume,
+    ecTempChange,
+    ecMP3Volume,
+    ecExpress6,
+    ecPedalControl,
+    ecMidiThreshold,
+    ecLooperVolume,
+    ecMidiAnaMix,
+    exMaxItems
 };
 
 typedef struct {
-	char Name[255];
-	char PortID;
+    char Name[255];
+    char PortID;
 } PortInformation;
 
 #define MaxPresetButtons 6
 typedef struct {
-	tPatchIndex	thePreset[MaxPresetButtons];
-	int	theTempo;
+    tPatchIndex	thePreset[MaxPresetButtons];
+    int	theTempo;
 } WebLoadPresets;
 
 // Application names index,
 // Names are part of the configuration xml.
 enum {
-	AnalogApp = 0,
-	MidiSoundApp,
-	LooperApp,
-	TransportApp,
-	LiveMusicApp,
-	MP3Player,
-	TabPlayer,
-	DrumPlayer,
-	MidiPlayer,
-	HTMLEditor,
-	ConnectApp,
-	MaxApps
+    AnalogApp = 0,
+    MidiSoundApp,
+    LooperApp,
+    TransportApp,
+    LiveMusicApp,
+    MP3Player,
+    TabPlayer,
+    DrumPlayer,
+    MidiPlayer,
+    HTMLEditor,
+    ConnectApp,
+    MaxApps
 };
 
 typedef struct {
-	// Preferences
-	PatchInfo MyPatchInfo[Max_Patches_W_Presets];
-	char BasePath[FileNameMaxLength];
-	char NumOutPorts;
-	char OutPortName[MaxOutPorts][MaxStringPortName];
-	// Mostly moved to bash script.
-	PortInformation Apps[MaxApps];
-	char TempoMax;
-	char MetronomeOn;
-	char	Drum1;
-	char	DrumRest;
-	tPatchIndex MidiBaseNote;
-	unsigned char Tempo;
-	unsigned char CountInBeats;
-	unsigned char LoopRecBeats;
-	unsigned int MidiPassThru;
-	unsigned int MidiPassLevel;
-	unsigned int BeatsPerMeasure;
-	unsigned int AnalogVolume;
-	unsigned int MidiVolume;
+    // Preferences
+    PatchInfo MyPatchInfo[Max_Patches_W_Presets];
+    char BasePath[FileNameMaxLength];
+    char NumOutPorts;
+    char OutPortName[MaxOutPorts][MaxStringPortName];
+    // Mostly moved to bash script.
+    PortInformation Apps[MaxApps];
+    char TempoMax;
+    char MetronomeOn;
+    char	Drum1;
+    char	DrumRest;
+    tPatchIndex MidiBaseNote;
+    unsigned char Tempo;
+    unsigned char CountInBeats;
+    unsigned char LoopRecBeats;
+    unsigned int MidiPassThru;
+    unsigned int MidiPassLevel;
+    unsigned int BeatsPerMeasure;
+    unsigned int AnalogVolume;
+    unsigned int MidiVolume;
 
-	/*
-	 * Colors
-	*/
-	unsigned long	StatusTextColor;
-	unsigned long	ButtonTextColor;
+    /*
+     * Colors
+    */
+    unsigned long	StatusTextColor;
+    unsigned long	ButtonTextColor;
 
-	char 		OSCIPAddress[20];
-	char 		OSCPortNumLooper[6];
-	char 		OSCPortNumJackVol[6];
-	char 		OSCPortNumHydrogen[6];
-	char        NumberOfStrings;
-	char 		BaseStringName[TotalMaxStrings];
+    char 		OSCIPAddress[20];
+    char 		OSCPortNumLooper[6];
+    char 		OSCPortNumJackVol[6];
+    char 		OSCPortNumHydrogen[6];
+    char        NumberOfStrings;
+    char 		BaseStringName[TotalMaxStrings];
 
-	ControllerRoute ControlRoute[MaxControllers];
-	LayoutType LayoutPresets[Max_Layouts];
+    ControllerRoute ControlRoute[MaxControllers];
+    LayoutType LayoutPresets[Max_Layouts];
 
 
 
-	// Generated Beyond this point.
-	//-------------------------------------
+    // Generated Beyond this point.
+    //-------------------------------------
 
-	snd_seq_t *SeqPort[MaxOutPorts];
+    snd_seq_t *SeqPort[MaxOutPorts];
 
-	/* Web paged preset are load here when the
-	HTML page is loaded.
-	*/
-	WebLoadPresets WebPresets;
-	char LoopFileName[FileNameMaxLength];
-	//	unsigned int	Timer1Count;	/* Not used	*/
-	unsigned long TempoReload;
-	unsigned long TimerCount;
-	unsigned long KeyTimer;
-	timer_t TempoTimerID;
+    /* Web paged preset are load here when the
+    HTML page is loaded.
+    */
+    WebLoadPresets WebPresets;
+    char LoopFileName[FileNameMaxLength];
+    //	unsigned int	Timer1Count;	/* Not used	*/
+    unsigned long TempoReload;
+    unsigned long TimerCount;
+    unsigned long KeyTimer;
+    timer_t TempoTimerID;
 
-	int   KeyPatchValue;
-	char  KeyChar;
-	char  KeyIsValue;
+    int   KeyPatchValue;
+    char  KeyChar;
+    char  KeyIsValue;
 
-	snd_timer_t *AlsaTimerHandle;
-	snd_timer_params_t *AlsaTimerParams;
-	snd_timer_id_t *AlsaTimerid;
-	snd_timer_info_t *AlsaTimerinfo;
-	unsigned long AlsaResolution;
-	unsigned int ExpreP1Out;
-	unsigned int ExpreP1Port;
-	unsigned int ExpreP1Slider;
-	tPatchIndex HardSlider[MaxHardSliders];
-	tPatchIndex SliderUpdate;
-	float 	LoopPosition;
-	int   	LoopTempo;
-	float 	RecordStopLoop;
-	int 	GuitarMidiCall;
-	int 	GuitarMidiCallParam1;
-	int 	LayoutCall;
-	int 	LayoutCallParam1;
-	int 	LayoutCallParam2;
-//	int 	CurrentLoop;
-	unsigned int 	TabSwitch;
-	unsigned int 	RaiseSwitch;
-	unsigned int 	NextDeskSwitch;
-	unsigned int 	PrevDeskSwitch;
-	unsigned int 	GoToDeskSwitch;
-	unsigned int 	IncrementSwitch;
-	unsigned char 	MidiThresholdLevel;
-	unsigned char 	MidiAnalMixLevel;
-	unsigned int 	SetMP3PlayVolBool;
-	unsigned int 	ScrollUpdate;
-	unsigned int    V3Volume;
-	unsigned int    V4Volume;
-	unsigned int    V6Volume;
-	char    PatchUpdate;
-	unsigned int    SliderGUIUpdate;
-	unsigned int    SliderGUINumber;
+    snd_timer_t *AlsaTimerHandle;
+    snd_timer_params_t *AlsaTimerParams;
+    snd_timer_id_t *AlsaTimerid;
+    snd_timer_info_t *AlsaTimerinfo;
+    unsigned long AlsaResolution;
+    unsigned int ExpreP1Out;
+    unsigned int ExpreP1Port;
+    unsigned int ExpreP1Slider;
+    tPatchIndex HardSlider[MaxHardSliders];
+    tPatchIndex SliderUpdate;
+    float 	LoopPosition;
+    int   	LoopTempo;
+    float 	RecordStopLoop;
+    int 	GuitarMidiCall;
+    int 	GuitarMidiCallParam1;
+    int 	LayoutCall;
+    int 	LayoutCallParam1;
+    int 	LayoutCallParam2;
+    //	int 	CurrentLoop;
+    unsigned int 	TabSwitch;
+    unsigned int 	RaiseSwitch;
+    unsigned int 	NextDeskSwitch;
+    unsigned int 	PrevDeskSwitch;
+    unsigned int 	GoToDeskSwitch;
+    unsigned int 	IncrementSwitch;
+    unsigned char 	MidiThresholdLevel;
+    unsigned char 	MidiAnalMixLevel;
+    unsigned int 	SetMP3PlayVolBool;
+    unsigned int 	ScrollUpdate;
+    unsigned int    V3Volume;
+    unsigned int    V4Volume;
+    unsigned int    V6Volume;
+    char    PatchUpdate;
+    unsigned int    SliderGUIUpdate;
+    unsigned int    SliderGUINumber;
+    unsigned int    MarkerUpdate;
 
 } LiveMusicInfo;
 
@@ -341,42 +343,42 @@ typedef struct {
 /* State for using midi control to change patches.
 */
 enum {
-	GuitarMidiCallNo, 
-	GuitarMidiCallStart,
-	GuitarMidiCallComplete 
+    GuitarMidiCallNo,
+    GuitarMidiCallStart,
+    GuitarMidiCallComplete
 };
 
 #define MaxSoundFonts 12
 
 // Custom commands for each preset.
 enum {
-	NoCustom = 0,
-	ToNextDesktop,
-	ToPrevDesktop,
-	ToDesktop,
-	cmdController,
-	SwitchTab,
-	RaiseApp,
-	TransStart,
-	TransCont,
-	TransStop,
-	TransPosition, // 10
-	TransTempo,
-	cmdPreset,
-	cmdBankSelect,
-	cmdMidiSelect,
-	cmdCountIn, // 15
-	cmdVolume,
-	cmdLnTransPort,
-	cmdSetList,
-	cmdScroll,
-	cmdOSC, // 20
-	cmdSendCC,
-	cmdSetExpr,
-	cmdHardSlider,
-	cmdMidiOnOff,
-	cmdDrumToggle,
-	MaxCommands
+    NoCustom = 0,
+    ToNextDesktop,
+    ToPrevDesktop,
+    ToDesktop,
+    cmdController,
+    SwitchTab,
+    RaiseApp,
+    TransStart,
+    TransCont,
+    TransStop,
+    TransPosition, // 10
+    TransTempo,
+    cmdPreset,
+    cmdBankSelect,
+    cmdMidiSelect,
+    cmdCountIn, // 15
+    cmdVolume,
+    cmdLnTransPort,
+    cmdSetList,
+    cmdScroll,
+    cmdOSC, // 20
+    cmdSendCC,
+    cmdSetExpr,
+    cmdHardSlider,
+    cmdMidiOnOff,
+    cmdDrumToggle,
+    MaxCommands
 };
 
 enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, cmdLnTUp, cmdLnTDown, cmdLnTSeekFw, cmdLnTSeekBk };
@@ -406,27 +408,27 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define NoBank		0xff
 
 enum {
-	ToDesktop0 = 60,
-	ToDesktop1,
-	ToDesktop2,
-	ToDesktop3,
-	ToDesktop4,
-	ToDesktop5,
-	ToAnalogApp,
-	ToMidiSoundApp,
-	ToLooperApp,
-	ToTransportApp,
-	ToMidiControl
+    ToDesktop0 = 60,
+    ToDesktop1,
+    ToDesktop2,
+    ToDesktop3,
+    ToDesktop4,
+    ToDesktop5,
+    ToAnalogApp,
+    ToMidiSoundApp,
+    ToLooperApp,
+    ToTransportApp,
+    ToMidiControl
 };
 
 enum {
-	FishmanUp = 0,
-	FishmanDown,
-	FishmanLeft,
-	FishmanRight,
-	FishmanGuitar,
-	FishmanMix,
-	FishmanSynth
+    FishmanUp = 0,
+    FishmanDown,
+    FishmanLeft,
+    FishmanRight,
+    FishmanGuitar,
+    FishmanMix,
+    FishmanSynth
 };
 
 #define DefaultMidiChannel		1
@@ -452,15 +454,15 @@ enum { cntStateWaitingIdle = 0,
 #if 0
 // Default Settings for Akai LPD8
 enum {
-//	dLEDBeat1 = 36,
-	dLEDBeat1 = 64,
-	dLEDBeat2,
-	dLEDBeat3,
-	dLEDBeat4,
-	dLEDBeat5,
-	dLEDBeat6,
-	dLEDBeat7,
-	dLEDBeat8
+    //	dLEDBeat1 = 36,
+    dLEDBeat1 = 64,
+    dLEDBeat2,
+    dLEDBeat3,
+    dLEDBeat4,
+    dLEDBeat5,
+    dLEDBeat6,
+    dLEDBeat7,
+    dLEDBeat8
 };
 #define dLEDMIDI	SND_SEQ_EVENT_NOTEOFF
 #define dLEDMIDIO	SND_SEQ_EVENT_NOTEON
@@ -468,15 +470,15 @@ enum {
 #else
 // Default Settings for kayfadr
 enum {
-//	dLEDBeat1 = 40,
-	dLEDBeat1 = 64,
-	dLEDBeat2,
-	dLEDBeat3,
-	dLEDBeat4,
-	dLEDBeat5,
-	dLEDBeat6,
-	dLEDBeat7,
-	dLEDBeat8
+    //	dLEDBeat1 = 40,
+    dLEDBeat1 = 64,
+    dLEDBeat2,
+    dLEDBeat3,
+    dLEDBeat4,
+    dLEDBeat5,
+    dLEDBeat6,
+    dLEDBeat7,
+    dLEDBeat8
 };
 #define dLEDMIDI	SND_SEQ_EVENT_CONTROLLER
 #define dLEDMIDIO	SND_SEQ_EVENT_CONTROLLER
@@ -485,24 +487,24 @@ enum {
 #endif
 
 enum {
-	PedalLEDAllOn = 0,
-	PedalLEDAllOff,
-	PedalLED1On,
-	PedalLED1Off,
-	PedalLED2On,
-	PedalLED2Off,
-	PedalLED3On,
-	PedalLED3Off,
-	PedalLED4On,
-	PedalLED4Off,
-	PedalLED5On,
-	PedalLED5Off,
-	PedalLED6On,
-	PedalLED6Off,
-	PedalLED7On,
-	PedalLED7Off,
-	PedalLED8Off,
-	PedalLED8On
+    PedalLEDAllOn = 0,
+    PedalLEDAllOff,
+    PedalLED1On,
+    PedalLED1Off,
+    PedalLED2On,
+    PedalLED2Off,
+    PedalLED3On,
+    PedalLED3Off,
+    PedalLED4On,
+    PedalLED4Off,
+    PedalLED5On,
+    PedalLED5Off,
+    PedalLED6On,
+    PedalLED6Off,
+    PedalLED7On,
+    PedalLED7Off,
+    PedalLED8Off,
+    PedalLED8On
 };
 
 
@@ -517,39 +519,39 @@ enum { NValueA = 0, NValueBb, NValueB,
 #ifdef LiveMusicApp_c
 #define EXTERN /* */
 char *GlobalNoteNames[] = {
-	"A", "Bb", "B", "C", "Db",
-	"D", "Eb", "E", "F", "Gb",
-	"G", "Ab"
+    "A", "Bb", "B", "C", "Db",
+    "D", "Eb", "E", "F", "Gb",
+    "G", "Ab"
 };
 
 char *CustomCommands[] = {
-	"NoCustom",
-	"ToNextDesktop",
-	"ToPrevDesktop",
-	"ToDesktop",
-	"cmdController",
-	"SwitchTab",
-	"RaiseApp",
-	"TransStart",
-	"TransCont",
-	"TransStop",
-	"TransPosition",
-	"TransTempo",
-	"cmdPreset",
-	"cmdBankSelect",
-	"cmdMidiSelect",
-	"cmdCountIn",
-	"cmdVolume",
-	"cmdLnTransPort",
-	"cmdSetList",
-	"cmdScroll",
-	"cmdOSC",
-	"cmdSendCC",
-	"cmdSetExpr",
-	"cmdHardSlider",
-	"cmdMidiOnOff",
-	"MaxCommands",
-	"oops2"
+    "NoCustom",
+    "ToNextDesktop",
+    "ToPrevDesktop",
+    "ToDesktop",
+    "cmdController",
+    "SwitchTab",
+    "RaiseApp",
+    "TransStart",
+    "TransCont",
+    "TransStop",
+    "TransPosition",
+    "TransTempo",
+    "cmdPreset",
+    "cmdBankSelect",
+    "cmdMidiSelect",
+    "cmdCountIn",
+    "cmdVolume",
+    "cmdLnTransPort",
+    "cmdSetList",
+    "cmdScroll",
+    "cmdOSC",
+    "cmdSendCC",
+    "cmdSetExpr",
+    "cmdHardSlider",
+    "cmdMidiOnOff",
+    "MaxCommands",
+    "oops2"
 };
 
 #else
@@ -612,8 +614,8 @@ EXTERN volatile char 	gLooperWaitForSync;
 #define SongSectionMax	30
 EXTERN int 		NumberSongMarks;
 typedef struct {
-	float SongMark;
-	char SongSection[SongSectionMax];
+    float SongMark;
+    char SongSection[SongSectionMax];
 } SongMarkType;
 
 EXTERN SongMarkType SongMarkers[MaxSongMarks];

@@ -1,27 +1,27 @@
 /*------------------------------------------------
 |
-|	File: 	Player
+|   File:   Player
 |
-|	Contains:	The user interface and control code for MPlayer
+|   Contains:   The user interface and control code for MPlayer
 |
 |
-|	Written By: 	Elias Keshishoglou on Sun Mar 22 14:18:29 PDT 2015
+|   Written By:     Elias Keshishoglou on Sun Mar 22 14:18:29 PDT 2015
 |
-|	Copyright : 	2015 Elias Keshishoglou all rights reserved.
+|   Copyright :     2015 Elias Keshishoglou all rights reserved.
 |
-|	This program is free software; you can redistribute it and/or
-|	modify it under the terms of the GNU General Public License
-|	as published by the Free Software Foundation; either version 2
-|	of the License, or (at your option) any later version.
+|   This program is free software; you can redistribute it and/or
+|   modify it under the terms of the GNU General Public License
+|   as published by the Free Software Foundation; either version 2
+|   of the License, or (at your option) any later version.
 |
-|	This program is distributed in the hope that it will be useful,
-|	but WITHOUT ANY WARRANTY; without even the implied warranty of
-|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-|	GNU General Public License for more details.
+|   This program is distributed in the hope that it will be useful,
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|   GNU General Public License for more details.
 |
-|	You should have received a copy of the GNU General Public License
-|	along with this program; if not, write to the Free Software
-|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|   You should have received a copy of the GNU General Public License
+|   along with this program; if not, write to the Free Software
+|   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
 |------------------------------------------------*/
@@ -48,7 +48,7 @@
  */
 #define InPipeName "/tmp/LiveMusicIn"
 #define OutPipeName "/tmp/LiveMusicOut"
-#define RestartPlayerValue		7
+#define RestartPlayerValue      7
 
 /*
  * Place Local prototypes here
@@ -69,7 +69,7 @@ gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user
 gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void VolumeSlider_Changed(GtkAdjustment *adj);
 static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry);
-gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+int NewLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 // void SaveSongMarkers(char *FileName);
@@ -128,9 +128,9 @@ char PlayerAsk = 0;
 float CurrentSpeed;
 
 /*-----------------------------------------------
- * Function:		LivePlayerInit
+ * Function:        LivePlayerInit
  *
- * Description:		Set up the Mplayer pipe and controls.
+ * Description:     Set up the Mplayer pipe and controls.
  *
  *------------------------------------------------*/
 int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
@@ -189,7 +189,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     PositionSlider = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,
                                    GTK_ADJUSTMENT(PositionAdjustment));
     //  gtk_scale_set_digits (PositionSlider, 1);
-//    gtk_scale_set_value_pos (PositionSlider, GTK_POS_TOP);
+    //    gtk_scale_set_value_pos (PositionSlider, GTK_POS_TOP);
     gtk_scale_set_draw_value(PositionSlider, TRUE);
     gtk_scale_set_value_pos(PositionSlider, GTK_POS_BOTTOM);
     g_signal_connect(G_OBJECT (PositionSlider), "change_value",
@@ -338,8 +338,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     VolumeAdjustment = gtk_adjustment_new(75, 0, 100, 1, 10, 0);
     VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
                                GTK_ADJUSTMENT(VolumeAdjustment));
-//    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
-//	   gtk_widget_set_vexpand (VolumeSpin, TRUE);
+    //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
+    //     gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
     gtk_widget_set_margin_bottom(VolumeSpin, 15);
     gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
@@ -352,8 +352,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
     gtk_widget_set_margin_top(VolumeSpin, 20);
 
-//	gtk_widget_set_margin_right(VolumeSpin, 20);
-//	gtk_widget_set_margin_left(VolumeSpin, 20);
+    //  gtk_widget_set_margin_right(VolumeSpin, 20);
+    //  gtk_widget_set_margin_left(VolumeSpin, 20);
 
     gtk_widget_set_margin_end(VolumeSpin, 20);
     gtk_widget_set_margin_start(VolumeSpin, 20);
@@ -463,21 +463,21 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     /*
      * Now that everything has been created let's pack them together.
      */
-//	gtk_box_set_homogeneous(GTK_BOX(FineABox), TRUE);
+    //  gtk_box_set_homogeneous(GTK_BOX(FineABox), TRUE);
     gtk_box_pack_start(GTK_BOX(FineABox), SetABox, TRUE, FALSE,  5);
     gtk_box_pack_start(GTK_BOX(FineABox), FineStartSpin, TRUE, FALSE,  5);
 
-//	gtk_box_set_homogeneous(GTK_BOX(FineBBox), TRUE);
+    //  gtk_box_set_homogeneous(GTK_BOX(FineBBox), TRUE);
     gtk_box_pack_start(GTK_BOX(FineBBox), SetBBox, TRUE, FALSE,  5);
     gtk_box_pack_start(GTK_BOX(FineBBox), FineEndSpin, TRUE, FALSE,  5);
 
-//	gtk_box_set_homogeneous(GTK_BOX(PositionStartBox), TRUE);
+    //  gtk_box_set_homogeneous(GTK_BOX(PositionStartBox), TRUE);
     gtk_box_pack_start(GTK_BOX(PositionStartBox), FineABox, TRUE, FALSE,  5);
-//	gtk_box_pack_start(GTK_BOX(PositionStartBox), StartSpin, TRUE, FALSE,  5);
+    //  gtk_box_pack_start(GTK_BOX(PositionStartBox), StartSpin, TRUE, FALSE,  5);
 
     gtk_box_set_homogeneous(GTK_BOX(PositionEndBox), TRUE);
     gtk_box_pack_start(GTK_BOX(PositionEndBox), FineBBox, TRUE, FALSE,  5);
-//	gtk_box_pack_start(GTK_BOX(PositionEndBox), EndSpin, TRUE, FALSE,  5);
+    //  gtk_box_pack_start(GTK_BOX(PositionEndBox), EndSpin, TRUE, FALSE,  5);
 
 
 
@@ -486,7 +486,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
     gtk_box_pack_start(GTK_BOX(SpeedBox), SpeedInBox, TRUE, FALSE, 5);
 
-//	gtk_box_set_homogeneous(GTK_BOX(PositionBox), TRUE);
+    //  gtk_box_set_homogeneous(GTK_BOX(PositionBox), TRUE);
     theFrame = gtk_frame_new("Start Position");
     gtk_frame_set_label_align((GtkFrame *)theFrame, 0.5, 0.5);
     gtk_container_add(GTK_CONTAINER(theFrame), PositionStartBox);
@@ -539,22 +539,22 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
     gtk_box_pack_start(GTK_BOX(SaveLoopBox), NewSongMarkBox, TRUE, FALSE,  5);
 
-//	gtk_misc_set_padding(ImageWidget, 55,10);
-//	gtk_misc_set_alignment(ImageWidget, 0,0);
+    //  gtk_misc_set_padding(ImageWidget, 55,10);
+    //  gtk_misc_set_alignment(ImageWidget, 0,0);
 
-//	gtk_widget_set_margin_left(ImageWidget, 28);
-//	gtk_widget_set_margin_right(ImageWidget, 28);
+    //  gtk_widget_set_margin_left(ImageWidget, 28);
+    //  gtk_widget_set_margin_right(ImageWidget, 28);
     gtk_widget_set_margin_start(ImageWidget, 28);
     gtk_widget_set_margin_end(ImageWidget, 28);
     gtk_widget_set_margin_top(ImageWidget, 15);
     gtk_widget_set_margin_bottom(ImageWidget, 15);
 
-//	gtk_widget_set_margin_left(PositionSlider, 25);
-//	gtk_widget_set_margin_right(PositionSlider, 25);
+    //  gtk_widget_set_margin_left(PositionSlider, 25);
+    //  gtk_widget_set_margin_right(PositionSlider, 25);
     gtk_widget_set_margin_start(PositionSlider, 25);
     gtk_widget_set_margin_end(PositionSlider, 25);
 
-//	gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, FALSE, 5);
+    //  gtk_box_pack_start(GTK_BOX(MainBox), ImageWidget, TRUE, FALSE, 5);
 
     PositionSliderBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 
@@ -569,7 +569,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
     gtk_container_add(GTK_CONTAINER(theFrame), PositionSliderBox);
 
-//	gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
+    //  gtk_container_add(GTK_CONTAINER(theFrame), PositionSlider);
 
     gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
 
@@ -582,8 +582,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 
     // Add this to the main window.
     gtk_container_add(GTK_CONTAINER(window), MainBox);
-//	gtk_widget_set_size_request(window, 100, 100);
-//	gtk_window_set_default_size(window, 200, 200);
+    //  gtk_widget_set_size_request(window, 100, 100);
+    //  gtk_window_set_default_size(window, 200, 200);
     gtk_widget_show_all(window);
 
     StartPlayer();
@@ -592,7 +592,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
      * Init the Pipe for communications with MPlayer
      */
     InPipeFD = open(InPipeName, O_RDONLY | O_NONBLOCK);
-//	printf("FIFO %d\n", InPipeFD);
+    //  printf("FIFO %d\n", InPipeFD);
     if (InPipeFD < 1) {
         int err = errno;
         printd(LogPlayer, "Error in open In pipe %d\n", errno);
@@ -602,9 +602,9 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
 }
 
 /*-----------------------------------------------
- * Function:		SetMP3PlayVol
+ * Function:        SetMP3PlayVol
  *
- * Description:		Set the playback volume
+ * Description:     Set the playback volume
  *------------------------------------------------*/
 int SetMP3PlayVol(int Value) {
     gtk_adjustment_set_value(VolumeAdjustment, Value);
@@ -615,9 +615,9 @@ int SetMP3PlayVol(int Value) {
 }
 
 /*-----------------------------------------------
- * Function:		SaveLoopPopup_cb
+ * Function:        SaveLoopPopup_cb
  *
- * Description:		Enter loop info after set by user..
+ * Description:     Enter loop info after set by user..
  *------------------------------------------------*/
 static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
     int CurrentSavedLoop;
@@ -630,7 +630,7 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
 }
 
 /*-----------------------------------------------
- * Function:		ResetPlayer
+ * Function:        ResetPlayer
  *
  * Description:
  *
@@ -642,7 +642,7 @@ int ResetPlayer(void) {
     PlayerDisSection[0] = 0;
     PlayerDisTime = 0;
 
-//	system("killall mplayer");
+    //  system("killall mplayer");
     printd(LogPlayer, "ResetPlayer\n");
 
     gtk_adjustment_set_value(PositionAdjustment, 0);
@@ -652,24 +652,24 @@ int ResetPlayer(void) {
 
     // gtk_image_set_from_pixbuf(GTK_IMAGE(LoopButton.Image),
     //              LoopButton.ButtonUpImage);
-//	plLoopToggle();
+    //  plLoopToggle();
 
-//	WeAreLooping = 1;
+    //  WeAreLooping = 1;
     CurrentSpeed = 1.0;
     CurrentSongPosition = 0.0;
-//	plLoopToggle();
-//	usleep(150);
+    //  plLoopToggle();
+    //  usleep(150);
     PlayerWrite("set_property stream_pos 0.000\n");
-//	usleep(150);
+    //  usleep(150);
     PlayerWrite("set_property time_pos 0.000\n");
-//	usleep(150);
+    //  usleep(150);
     return (0);
 }
 
 /*-----------------------------------------------
- * Function:		LivePlayerInit
+ * Function:        LivePlayerInit
  *
- * Description:		Set up the Mplayer pipe and controls.
+ * Description:     Set up the Mplayer pipe and controls.
  *
  *------------------------------------------------*/
 int LivePlayerClose(void) {
@@ -682,16 +682,16 @@ int LivePlayerClose(void) {
     strcpy(PlayerDisSection, "-----");
 
     SaveLoopFile(CurrentFile);
-//	SaveSongMarkers(CurrentFile);
+    //  SaveSongMarkers(CurrentFile);
 
-//	PlayerWrite("quit\n");
+    //  PlayerWrite("quit\n");
     system("killall mplayer");
     return (0);
 }
 /*-----------------------------------------------
- * Function:		SetPlayerFile
+ * Function:        SetPlayerFile
  *
- * Description:		Check for any data from MPlayer..
+ * Description:     Check for any data from MPlayer..
  *------------------------------------------------*/
 void SetPlayerFile(char *FileName) {
 
@@ -702,7 +702,7 @@ void SetPlayerFile(char *FileName) {
 
     if (CurrentFile[0]) {
         SaveLoopFile(CurrentFile);
-//		SaveSongMarkers(CurrentFile);
+        //      SaveSongMarkers(CurrentFile);
     }
 
     LEDControl(7, 1);
@@ -726,7 +726,7 @@ void SetPlayerFile(char *FileName) {
 
     // EJK check this.
     ResetPlayer();
-    
+
 #if 0
     PlayerWrite(PlayerString);
     WeAreLooping = 0;
@@ -739,7 +739,7 @@ void SetPlayerFile(char *FileName) {
 #if 0
     sprintf(PlayerString, "load \"%s\"\n", FileName);
     PlayerWrite(PlayerString);
-//	PlayerWrite("stream_time_pos\n");
+    //  PlayerWrite("stream_time_pos\n");
     DontUpDateSlider = 0;
     PlayerAsk = 0;
     InPlayingState = 0;
@@ -752,9 +752,9 @@ void SetPlayerFile(char *FileName) {
 }
 
 /*-----------------------------------------------
- * Function:		OpenSavedLoopFile
+ * Function:        OpenSavedLoopFile
  *
- * Description:		Open/and or create new Saved Position file.
+ * Description:     Open/and or create new Saved Position file.
  *------------------------------------------------*/
 void OpenSavedLoopFile(char *FileName) {
     char SaveLoopName[300];
@@ -808,7 +808,7 @@ void OpenSavedLoopFile(char *FileName) {
             }
 
             if (NumSavedLoops > 0) {
-//				CurrentSavedLoop = 1;
+                //              CurrentSavedLoop = 1;
                 gtk_combo_box_set_active(GTK_COMBO_BOX(SaveCombo), 1);
             }
         }
@@ -818,9 +818,9 @@ void OpenSavedLoopFile(char *FileName) {
 }
 
 /*-----------------------------------------------
- * Function:		SaveLoopFile
+ * Function:        SaveLoopFile
  *
- * Description:		Save the Loop points.
+ * Description:     Save the Loop points.
  *------------------------------------------------*/
 void SaveLoopFile(char *FileName) {
     char SaveLoopName[FileNameMaxLength];
@@ -836,7 +836,7 @@ void SaveLoopFile(char *FileName) {
     printd(LogPlayer, " SavedLoopFile [%s] %d\n", SaveLoopName, strlen(SaveLoopName));
     errno = 0;
     SavedLoopFD = fopen(SaveLoopName, "w+");
-//	sprintf(SaveLoopName, "MyTest.loop");
+    //  sprintf(SaveLoopName, "MyTest.loop");
     printd(LogPlayer, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
 
     // Save the list in Time order.
@@ -874,9 +874,9 @@ void SaveLoopFile(char *FileName) {
 }
 
 /*-----------------------------------------------
- * Function:		Check info from MPlayer
+ * Function:        Check info from MPlayer
  *
- * Description:		Check for any data from MPlayer..
+ * Description:     Check for any data from MPlayer..
  *------------------------------------------------*/
 int PlayerWrite(char *String) {
     int Val;
@@ -894,9 +894,9 @@ int PlayerWrite(char *String) {
 }
 
 /*-----------------------------------------------
- * Function:		Check info from MPlayer
+ * Function:        Check info from MPlayer
  *
- * Description:		Check for any data from MPlayer..
+ * Description:     Check for any data from MPlayer..
  *------------------------------------------------*/
 void PlayerPoll(char How) {
     char Buffer[1000];
@@ -943,7 +943,7 @@ void PlayerPoll(char How) {
     /*
      * Wait a few timer cycles before restarting MPlayer.
      */
-    if (RestartPlayer == 12) {
+    if (RestartPlayer == 20) {
         printd(LogPlayer, "Poll:RestartPlayer->Start\n");
         StartPlayer();
     }
@@ -1109,9 +1109,9 @@ void PlayerPoll(char How) {
  */
 
 /*-----------------------------------------------
- * Function:		PositionSlider_Changed
+ * Function:        PositionSlider_Changed
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 void PositionSlider_Changed(GtkAdjustment *adj) {
     float NewValue;
@@ -1127,9 +1127,9 @@ void PositionSlider_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		SetASlider_Changed
+ * Function:        SetASlider_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void SetASlider_Changed(GtkAdjustment *adj) {
     float NewValue;
@@ -1139,9 +1139,9 @@ void SetASlider_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		SetBSlider_Changed
+ * Function:        SetBSlider_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void SetBSlider_Changed(GtkAdjustment *adj) {
     float NewValue;
@@ -1151,9 +1151,9 @@ void SetBSlider_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		SetAFineTickBox_Changed
+ * Function:        SetAFineTickBox_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void SetAFineTickBox_Changed(GtkAdjustment *adj) {
     printd(LogPlayer, "SetBFineTickBox_Changed\n");
@@ -1163,9 +1163,9 @@ void SetAFineTickBox_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		SetBFineTickBox_Changed
+ * Function:        SetBFineTickBox_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void SetBFineTickBox_Changed(GtkAdjustment *adj) {
     printd(LogPlayer, "SetBFineTickBox_Changed\n");
@@ -1175,13 +1175,13 @@ void SetBFineTickBox_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		SpeedSlider_Changed
+ * Function:        SpeedSlider_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void SpeedSlider_Changed(GtkAdjustment *adj) {
 
-//	printd(LogPlayer, "SpeedSlider_Changed %f\n", gtk_adjustment_get_value(SpeedAdjustment));
+    //  printd(LogPlayer, "SpeedSlider_Changed %f\n", gtk_adjustment_get_value(SpeedAdjustment));
     CurrentSpeed = gtk_adjustment_get_value(SpeedAdjustment);
     sprintf(PlayerString, "speed_set %f\n",
             CurrentSpeed);
@@ -1196,9 +1196,9 @@ void SpeedSlider_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		VolumeSlider_Changed
+ * Function:        VolumeSlider_Changed
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void VolumeSlider_Changed(GtkAdjustment *adj) {
     printd(LogPlayer, "VolumeSlider_Changed %f\n",
@@ -1209,9 +1209,9 @@ void VolumeSlider_Changed(GtkAdjustment *adj) {
 }
 
 /*-----------------------------------------------
- * Function:		normal_release_handler
+ * Function:        normal_release_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
@@ -1227,9 +1227,9 @@ gboolean SetA_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		SetB_click_handler
+ * Function:        SetB_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
@@ -1245,9 +1245,9 @@ gboolean SetB_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		Speed_click_handler
+ * Function:        Speed_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
                              gpointer user_data) {
@@ -1262,18 +1262,41 @@ gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
 
     CurrentSpeed = 1.0;
     PlayerWrite("speed_set 1.0\n");
-//	gtk_adjustment_set_value(FineEndAdjustment, CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
+    //  gtk_adjustment_set_value(FineEndAdjustment, CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
 
     return TRUE; /* stop event propagation */
 }
 
 /*-----------------------------------------------
- * Function:		NewLoop_click_handler
+ * Function:        NewLoop_click_handler
  *
- * Description:		Create a new saved Loop.
+ * Description:     Create a new saved Loop.
  *------------------------------------------------*/
-gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
+int NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
                                gpointer user_data) {
+    theImageButtons *theButton;
+    GtkWidget *dialog;
+    GtkWidget *entry;
+    GtkWidget *content_area;
+    char *entry_line;
+
+    NewLoopDialog();
+
+    theButton = (theImageButtons *) user_data;
+    printd(LogPlayer, "NextSeg_click_handler %x\n", theButton);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+                              theButton->ButtonUpImage);
+
+    return TRUE; /* stop event propagation */
+}
+
+
+/*-----------------------------------------------
+ * Function:        NewLoop_click_handler
+ *
+ * Description:     Create a new saved Loop.
+ *------------------------------------------------*/
+int NewLoopDialog(void) {
     theImageButtons *theButton;
     GtkWidget *dialog;
     GtkWidget *entry;
@@ -1287,9 +1310,14 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
         printd(LogPlayer, "Error, too many Loops\n");
         return (FALSE);
     }
+
     dialog = gtk_dialog_new();
     gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), "CANCEL", 1);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "Cancel", 1);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), 0);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
+                                   0,
+                                   true);
 
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     entry = gtk_entry_new();
@@ -1332,11 +1360,6 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
     }
 
     gtk_widget_destroy(dialog);
-    theButton = (theImageButtons *) user_data;
-    printd(LogPlayer, "NextSeg_click_handler %x\n", theButton);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-                              theButton->ButtonUpImage);
-
 
     SaveLoopFile(CurrentFile);
     return TRUE; /* stop event propagation */
@@ -1346,9 +1369,9 @@ gboolean NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 /*-----------------------------------------------
  * Function:		NewMarker_click_handler
  *
- * Description:		Create a new saved Loop.
+ * Description:     Create a new saved Loop.
  *------------------------------------------------*/
-gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
+int NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
                                  gpointer user_data) {
     theImageButtons *theButton;
     GtkWidget *dialog;
@@ -1357,26 +1380,53 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
     char *entry_line;
     float theTime;
 
-
-    PlayerPoll(FALSE);
-//	PlayerDisTime
-    theTime = PlayerCurrentTime;
-
-    dialog = gtk_dialog_new();
-    gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), "CANCEL", 1);
-
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    entry = gtk_entry_new();
-    gtk_container_add(GTK_CONTAINER(content_area), entry);
-
-    gtk_widget_show_all(dialog);
-    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+    theButton = (theImageButtons *) user_data;
+    printd(LogPlayer, "NewMarker_click_handler %x\n", theButton);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
+                              theButton->ButtonUpImage);
+    NewMarkerDialog();
 
     theButton = (theImageButtons *) user_data;
     printd(LogPlayer, "NewMarker_click_handler %x\n", theButton);
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
                               theButton->ButtonUpImage);
+
+    gtk_widget_destroy(dialog);
+    return TRUE; /* stop event propagation */
+}
+
+
+
+/*-----------------------------------------------
+ * Function:        NewMarkerDialog
+ *
+ * Description:     Create a new saved Loop.
+ *------------------------------------------------*/
+int NewMarkerDialog(void) {
+    GtkWidget *dialog;
+    GtkWidget *entry;
+    GtkWidget *content_area;
+    char *entry_line;
+    float theTime;
+
+
+    PlayerPoll(FALSE);
+    //  PlayerDisTime
+    theTime = PlayerCurrentTime;
+
+    dialog = gtk_dialog_new();
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), 0);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "Cancel", 1);
+
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    entry = gtk_entry_new();
+    gtk_entry_set_activates_default(GTK_ENTRY(entry),TRUE);
+    gtk_container_add(GTK_CONTAINER(content_area), entry);
+
+    gtk_widget_show_all(dialog);
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
     switch (result) {
     case 0:
         entry_line = (char *)gtk_entry_get_text(GTK_ENTRY(entry));
@@ -1405,18 +1455,14 @@ gboolean NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
         break;
     }
 
-    theButton = (theImageButtons *) user_data;
-    printd(LogPlayer, "NewMarker_click_handler %x\n", theButton);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
-                              theButton->ButtonUpImage);
-
     gtk_widget_destroy(dialog);
     return TRUE; /* stop event propagation */
 }
 
+
 #if 0
 /*-----------------------------------------------
- * Function:		Save SongMarkers
+ * Function:        Save SongMarkers
  *
  * Description:
  *------------------------------------------------*/
@@ -1447,9 +1493,9 @@ void SaveSongMarkers(char *FileName) {
 
 
 /*-----------------------------------------------
- * Function:		EnterLoop_click_handler
+ * Function:        EnterLoop_click_handler
  *
- * Description:		Modify a saved Loop.
+ * Description:     Modify a saved Loop.
  *------------------------------------------------*/
 gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
                                  gpointer user_data) {
@@ -1463,9 +1509,9 @@ gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 
     CurrentSavedLoop = gtk_combo_box_get_active(GTK_COMBO_BOX(SaveCombo));
     mySavedLoops[CurrentSavedLoop].Start = gtk_adjustment_get_value(
-                                           FineStartAdjustment);
+            FineStartAdjustment);
     mySavedLoops[CurrentSavedLoop].Length = gtk_adjustment_get_value(
-                                            FineEndAdjustment);
+            FineEndAdjustment);
     mySavedLoops[CurrentSavedLoop].Position = ScrollGetPosition();
 
     printd(LogPlayer, "Reading Loop %d %s %f %f\n", CurrentSavedLoop,
@@ -1477,9 +1523,9 @@ gboolean EnterLoop_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		NextSeg_click_handler
+ * Function:        NextSeg_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event,
                                gpointer user_data) {
@@ -1496,9 +1542,9 @@ gboolean NextSeg_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		PrevSeg_click_handler
+ * Function:        PrevSeg_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event,
                                gpointer user_data) {
@@ -1514,9 +1560,9 @@ gboolean PrevSeg_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		Loop_click_handler
+ * Function:        Loop_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
@@ -1533,9 +1579,9 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		StartPlayer
+ * Function:        StartPlayer
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 int StartPlayer(void) {
 
@@ -1567,13 +1613,13 @@ int StartPlayer(void) {
 
     if (WeAreLooping) {
         sprintf(PlayerString,
-//				"-use-filedir-conf=./Prefs/mplayer/
+                //              "-use-filedir-conf=./Prefs/mplayer/
                 "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
-//		        "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
+                //              "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
                 gtk_adjustment_get_value(FineStartAdjustment),
                 gtk_adjustment_get_value(FineEndAdjustment),
                 gtk_adjustment_get_value(VolumeAdjustment),
-//		        gtk_adjustment_get_value(SpeedAdjustment),
+                //              gtk_adjustment_get_value(SpeedAdjustment),
                 CurrentSpeed, CurrentFile);
         // -fixed-ao hangs
         printd(LogPlayer, "calling  Loop %s\n", PlayerString);
@@ -1582,7 +1628,7 @@ int StartPlayer(void) {
     }
     else {
         sprintf(PlayerString,
-                "mplayer \"%s\" -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null",(char *)CurrentFile,
+                "mplayer \"%s\" -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null", (char *)CurrentFile,
                 CurrentSongPosition,
                 gtk_adjustment_get_value(VolumeAdjustment),
                 CurrentSpeed);
@@ -1599,9 +1645,9 @@ int StartPlayer(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plScrub
+ * Function:        plScrub
  *
- * Description:		Scrub
+ * Description:     Scrub
  *------------------------------------------------*/
 void plScrub(float Amount) {
 
@@ -1611,9 +1657,9 @@ void plScrub(float Amount) {
 }
 
 /*-----------------------------------------------
- * Function:		Play_click_handler
+ * Function:        Play_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
@@ -1625,9 +1671,9 @@ gboolean Play_click_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 /*-----------------------------------------------
- * Function:		Stop_click_handler
+ * Function:        Stop_click_handler
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event,
                             gpointer user_data) {
@@ -1637,7 +1683,7 @@ gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event,
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
                               theButton->ButtonDownImage);
 
-//	PlayerWrite("stop \n");
+    //  PlayerWrite("stop \n");
     ResetPlayer();
     printd(LogPlayer, "Stop_click_handler\n");
     return TRUE; /* stop event propagation */
@@ -1648,34 +1694,34 @@ gboolean Stop_click_handler(GtkWidget *widget, GdkEvent *event,
  */
 
 /*-----------------------------------------------
- * Function:		plSetA
+ * Function:        plSetA
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 void plSetA(void) {
     gtk_adjustment_set_value(StartAdjustment, 0.0);
-//	gtk_adjustment_set_value(FineStartAdjustment, 0.0);
+    //  gtk_adjustment_set_value(FineStartAdjustment, 0.0);
     gtk_adjustment_set_value(FineStartAdjustment, CurrentSongPosition);
     printd(LogPlayer, "plSetA\n");
 }
 
 /*-----------------------------------------------
- * Function:		plSetB
+ * Function:        plSetB
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 void plSetB(void) {
     gtk_adjustment_set_value(EndAdjustment, 0.0);
-//	gtk_adjustment_set_value(FineEndAdjustment, 0.0);
+    //  gtk_adjustment_set_value(FineEndAdjustment, 0.0);
     gtk_adjustment_set_value(FineEndAdjustment,
                              CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
     printd(LogPlayer, "plSetB\n");
 }
 
 /*-----------------------------------------------
- * Function:		plLoopToggle
+ * Function:        plLoopToggle
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 bool plLoopToggle(void) {
 
@@ -1704,9 +1750,9 @@ bool plLoopToggle(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plPlay
+ * Function:        plPlay
  *
- * Description:		Start Player.
+ * Description:     Start Player.
  *------------------------------------------------*/
 void plPlay(void) {
 
@@ -1717,9 +1763,9 @@ void plPlay(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plStop
+ * Function:        plStop
  *
- * Description:		Stop Player.
+ * Description:     Stop Player.
  *------------------------------------------------*/
 void plStop(void) {
 
@@ -1730,9 +1776,9 @@ void plStop(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plPausePlay
+ * Function:        plPausePlay
  *
- * Description:		Position Sliders changed.
+ * Description:     Position Sliders changed.
  *------------------------------------------------*/
 bool plPausePlay(void) {
 
@@ -1755,7 +1801,7 @@ bool plPausePlay(void) {
                                   PlayPauseButton.ButtonDownImage);
         MyImageButtonSetText(&PlayPauseButton, "Pause");
 
-//		PlayerWrite("pause\n");
+        //      PlayerWrite("pause\n");
         printd(LogPlayer, "plPausePlay->StartPlayer\n");
         StartPlayer();
         PlayerWrite("get_time_length\n");
@@ -1767,9 +1813,9 @@ bool plPausePlay(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plNextSeg
+ * Function:        plNextSeg
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plNextSeg(void) {
     gtk_adjustment_set_value(FineStartAdjustment,
@@ -1783,9 +1829,9 @@ void plNextSeg(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plPrevSeg
+ * Function:        plPrevSeg
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plPrevSeg(void) {
     gtk_adjustment_set_value(FineStartAdjustment,
@@ -1799,9 +1845,9 @@ void plPrevSeg(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plSpeedUp
+ * Function:        plSpeedUp
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plSpeedUp(void) {
 
@@ -1821,9 +1867,9 @@ void plSpeedUp(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plSpeedDown
+ * Function:        plSpeedDown
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plSpeedDown(void) {
 
@@ -1843,9 +1889,9 @@ void plSpeedDown(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plSeekFw
+ * Function:        plSeekFw
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plSetPosition(float position) {
     sprintf(PlayerString, "set_property time_pos %4.2f\n", position);
@@ -1854,9 +1900,9 @@ void plSetPosition(float position) {
 }
 
 /*-----------------------------------------------
- * Function:		plSeekFw
+ * Function:        plSeekFw
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plSeekFw(void) {
 
@@ -1865,9 +1911,9 @@ void plSeekFw(void) {
 }
 
 /*-----------------------------------------------
- * Function:		plSeekBk
+ * Function:        plSeekBk
  *
- * Description:		.
+ * Description:     .
  *------------------------------------------------*/
 void plSeekBk(void) {
 

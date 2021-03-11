@@ -119,6 +119,37 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
     return (0);
 }
 
+/*--------------------------------------------
+ * Function:            MyImageButtonSetText2
+ *
+ * Description:         Change or Set the text of a button..
+ *---------------------------------------------*/
+int MyImageButtonSetText2( theImageButtons *theButton, int Number, char *String) {
+    char        FormatString[200];
+    int         StrLen;
+
+            // sprintf(String, "%*d\n%*s",
+            //         (14 + StringLen) / 2,
+            //         Loop + 1,
+            //         (14 + StringLen) / 2,
+            //         gMyInfo.MyPatchInfo[PatchIndex].Name);
+
+
+    StrLen = strlen(String);
+    sprintf(FormatString, "<span face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>      %03d      </b></span>\n<span  face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>%*s</b></span>",
+            0xc07000, 
+            Number,
+            gMyInfo.ButtonTextColor, 
+            (16 + StrLen) / 2,
+            String);
+
+    gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
+
+//  g_idle_add(GTKIdel_cb, theMainWindow);
+    return (0);
+}
+
+
 gboolean normal_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {

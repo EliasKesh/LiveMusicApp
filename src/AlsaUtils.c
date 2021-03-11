@@ -8,8 +8,6 @@
 |
 |---------------------------------------------*/
 
-
-#include <stdio.h>
 #include "stdlib.h"
 #include <string.h>
 #include "stdbool.h"
@@ -773,7 +771,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
         expression pedal control.
         */
         gMyInfo.ExpreP1Slider =
-        FindString(fsPatchNames, thePatch->Name);
+            FindString(fsPatchNames, thePatch->Name);
 
         /* Used to update the text.
         */
@@ -957,9 +955,8 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 64:
             printd(LogMidi, "0 Record\n");
-            SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
-                     1, ControlValue, (int) 0);
-
+            // Call Patch
+            gMyInfo.PatchUpdate = 1;
             break;
 
         // -----------  Slot 2 Midi
@@ -1002,6 +999,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 65:
             printd(LogMidi, "1 Record\n");
+            // Call Patch
+            gMyInfo.PatchUpdate = 2;
+
             break;
 
         // -----------  Slot 2 MP3
@@ -1036,9 +1036,8 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 66:
-            printd(LogMidi, "Clementine Tog\n");
-            //            if (DataValue)
-            system("playerctl -p clementine play-pause");
+            // Call Patch
+            gMyInfo.PatchUpdate = 3;
 
 
             break;
@@ -1075,6 +1074,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 67:
+            // Call Patch
+            gMyInfo.PatchUpdate = 4;
+
             break;
 
         // -----------  Slot 4 Chorus
@@ -1116,13 +1118,10 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 68:
-            printd(LogMidi, "In Wah Toggle\n");
-            if (DataValue == 0)
-                SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                         GuitarixPort,
-                         1,
-                         41,
-                         120);
+            printd(LogMidi, "Record 4\n");
+            // Call Patch
+            gMyInfo.PatchUpdate = 5;
+
             break;
 
         // -----------  Slot 5 Distortion Level
@@ -1157,7 +1156,14 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 69:
-            printd(LogMidi, "Record 5\n");
+            printd(LogMidi, "In Wah Toggle\n");
+
+            if (DataValue == 0)
+                SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                         GuitarixPort,
+                         1,
+                         41,
+                         120);
             break;
         // -----------  Slot 6
 
@@ -1184,6 +1190,10 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 70:
+            printd(LogMidi, "Clementine Tog\n");
+            //            if (DataValue)
+            system("playerctl -p clementine play-pause");
+
             break;
         // -----------  Slot 7
 
@@ -1250,8 +1260,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 60:
             printd(LogMidi, "Set\n");
-            plSetA();
-
+            if (DataValue == 0) {
+                gMyInfo.MarkerUpdate = true;
+            }
             break;
 
         case 61:
@@ -1781,14 +1792,17 @@ void *alsa_midi_thread(void * context_ptr) {
                 if (event_ptr->data.note.velocity != 0) {
                     if (drum_name != NULL) {
                         sprintf(msg_str_ptr,
-                                "Drum: %s (%s, octave %d, velocity %u)", drum_name,
-                                note_name, octave, event_ptr->data.note.velocity);
-
+                                "Drum: %s (%s, octave %d, velocity %u)",
+                                drum_name,
+                                note_name, octave,
+                                event_ptr->data.note.velocity);
                     }
+#if 0
                     else {
                         sprintf(msg_str_ptr, "Note on, %s, octave %d, velocity %u",
                                 note_name, octave, event_ptr->data.note.velocity);
                     }
+#endif
                 }
 
                 if (gMyInfo.MidiPassThru) {
@@ -1825,8 +1839,8 @@ void *alsa_midi_thread(void * context_ptr) {
             //          if (drum_name != NULL) /* ignore note off for drums */
             //              continue;
             if (!WaitingforMidi) {
-                sprintf(msg_str_ptr, "Note off, %s, octave %d", note_name,
-                        octave);
+                //             sprintf(msg_str_ptr, "Note off, %s, octave %d", note_name,
+                //                     octave);
 
                 if (gMyInfo.MidiPassThru) {
                     snd_seq_ev_clear(&ev);
@@ -1882,7 +1896,7 @@ void *alsa_midi_thread(void * context_ptr) {
 
 #if 0
                 gMyInfo.ExpreP1Slider =
-                FindString(fsPatchNames, "Expr P");
+                    FindString(fsPatchNames, "Expr P");
 #endif
                 break;
 
@@ -2478,7 +2492,7 @@ void *alsa_midi_thread(void * context_ptr) {
                         FishmanSelSwitch = FishmanSwitch = FishmanGuitar;
                         //                      gMyInfo.ExpreP1Slider = Slider1;
                         gMyInfo.ExpreP1Slider =
-                        FindString(fsPatchNames, "Expr P");
+                            FindString(fsPatchNames, "Expr P");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
                         gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
                         break;
@@ -2487,7 +2501,7 @@ void *alsa_midi_thread(void * context_ptr) {
                         FishmanSelSwitch = FishmanSwitch = FishmanSynth;
                         //                      gMyInfo.ExpreP1Slider = Slider2;
                         gMyInfo.ExpreP1Slider =
-                        FindString(fsPatchNames, "Midi V");
+                            FindString(fsPatchNames, "Midi V");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
                         gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
                         break;
@@ -2496,7 +2510,7 @@ void *alsa_midi_thread(void * context_ptr) {
                         FishmanSelSwitch = FishmanSwitch = FishmanMix;
                         //                      gMyInfo.ExpreP1Slider = Slider4;
                         gMyInfo.ExpreP1Slider =
-                        FindString(fsPatchNames, "Master V");
+                            FindString(fsPatchNames, "Master V");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
                         gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
                     }
@@ -2935,9 +2949,9 @@ void *alsa_midi_thread(void * context_ptr) {
 
 #if 0
             decode_sysex(
-            (guint8 *) event_ptr->data.ext.ptr,
-            event_ptr->data.ext.len,
-            msg_str_ptr);
+                (guint8 *) event_ptr->data.ext.ptr,
+                event_ptr->data.ext.len,
+                msg_str_ptr);
 #endif
             break;
 
@@ -3061,7 +3075,7 @@ static void device_list(void) {
         }
 
         snd_ctl_close(handle);
-    next_card:
+next_card:
 
         if (snd_card_next(&card) < 0) {
             printd(LogError, "snd_card_next");
@@ -3117,7 +3131,7 @@ static void pcm_list(void) {
             putchar('\n');
         }
 
-    __end:
+__end:
 
         if (name != NULL) {
             free(name);

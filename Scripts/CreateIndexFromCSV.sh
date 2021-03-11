@@ -1,5 +1,5 @@
 #! /bin/sh
-#---------------------------------------------------------------------
+#------------------------------------------------
 #
 #	File: 	CreateIndexFromCSV
 #
@@ -11,7 +11,7 @@
 #	Copyright ©: 	2019 Elias Keshishoglou all rights reserved.
 #
 #
-#---------------------------------------------------------------------#
+#------------------------------------------------#
 
 echo "<html><head><style type=\"text/css\">" > index.html
 echo "{text-align: left; width: 100%; height: 100%;}" >> index.html

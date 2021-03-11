@@ -65,7 +65,8 @@ void plSetPosition(float position);
 void plScrub(float Amount);
 int ResetPlayer(void);
 int StartPlayer(void);
-
+int NewLoopDialog(void);
+int NewMarkerDialog(void);
 
 /*
  * Place Static variables here.

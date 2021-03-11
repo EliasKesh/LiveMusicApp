@@ -1085,7 +1085,7 @@ void *alsa_Loop_thread ( void * context_ptr ) {
 //    printd ( LogDebug, "alsa_Loop_thread\n" );
 
     while ( 1 ) {
-        printd ( LogDebug, "alsa_Loop_thread\n" );
+//        printd ( LogDebug, "alsa_Loop_thread\n" );
 
         if ( MidiLooping ) {
             printd ( LogDebug, "alsa_Loop_thread before play\n" );

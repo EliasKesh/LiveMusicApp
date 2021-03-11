@@ -1,27 +1,27 @@
 /*------------------------------------------------
 |
-|	File: 	Timers
+|   File:   Timers
 |
-|	Contains:
+|   Contains:
 |
 |
-|	Written By: 	Elias Keshishoglou on Sun Mar 8 11:03:38 PDT 2015
+|   Written By:     Elias Keshishoglou on Sun Mar 8 11:03:38 PDT 2015
 |
-|	Copyright �: 	2015 Elias Keshishoglou all rights reserved.
+|   Copyright �:  2015 Elias Keshishoglou all rights reserved.
 |
-|	This program is free software; you can redistribute it and/or
-|	modify it under the terms of the GNU General Public License
-|	as published by the Free Software Foundation; either version 2
-|	of the License, or (at your option) any later version.
+|   This program is free software; you can redistribute it and/or
+|   modify it under the terms of the GNU General Public License
+|   as published by the Free Software Foundation; either version 2
+|   of the License, or (at your option) any later version.
 |
-|	This program is distributed in the hope that it will be useful,
-|	but WITHOUT ANY WARRANTY; without even the implied warranty of
-|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-|	GNU General Public License for more details.
+|   This program is distributed in the hope that it will be useful,
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|   GNU General Public License for more details.
 |
-|	You should have received a copy of the GNU General Public License
-|	along with this program; if not, write to the Free Software
-|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|   You should have received a copy of the GNU General Public License
+|   along with this program; if not, write to the Free Software
+|   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
 |------------------------------------------------*/
@@ -49,9 +49,11 @@
  * Place defines and Typedefs here
  */
 #ifdef RTTimer
-#define TimerTicksPerQuater 	8
+#define TimerTicksPerQuater     8
+#define TimerTicksPerQuaterSub     4
 #else
-#define TimerTicksPerQuater 	1
+#define TimerTicksPerQuater     1
+#define TimerTicksPerQuaterSub     1
 #endif
 
 /*
@@ -78,8 +80,8 @@ unsigned int OldTempo = 0;
 
 #ifdef GTKTimer
 /*-----------------------------------------------
- * Function:		MyTimerInit
- * Description:		Setup the timers used to Tempo and MTC
+ * Function:        MyTimerInit
+ * Description:     Setup the timers used to Tempo and MTC
  *
  *------------------------------------------------*/
 void MyTimerInit(void) {
@@ -96,14 +98,14 @@ void MyTimerInit(void) {
 }
 
 /*-----------------------------------------------
- * Function:		Set the tempo
- * Description:		Set the tempo to a new value. Re-setup the timer
- * 	interrupts to handle double the tempo.
+ * Function:        Set the tempo
+ * Description:     Set the tempo to a new value. Re-setup the timer
+ *  interrupts to handle double the tempo.
  *
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-    if (NewTempo <= 40) {
+    if (NewTempo <= MinTempoValue) {
         return;
     }
 
@@ -113,8 +115,8 @@ void SetTempo(unsigned int NewTempo) {
 
     Tempofont_desc = pango_font_description_from_string("Sans Bold 18");
     gMyInfo.Tempo = NewTempo;
-//	TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
-//	gtk_widget_override_font((TempoChild), Tempofont_desc);
+    //  TempoChild = gtk_bin_get_child((GTK_BIN(TempoDraw)));
+    //  gtk_widget_override_font((TempoChild), Tempofont_desc);
 
     /* Tell the timer to stop.
      */
@@ -137,13 +139,13 @@ void SetTempo(unsigned int NewTempo) {
      */
     gMyInfo.TempoTimerID = g_timeout_add(gMyInfo.TempoReload, (GSourceFunc) tempo_handler, (gpointer) gxml);
 
-//      gMyInfo.Timer1Count = 0;
+    //      gMyInfo.Timer1Count = 0;
 }
 
 /*-----------------------------------------------
- * Function:		Timer Callback
+ * Function:        Timer Callback
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
@@ -160,8 +162,8 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 #ifdef AlsaTimer
 /*-----------------------------------------------
- * Function:		MyTimerInit
- * Description:		Setup the timers used to Tempo and MTC
+ * Function:        MyTimerInit
+ * Description:     Setup the timers used to Tempo and MTC
  *
  *------------------------------------------------*/
 void MyTimerInit(void) {
@@ -176,14 +178,14 @@ void MyTimerInit(void) {
 }
 
 /*-----------------------------------------------
- * Function:		Set the tempo
- * Description:		Set the tempo to a new value. Re-setup the timer
- * 	interrupts to handle double the tempo.
+ * Function:        Set the tempo
+ * Description:     Set the tempo to a new value. Re-setup the timer
+ *  interrupts to handle double the tempo.
  *
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
 
-    if (NewTempo <= 40) {
+    if (NewTempo <= MinTempoValue) {
         return;
     }
 
@@ -200,9 +202,9 @@ void SetTempo(unsigned int NewTempo) {
 }
 
 /*-----------------------------------------------
- * Function:		Tempo callback.
+ * Function:        Tempo callback.
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *------------------------------------------------*/
 static gboolean tempo_handler(GtkWidget *widget) {
@@ -214,8 +216,8 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
     g_idle_add(GTKIdel_cb, theMainWindow);
 
-//printd(LogTimer, "Call Toggle from tempo\n");
-//	PlayerPoll(TRUE);
+    //printd(LogTimer, "Call Toggle from tempo\n");
+    //  PlayerPoll(TRUE);
     return TRUE;
 }
 
@@ -223,8 +225,8 @@ static gboolean tempo_handler(GtkWidget *widget) {
 
 #ifdef RTTimer
 /*-----------------------------------------------
- * Function:		MyTimerInit
- * Description:		Setup the timers used to Tempo and MTC
+ * Function:        MyTimerInit
+ * Description:     Setup the timers used to Tempo and MTC
  *
  *------------------------------------------------*/
 void MyTimerInit(void) {
@@ -266,9 +268,9 @@ void MyTimerInit(void) {
 }
 
 /*-----------------------------------------------
- * Function:		Set the tempo
- * Description:		Set the tempo to a new value. Re-setup the timer
- * 	interrupts to handle double the tempo.
+ * Function:        Set the tempo
+ * Description:     Set the tempo to a new value. Re-setup the timer
+ *  interrupts to handle double the tempo.
  *
  *------------------------------------------------*/
 void SetTempo(unsigned int NewTempo) {
@@ -280,7 +282,7 @@ void SetTempo(unsigned int NewTempo) {
 
     /* If the tempo is not reasonable.
     */
-    if (NewTempo <= 30) {
+    if (NewTempo <= MinTempoValue) {
         return;
     }
 
@@ -336,7 +338,7 @@ void SetTempo(unsigned int NewTempo) {
     in.it_value.tv_nsec = 0;
     in.it_interval.tv_sec = 0;
 
-//		in.it_interval.tv_nsec = 30000000000 / NewTempo;
+    //      in.it_interval.tv_nsec = 30000000000 / NewTempo;
     // Double the timer interval.
     in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
@@ -346,15 +348,15 @@ void SetTempo(unsigned int NewTempo) {
 }
 
 /*-----------------------------------------------
- * Function:		Timer Callback
+ * Function:        Timer Callback
  *
- * Description:		<Description/Comments>
+ * Description:     <Description/Comments>
  *
  *------------------------------------------------*/
 static void time_handlerRT (union sigval val) {
     ToggleTempo();
 
-//    printd(LogTimer, "IN time_handler %d\n", SubBeats);
+    //    printd(LogTimer, "IN time_handler %d\n", SubBeats);
 
     if (++SubBeats > 7) {
         SubBeats = 0;
@@ -370,22 +372,22 @@ static void time_handlerRT (union sigval val) {
 
 
 /*-----------------------------------------------
- * Function:		ToggleTempo
+ * Function:        ToggleTempo
  *
- * Description:		Toggle based on the common tempo.
- * 	Tempostate is the current index * 24
+ * Description:     Toggle based on the common tempo.
+ *  Tempostate is the current index * 24
  *
  *------------------------------------------------*/
 void ToggleTempo(void) {
-//	char Count;
-//	int	Loop;
+    //  char Count;
+    //  int Loop;
     struct timeval Time0;
 
     // gettimeofday(&Time0, NULL);
     // printd(LogTest, "%ld:%ld->\n", Time0.tv_sec, Time0.tv_usec);
 
     /* This is the tempo in BPM
-    	Currently we use 4 clocks per quarter.
+        Currently we use 4 clocks per quarter.
     */
     if (!(++TempoState % TimerTicksPerQuater)) {
         gUpdateTempo = 1;
@@ -396,8 +398,9 @@ void ToggleTempo(void) {
             BeatCount = 1;
             TempoState = 0;
 
-            if (CountInActiveState == cntStateWaitingforCountIn)
+            if (CountInActiveState == cntStateWaitingforCountIn) {
                 CountInActiveState = cntStateWaitingforRecCount;
+            }
 
         }
 
@@ -441,8 +444,8 @@ void ToggleTempo(void) {
             if ( CountInCount == 0) {
                 CountInActiveState = cntStateRecording;
 
-//							DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
-                //		OSCCommand(OSCStartRecord, 0);
+                //                          DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
+                //      OSCCommand(OSCStartRecord, 0);
                 gMyInfo.MetronomeOn = FALSE;
                 printd(LogTimer, "Loop Start 1\n\n");
             }
@@ -532,17 +535,28 @@ void ToggleTempo(void) {
                          DrumMidiChannel, 00, (int) gMyInfo.Drum1);
             }
 
-            sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
+ //           sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
         }
         else {
             gLooperWaitForSync = 0;
-            sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
         }
 
         LEDControl(BeatCount, 1);
         UIUpdateFromTimer = TRUE;
+        sprintf(TempoUpdateString, "%d-%d", gMyInfo.Tempo, BeatCount);
 
     }
+
+#if 0
+    if (!(TempoState % TimerTicksPerQuaterSub)) {
+
+        /* On the first beat play a different sound.
+         */
+        sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
+//        UIUpdateFromTimer = TRUE;
+
+    }
+#endif
 
     if (gMyInfo.Tempo != OldTempo) {
         SetTempo(gMyInfo.Tempo);
@@ -552,7 +566,7 @@ void ToggleTempo(void) {
 
 #if 0
     else {
-//		if (TempoState == 2) {
+        //      if (TempoState == 2) {
         /*  Turn lights off
          */
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -560,12 +574,12 @@ void ToggleTempo(void) {
 
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
                  DrumMidiChannel, 04, (int) PedalLED4Off );
-//		}
+        //      }
     }
 #endif
     /* This is BAD FIXME
     */
-//	SetTempo(gMyInfo.Tempo);
+    //  SetTempo(gMyInfo.Tempo);
 
 }
 

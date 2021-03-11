@@ -976,6 +976,8 @@ MusePlayer=false
 MuseScore=false
 Looper=false
 MusicViewer=false
+WeAreDebugging=false
+
 LogFile=~/.config/LiveMusicApp/LogGuitar.txt
 #LogFile=/dev/tty
 JackFile=LogJack
@@ -986,7 +988,6 @@ ButtonLayout=1
 OneScreeOnly=false
 BackroundChecker=true
 SoundSynth=true
-
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
 # sudo echo -n performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
@@ -999,7 +1000,7 @@ echo "--------------------------------------------" >> $LogFile
 echo `date` >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdegfhrpmnovlswt" OPT; do
+while getopts "abcdegfjkhrpmnovlswt" OPT; do
     echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1011,6 +1012,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
         e - Launcher Execute
         g - Generate Charts
         j - JamStik
+        k - Debugging
         l - Looper
         m - Music Player
         n - Muse Player
@@ -1020,7 +1022,7 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-            w - Working Scoring"
+        w - Working Scoring"
             exit 0
         ;;
         v)
@@ -1063,13 +1065,11 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
             if [ -z $pid ]
             then
                 MP3Player=true
-                Rosegarden=false
                 MidiController=true
                 GuitarEffects=true
                 BackroundChecker=true
                 SoundSynth=true
                 Looper=true
-                BackroundChecker=true
                 
                 #                Hydrogen=true
             else
@@ -1093,12 +1093,23 @@ while getopts "abcdegfhrpmnovlswt" OPT; do
         ;;
         g)
             # LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
-            LiveMusicCharts.py /home/elias/MySongs/FusionBlue/ -f -c -i -r
+            LiveMusicCharts.py /home/MySongs/FusionBlue/ -f -c -i -r
         ;;
         j)
             echo "JamStik"
             JamStik=true
         ;;
+        k)
+            echo "Debugging"
+            WeAreDebugging=true
+            BackroundChecker=false
+            MP3Player=false
+            MidiController=true
+            GuitarEffects=true
+            SoundSynth=true
+            Looper=true
+
+        ;;        
         l)
             echo "Looper"
             Looper=true
