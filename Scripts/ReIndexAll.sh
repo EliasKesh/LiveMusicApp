@@ -13,33 +13,7 @@
 #
 #------------------------------------------------#
 
-
-
-cd /home/
-chown elias: MySongs  -R
-chmod 700 MySongs
-
-cd /home/MySongs
-find ./ -type d -exec chmod 700 {} \;
-find ./ -type f -exec chmod 600 {} \;
-
-cd /home/MySongs/Solo
-LiveMusicCharts.py . -a
-
-cd /home/MySongs/OtherTunes
-LiveMusicCharts.py . -a
-
-cd /home/MySongs/NewScores
-LiveMusicCharts.py . -a
-
-cd /home/MySongs/FusionBlue
-LiveMusicCharts.py . -a
-
-cd /home/MySongs/Alternates
-LiveMusicCharts.py . -a
-
-
-
+ReIndex.sh
 
 cd /home/Music/
 chown elias: Learn  -R
@@ -181,7 +155,7 @@ LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
 LiveMusicCharts.py JazzGuitar -vcfp
 LiveMusicCharts.py PentaTrick -vcfp
-
+LiveMusicCharts.py Material -vcfp
 
 
 cd /home/Music/Learn/
@@ -192,13 +166,6 @@ LiveMusicCharts.py . -il
 
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
-
-
-
-
-
-# cd /home/Music/Practice
-# LiveMusicCharts.py . -a
 
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;

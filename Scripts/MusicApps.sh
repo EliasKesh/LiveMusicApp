@@ -34,45 +34,45 @@ exit 1
 fi
 
 if [ "${1}" == "mid" ] ; then
+# Handle it internal to the App
  #   mscore4  "${2}" &
     exit 1
 fi
 
 if [ "${1}" == "med" ] ; then
-    mscore4  "${2}" &
+    mscore  "${2}" &
     exit 0
 fi
 
 # https://ftp.osuosl.org/pub/musescore-nightlies/linux/4x/nightly/?C=M;O=D
 if [ "${1}" == "mscz" ] ; then
-    mscore4 "${2}" &>/dev/null &
+    mscore "${2}" &>/dev/null &
     exit 0
 fi
 
 if [ "${1}" == "gp3" ] |
 [ "${1}" == "gp" ] |
+[ "${1}" == "gpx" ] |
 [ "${1}" == "gp4" ] |
 [ "${1}" == "gp5" ] |
 [ "${1}" == "gp6" ] |
 [ "${1}" == "ptb" ] ; then
     echo "${1}  ${2}"
-    mscore3  "${2}"  &>/dev/null &
+    mscore  "${2}"  &>/dev/null &
     exit 0
 fi
 
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GDK_BACKEND=x11 nice -15 \
-    /AppImages/guitarix-0.39-x86_64.AppImage \
-    -p 7000 &
+    GTK_THEME="LiveMusicApp" nice -15 guitarix &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
-    GDK_BACKEND=x11 nice -15 \
-    /AppImages/guitarix-0.39-x86_64.AppImage \
-    -p 7000 &
+    GTK_THEME="LiveMusicApp" nice -15 guitarix &
+    # /AppImages/guitarix-0.39-x86_64.AppImage \
+    # -p 7000 &
    
 #    guitarix \
 #    /AppImages/guitarix-0.39-x86_64.AppImage \

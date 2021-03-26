@@ -189,6 +189,8 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
     int index = argv[0]->i;
     float val  = argv[2]->f;
 
+    printd(LogDebug, "ctrl_handler %s %s %s %s\n", path, types, data, user_data);
+
     printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
     gMyInfo.LoopPosition = val;
 
@@ -205,20 +207,32 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 }
 
 /*------------------------------------------------
- * Function:        pingack_handler.
+ * Function:        midi_handler.
  *
  * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
-static int pingack_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                           void *data, void *user_data) {
+static int midi_handler(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data) {
     // pingack expects: s:engine_url s:version i:loopcount
     // 1st arg is instance, 2nd ctrl string, 3nd is float value
-    //int index = argv[0]->i;
-    //string eurl(&argv[0]->s);
-    //string vers (&argv[1]->s);
-    //int loops = argv[2]->i;
-    printd(LogDebug, "pingack_handler %d %s d=%f\n", argv[0], argv[1], argv[2]);
+    int Value = argv[2]->i;
+    int Controller = argv[1]->i;
+
+    printd(LogDebug, "midi_handler1 %s %s\n", path, types);
+    printd(LogDebug, "midi_handler %s %d %d\n", argv[0], Controller, Value );
+
+    if ( !strcmp(argv[0], "button") ) {
+        printd(LogDebug, "buttons %d %d\n", Controller, Value );
+        gMyInfo.LayoutCall = TRUE;
+        gMyInfo.LayoutCallParam1 = Controller;
+        gMyInfo.LayoutCallParam2 = TRUE;
+    }
+
+    if ( !strcmp(argv[0], "slider") ) {
+        printd(LogDebug, "Slider %d %d\n", Controller, Value );
+        SetExpressionControl(Controller, Value);
+    }
+
     //  _acked = TRUE;
     return 0;
 }
@@ -231,6 +245,7 @@ static int pingack_handler(const char *path, const char *types, lo_arg **argv, i
  *
  *-------------------------------------------------*/
 void MyOSCInit(void) {
+    lo_method LoMidi;
 
     printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
            gMyInfo.OSCIPAddress,
@@ -255,25 +270,24 @@ void MyOSCInit(void) {
                        gMyInfo.OSCPortNumHydrogen );
 
     printd(LogDebug, "Init Second OSC \n");
+    int osc_port;
 
-    osc_server = lo_server_new(NULL, NULL);
+    osc_server = lo_server_new("15200", NULL);
     strcpy(our_url, lo_server_get_url (osc_server) );
-    printd(LogDebug, "MyOSCInit Leave %s  %d\n",
+    osc_port = lo_server_get_port (osc_server);
+    printd(LogDebug, "MyOSCInit Leave %s %d %d\n",
            our_url,
+           osc_port,
            osc_server );
-#if 0
-    osc_server1 = lo_server_new(NULL, NULL);
-    strcpy(our_url, lo_server_get_url (osc_server1) );
-    printd(LogDebug, "MyOSCInit Leave %s  %d\n",
-           our_url,
-           osc_server );
-#endif
+
+    LoMidi = lo_server_add_method(osc_server,
+                                  "/midi", NULL, midi_handler, NULL);
+
     lo_server_add_method(osc_server,
                          NULL, NULL, ctrl_handler, NULL);
+
     //                       "/ctrl", "isf", ctrl_handler, NULL);
 
-    lo_server_add_method(osc_server,
-                         "/pingack", "ssi", pingack_handler, NULL);
     CurrentLoop = 0;
 }
 

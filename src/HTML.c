@@ -371,7 +371,7 @@ int ScrollCtrl(float Amount) {
     }
 
     if (Amount == ScrollHome) {
-        ScrollPosition = 0;
+        ScrollPosition = 1;
     }
 
     if (Amount == ScrollKeyDn) {
@@ -390,14 +390,16 @@ int ScrollCtrl(float Amount) {
         ScrollPosition = 0;
     }
 
-    //  sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
-    printf("Scroll Control %f %d\n", Amount, ScrollPosition);
-    sprintf(Script, "window.scrollTo(%d,%d);", 0, ScrollPosition);
-    webkit_web_view_run_javascript(web_view,
-                                   Script,
-                                   NULL,
-                                   scroll_js_finished_cb,
-                                   NULL);
+    if (ScrollPosition != 0) {
+        //  sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
+        printf("Scroll Control %f %d\n", Amount, ScrollPosition);
+        sprintf(Script, "window.scrollTo(%d,%d);", 0, ScrollPosition);
+        webkit_web_view_run_javascript(web_view,
+                                       Script,
+                                       NULL,
+                                       scroll_js_finished_cb,
+                                       NULL);
+    }
     return (0);
 }
 
@@ -1118,7 +1120,7 @@ void InitHTML(GtkBuilder * gxml) {
 
         MyImageButtonInit(&PresetButtons[Loop], EventBox, PatchButtonOnImage,
                           PatchButtonOffImage);
-        MyImageButtonSetText2(&PresetButtons[Loop], Loop+1, Buffer);
+        MyImageButtonSetText2(&PresetButtons[Loop], Loop + 1, Buffer);
         gtk_widget_set_tooltip_text(PresetButtons[Loop].EventBox, "CTRL-Click to set. This will get saved in the song file.");
 
         g_signal_connect(G_OBJECT(EventBox),
@@ -1257,10 +1259,10 @@ void InitHTML(GtkBuilder * gxml) {
     g_signal_connect(G_OBJECT(web_view),
                      "context-menu", G_CALLBACK(on_RightMenu_clicked), NULL);
 
-    g_signal_connect((web_view),
-                     "hovering-over-link",
-                     G_CALLBACK(HoverLink_cb),
-                     web_view);
+    // g_signal_connect((web_view),
+    //                  "hovering-over-link",
+    //                  G_CALLBACK(HoverLink_cb),
+    //                  web_view);
 
 
 
@@ -1721,8 +1723,8 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
  *
  *-----------------------------------------------*/
 void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
-//    char String[PatchNameSize];
-//    int StringLen;
+    //    char String[PatchNameSize];
+    //    int StringLen;
 
     printd(LogDebug, "SetPatchTitles %x %s\n", MyButton, Text);
     // StringLen=strlen(Text);

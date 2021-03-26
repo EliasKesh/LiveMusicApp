@@ -558,9 +558,9 @@ int SendMidiPatch(PatchInfo * thePatch) {
         /* If there is a bank number then send it first.
          */
         if (thePatch->BankSelect != 0xff) {
-            SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
-                     thePatch->Channel,
-                     MIDI_CTL_MSB_BANK, (thePatch->BankSelect >> 7) & 0x7f);
+            // SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
+            //          thePatch->Channel,
+            //          MIDI_CTL_MSB_BANK, (thePatch->BankSelect >> 7) & 0x7f);
             SendMidi(SND_SEQ_EVENT_CONTROLLER, thePatch->OutPort,
                      thePatch->Channel,
                      MIDI_CTL_LSB_BANK, thePatch->BankSelect & 0x7f);
@@ -932,12 +932,14 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 16:
-            printd(LogMidi, "0 Knob %d\n", DataValue);
+            printd(LogMidi, "1 Knob %d\n", DataValue);
             break;
 
         case 32:
-            printd(LogMidi, "0 Solo\n");
-
+            printd(LogMidi, "1 Solo\n");
+            if (DataValue == 0) {
+                gMyInfo.IncrementSwitch = TRUE;
+            }
             break;
 
         case 48:
@@ -954,9 +956,11 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 64:
-            printd(LogMidi, "0 Record\n");
+            printd(LogMidi, "Patch 1\n");
             // Call Patch
-            gMyInfo.PatchUpdate = 1;
+            if (DataValue == 0) {
+                gMyInfo.PatchUpdate = 1;
+            }
             break;
 
         // -----------  Slot 2 Midi
@@ -998,13 +1002,15 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 65:
-            printd(LogMidi, "1 Record\n");
+            printd(LogMidi, "Patch 2\n");
             // Call Patch
-            gMyInfo.PatchUpdate = 2;
+            if (DataValue == 0) {
+                gMyInfo.PatchUpdate = 2;
+            }
 
             break;
 
-        // -----------  Slot 2 MP3
+        // -----------  Slot 3 MP3
 
 
         case 2:
@@ -1036,14 +1042,20 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 66:
+            printd(LogMidi, "Patch 3\n");
+
             // Call Patch
-            gMyInfo.PatchUpdate = 3;
+            if (DataValue == 0)
+
+            {
+                gMyInfo.PatchUpdate = 3;
+            }
 
 
             break;
 
 
-        // -----------  Slot 3 Looper
+        // -----------  Slot 4 Looper
 
         case 3:
             printd(LogMidi, "Loop Volume %d\n", DataValue);
@@ -1053,11 +1065,12 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
 
         case 19:
-            printd(LogMidi, "3 Knob %d\n", DataValue);
+            printd(LogMidi, "4 Knob %d\n", DataValue);
+            printd(LogMidi, "Select Loop Volume %d\n", DataValue);
             break;
 
         case 35:
-            printd(LogMidi, "Solo 3\n");
+            printd(LogMidi, "Solo 4\n");
             break;
 
         case 51:
@@ -1074,29 +1087,25 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 67:
+            printd(LogMidi, "Patch 4\n");
+
             // Call Patch
-            gMyInfo.PatchUpdate = 4;
+            if (DataValue == 0) {
+                gMyInfo.PatchUpdate = 4;
+            }
 
             break;
 
-        // -----------  Slot 4 Chorus
+        // -----------  Slot 5 Chorus
 
         case 4:
-            printd(LogMidi, "Chorus %d\n", DataValue);
-            SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                     GuitarixPort,
-                     1,
-                     12,
-                     DataValue);
             break;
 
         case 20:
-            printd(LogMidi, "4 knob %d\n", DataValue);
 
             break;
 
         case 36:
-            printd(LogMidi, "Solo 4\n");
 
             if (DataValue == 0) {
                 SetDAWLed(ControlValue, 1);
@@ -1107,41 +1116,55 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 52:
-            printd(LogMidi, "In Chorus Toggle\n");
-
-            if (DataValue == 0)
-                SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                         GuitarixPort,
-                         1,
-                         42,
-                         120);
             break;
 
         case 68:
-            printd(LogMidi, "Record 4\n");
+            printd(LogMidi, "Record 5\n");
             // Call Patch
-            gMyInfo.PatchUpdate = 5;
+            if (DataValue == 0) {
+                gMyInfo.PatchUpdate = 5;
+            }
 
             break;
 
-        // -----------  Slot 5 Distortion Level
+        // -----------  Slot 6 Distortion Level
 
         case 5:
             printd(LogMidi, "Dist %d\n", DataValue);
+            SetExpressionControl(ecDistorion,
+                                 DataValue);
+/*
             SendMidi(SND_SEQ_EVENT_CONTROLLER,
                      GuitarixPort,
                      1,
                      2,
                      DataValue);
+*/ 
             break;
 
         case 21:
-            printd(LogMidi, "5 knob %d\n", DataValue);
+            printd(LogMidi, "Chorus %d\n", DataValue);
+            SetExpressionControl(ecChorus,
+                                 DataValue);
+/*
+            SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                     GuitarixPort,
+                     1,
+                     12,
+                     DataValue);
+*/
             break;
 
         case 37:
-            printd(LogMidi, "Solo 5\n");
-            gMyInfo.TabSwitch = 0;
+            printd(LogMidi, "In Wah Toggle\n");
+
+            if (DataValue == 0)
+                SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                         GuitarixPort,
+                         1,
+                         41,
+                         120);
+
             break;
 
         case 53:
@@ -1156,16 +1179,16 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 69:
-            printd(LogMidi, "In Wah Toggle\n");
+            printd(LogMidi, "In Chorus Toggle\n");
 
             if (DataValue == 0)
                 SendMidi(SND_SEQ_EVENT_CONTROLLER,
                          GuitarixPort,
                          1,
-                         41,
+                         42,
                          120);
             break;
-        // -----------  Slot 6
+        // -----------  Slot 7
 
         case 6:
             printd(LogMidi, "Pedal  %d\n", DataValue);
@@ -1173,12 +1196,14 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 22:
-            printd(LogMidi, "6 knob %d\n", DataValue);
+            printd(LogMidi, "7 knob %d\n", DataValue);
             break;
 
         case 38:
-            printd(LogMidi, "Solo 6\n");
-            gMyInfo.TabSwitch = 1;
+            printd(LogMidi, "Solo 7\n");
+            if (DataValue == 0) {
+                gMyInfo.TabSwitch = tabpagePatch;
+            }
             break;
         case 54:
             if (DataValue == 0) {
@@ -1195,7 +1220,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             system("playerctl -p clementine play-pause");
 
             break;
-        // -----------  Slot 7
+        // -----------  Slot 8
 
         case 7:
             printd(LogMidi, "Master %d\n", DataValue);
@@ -1209,7 +1234,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 39:
             printd(LogMidi, "Solo 7\n");
-            gMyInfo.IncrementSwitch = 1;
+            if (DataValue == 0) {
+                gMyInfo.TabSwitch = tabpageChart;
+            }
             break;
 
         case 55:
@@ -1316,9 +1343,6 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             else {
                 SetDAWLed(ControlValue, 0);
             }
-
-
-
             break;
 
         case 45: // Record

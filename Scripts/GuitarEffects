@@ -106,7 +106,7 @@ function FindDevice {
     
     # If we have the edirol UA-25 use that instead.
     Device="UA-25"
-    echo $DeviceList | grep "${Device}"  >/dev/null
+    echo $DeviceList | grep "${Device}" >/dev/null
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         AudioDevice=$Device
@@ -116,6 +116,10 @@ function FindDevice {
         AudioInDevice=$Device
         AudioOutDevice=$Device
         MidiGuitarInputPort=$Device
+        AudioSampleRate=48000
+        JBuffer=128
+        JPeriod=3
+
     fi
     
     # If we have the Quattro use that instead.
@@ -467,7 +471,7 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
     aconnect "nanoKONTROL2":"0" "LiveDAW Input":"0"
     aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
-    aconnect "Fishman TriplePlay":0 MusE:0
+    aconnect "Fishman TriplePlay":0 "MusE":0
     
     
     # ********************************
@@ -536,6 +540,9 @@ function SetUpConnections {
     aconnect "LiveMusic Output":1 GuitBridge:0
     jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
     
+    aconnect "TriplePlay Connect":0 MuseBridge:0
+    aconnect "Fishman TriplePlay":0  MuseBridge:0
+    jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
     # Transport out
     #    aconnect "LiveMusic Output":3 Mamba:input
     
@@ -788,7 +795,7 @@ function SetPlacement1920 {
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,586,420,1000,450    
-    wmctrl -r qsynth -e 0,640,40,1600,400
+    wmctrl -r qsynth -e 0,640,80,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
@@ -1246,6 +1253,8 @@ Delay 3
 a2jmidi_bridge "GuitBridge" &
 #       j2amidi_bridge "MambaBridge" &
 #    a2jmidid -u &
+#a2jmidi_bridge "MuseBridge" &
+
 
 SetUpApplications
 Delay 1

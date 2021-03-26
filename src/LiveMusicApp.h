@@ -84,9 +84,9 @@ enum {
     DRLoop,
     User2,
     User3,
+    InternalPort,
     MaxOutPorts
 };
-#define InternalPort 100
 
 
 #endif
@@ -206,6 +206,9 @@ enum {
     ecMidiThreshold,
     ecLooperVolume,
     ecMidiAnaMix,
+    ecDistorion,
+    ecChorus,
+    ecWAH,
     exMaxItems
 };
 
@@ -437,6 +440,10 @@ enum {
 
 #ifndef MY_BUILD_NUMBER
 #define MY_BUILD_NUMBER 1
+#endif
+
+#ifndef MY_VERSION_NUMBER
+#define MY_VERSION_NUMBER 1
 #endif
 
 /*

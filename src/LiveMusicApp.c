@@ -7,7 +7,7 @@
 |
 |      Date:           Jan 15, 2012
 |
-|       Version:        1.6.2
+|       Version:        1.8.4
 |
 |      Copyright  2012-2021 Elias Keshishoglou.  All rights reserved.
 |
@@ -245,8 +245,10 @@ int main(int argc, char *argv[]) {
     strcpy(JackName, "default");
 
 
-    printd(LogTest, "Build date  : %s:%s\n", __DATE__, __TIME__);
-    printd(LogTest, "Build Number %d\n", MY_BUILD_NUMBER);
+    printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+    printf("Build Number %d\n", MY_BUILD_NUMBER);
+    printf("Version Number %s\n", MY_VERSION_NUMBER);
+
 
     /* Handle any HID pedals,
     Must be called before gtk_init
@@ -784,7 +786,7 @@ int GTKIdel_cb(gpointer data) {
     gtk_widget_override_font(PlayerCurWid,
                              pango_font_description_from_string("Sans Bold 16"));
 
-    sprintf(ForString, "<span font=\"12\" color='#%lx'><b>%3.1f\n%s\n</b></span><span font=\"12\" color='#%lx'><b>LP %2.2f</b></span>",
+    sprintf(ForString, "<span font=\"16\" color='#%lx'><b>%3.1f\n%s\n</b></span><span font=\"12\" color='#%lx'><b>LP %2.2f</b></span>",
             0x80ff00,
             PlayerDisTime,
             PlayerDisSection,
@@ -1396,7 +1398,8 @@ void parse_cmdline(int argc, char *argv[]) {
         int this_option_optind = optind ? optind : 1;
         int option_index = 0;
         static struct option long_options[] = {
-            { "verbose", no_argument, 0, 'v' },
+            { "Version", no_argument, 0, 'v' },
+            { "Debug", required_argument, 0, 'd' },
             { "FontSize", required_argument, 0, 'f' },
             { "jack", required_argument, 0, 'j' },
             { "enable jack", no_argument, 0, 'e' },
@@ -1406,7 +1409,7 @@ void parse_cmdline(int argc, char *argv[]) {
             { 0, 0, 0, 0 }
         };
 
-        c = getopt_long(argc, argv, "?hiev:f:j:l:",
+        c = getopt_long(argc, argv, "?hievd:f:j:l:",
                         long_options, &option_index);
 
         if (c == -1) {
@@ -1434,10 +1437,16 @@ void parse_cmdline(int argc, char *argv[]) {
             printd(LogInfo, "Layout %d\n", KeyLayout);
             break;
 
-        case 'v':
+        case 'd':
             //          RunLogLevel = atoi(optarg);
             sscanf(optarg, "%x", &RunLogLevel);
             printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
+            break;
+
+        case 'v':
+            printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+            printf("Build Number %d\n", MY_BUILD_NUMBER);
+            printf("Version Number %s\n", MY_VERSION_NUMBER);
             break;
 
         case 'e':
@@ -1448,7 +1457,8 @@ void parse_cmdline(int argc, char *argv[]) {
         default:
         case 'h':
             printf("Live Music CLI Usage\n");
-            printf(" v verbose - Debug output level hex 0xfff \n");
+            printf(" d debug - Debug output level hex 0xfff \n");
+            printf(" v Version - Print version and build info\n");
             printf(" f FontSize - Font Size for smaller screens.\n");
             printf(" j jack - Jack master name.\n");
             printf(" e enable-jack - Connect to jackserver.\n");
@@ -2357,6 +2367,8 @@ int SetExpressionControl(int Controller, int Value) {
     int ReturnVal = 0;
     int LogValue = 0;
 
+    /* Check values
+    */
     if (Value < 0) {
         Value = 0;
     }
@@ -2368,6 +2380,7 @@ int SetExpressionControl(int Controller, int Value) {
     // Convert to Audio (log)-ish
     LogValue = (int)(pow(Value, 0.6) * 6.35);
 
+//    printf("SetExpressionControl %d\n", Controller);
 
     switch (Controller) {
     case ecGuitarVolume:
@@ -2451,6 +2464,31 @@ int SetExpressionControl(int Controller, int Value) {
 
         //      SetExpressionControl
         break;
+
+    case ecDistorion:
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 GuitarixPort,
+                 1,
+                 2,
+                 Value);
+    break;
+
+    case ecChorus:
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 GuitarixPort,
+                 1,
+                 12,
+                 Value);
+    break;
+
+    case ecWAH:
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 GuitarixPort,
+                 1,
+                 11,
+                 Value);
+    break;
+
 
     }
 

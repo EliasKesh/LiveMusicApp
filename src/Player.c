@@ -126,6 +126,7 @@ char RestartPlayer;
 char PlayerString[2000];
 char PlayerAsk = 0;
 float CurrentSpeed;
+int PrevMarkerIndex;
 
 /*-----------------------------------------------
  * Function:        LivePlayerInit
@@ -306,7 +307,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     /*
      * Playback speed control
      */
-    SpeedAdjustment = gtk_adjustment_new(1.0, 0.5, 1.5, 0.05, 1, 0);
+    SpeedAdjustment = gtk_adjustment_new(1.0, 0.35, 1.5, 0.05, 1, 0);
     SpeedSpin = gtk_spin_button_new(SpeedAdjustment, 0.05, 2);
     g_signal_connect(G_OBJECT (SpeedSpin), "value_changed",
                      G_CALLBACK (SpeedSlider_Changed), NULL);
@@ -764,6 +765,8 @@ void OpenSavedLoopFile(char *FileName) {
         SavedLoopFD = 0;
     }
 
+    PrevMarkerIndex = 100000;
+    
     memset(mySavedLoops, 0, sizeof(mySavedLoops));
 
     NumSavedLoops = 0;
@@ -1038,34 +1041,50 @@ void PlayerPoll(char How) {
 
                             }
 
-                            if (mySavedLoops[Loop].Position >= 0 ) {
-                                ScrollCtrl(mySavedLoops[Loop].Position);
-                            }
+                            if (Loop != PrevMarkerIndex) {
 
-                            if (mySavedLoops[Loop].Position == -2) {
-                                ScrollCtrl(ScrollHome);
-                            }
+                                if (PrevMarkerIndex < 0 || 
+                                    (PrevMarkerIndex >= NumSavedLoops))
+                                    PrevMarkerIndex = 0;
 
-                            if (mySavedLoops[Loop].Position == -3) {
-                                ScrollCtrl(ScrollPgUp);
-                            }
+                                // if (PrevMarkerIndex >= NumSavedLoops)
+                                //     PrevMarkerIndex = NumSavedLoops - 1;
 
-                            if (mySavedLoops[Loop].Position == -4) {
-                                ScrollCtrl(ScrollKeyUp);
-                            }
+                                // printf("In Scroll %d %d %d\n",
+                                //     Loop, PrevMarkerIndex, 
+                                //     mySavedLoops[PrevMarkerIndex].Position);
 
-                            if (mySavedLoops[Loop].Position == -5) {
-                                ScrollCtrl(ScrollKeyDn);
-                            }
+                                // Use the Previous Scroll location since we are showing the upcoming part.
+                                if (mySavedLoops[Loop].Position >= 0 ) {
+                                    ScrollCtrl(mySavedLoops[PrevMarkerIndex].Position);
+                                }
 
-                            if (mySavedLoops[Loop].Position == -6) {
-                                ScrollCtrl(ScrollPgDn);
-                            }
+                                if (mySavedLoops[Loop].Position == -2) {
+                                    ScrollCtrl(ScrollHome);
+                                }
 
-                            if (mySavedLoops[Loop].Position == -7) {
-                                ScrollCtrl(ScrollEnd);
-                            }
+                                if (mySavedLoops[Loop].Position == -3) {
+                                    ScrollCtrl(ScrollPgUp);
+                                }
 
+                                if (mySavedLoops[Loop].Position == -4) {
+                                    ScrollCtrl(ScrollKeyUp);
+                                }
+
+                                if (mySavedLoops[Loop].Position == -5) {
+                                    ScrollCtrl(ScrollKeyDn);
+                                }
+
+                                if (mySavedLoops[Loop].Position == -6) {
+                                    ScrollCtrl(ScrollPgDn);
+                                }
+
+                                if (mySavedLoops[Loop].Position == -7) {
+                                    ScrollCtrl(ScrollEnd);
+                                }
+ 
+                                PrevMarkerIndex = Loop;
+                           }
                             break;
                         }
                     }
@@ -1273,7 +1292,7 @@ gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
  * Description:     Create a new saved Loop.
  *------------------------------------------------*/
 int NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
-                               gpointer user_data) {
+                          gpointer user_data) {
     theImageButtons *theButton;
     GtkWidget *dialog;
     GtkWidget *entry;
@@ -1316,8 +1335,8 @@ int NewLoopDialog(void) {
     gtk_dialog_add_button(GTK_DIALOG(dialog), "Cancel", 1);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), 0);
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
-                                   0,
-                                   true);
+                                      0,
+                                      true);
 
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     entry = gtk_entry_new();
@@ -1332,9 +1351,9 @@ int NewLoopDialog(void) {
         printd(LogPlayer, "Entry Value %s\n", entry_line);
         strcpy(mySavedLoops[NumSavedLoops].LoopName, entry_line);
         mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value(
-                                            FineStartAdjustment);
+                                                FineStartAdjustment);
         mySavedLoops[NumSavedLoops].Length = gtk_adjustment_get_value(
-                                             FineEndAdjustment);
+                FineEndAdjustment);
         mySavedLoops[NumSavedLoops].Position = ScrollGetPosition();
 
         gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
@@ -1367,12 +1386,12 @@ int NewLoopDialog(void) {
 
 
 /*-----------------------------------------------
- * Function:		NewMarker_click_handler
+ * Function:        NewMarker_click_handler
  *
  * Description:     Create a new saved Loop.
  *------------------------------------------------*/
 int NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
-                                 gpointer user_data) {
+                            gpointer user_data) {
     theImageButtons *theButton;
     GtkWidget *dialog;
     GtkWidget *entry;
@@ -1421,7 +1440,7 @@ int NewMarkerDialog(void) {
 
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     entry = gtk_entry_new();
-    gtk_entry_set_activates_default(GTK_ENTRY(entry),TRUE);
+    gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);
     gtk_container_add(GTK_CONTAINER(content_area), entry);
 
     gtk_widget_show_all(dialog);

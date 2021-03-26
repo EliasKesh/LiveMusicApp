@@ -937,7 +937,8 @@ gboolean draw_fretboard_background ( GtkWidget *widget, GdkEventExpose *event ) 
                         YOffset + 20, XOffset + 34 + Loop * FretOffset, YOffset + 262 );
         gdk_gc_set_rgb_fg_color ( gc, &labeloncolor );
         sprintf ( StrBuf, "%d", Loop + myChord.Position );
-        pango_layout_set_text ( layout, StrBuf, 2 );
+ //       printf ("****  %s\n", StrBuf);
+//        pango_layout_set_text ( layout, StrBuf, 2 );
         //      gdk_gc_set_line_attributes(gc, 2, GDK_LINE_ON_OFF_DASH, GDK_CAP_ROUND, GDK_JOIN_MITER );
         gdk_draw_layout ( widget->window, gc, XOffset + 30 + Loop * FretOffset,
                           YOffset + 270, layout );
