@@ -167,6 +167,9 @@ void StartMidiLoop ( char *filename ) {
 //    if ( MidiLooping )
 //        StopMidiLoop();
 
+    if (MidiLooping == true)
+        StopMidiLoop();
+
     if ( filename != NULL ) {
         strcpy ( file_name, filename );
     }

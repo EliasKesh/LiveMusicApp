@@ -97,9 +97,6 @@ GtkWidget *TempoChild;
 */
 GtkWidget *NoteBookPane;
 
-// The button size my change based on the screen size.
-int ButtonSize;
-
 // Foot switch layout.
 int KeyLayout = 1;
 
@@ -254,6 +251,8 @@ int main(int argc, char *argv[]) {
     Must be called before gtk_init
     */
     //  InitHIDGrab();
+    ScreenSize = 2;
+    ButtonSize = 140;
 
     /* initialize the GTK+ library */
     parse_cmdline(argc, argv);
@@ -261,11 +260,9 @@ int main(int argc, char *argv[]) {
 
     myScreen = gdk_screen_get_default();
     //    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
-    ScreenSize = 2;
-    ButtonSize = 140;
 
 #if 0
-    /* Based on the sreen, size the buttons.
+    /* Based on the screen, size the buttons.
     */
     if (gdk_screen_get_width(myScreen) > 1400) {
         ScreenSize = 1;
@@ -1425,6 +1422,11 @@ void parse_cmdline(int argc, char *argv[]) {
         case 'f':
             ButtonSize = atoi(optarg);
             printd(LogInfo, "Font Size %d\n", ButtonSize);
+            if (ButtonSize < 121)
+                ScreenSize = 1;
+            if (ButtonSize < 101)
+                ScreenSize = 0;
+
             break;
 
         case 'j':

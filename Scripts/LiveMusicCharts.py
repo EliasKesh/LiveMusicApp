@@ -45,7 +45,6 @@ sGPFile = []
 sGPIndex = 0
 sTitle = ""
 
-
 # Write out the new HTML file
 # ------------------------------------------
 def WriteFile(fname, dirname):
@@ -151,6 +150,9 @@ def WriteFile(fname, dirname):
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
             print("PDF Name: ", dirname + "/" + FileName)
+            theFile.write("<a style=\"color:blue\" href=\"" + FileName +
+                          "\">[" + FileName + "]</a>\n")
+
             #         pdf = PdfFileReader(open(dirname+"/"+FileName,'rb'))
             #         pdfPages=pdf.getNumPages()
 
@@ -160,10 +162,12 @@ def WriteFile(fname, dirname):
 
             # If it's a two page PDF set side by side mode
             #        if (pdf.getNumPages() == 1):
-            theFile.write(
-                "<embed src=\"" + FileName +
-                "\"  zoommode=\"auto\" height=\"100%\" continuous=\"false\" width=\"100%\" >\n"
-            )
+
+
+#            theFile.write(
+#                "<embed src=\"" + FileName +
+#                "\"  zoommode=\"auto\" height=\"100%\" continuous=\"false\" width=\"100%\" >\n"
+#            )
 #       else:
 #        theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" dual=\"true\" currentpage=\"2\"  continuous=\"false\" height=\"100%\" width=\"100%\" >\n")
         else:
@@ -496,6 +500,15 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        if filename.endswith(".mp3"):
+            Command = "mpck " + Root + "/" + filename + "> /dev/null"
+            Mp3Problem=os.system(Command)
+
+            if (Mp3Problem):
+                print("*** MP3 Problem " + filename)
+                Command = "echo " + Root + "/" + filename + ">> ~/MP3Errors.txt"
+                os.system(Command)
+
         if (filename.endswith("mscz")):
             #            print ("Midi ", filename)
             sHREFFile[sHREFIndex] = filename
@@ -535,7 +548,7 @@ def LoadVariables(Files):
                 sSrcIndex = sSrcIndex + 1
 
         if (filename.endswith("pdf")):
-            #            print ("pdf ", filename)
+            print ("pdf sSrc", filename)
             sSrcFile[sSrcIndex] = filename
             sSrcIndex = sSrcIndex + 1
 
@@ -661,7 +674,11 @@ def ExtractPDF(Files, dirname):
         #        if (theFile.endswith("pdf.conv")):
         if (theFile.endswith("pdf")):
             f = dirname + "/" + theFile
-            print("The ** pdf ", f)
+            if ( not isFullPdf(f)):
+                print("BAD PDF " + f)
+                Command = "echo " + f + ">> ~/MP3Errors.txt"
+                os.system(Command)
+
             with (Image(filename=f, resolution=200)) as source:
                 for i, image in enumerate(source.sequence):
                     #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
@@ -674,142 +691,35 @@ def ExtractPDF(Files, dirname):
             if (os.path.exists(f)):
                 os.rename(f, f + ".conv")
 
+def isFullPdf(f):
+    print("isFullPdf " + f)
+    end_content = ''
+    start_content = ''
+    size = os.path.getsize(f)
+    if size < 1024: return False 
+    with open(f, 'rb') as fin: 
+        #start content 
+        fin.seek(0, 0)
+        start_content = fin.read(1024)
+        start_content = start_content.decode("ascii", 'ignore' )
+        fin.seek(-1024, 2)
+        end_content = fin.read()
+        end_content = end_content.decode("ascii", 'ignore' )
+    start_flag = False
+    #%PDF
+    if start_content.count('%PDF') > 0:
+        start_flag = True
+    
+        
+    if end_content.count('%%EOF') and start_flag > 0:
+        return True
 
-# Check to see if an MP3 file is valid.
-# ------------------------------------------
-def isMp3Valid(file_path):
+    eof = bytes([0])
+    eof = eof.decode("ascii")
+    if end_content.endswith(eof) and start_flag:
+        return True
 
-    print(file_path + "isMp3Valid")
-    is_valid = False
-    f = open(file_path, 'r', encoding='mac_roman')
-    block = f.read(1024)
-    frame_start = block.find(chr(255))
-    block_count = 0  # abort after 64k
-    while len(block) > 0 and frame_start == -1 and block_count < 64:
-        block = f.read(1024)
-        frame_start = block.find(chr(255))
-        block_count += 1
-
-    if frame_start > -1:
-        frame_hdr = block[frame_start:frame_start + 4]
-        is_valid = frame_hdr[0] == chr(255)
-
-        mpeg_version = ''
-        layer_desc = ''
-        uses_crc = False
-        bitrate = 0
-        sample_rate = 0
-        padding = False
-        frame_length = 0
-
-        if is_valid:
-            is_valid = ord(
-                frame_hdr[1]
-            ) & 0xe0 == 0xe0  # validate the rest of the frame_sync bits exist
-
-        if is_valid:
-            if ord(frame_hdr[1]) & 0x18 == 0:
-                mpeg_version = '2.5'
-            elif ord(frame_hdr[1]) & 0x18 == 0x10:
-                mpeg_version = '2'
-            elif ord(frame_hdr[1]) & 0x18 == 0x18:
-                mpeg_version = '1'
-            else:
-                is_valid = False
-
-        if is_valid:
-            if ord(frame_hdr[1]) & 6 == 2:
-                layer_desc = 'Layer III'
-            elif ord(frame_hdr[1]) & 6 == 4:
-                layer_desc = 'Layer II'
-            elif ord(frame_hdr[1]) & 6 == 6:
-                layer_desc = 'Layer I'
-            else:
-                is_valid = False
-
-        if is_valid:
-            uses_crc = ord(frame_hdr[1]) & 1 == 0
-
-            bitrate_chart = [[0, 0, 0, 0, 0], [32, 32, 32, 32, 8],
-                             [64, 48, 40, 48, 16], [96, 56, 48, 56, 24],
-                             [128, 64, 56, 64, 32], [160, 80, 64, 80, 40],
-                             [192, 96, 80, 96, 40], [224, 112, 96, 112, 56],
-                             [256, 128, 112, 128,
-                              64], [288, 160, 128, 144, 80],
-                             [320, 192, 160, 160, 96],
-                             [352, 224, 192, 176, 112],
-                             [384, 256, 224, 192, 128],
-                             [416, 320, 256, 224, 144],
-                             [448, 384, 320, 256, 160]]
-            bitrate_index = ord(frame_hdr[2]) >> 4
-            if bitrate_index == 15:
-                is_valid = False
-            else:
-                bitrate_col = 0
-                if mpeg_version == '1':
-                    if layer_desc == 'Layer I':
-                        bitrate_col = 0
-                    elif layer_desc == 'Layer II':
-                        bitrate_col = 1
-                    else:
-                        bitrate_col = 2
-                else:
-                    if layer_desc == 'Layer I':
-                        bitrate_col = 3
-                    else:
-                        bitrate_col = 4
-                bitrate = bitrate_chart[bitrate_index][bitrate_col]
-                is_valid = bitrate > 0
-
-        if is_valid:
-            sample_rate_chart = [[44100, 22050, 11025], [48000, 24000, 12000],
-                                 [32000, 16000, 8000]]
-            sample_rate_index = (ord(frame_hdr[2]) & 0xc) >> 2
-            if sample_rate_index != 3:
-                sample_rate_col = 0
-                if mpeg_version == '1':
-                    sample_rate_col = 0
-                elif mpeg_version == '2':
-                    sample_rate_col = 1
-                else:
-                    sample_rate_col = 2
-                sample_rate = sample_rate_chart[sample_rate_index][
-                    sample_rate_col]
-            else:
-                is_valid = False
-
-        if is_valid:
-            padding = ord(frame_hdr[2]) & 1 == 1
-
-            padding_length = 0
-            if layer_desc == 'Layer I':
-                if padding:
-                    padding_length = 4
-                frame_length = (12 * bitrate * 1000 / sample_rate +
-                                padding_length) * 4
-            else:
-                if padding:
-                    padding_length = 1
-                frame_length = 144 * bitrate * 1000 / sample_rate + padding_length
-            is_valid = frame_length > 0
-
-            # Verify the next frame
-            if (frame_start + frame_length < len(block)):
-                is_valid = block[frame_start + frame_length] == chr(255)
-            else:
-                offset = (frame_start + frame_length) - len(block)
-                block = f.read(1024)
-                if len(block) > offset:
-                    is_valid = block[offset] == chr(255)
-                else:
-                    is_valid = False
-
-    f.close()
-    if (not is_valid):
-        print(file_path + "--> Problem")
-
-    return is_valid
-
+    return False
 
 # Main
 # ------------------------------------------
@@ -872,6 +782,7 @@ for Root, Dir, Files in os.walk(BaseDir):
     for filename in Files:
         #        Check for an html file
         if (ConvertPDF):
+            print("Convert PDF")
             if filename.endswith('.html') and not filename.startswith('.'):
                 #            sys.stdout.write("\n 1-"+filename+" ")
                 FoundHTML = 1
@@ -909,6 +820,8 @@ for Root, Dir, Files in os.walk(BaseDir):
                 else:
                     print("File " + MuseFileName + " Does exist")
 
+
+
 # This returns file in one directry
 # for Files in os.listdir(BaseDir):
 # This is recursive
@@ -925,8 +838,6 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
 
     if (base_depth < DirectoryLevel):
         for filename in Files:
-#            if filename.endswith('.mp3'):
-#                isMp3Valid(Root + "/" + filename)
 
             if (filename.endswith(".mp3") or filename.endswith(".mp4")
                     or filename.endswith(".webm")):
@@ -973,6 +884,7 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
             CreateNewHTML(sTitle, Root, Files)
             MySongList.append(Root + "/" + sTitle + ".html")
 
+
 if (CreateIndexFIle):
     MySongList.sort()
     #    print("List ----------------",len(MySongList))
@@ -995,4 +907,11 @@ if (CreateIndexFIle):
 # # lame --scale 4 BKContigo.mp3 BKContigo1.mp3
 #
 # ffmpeg -i ahf1_icecold_vid.mp4  -lavfi showspectrumpic=s=800x400:mode=separate spectrogram.png
-#
+# 
+# Remove Generate PDF
+# find ./ -iname \*.pdf.jpg -exec rm {} \;
+# 
+# Remove extension
+# find ./ -name \*.conv -print0 | xargs -0 rename 's/.conv$//'
+# 
+# 

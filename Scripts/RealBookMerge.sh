@@ -35,3 +35,11 @@ cat temp1.csv >> TotalData.csv
 done;
 sort --field-separator=',' --key=2 TotalData.csv > TotalData1.csv
 
+# convert *.jpg pictures.pdf
+# ocrmypdf pictures.pdf scanned.pdf
+# pdftotext scanned.pdf scanned.txt
+# wc -w scanned.txt
+#RealBookMerge.sh
+#CreateIndexFromCSV.sh TotalData1.csv
+# GetIndexFromPDF.sh
+

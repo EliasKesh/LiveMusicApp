@@ -272,21 +272,28 @@ void MyOSCInit(void) {
     printd(LogDebug, "Init Second OSC \n");
     int osc_port;
 
-    osc_server = lo_server_new("15200", NULL);
-    strcpy(our_url, lo_server_get_url (osc_server) );
-    osc_port = lo_server_get_port (osc_server);
-    printd(LogDebug, "MyOSCInit Leave %s %d %d\n",
-           our_url,
-           osc_port,
-           osc_server );
+    //   osc_server = lo_server_new("15200", NULL);
+    osc_server = lo_server_new("60000", NULL);
+    if (osc_server) {
+        strcpy(our_url, lo_server_get_url (osc_server) );
+        osc_port = lo_server_get_port (osc_server);
+        printd(LogDebug, "MyOSCInit Leave %s %d %d\n",
+               our_url,
+               osc_port,
+               osc_server );
 
-    LoMidi = lo_server_add_method(osc_server,
-                                  "/midi", NULL, midi_handler, NULL);
+        LoMidi = lo_server_add_method(osc_server,
+                                      "/midi", NULL, midi_handler, NULL);
 
-    lo_server_add_method(osc_server,
-                         NULL, NULL, ctrl_handler, NULL);
+        lo_server_add_method(osc_server,
+                             NULL, NULL, ctrl_handler, NULL);
 
-    //                       "/ctrl", "isf", ctrl_handler, NULL);
+        //                       "/ctrl", "isf", ctrl_handler, NULL);
+
+    }
+    else {
+        printf("**** ERRROR ****\n");
+    }
 
     CurrentLoop = 0;
 }
@@ -361,7 +368,7 @@ void MyOSCSetSync(char Type) {
         OSCCommand(OSCSelect, 1);
 
         // Set the sync to 8th notes.
-        lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 4);
+        lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 16);
 
         // Quantize loop end on 8th note
         lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 2);
@@ -371,7 +378,10 @@ void MyOSCSetSync(char Type) {
 
         /* Sync Internal    */
         //  sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)
-        lo_send(SLOSCaddr, "/set", "si", "sync_source", -3);
+        lo_send(SLOSCaddr, "/set", "si", "sync_source", -2);
+
+        // Recordings will not start without this.
+        lo_send(SLOSCaddr, "/sl/-1/set", "si", "relative_sync", 1);
 
     }
     else {
@@ -380,8 +390,8 @@ void MyOSCSetSync(char Type) {
 
         lo_send(SLOSCaddr, "/sl/0/set", "si", "sync", 1);
 
-        // Quantize to loop
-        lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 3);
+        // Quantize to (3)loop No (1)cycle
+        lo_send(SLOSCaddr, "/sl/-1/set", "si", "quantize", 1);
 
         // Set the sync to 8th notes.
         lo_send(SLOSCaddr, "/set", "si", "eighth_per_cycle", 16);

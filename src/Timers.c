@@ -249,13 +249,12 @@ void MyTimerInit(void) {
     sig.sigev_notify_function = time_handlerRT;
     // This get's passed to the handler.
     sig.sigev_value.sival_int = 20;
-    sig.sigev_value.sival_ptr = &timerid;
     sig.sigev_notify_attributes = NULL;
-    gMyInfo.TempoTimerID = timerid;
+    sig.sigev_value.sival_ptr = &timerid;
     /* Let create a timer.
     */
     Ret = timer_create(CLOCK_REALTIME, &sig, &timerid);
-    printd(LogTimer, "***** RT Timer Create **** %d %d\n", Ret, timerid);
+    printd(LogTimer, "***** RT Timer Create **** %d %x\n", Ret, timerid);
 
     if (Ret != 0) {
         printd(LogTimer, "timer_settime() failed with %d\n", errno);
@@ -263,6 +262,8 @@ void MyTimerInit(void) {
         timer_delete(timerid);
         timerid = 0;
     }
+
+    gMyInfo.TempoTimerID = timerid;
 
     SetTempo(111);
 }
@@ -333,6 +334,11 @@ void SetTempo(unsigned int NewTempo) {
     /* Was == 0 but this works much better.
     */
     memset(&in, 0, sizeof(in));
+   // its.it_value.tv_sec = freq_nanosecs / 1000000000;
+   // its.it_value.tv_nsec = freq_nanosecs % 1000000000;
+   // its.it_interval.tv_sec = its.it_value.tv_sec;
+   // its.it_interval.tv_nsec = its.it_value.tv_nsec;
+
     // Can't be zero.
     in.it_value.tv_sec = 1;
     in.it_value.tv_nsec = 0;
@@ -342,9 +348,22 @@ void SetTempo(unsigned int NewTempo) {
     // Double the timer interval.
     in.it_interval.tv_nsec = 7500000000 / NewTempo;
 
+
+    // in.it_value.tv_sec = 100000 / 1000000000;
+    // in.it_value.tv_nsec = 100000 % 1000000000;
+    // in.it_interval.tv_sec = in.it_value.tv_sec;
+    // in.it_interval.tv_nsec = in.it_value.tv_nsec;
+
+
+
     //issue the periodic timer request here.
-    Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, 0);
-    printd(LogTimer, "***** RT Timer SetTime **** %d %ld\n", Ret, in.it_interval.tv_nsec);
+    Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
+    printd(LogTimer, "***** RT Timer SetTime **** %d %ld %x\n", Ret, in.it_interval.tv_nsec,gMyInfo.TempoTimerID);
+
+    if (Ret == -1) {
+      printd(LogError, "***** RT Timer SetTime Error **** %d %s\n", errno,strerror(errno));
+    }
+
 }
 
 /*-----------------------------------------------
@@ -461,7 +480,7 @@ void ToggleTempo(void) {
 
                 /* Start the looper for recording.
                 */
-                OSCCommand(OSCSyncSource, 0);
+// ejk1                OSCCommand(OSCSyncSource, 0);
 
                 OSCCommand(OSCStartRecord, 0);
                 printd(LogTimer, "Start Recording %d\n", LoopRecBeats);

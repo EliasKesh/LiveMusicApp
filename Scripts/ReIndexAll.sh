@@ -13,6 +13,7 @@
 #
 #------------------------------------------------#
 
+
 ReIndex.sh
 
 cd /home/Music/
@@ -24,7 +25,7 @@ find ./ -type d -exec chmod 700 {} \;
 find ./ -type f -exec chmod 600 {} \;
 
 cd /home/Music/EliasOriginals
-LiveMusicCharts.py . -a
+LiveMusicCharts.py . -vci
 
 cd /home/Music/Learn/JamTrackCentral/
 echo `pwd`
@@ -52,20 +53,20 @@ LiveMusicCharts.py . -il
 
 cd /home/Music/Learn/GuitarLab/
 echo `pwd`
-LiveMusicCharts.py 20_Sax_Licks_For_Guitar_ -vcfp
-LiveMusicCharts.py Altered -vcfp
-LiveMusicCharts.py Diminished -vcfp
-LiveMusicCharts.py Dorian -vcfp
-LiveMusicCharts.py FunkFusionBack -vcfp
-LiveMusicCharts.py FunkFusionLicks -vcfp
-LiveMusicCharts.py JohnScofield -vcfp
-LiveMusicCharts.py LydianDominant -vcfp
-LiveMusicCharts.py Mixolydian -vcfp
-LiveMusicCharts.py Phrasing -vcfp
-LiveMusicCharts.py Robben_Ford -vcfp
-LiveMusicCharts.py ScottHenderson -vcfp
-LiveMusicCharts.py Spain_20_Fusion_Guitar_Licks -vcfp
-LiveMusicCharts.py The_Chicken_20_Licks_Part1 -vcfp
+LiveMusicCharts.py 20_Sax_Licks_For_Guitar_ -vfc
+LiveMusicCharts.py Altered -vfc
+LiveMusicCharts.py Diminished -vfc
+LiveMusicCharts.py Dorian -vfc
+LiveMusicCharts.py FunkFusionBack -vfc
+LiveMusicCharts.py FunkFusionLicks -vfc
+LiveMusicCharts.py JohnScofield -vfc
+LiveMusicCharts.py LydianDominant -vfc
+LiveMusicCharts.py Mixolydian -vfc
+LiveMusicCharts.py Phrasing -vfc
+LiveMusicCharts.py Robben_Ford -vfc
+LiveMusicCharts.py ScottHenderson -vfc
+LiveMusicCharts.py Spain_20_Fusion_Guitar_Licks -vfc
+LiveMusicCharts.py The_Chicken_20_Licks_Part1 -vfc
 LiveMusicCharts.py . -il
 
 
@@ -167,6 +168,8 @@ LiveMusicCharts.py . -il
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
 
+echo "*** MP3 Files with Errors ***"
+cat ~/MP3Errors.txt
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 

@@ -1,27 +1,27 @@
 /*---------------------------------------------
 |
-|	File: 	MyWidgets
+|   File:   MyWidgets
 |
-|	Contains:
+|   Contains:
 |
 |
-|	Written By: 	Elias Keshishoglou on Tue Feb 10 15:53:13 PST 2015
+|   Written By:     Elias Keshishoglou on Tue Feb 10 15:53:13 PST 2015
 |
-|	Copyright �: 	2015 Elias Keshishoglou all rights reserved.
+|   Copyright �:  2015 Elias Keshishoglou all rights reserved.
 |
-|	This program is free software; you can redistribute it and/or
-|	modify it under the terms of the GNU General Public License
-|	as published by the Free Software Foundation; either version 2
-|	of the License, or (at your option) any later version.
+|   This program is free software; you can redistribute it and/or
+|   modify it under the terms of the GNU General Public License
+|   as published by the Free Software Foundation; either version 2
+|   of the License, or (at your option) any later version.
 |
-|	This program is distributed in the hope that it will be useful,
-|	but WITHOUT ANY WARRANTY; without even the implied warranty of
-|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-|	GNU General Public License for more details.
+|   This program is distributed in the hope that it will be useful,
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|   GNU General Public License for more details.
 |
-|	You should have received a copy of the GNU General Public License
-|	along with this program; if not, write to the Free Software
-|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|   You should have received a copy of the GNU General Public License
+|   along with this program; if not, write to the Free Software
+|   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |---------------------------------------------*/
 
@@ -54,7 +54,7 @@
  *
  * Description:         Create a new button from an eventbox..
  *---------------------------------------------*/
-int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
+int MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
     GtkWidget *overlay;
 
     /*
@@ -70,8 +70,8 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
 
     MyImageButtonSetText(theButton, "!!PROB!!");
 
-//	          gtk_label_set_markup(GTK_LABEL(theButton->Label),
-//             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
+    //            gtk_label_set_markup(GTK_LABEL(theButton->Label),
+    //             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
 
     gtk_overlay_add_overlay (GTK_OVERLAY (overlay), GTK_WIDGET(theButton->Label));
     theButton->EventBox = EventBox;
@@ -95,25 +95,32 @@ int	MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
  *
  * Description:         Change or Set the text of a button..
  *---------------------------------------------*/
-int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
-    char		FormatString[200];
-// https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
+int MyImageButtonSetText( theImageButtons *theButton, char *String) {
+    char        FormatString[200];
+    char        FontSize = 12;
+    // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
 
-//	sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>",
-//		gMyInfo.ButtonTextColor, String);
-//    sprintf(FormatString, "<span  face=\"monospace\" font=\"12\" color='#%lx'><b>%s</b></span>",
- //   sprintf(FormatString, "<span  face=\"Ubuntu Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
-//    sprintf(FormatString, "<span  face=\"Noto Sans Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
-//    sprintf(FormatString, "<span  face=\"Sans Sarif\" font=\"12\" color='#%lx'><b>%s</b></span>",
-    sprintf(FormatString, "<span  face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>%s</b></span>",
+    //  sprintf(FormatString, "<span font=\"10\" color='#%lx'><b>%s</b></span>",
+    //      gMyInfo.ButtonTextColor, String);
+    //    sprintf(FormatString, "<span  face=\"monospace\" font=\"12\" color='#%lx'><b>%s</b></span>",
+    //   sprintf(FormatString, "<span  face=\"Ubuntu Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
+    //    sprintf(FormatString, "<span  face=\"Noto Sans Mono\" font=\"14\" color='#%lx'><b>%s</b></span>",
+    //    sprintf(FormatString, "<span  face=\"Sans Sarif\" font=\"12\" color='#%lx'><b>%s</b></span>",
+    //
+    if (ScreenSize == 0) {
+        FontSize = 9;
+    }
+
+    sprintf(FormatString, "<span  face=\"Bitstream Vera Sans Mono\" font=\"%d\" color='#%lx'><b>%s</b></span>",
+            FontSize,
             gMyInfo.ButtonTextColor, String);
 
     printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);
-//	printf("MyImageButtonSetText %x %s \n", theButton, String);
+    //  printf("MyImageButtonSetText %x %s \n", theButton, String);
 
     gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 
-//	g_idle_add(GTKIdel_cb, theMainWindow);
+    //  g_idle_add(GTKIdel_cb, theMainWindow);
     return (0);
 }
 
@@ -125,25 +132,32 @@ int	MyImageButtonSetText( theImageButtons *theButton, char *String) {
 int MyImageButtonSetText2( theImageButtons *theButton, int Number, char *String) {
     char        FormatString[200];
     int         StrLen;
+    char        FontSize = 12;
+    char        StringOff = 16;
+    // sprintf(String, "%*d\n%*s",
+    //         (14 + StringLen) / 2,
+    //         Loop + 1,
+    //         (14 + StringLen) / 2,
+    //         gMyInfo.MyPatchInfo[PatchIndex].Name);
 
-            // sprintf(String, "%*d\n%*s",
-            //         (14 + StringLen) / 2,
-            //         Loop + 1,
-            //         (14 + StringLen) / 2,
-            //         gMyInfo.MyPatchInfo[PatchIndex].Name);
 
+    if (ScreenSize == 0) {
+        FontSize = 9;
+        StringOff = 9;
+    }
 
     StrLen = strlen(String);
-    sprintf(FormatString, "<span face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>      %03d      </b></span>\n<span  face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>%*s</b></span>",
-            0xc07000, 
+    sprintf(FormatString, "<span face=\"Bitstream Vera Sans Mono\" font=\"%d\" color='#%lx'><b>      %03d      </b></span>\n<span  face=\"Bitstream Vera Sans Mono\" font=\"12\" color='#%lx'><b>%*s</b></span>",
+            FontSize,
+            0xc07000,
             Number,
-            gMyInfo.ButtonTextColor, 
-            (16 + StrLen) / 2,
+            gMyInfo.ButtonTextColor,
+            (StringOff + StrLen) / 2,
             String);
 
     gtk_label_set_markup((theButton->Label), (gchar *)FormatString);
 
-//  g_idle_add(GTKIdel_cb, theMainWindow);
+    //  g_idle_add(GTKIdel_cb, theMainWindow);
     return (0);
 }
 
@@ -153,7 +167,7 @@ gboolean normal_release_handler(GtkWidget *widget,
                                 gpointer user_data) {
     theImageButtons *theButton;
     theButton = (theImageButtons *) user_data;
-    //	PatchIndex = LayoutSwitchPatch(user_data, true);
+    //  PatchIndex = LayoutSwitchPatch(user_data, true);
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
                               theButton->ButtonUpImage);

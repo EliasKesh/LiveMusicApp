@@ -48,7 +48,7 @@
  */
 #define InPipeName "/tmp/LiveMusicIn"
 #define OutPipeName "/tmp/LiveMusicOut"
-#define RestartPlayerValue      7
+#define RestartPlayerValue      20
 
 /*
  * Place Local prototypes here
@@ -180,7 +180,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     /*
      * Get the image generated of the music..
      */
-    ImageWidget = gtk_image_new_from_file(ImageWidget);
+    ImageWidget = gtk_image_new_from_file(NULL);
 
     /*
      * Main Box
@@ -714,42 +714,15 @@ void SetPlayerFile(char *FileName) {
 
     OpenSavedLoopFile(FileName);
 
-    // sprintf(PlayerString,
-    //         "sox \"%s\"  -n spectrogram  -x 1400 -Y 130 -c 1  -r -a -o %s\n",
-    //         FileName,CurrentFileSpec);
-    // printd(LogPlayer, "%s", PlayerString);
-    // system(PlayerString);
-    gtk_image_clear((GtkImage *)ImageWidget);
-    gtk_image_set_from_file((GtkImage *)ImageWidget, CurrentFileSpec);
-
+    if (ScreenSize == 2) {
+        gtk_image_clear((GtkImage *)ImageWidget);
+        gtk_image_set_from_file((GtkImage *)ImageWidget, CurrentFileSpec);
+    }
     RestartPlayer = RestartPlayerValue;
     sprintf(PlayerString, "load \"%s\"\n", FileName);
 
     // EJK check this.
     ResetPlayer();
-
-#if 0
-    PlayerWrite(PlayerString);
-    WeAreLooping = 0;
-    ResetPlayer();
-    PlayerWrite("get_time_length\n");
-    PlayerPoll(0);
-    plStop();
-#endif
-
-#if 0
-    sprintf(PlayerString, "load \"%s\"\n", FileName);
-    PlayerWrite(PlayerString);
-    //  PlayerWrite("stream_time_pos\n");
-    DontUpDateSlider = 0;
-    PlayerAsk = 0;
-    InPlayingState = 0;
-    plPausePlay();
-    ResetPlayer();
-    PlayerPoll(0);
-
-    PlayerWrite("get_time_length\n");
-#endif
 }
 
 /*-----------------------------------------------
@@ -766,7 +739,7 @@ void OpenSavedLoopFile(char *FileName) {
     }
 
     PrevMarkerIndex = 100000;
-    
+
     memset(mySavedLoops, 0, sizeof(mySavedLoops));
 
     NumSavedLoops = 0;
@@ -946,7 +919,7 @@ void PlayerPoll(char How) {
     /*
      * Wait a few timer cycles before restarting MPlayer.
      */
-    if (RestartPlayer == 20) {
+    if (RestartPlayer == RestartPlayerValue) {
         printd(LogPlayer, "Poll:RestartPlayer->Start\n");
         StartPlayer();
     }
@@ -1043,15 +1016,16 @@ void PlayerPoll(char How) {
 
                             if (Loop != PrevMarkerIndex) {
 
-                                if (PrevMarkerIndex < 0 || 
-                                    (PrevMarkerIndex >= NumSavedLoops))
+                                if (PrevMarkerIndex < 0 ||
+                                    (PrevMarkerIndex >= NumSavedLoops)) {
                                     PrevMarkerIndex = 0;
+                                }
 
                                 // if (PrevMarkerIndex >= NumSavedLoops)
                                 //     PrevMarkerIndex = NumSavedLoops - 1;
 
                                 // printf("In Scroll %d %d %d\n",
-                                //     Loop, PrevMarkerIndex, 
+                                //     Loop, PrevMarkerIndex,
                                 //     mySavedLoops[PrevMarkerIndex].Position);
 
                                 // Use the Previous Scroll location since we are showing the upcoming part.
@@ -1082,9 +1056,9 @@ void PlayerPoll(char How) {
                                 if (mySavedLoops[Loop].Position == -7) {
                                     ScrollCtrl(ScrollEnd);
                                 }
- 
+
                                 PrevMarkerIndex = Loop;
-                           }
+                            }
                             break;
                         }
                     }

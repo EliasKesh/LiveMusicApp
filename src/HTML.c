@@ -903,7 +903,6 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         strcpy(LastClickURI, (theURI + 7));
     }
 
-
     /* If it's a web page we want to display,
     Let the WebKit handle it.
     */
@@ -1221,6 +1220,7 @@ void InitHTML(GtkBuilder * gxml) {
     WebKitSettings *settings = webkit_settings_new();
     g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
 
+#if 0
     if (ScreenSize == 0) {
         g_object_set(G_OBJECT(settings), "default-font-size", 12, NULL);
         g_object_set(G_OBJECT(settings), "default-monospace-font-size", 12, NULL);
@@ -1235,11 +1235,16 @@ void InitHTML(GtkBuilder * gxml) {
         g_object_set(G_OBJECT(settings), "default-font-size", 28, NULL);
         g_object_set(G_OBJECT(settings), "default-monospace-font-size", 28, NULL);
     }
+#else
+    g_object_set(G_OBJECT(settings), "default-font-size", 28, NULL);
+    g_object_set(G_OBJECT(settings), "default-monospace-font-size", 28, NULL);
+#endif
 
     printd(LogDebug, "Settings for webkit\n");
     webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
+
 #if 0
     webkit_settings_set_enable_accelerated_2d_canvas(G_OBJECT(settings), TRUE);
     webkit_settings_set_draw_compositing_indicators(G_OBJECT(settings), FALSE);
@@ -1264,7 +1269,9 @@ void InitHTML(GtkBuilder * gxml) {
     //                  G_CALLBACK(HoverLink_cb),
     //                  web_view);
 
-
+    // if (ButtonSize < 121) {
+    //     webkit_web_view_set_zoom_level(web_view, 0.75);
+    // }
 
     /* Apply the result */
     webkit_web_view_set_settings(WEBKIT_WEB_VIEW(web_view), settings);
@@ -1556,6 +1563,10 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 
             if (!strcmp(DrumFile, "/dev/null")) {
                 DrumFile[0] = 0;
+            }
+
+            if (DrumFile[0] != 0) {
+                LoadMidiLoop(DrumFile);
             }
         }
 

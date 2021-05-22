@@ -616,6 +616,8 @@ EXTERN char 	PlayerDisSection[30];
 EXTERN char 	DisableTextInput;
 EXTERN char 	WeAreRunning;
 EXTERN volatile char 	gLooperWaitForSync;
+// The button size my change based on the screen size.
+EXTERN int ButtonSize;
 
 #define MaxSongMarks	200
 #define SongSectionMax	30

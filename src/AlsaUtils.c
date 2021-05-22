@@ -1647,7 +1647,6 @@ void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         case 40:
             // Dist
             printd(LogMidi, "In Wah Toggle\n");
-
             if (event_ptr->data.control.value == 0)
                 SendMidi(SND_SEQ_EVENT_CONTROLLER,
                          GuitarixPort,

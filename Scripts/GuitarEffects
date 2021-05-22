@@ -25,7 +25,21 @@ function Delay {
 #
 #-------------------------------------------#
 function FindDevice {
-    
+
+# ( 32 / 48000 ) * 3 = 2
+# ( 64 / 48000 ) * 3 = 4
+# ( 128 / 48000 ) * 3 = 8
+# ( 256 / 48000 ) * 3 = 16
+# ( 512 / 48000 ) * 3 = 32
+# ( 32 / 96000 ) * 3 = 1
+# ( 64 / 96000 ) * 3 = 2
+# ( 96 / 96000 ) * 3 = 3
+# ( 128 / 96000 ) * 3 = 4
+# ( 256 / 96000 ) * 3 = 8
+# ( 512 / 96000 ) * 3 = 16
+
+    MainInputPort=1
+
     # Get a list of all devices that can record
     export DeviceList=`arecord -l | tail -n +2`
     
@@ -89,19 +103,21 @@ function FindDevice {
         JPeriod=3
     fi
     
-    # ART Tube Pre
+    # ART Tube Pre and Alesis MultiMix
     Device="USB Audio CODEC"
     echo $DeviceList | grep "${Device}"  >/dev/null
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         AudioDevice=$Device
+        #       AudioSampleRate=96000
+        
         # This is the Audio interface
         AudioInDevice=$Device
         AudioOutDevice=$Device
-        MidiGuitarInputPort="Midilink"
-        PedalBoardIn="UX16"
-        PedalBoardIn="uno"
-        MidiOut="Midilink"
+        MidiGuitarInputPort=$Device
+        AudioSampleRate=48000
+        JBuffer=128
+        JPeriod=3
     fi
     
     # If we have the edirol UA-25 use that instead.
@@ -119,7 +135,7 @@ function FindDevice {
         AudioSampleRate=48000
         JBuffer=128
         JPeriod=3
-
+        
     fi
     
     # If we have the Quattro use that instead.
@@ -196,12 +212,17 @@ function FindDevice {
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         #   AudioSampleRate=48000
-        AudioSampleRate=96000
-        JBuffer=256
-        JPeriod=2
+        # AudioSampleRate=96000
+        # JBuffer=256
+        # JPeriod=2
+        AudioSampleRate=48000
+        JBuffer=128
+        JPeriod=3
+        
         AudioDevice="$Device"
         AudioInDevice="Scarlett Solo"
         AudioOutDevice="Scarlett Solo"
+        MainInputPort=2
     fi
     
     # If we have the iRid 2
@@ -225,10 +246,10 @@ function FindDevice {
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         echo "We have " $Device" "$USBDevice" "$USBName
-#  idVendor           0x20b1 XMOS Ltd
-#  idProduct          0x2018 
-
-
+        #  idVendor           0x20b1 XMOS Ltd
+        #  idProduct          0x2018
+        
+        
         export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
         export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
         export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
@@ -341,9 +362,13 @@ function StartJack {
     
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
-        ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
-        Delay 1
+        #        ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
+        #        Delay 1
+        KillJackOnExit=false
+        echo "Jack is already running"
+        return
     fi
+    
     # https://wiki.linuxaudio.org/wiki/list_of_jack_frame_period_settings_ideal_for_usb_interface
     #
     if [ "${AudioInDevice}" == "iO4" ] ; then
@@ -351,7 +376,7 @@ function StartJack {
         echo "Audio i04, run jack twice"
         jackd -R -t5000 -dalsa -Chw:$AudioInHW$DeviceAdder -Phw:$AudioOutHW$DeviceAdder -r$AudioSampleRate -p64 -n2 &
         sleep 1
-        /home/ebin/KillAll jackd
+        /home/ebin/killall jackd
         sleep 1
     fi
     
@@ -363,18 +388,32 @@ function StartJack {
     echo "Starting Jack"
     
     nice -18 jackd \
-    -c h -R \
+    -R \
+    -P89 \
     -t5000 \
     -dalsa \
+    -S \
     -Chw:$AudioInHW$DeviceAdder \
     -Phw:$AudioOutHW$DeviceAdder \
-    -r$AudioSampleRate -p$JBuffer -n$JPeriod >> $LogFile 2>&1 &
+    -r$AudioSampleRate \
+    -p$JBuffer \
+    -n$JPeriod >> $LogFile 2>&1 &
     
     echo "****************"
     echo "****************"  >> $LogFile
-    echo "jackd  -c h -R -t5000 -p40 \
-    -dalsa  -Chw:"$AudioInHW$DeviceAdder" -Phw:"$AudioOutHW$DeviceAdder \
-    "-r"$AudioSampleRate" -p"$JBuffer" -n"$JPeriod
+    echo "nice -18 jackd "
+    #echo "-c 2 Max Capture Channels"
+    echo "-R Realtime"
+    echo "-P89 High Priority"
+    echo "-t5000 Timeout mode"
+    echo "-dalsa Use the Alsa backend"
+    echo "-S Try and use 16 bits"
+    #echo "--midi seq Use Alsa Sequencer"
+    echo "-Chw:"$AudioInHW$DeviceAdder
+    echo "-Phw:"$AudioOutHW$DeviceAdder
+    echo "-r"$AudioSampleRate
+    echo "-p"$JBuffer
+    echo "-n"$JPeriod
     echo "****************" >> $LogFile
     echo "****************"
     
@@ -399,6 +438,7 @@ function StartJack {
     # indicator-sound pulseaudio pulseaudio-esound-compat
     # pulseaudio-module-bluetooth pulseaudio-module-jack pulseaudio-module-x11
     # pulseaudio -L module-jack-sink -L module-jack-source
+    
     
     # for Debug
     if test "${2}" = "System"; then
@@ -458,6 +498,7 @@ function SetUpConnections {
     aconnect "Fishman TriplePlay":"0" "LiveMusic Input":"0"
     aconnect "USB Uno MIDI Interface":"0" "LiveMusic Input":"0"
     aconnect "EliasPedal3":"0" "LiveMusic Input":"0"
+    aconnect "EliasGuitar":"0" "LiveMusic Input":"0"
     aconnect "LPD8":"0" "LiveMusic Input":"0"
     
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
@@ -465,6 +506,7 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
     
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
+    aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW Input":"0"
@@ -496,10 +538,25 @@ function SetUpConnections {
     
     
     # Guitar in goes to effects Rack
+
+    if [ $MainInputPort == 2 ]; then
+
     echo "jack_connect system:capture_1 gx_head_amp:in_1"
-    jack_connect system:capture_1 gx_head_amp:in_0
+#    jack_connect system:capture_1 gx_head_amp:in_0
     jack_connect system:capture_2 gx_head_amp:in_0
-    
+    jack_connect system:capture_1 system:playback_1
+    jack_connect system:capture_1 system:playback_2
+    jack_disconnect system:capture_2 system:playback_2
+    jack_disconnect system:capture_2 system:playback_1
+    else
+    jack_connect system:capture_1 gx_head_amp:in_0
+    jack_connect system:capture_2 system:playback_1
+    jack_connect system:capture_2 system:playback_2
+    jack_disconnect system:capture_1 system:playback_2
+    jack_disconnect system:capture_1 system:playback_1
+
+    fi
+
     echo "Guitarix Audio to Jack Volume"
     jack_connect gx_head_fx:out_0 $MainOut1
     jack_connect gx_head_fx:out_1 $MainOut1
@@ -514,7 +571,7 @@ function SetUpConnections {
     jack_connect sooperlooper:common_out_1 $MainOut4
     jack_connect sooperlooper:common_out_1 $MainOut4
     jack_connect sooperlooper:common_out_2 $MainOut4
-    jack_connect sooperlooper:common_out_2 $MainOut4        
+    jack_connect sooperlooper:common_out_2 $MainOut4
     
     # Soundfont player get connected to the Main playback device.
     jack_connect qsynth:left jack-volume:input_2
@@ -598,12 +655,22 @@ function SetUpApplications {
         nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.5  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
+    if [ `hostname` == "Music" ]; then
+        ButtonSize=105
+    else
+        ButtonSize=140
+    fi 
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
-        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp -e -v 0x40 -l $ButtonLayout -j "${AudioOutDevice}"` >> $LogFile 2>&1 &
+        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
+            -e -v 0x40 \
+            -l $ButtonLayout \
+            -f $ButtonSize \
+            -j "${AudioOutDevice}"` \
+            >> $LogFile 2>&1 &
         #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
@@ -672,7 +739,6 @@ function SetUpApplications {
     
     Delay 2
     
-    jack-plumbing /home/elias/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
     
     # This script check for a failed app
     # and will relaunch it
@@ -706,8 +772,12 @@ function SetPlacement {
         PatchageDesktop=7
         PlayerDesktop=7
         DrumDesktop=7
-    elif [ `hostname` == "livemusic-ThinkPad-Twist" ]; then
-        echo "livemusic-ThinkPad-Twist"
+        YOffset=1080
+        YOffset=900
+
+        SetPlacement1920
+    elif [ `hostname` == "Music" ]; then
+        echo "Music"
         AnalogDesktop=0
         LiveMusicAppDesktop=1
         LooperDesktop=$AnalogDesktop
@@ -715,6 +785,9 @@ function SetPlacement {
         PatchageDesktop=3
         PlayerDesktop=2
         DrumDesktop=3
+        YOffset=0
+
+        SetPlacement1200
     else
         echo "Default PC"
         AnalogDesktop=0
@@ -724,6 +797,7 @@ function SetPlacement {
         LooperDesktop=$AnalogDesktop
         MidiDesktop=$AnalogDesktop
         DrumDesktop=3
+        SetPlacement1920
     fi
     
     if test "${OneScreeOnly}" = "true"; then
@@ -736,44 +810,43 @@ function SetPlacement {
         MidiDesktop=$AnalogDesktop
         DrumDesktop=$AnalogDesktop
         MaxOffSet=1920
-    fi
-    
-    YOffset=900
-
-    # Check for Digitizer, tells us where we are.
-    xinput | grep "ILITEK"
-    if [ "$?" = "0" ] ; then
-        echo "Found GeChic"
-        ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
-        xinput map-to-output $ExtID HDMI1
-        XOffset=0
-        YOffset=1080
-        NewOffset=`expr $XOffset + 1050`
-        MaxOffSet=`expr 1368+1920`
-        PlayerDesktop=4
-        PatchageDesktop=4
-        LooperDesktop=7
-        AnalogDesktop=5
-        MidiDesktop=5
         SetPlacement1920
-    else
-        xinput | grep "PixArtImaging"
-        if [ "$?" = "0" ] ; then
-            echo "Found ViewSonic"
-            xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
-            
-            ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
-            xinput map-to-output $ExtID HDMI1
-            
-            XOffset=1370
-            NewOffset=`expr $XOffset + 1050`
-            MaxOffSet=`expr 1368+1920`
-            SetPlacement1920
-        else
-            SetPlacement1920
-            
-        fi
     fi
+
+    # # Check for Digitizer, tells us where we are.
+    # xinput | grep "ILITEK"
+    # if [ "$?" = "0" ] ; then
+    #     echo "Found GeChic"
+    #     ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
+    #     xinput map-to-output $ExtID HDMI1
+    #     XOffset=0
+    #     YOffset=1080
+    #     NewOffset=`expr $XOffset + 1050`
+    #     MaxOffSet=`expr 1368+1920`
+    #     PlayerDesktop=4
+    #     PatchageDesktop=4
+    #     LooperDesktop=7
+    #     AnalogDesktop=5
+    #     MidiDesktop=5
+    #     SetPlacement1920
+    # else
+    #     xinput | grep "PixArtImaging"
+    #     if [ "$?" = "0" ] ; then
+    #         echo "Found ViewSonic"
+    #         xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
+            
+    #         ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
+    #         xinput map-to-output $ExtID HDMI1
+            
+    #         XOffset=1370
+    #         NewOffset=`expr $XOffset + 1050`
+    #         MaxOffSet=`expr 1368+1920`
+    #         SetPlacement1920
+    #     else
+    #         SetPlacement1920
+            
+    #     fi
+    # fi
     wmctrl -a $LiveMusicAppDesktop
 }
 
@@ -791,10 +864,10 @@ function SetPlacement1920 {
     wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1800,1000
+    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
     
     wmctrl -r SooperLooper -t $LooperDesktop
-    wmctrl -r SooperLooper -e 0,586,420,1000,450    
+    wmctrl -r SooperLooper -e 0,586,420,1000,450
     wmctrl -r qsynth -e 0,640,80,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
@@ -884,11 +957,10 @@ function SetPlacement1200 {
 
 function StopEverything {
     echo "Closing down Effects"
-    KillAll KeepLiveMusicRunning.sh
+    killall KeepLiveMusicRunning.sh
     killall patchage
     killall ${EffectsProcessorName}
     killall qsynth
-    killall qjackctl
     killall ardour2
     killall jack-volume
     killall kmetronome
@@ -898,22 +970,17 @@ function StopEverything {
     killall receivemidi
     killall rosegarden
     killall hydrogen
-    
+    killall qsynth
     killall clementine
     killall okular
     killall livedings
     killall jack-volume
-    killall ${PatchBay}
-    killall ${PatchBay}
     killall LiveMusicApp
     killall sooperlooper
     killall slgui
     killall tuxguitar
     killall smplayer
-    KillAll a2jmidid
-    killall jackd
-    killall jackdbus
-    //    killall mamba
+    killall a2jmidid
     
     killall kmidimon
     killall kdialog
@@ -921,37 +988,33 @@ function StopEverything {
     killall smplayer
     killall mplayer
     killall tuxguitar
-    kill `ps aux | grep tuxguitar | awk {'print $2'}`
     killall aqualung
     killall mididings
-    KillAll a2jmidid
-    KillAll gedit
+    killall a2jmidid
+    killall gedit
     
     
+    killall ${PatchBay}
+    KillAll catia
+    killall a2jmidid
+    killall guitarix
+    #    FAHClient --send-unpause "LiveMusicApp_Done"
+    
+    #    if test "${KillJackOnExit}" = "true"; then
+    echo "Killing Jack"
+    killall jack-plumbing
+    killall qjackctl
     KillAll jackd
-    killall jack-plumbing
-    killall jackd
-    killall jack-plumbing
-    killall jackd
-    killall jackd
-    killall jack-plumbing
-    killall jackd
-    killall jack-plumbing
-    killall jackd
-    killall jack-plumbing
-    killall jackd
-    killall jack-plumbing
-    killall jackd
-    KillAll ${PatchBay}
-    KillAll a2jmidid
-    KillAll musescore
+    KillAll jack
+    killall jackdbus
     sleep 3
-    KillAll guitarix
     killall jack-plumbing
+    killall qjackctl
+    KillAll jackd
+    killall jackdbus
+    #    fi
     xset s on
     xset +dpms
-    killall GuitarEffects
-    FAHClient --send-unpause "LiveMusicApp_Done"
     
     exit 0
 }
@@ -984,7 +1047,7 @@ MuseScore=false
 Looper=false
 MusicViewer=false
 WeAreDebugging=false
-
+KillJackOnExit=true
 LogFile=~/.config/LiveMusicApp/LogGuitar.txt
 #LogFile=/dev/tty
 JackFile=LogJack
@@ -1029,7 +1092,7 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-        w - Working Scoring"
+            w - Working Scoring"
             exit 0
         ;;
         v)
@@ -1059,7 +1122,7 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             
             # if the script is called
             # twice exit.
-            pid=`pgrep jackd`
+            pid=`pgrep guitarix`
             if [ -z $pid ]
             then
                 echo "GuitarEffects Auto 1"
@@ -1115,8 +1178,8 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             GuitarEffects=true
             SoundSynth=true
             Looper=true
-
-        ;;        
+            
+        ;;
         l)
             echo "Looper"
             Looper=true
@@ -1241,6 +1304,16 @@ fi
 if [ `ps -ew|grep -c jackd` == 0 ] ; then
     echo "Exiting, could not launch Sound System"  >> $LogFile
     exit 1
+fi
+
+if [ `ps -ew | grep -c jack-volume` == 0 ] ; then
+    # Jack can be a bit slow to come up.
+    echo " About to Start Jack-Volume"
+    nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
+fi
+
+if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
+    jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
 fi
 
 echo "***************** Starting SetUpApplications"

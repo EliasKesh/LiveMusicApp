@@ -64,13 +64,13 @@ fi
 
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicApp" nice -15 guitarix &
+    GTK_THEME="LiveMusicApp" nice -15 guitarix --log-terminal &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicApp" nice -15 guitarix &
+    GTK_THEME="LiveMusicApp" nice -15 guitarix --log-terminal &
     # /AppImages/guitarix-0.39-x86_64.AppImage \
     # -p 7000 &
    
@@ -84,7 +84,8 @@ if [ "${1}" == "guitarixNew" ] ; then
     echo "Running guitarix"
     GDK_BACKEND=x11 nice -15 \
     guitarix \
-    -p 7000 &
+    -p 7000 \
+    --log-terminal &
     exit 0
 fi
 

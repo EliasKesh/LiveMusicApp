@@ -11,6 +11,7 @@ rm -rf LiveMusicApp config.log \
 rm .deps ./src/.deps ./ChartFixer/.deps -rf
 rm makefile autom4te.cache -rf
 else
+./Scripts/ChangeVersion.sh
 # autoscan
 # mv configure.scan configure.ac
 libtoolize
