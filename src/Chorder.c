@@ -162,6 +162,9 @@ char scWholeNote[] =
 char scWholeHalf[] =
 { 0, 2, 3, 5, 6, 8, 9, 11, EOfscl };
 
+char scDiminished[] =
+{ 0, 1, 3, 4, 6, 7, 9, 10, EOfscl };
+
 // Super Locrian
 typedef struct {
     thePreChord *PreChord;
@@ -197,6 +200,7 @@ ChordMenu myChordMenu[] = {
 
     { scWholeNote, "Whole Tone" },
     { scWholeHalf, "Whole Half" },
+    { scDiminished, "Diminished" },
 
     { scSLoc, "S Loc" },
     { scLydian, "Lydian" },

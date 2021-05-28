@@ -46,7 +46,8 @@ fi
 
 # https://ftp.osuosl.org/pub/musescore-nightlies/linux/4x/nightly/?C=M;O=D
 if [ "${1}" == "mscz" ] ; then
-    mscore "${2}" &>/dev/null &
+#    mscore "${2}" &>/dev/null &
+/usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
     exit 0
 fi
 

@@ -242,10 +242,11 @@ int main(int argc, char *argv[]) {
     strcpy(JackName, "default");
 
 
+    /* Print the build information.
+    */
     printf("Build date  : %s:%s\n", __DATE__, __TIME__);
     printf("Build Number %d\n", MY_BUILD_NUMBER);
     printf("Version Number %s\n", MY_VERSION_NUMBER);
-
 
     /* Handle any HID pedals,
     Must be called before gtk_init
@@ -1459,13 +1460,16 @@ void parse_cmdline(int argc, char *argv[]) {
         default:
         case 'h':
             printf("Live Music CLI Usage\n");
-            printf(" d debug - Debug output level hex 0xfff \n");
             printf(" v Version - Print version and build info\n");
             printf(" f FontSize - Font Size for smaller screens.\n");
             printf(" j jack - Jack master name.\n");
             printf(" e enable-jack - Connect to jackserver.\n");
             printf(" l Layout - Glade layout file.\n");
             printf(" i IncludeFile - Generate include file on exit.\n");
+            printf(" d debug - Debug output level hex 0xfff \n");
+            printf("  LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
+            printf("  LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");
+            printf("  LogRealTime 0x100,LogMidi 0x200,LogPlayer 0x400\n");
 
             exit(0);
             break;

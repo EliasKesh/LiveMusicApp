@@ -1,5 +1,16 @@
 # ejk file.
 
+Jamulus:input left
+Jamulus:input right
+
+(disconnect "Jamulus:input left" "system:capture_1")
+(disconnect "Jamulus:input right" "system:capture_2")
+(connect "gx_head_fx:out_0" "Jamulus:input left")
+(connect "gx_head_fx:out_0" "Jamulus:input right")
+
+(connect "gx_head_fx:out_1" "Jamulus:input left")
+(connect "gx_head_fx:out_1" "Jamulus:input right")
+
 # (connect "Clementine:out_autoaudiosink-(.*)_2" "jack-volume:input_4")
 (disconnect 
 "Clementine:out_autoaudiosink-(.*)" "system:playback_(.*)")
