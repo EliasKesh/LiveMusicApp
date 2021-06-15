@@ -1758,7 +1758,6 @@ void *alsa_midi_thread(void * context_ptr) {
             //          printd(LogInfo, "%s %s\n", time_str_ptr, channel_str_ptr);
 
 #if 0
-
             if (event_ptr->data.note.channel + 1 == 10) {
                 drum_name = gm_get_drum_name(event_ptr->data.note.note);
 
@@ -1766,9 +1765,7 @@ void *alsa_midi_thread(void * context_ptr) {
             else {
                 drum_name = NULL;
             }
-
 #endif
-
             //    note_name = g_note_names[event_ptr->data.note.note % 12];
             //    octave = event_ptr->data.note.note / 12 - 1;
         }
@@ -2124,7 +2121,7 @@ void *alsa_midi_thread(void * context_ptr) {
                 cc_name = "Modulation";
                 break;
 
-            case MIDI_CTL_LSB_BREATH:
+            case MIDI_CTL_LSB_BREATH: // 0x22
                 cc_name = "Breath";
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, 1, 1, event_ptr->data.control.param,
                          event_ptr->data.control.value);
@@ -2156,8 +2153,11 @@ void *alsa_midi_thread(void * context_ptr) {
 #endif
                 break;
 
-            case MIDI_CTL_LSB_FOOT:
+            case MIDI_CTL_LSB_FOOT: // 0x24
                 cc_name = "Foot";
+                SetExpressionControl(ecMasterVolume,
+                     event_ptr->data.control.value);
+
                 break;
 
             case MIDI_CTL_LSB_PORTAMENTO_TIME:

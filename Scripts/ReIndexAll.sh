@@ -154,9 +154,10 @@ echo `pwd`
 # LiveMusicCharts.py RickBeato -vcf
 LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
-LiveMusicCharts.py JazzGuitar -vcfp
+#  LiveMusicCharts.py JazzGuitar -vcfp
 LiveMusicCharts.py PentaTrick -vcfp
-LiveMusicCharts.py Material -vcfp
+# LiveMusicCharts.py Material -vcfp
+LiveMusicCharts.py Material -il
 
 
 cd /home/Music/Learn/

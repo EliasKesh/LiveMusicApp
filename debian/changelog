@@ -1,3 +1,18 @@
+livemusicapp (1.8.2) UNRELEASED; urgency=medium
+2021-03-10 Added Version to LiveMusicCharts
+LiveMusicCharts doesn't create index.html but foldername.html 
+Add multiple colors to buttons to make the title text easier to see
+
+
+livemusicapp (1.8.1) UNRELEASED; urgency=medium
+2021-03-08 
+
+livemusicapp (1.7.3) UNRELEASED; urgency=medium
+
+  * - 1
+
+ -- elias <elias@Keshie>  Mon, 23 Nov 2020 08:53:02 -0800
+
 livemusicapp (1.3.4-0ubuntu1) trusty; urgency=low
 
   Trying to build debian again. 

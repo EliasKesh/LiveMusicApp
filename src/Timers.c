@@ -460,6 +460,27 @@ void ToggleTempo(void) {
 
             }
 
+            if ( LoopRecBeats == 4) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+            }
+
+            if ( CountInCount == 3) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
+            }
+
+            if ( CountInCount == 2) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4On);
+            }
+
+            if ( CountInCount == 1) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+            }
+
+
             if ( CountInCount == 0) {
                 CountInActiveState = cntStateRecording;
 
@@ -467,6 +488,10 @@ void ToggleTempo(void) {
                 //      OSCCommand(OSCStartRecord, 0);
                 gMyInfo.MetronomeOn = FALSE;
                 printd(LogTimer, "Loop Start 1\n\n");
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4Off);
             }
 
             break;
@@ -493,6 +518,25 @@ void ToggleTempo(void) {
                 OSCCommand(OSCStopRecord, 0);
             }
 #endif
+            if ( LoopRecBeats == 4) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+            }
+
+            if ( LoopRecBeats == 3) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
+            }
+
+            if ( LoopRecBeats == 2) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4On);
+            }
+
+            if ( LoopRecBeats == 1) {
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3On);
+            }
 
             if (LoopRecBeats == 0) {
 
@@ -513,6 +557,10 @@ void ToggleTempo(void) {
                          0, 0);
 
                 printd(LogTimer, "Loop Off\n\n");
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
+                 DrumMidiChannel, 04, (int) PedalLED4Off);
 
                 CountInActiveState = cntStatePostRecord;
             }

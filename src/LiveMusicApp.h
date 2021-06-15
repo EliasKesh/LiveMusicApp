@@ -511,7 +511,8 @@ enum {
     PedalLED7On,
     PedalLED7Off,
     PedalLED8Off,
-    PedalLED8On
+    PedalLED8On,
+    PedalLEDAlert=50
 };
 
 

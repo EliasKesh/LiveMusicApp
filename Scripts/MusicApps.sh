@@ -40,7 +40,25 @@ if [ "${1}" == "mid" ] ; then
 fi
 
 if [ "${1}" == "med" ] ; then
-    mscore  "${2}" &
+    mscore "${2}" &
+    exit 0
+fi
+
+if [ "${1}" == "rg" ] ; then
+    rosegarden "${2}" &
+    sleep 1
+#    aconnect -x "rosegarden":0
+#    aconnect -x "rosegarden":1
+#        
+#    aconnect "TriplePlay Connect":0 "rosegarden":0
+#    aconnect "Fishman TriplePlay":0 "rosegarden":0
+#    aconnect "LiveMusic Output":3 "rosegarden":2
+#    aconnect "rosegarden":3 "FLUID Synth (qsynth)":0
+
+    aconnect "TriplePlay Connect":0 "rosegarden:record in       "
+    aconnect "Fishman TriplePlay":0 "rosegarden:record in       "
+    aconnect "LiveMusic Output":3 "rosegarden":2
+    aconnect "rosegarden:out 1 - General MIDI Device" "FLUID Synth (qsynth)":0
     exit 0
 fi
 
@@ -48,6 +66,10 @@ fi
 if [ "${1}" == "mscz" ] ; then
 #    mscore "${2}" &>/dev/null &
 /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
+    # sleep 1
+    # aconnect "TriplePlay Connect":0 MuseBridge:0
+    # aconnect "Fishman TriplePlay":0  MuseBridge:0
+    # jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
     exit 0
 fi
 

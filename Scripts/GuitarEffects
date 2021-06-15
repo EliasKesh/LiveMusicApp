@@ -25,21 +25,21 @@ function Delay {
 #
 #-------------------------------------------#
 function FindDevice {
-
-# ( 32 / 48000 ) * 3 = 2
-# ( 64 / 48000 ) * 3 = 4
-# ( 128 / 48000 ) * 3 = 8
-# ( 256 / 48000 ) * 3 = 16
-# ( 512 / 48000 ) * 3 = 32
-# ( 32 / 96000 ) * 3 = 1
-# ( 64 / 96000 ) * 3 = 2
-# ( 96 / 96000 ) * 3 = 3
-# ( 128 / 96000 ) * 3 = 4
-# ( 256 / 96000 ) * 3 = 8
-# ( 512 / 96000 ) * 3 = 16
-
+    
+    # ( 32 / 48000 ) * 3 = 2
+    # ( 64 / 48000 ) * 3 = 4
+    # ( 128 / 48000 ) * 3 = 8
+    # ( 256 / 48000 ) * 3 = 16
+    # ( 512 / 48000 ) * 3 = 32
+    # ( 32 / 96000 ) * 3 = 1
+    # ( 64 / 96000 ) * 3 = 2
+    # ( 96 / 96000 ) * 3 = 3
+    # ( 128 / 96000 ) * 3 = 4
+    # ( 256 / 96000 ) * 3 = 8
+    # ( 512 / 96000 ) * 3 = 16
+    
     MainInputPort=1
-
+    
     # Get a list of all devices that can record
     export DeviceList=`arecord -l | tail -n +2`
     
@@ -135,6 +135,7 @@ function FindDevice {
         AudioSampleRate=48000
         JBuffer=128
         JPeriod=3
+        QJackProfile="UA-25"
         
     fi
     
@@ -147,6 +148,7 @@ function FindDevice {
         # This is the Audio interface
         AudioInDevice=$Device
         AudioOutDevice=$Device
+        QJackProfile="Quattro"
     fi
     
     # If we have the Quattro use that instead.
@@ -158,6 +160,7 @@ function FindDevice {
         # This is the Audio interface
         AudioInDevice=$Device
         AudioOutDevice=$Device
+        QJackProfile="UA-30"
     fi
     
     # If we have the M-Audio FastTrack Pro use that instead.
@@ -173,6 +176,7 @@ function FindDevice {
         AudioOutDevice=$Device
         MidiGuitarInputPort=$Device
         DeviceAdder=",1"
+        QJackProfile="FastTrack"
     fi
     
     # If we have the Alesis IO4
@@ -192,6 +196,7 @@ function FindDevice {
         PedalBoardIn="iO4"
         MidiOut="iO4"
         #     DeviceAdder=",1"
+        QJackProfile="iO4"
     fi
     
     # If we have the Alesis Mini IO
@@ -204,6 +209,7 @@ function FindDevice {
         AudioDevice="$Device"
         AudioInDevice=$Device
         AudioOutDevice=$Device
+        QJackProfile="iO_Hub"
     fi
     
     # If we have the Focuswrite scarlett
@@ -223,6 +229,7 @@ function FindDevice {
         AudioInDevice="Scarlett Solo"
         AudioOutDevice="Scarlett Solo"
         MainInputPort=2
+        QJackProfile="Scarlett"
     fi
     
     # If we have the iRid 2
@@ -232,12 +239,43 @@ function FindDevice {
         echo "We have " $Device >> $LogFile
         # AudioSampleRate=48000
         AudioSampleRate=96000
-        JBuffer=256
+        JBuffer=128
         JPeriod=2
         # AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
         AudioOutDevice="$Device"
+        QJackProfile="iRig"
+    fi
+    
+    
+    # If we have the NUX Pocket port
+    Device="USB PnP Sound Device"
+    echo $DeviceList | grep "${Device}"
+    if [ "$?" -eq 0 ]; then
+        echo "We have " $Device >> $LogFile
+        echo "We have " $Device" "$USBDevice" "$USBName
+        
+        export USBDevice="`echo "$DeviceList" | grep -i "$Device" `"
+        export USBName=`echo $USBDevice | cut -d "[" -f2 | cut -d "]" -f1`
+        export USBCardNum=`echo "$USBDevice" | grep -Po '(?<=card )\W*\K[^ :]*'`
+        export USBDeviceNum=`echo "$USBDevice" | grep -Po '(?<=device )\W*\K[^ :]*'`
+        echo "We have 1" $Device" "$USBDevice" "$USBName
+        
+        # mplayer crackling at 96K,64,2
+        # AudioSampleRate=96000
+        # JBuffer=128
+        # JPeriod=4
+        
+        AudioSampleRate=48000
+        JBuffer=64
+        JPeriod=3
+        
+        # AudioSampleRate=192000
+        AudioDevice="$Device"
+        AudioInDevice="$Device"
+        AudioOutDevice="$Device"
+        QJackProfile="USBPnP"
     fi
     
     # If we have the NUX Pocket port
@@ -271,6 +309,7 @@ function FindDevice {
         AudioOutDevice="$Device"
         amixer -c $USBCardNum sset 'Mic',0 2032
         amixer -c $USBCardNum sset 'NUX USB Audio 2.0 ',0 2032
+        QJackProfile="Nux96"
     fi
     
     # If we are n a Raspberry PI with the PISound card.
@@ -284,6 +323,7 @@ function FindDevice {
         AudioDevice="$Device"
         AudioInDevice="$Device"
         AudioOutDevice="$Device"
+        QJackProfile="pisound"
     fi
     
     # If we have
@@ -360,6 +400,7 @@ function SetDefinitions {
 #-------------------------------------------#
 function StartJack {
     
+    
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         #        ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -387,35 +428,46 @@ function StartJack {
     echo "****************"
     echo "Starting Jack"
     
-    nice -18 jackd \
-    -R \
-    -P89 \
-    -t5000 \
-    -dalsa \
-    -S \
-    -Chw:$AudioInHW$DeviceAdder \
-    -Phw:$AudioOutHW$DeviceAdder \
-    -r$AudioSampleRate \
-    -p$JBuffer \
-    -n$JPeriod >> $LogFile 2>&1 &
     
-    echo "****************"
-    echo "****************"  >> $LogFile
-    echo "nice -18 jackd "
-    #echo "-c 2 Max Capture Channels"
-    echo "-R Realtime"
-    echo "-P89 High Priority"
-    echo "-t5000 Timeout mode"
-    echo "-dalsa Use the Alsa backend"
-    echo "-S Try and use 16 bits"
-    #echo "--midi seq Use Alsa Sequencer"
-    echo "-Chw:"$AudioInHW$DeviceAdder
-    echo "-Phw:"$AudioOutHW$DeviceAdder
-    echo "-r"$AudioSampleRate
-    echo "-p"$JBuffer
-    echo "-n"$JPeriod
-    echo "****************" >> $LogFile
-    echo "****************"
+    if [ "foo1" = "foo" ]; then
+        qjackctl -p "${QJackProfile}" -s &
+        echo "Starting qjackctl "${QJackProfile}
+
+        sleep 5
+        
+    else
+        
+        nice -18 jackd \
+        -R \
+        -P89 \
+        -t5000 \
+        -dalsa \
+        -S \
+        -Chw:$AudioInHW$DeviceAdder \
+        -Phw:$AudioOutHW$DeviceAdder \
+        -r$AudioSampleRate \
+        -p$JBuffer \
+        -n$JPeriod >> $LogFile 2>&1 &
+        
+        echo "****************"
+        echo "****************"  >> $LogFile
+        echo "nice -18 jackd "
+        #echo "-c 2 Max Capture Channels"
+        echo "-R Realtime"
+        echo "-P89 High Priority"
+        echo "-t5000 Timeout mode"
+        echo "-dalsa Use the Alsa backend"
+        echo "-S Try and use 16 bits"
+        #echo "--midi seq Use Alsa Sequencer"
+        echo "-Chw:"$AudioInHW$DeviceAdder
+        echo "-Phw:"$AudioOutHW$DeviceAdder
+        echo "-r"$AudioSampleRate
+        echo "-p"$JBuffer
+        echo "-n"$JPeriod
+        echo "****************" >> $LogFile
+        echo "****************"
+        
+    fi
     
     # Jack can be a bit slow to come up.
     Delay 1
@@ -538,25 +590,25 @@ function SetUpConnections {
     
     
     # Guitar in goes to effects Rack
-
+    
     if [ $MainInputPort == 2 ]; then
-
-    echo "jack_connect system:capture_1 gx_head_amp:in_1"
-#    jack_connect system:capture_1 gx_head_amp:in_0
-    jack_connect system:capture_2 gx_head_amp:in_0
-    jack_connect system:capture_1 system:playback_1
-    jack_connect system:capture_1 system:playback_2
-    jack_disconnect system:capture_2 system:playback_2
-    jack_disconnect system:capture_2 system:playback_1
+        
+        echo "jack_connect system:capture_1 gx_head_amp:in_1"
+        #    jack_connect system:capture_1 gx_head_amp:in_0
+        jack_connect system:capture_2 gx_head_amp:in_0
+        jack_connect system:capture_1 system:playback_1
+        jack_connect system:capture_1 system:playback_2
+        jack_disconnect system:capture_2 system:playback_2
+        jack_disconnect system:capture_2 system:playback_1
     else
-    jack_connect system:capture_1 gx_head_amp:in_0
-    jack_connect system:capture_2 system:playback_1
-    jack_connect system:capture_2 system:playback_2
-    jack_disconnect system:capture_1 system:playback_2
-    jack_disconnect system:capture_1 system:playback_1
-
+        jack_connect system:capture_1 gx_head_amp:in_0
+        jack_connect system:capture_2 system:playback_1
+        jack_connect system:capture_2 system:playback_2
+        jack_disconnect system:capture_1 system:playback_2
+        jack_disconnect system:capture_1 system:playback_1
+        
     fi
-
+    
     echo "Guitarix Audio to Jack Volume"
     jack_connect gx_head_fx:out_0 $MainOut1
     jack_connect gx_head_fx:out_1 $MainOut1
@@ -597,9 +649,9 @@ function SetUpConnections {
     aconnect "LiveMusic Output":1 GuitBridge:0
     jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
     
-    aconnect "TriplePlay Connect":0 MuseBridge:0
-    aconnect "Fishman TriplePlay":0  MuseBridge:0
-    jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
+    #    aconnect "TriplePlay Connect":0 MuseBridge:0
+    #    aconnect "Fishman TriplePlay":0  MuseBridge:0
+    #    jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
     # Transport out
     #    aconnect "LiveMusic Output":3 Mamba:input
     
@@ -652,25 +704,25 @@ function SetUpApplications {
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
-        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.5  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
     if [ `hostname` == "Music" ]; then
         ButtonSize=105
     else
         ButtonSize=140
-    fi 
+    fi
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
         #       cd /home/Dropbox/LiveEffects/
         nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
-            -e -v 0x40 \
-            -l $ButtonLayout \
-            -f $ButtonSize \
-            -j "${AudioOutDevice}"` \
-            >> $LogFile 2>&1 &
+        -e -v 0x40 \
+        -l $ButtonLayout \
+        -f $ButtonSize \
+        -j "${AudioOutDevice}"` \
+        >> $LogFile 2>&1 &
         #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
@@ -774,7 +826,7 @@ function SetPlacement {
         DrumDesktop=7
         YOffset=1080
         YOffset=900
-
+        
         SetPlacement1920
     elif [ `hostname` == "Music" ]; then
         echo "Music"
@@ -786,7 +838,7 @@ function SetPlacement {
         PlayerDesktop=2
         DrumDesktop=3
         YOffset=0
-
+        
         SetPlacement1200
     else
         echo "Default PC"
@@ -812,7 +864,7 @@ function SetPlacement {
         MaxOffSet=1920
         SetPlacement1920
     fi
-
+    
     # # Check for Digitizer, tells us where we are.
     # xinput | grep "ILITEK"
     # if [ "$?" = "0" ] ; then
@@ -834,17 +886,17 @@ function SetPlacement {
     #     if [ "$?" = "0" ] ; then
     #         echo "Found ViewSonic"
     #         xrandr --output HDMI1 --mode 1920x1080 --pos 1366x0
-            
+    
     #         ExtID=`xinput list | grep -Po 'PixArtImaging.*id=\K[0-9]+'`
     #         xinput map-to-output $ExtID HDMI1
-            
+    
     #         XOffset=1370
     #         NewOffset=`expr $XOffset + 1050`
     #         MaxOffSet=`expr 1368+1920`
     #         SetPlacement1920
     #     else
     #         SetPlacement1920
-            
+    
     #     fi
     # fi
     wmctrl -a $LiveMusicAppDesktop
@@ -868,6 +920,7 @@ function SetPlacement1920 {
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,586,420,1000,450
+
     wmctrl -r qsynth -e 0,640,80,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
@@ -887,6 +940,11 @@ function SetPlacement1920 {
     
     wmctrl -r ${PatchBayName} -t $PatchageDesktop
     wmctrl -r ${PatchBayName} -e 0,0,0,1200,850
+
+    wmctrl -r QjackCtl -e 0,640,80,600,125
+    wmctrl -r "Graph — QjackCtl" -e 0,0,940,1800,1000
+    wmctrl -r QjackCtl -t $MidiDesktop
+
     set +x
 }
 
@@ -922,6 +980,9 @@ function SetPlacement1600 {
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
     wmctrl -r TuxGuitar -t $PlayerDesktop
+
+    wmctrl -r QjackCtl -e 0,640,80,600,125
+    wmctrl -r QjackCtl -t $MidiDesktop
 }
 
 #-------------------------------------------#
@@ -953,6 +1014,9 @@ function SetPlacement1200 {
     
     wmctrl -r TuxGuitar -e 0,366,250,1000,500
     wmctrl -r TuxGuitar -t $PlayerDesktop
+
+    wmctrl -r QjackCtl -e 0,640,80,600,125
+    wmctrl -r QjackCtl -t $MidiDesktop
 }
 
 function StopEverything {
@@ -1326,8 +1390,7 @@ Delay 3
 a2jmidi_bridge "GuitBridge" &
 #       j2amidi_bridge "MambaBridge" &
 #    a2jmidid -u &
-#a2jmidi_bridge "MuseBridge" &
-
+a2jmidi_bridge "MuseBridge" &
 
 SetUpApplications
 Delay 1
@@ -1366,4 +1429,5 @@ exit 0
 # /home/elias/.config/guitarix/gx_head_rc
 #
 # lsp-plugins-loud-comp-mono -c /home/elias/LoudCompensation.cfg
-#
+# GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 gtk3-demo
+

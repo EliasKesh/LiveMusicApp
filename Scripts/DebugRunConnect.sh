@@ -15,12 +15,25 @@
 
 
 # ./LiveMusicApp -v 6 > ./LiveText.txt &
+#define LogHold1    0x0800
+#define LogPlayer   0x400
+#define LogMidi     0x200
+#define LogRealTime 0x100
+#define LogTimer    0x40
+#define LogDebug    0x20
+#define LogError    0x10
+#define LogAlert    0x08
+#define LogWarn     0x04
+#define LogInfo     0x02
+#define LogTest     0x01
+#define MyLogLevel  LogNone
+
 
 pid=`pgrep -i LiveMusicApp`
 if [ -z $pid ]
 then
 # ./LiveMusicApp -v 0x140 &
-./LiveMusicApp -v 0x200 &
+./LiveMusicApp -v 0x220 &
 sleep 3
 fi 
 
@@ -37,12 +50,14 @@ aconnect "TriplePlay Connect":0 "LiveMusic Input":0
 aconnect "LPD8":0 "LiveMusic Input":0
 aconnect "USB Uno MIDI Interface":0 "LiveMusic Input":0
 aconnect "Midi Through":0 "LiveMusic Input":0
+aconnect "EliasGuitar":"0" "LiveMusic Input":"0"
 
 aconnect  "LiveMusic Output":6 "EliasPedal3":0
 aconnect  "LiveMusic Output":6 "LPD8":0
 aconnect  "LiveMusic Output":6 "USB Uno MIDI Interface":0
 aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
 aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
 
 aconnect  "Reloop KeyFadr":"0" "LiveDAW Input":"0"
 aconnect  "LiveMusic Output":7 "Reloop KeyFadr":"0"

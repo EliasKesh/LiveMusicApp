@@ -505,8 +505,8 @@ def LoadVariables(Files):
             Mp3Problem=os.system(Command)
 
             if (Mp3Problem):
-                print("*** MP3 Problem " + filename)
                 Command = "echo " + Root + "/" + filename + ">> ~/MP3Errors.txt"
+                print("*** MP3 Problem " + Command)
                 os.system(Command)
 
         if (filename.endswith("mscz")):
@@ -521,6 +521,11 @@ def LoadVariables(Files):
 
         if (filename.endswith("tg")):
             #            print ("tg ", filename)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        if (filename.endswith("rg")):
+            #            print ("rg ", filename)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
@@ -743,7 +748,7 @@ args = parser.parse_args()
 #print args.accumulate(args.integers)
 
 if (args.n):
-    Version = "1.8.4"
+    Version = "1.8.8"
     exit(0)
 
 # look for the base directory
@@ -778,11 +783,12 @@ if (args.a):
 # if we need to convert PDFs to jpg do that first.
 for Root, Dir, Files in os.walk(BaseDir):
     FoundHTML = 0
+    Files.sort()
     ClearVariables()
     for filename in Files:
         #        Check for an html file
         if (ConvertPDF):
-            print("Convert PDF")
+#            print("Convert PDF")
             if filename.endswith('.html') and not filename.startswith('.'):
                 #            sys.stdout.write("\n 1-"+filename+" ")
                 FoundHTML = 1
@@ -831,17 +837,18 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
     #    print (Root, Dir, Files)
     # Get the Current Dir Name.
     sTitle = os.path.basename(Root)
+    Files.sort()
 
     FoundHTML = 0
 
     base_depth = Root.rstrip("/").count("/")
-
     if (base_depth < DirectoryLevel):
         for filename in Files:
-
             if (filename.endswith(".mp3") or filename.endswith(".mp4")
                     or filename.endswith(".webm")):
+#                print("Found File ", filename)
                 if (not os.path.exists(Root + "/" + filename + ".spec.png")):
+                    print("Running Subprocess")
                     subprocess.run([
                         "ffmpeg", "-i", Root + "/" + filename, "-lavfi",
                         "showspectrumpic=s=1395x60:mode=combined:color=plasma:scale=5thrt:fscale=log:legend=off",

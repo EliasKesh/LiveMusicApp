@@ -1423,10 +1423,12 @@ void parse_cmdline(int argc, char *argv[]) {
         case 'f':
             ButtonSize = atoi(optarg);
             printd(LogInfo, "Font Size %d\n", ButtonSize);
-            if (ButtonSize < 121)
+            if (ButtonSize < 121) {
                 ScreenSize = 1;
-            if (ButtonSize < 101)
+            }
+            if (ButtonSize < 101) {
                 ScreenSize = 0;
+            }
 
             break;
 
@@ -2377,24 +2379,31 @@ int SetExpressionControl(int Controller, int Value) {
     */
     if (Value < 0) {
         Value = 0;
-    }
-
-    if (Value > 126) {
-        Value = 127;
-    }
+    } else
+        if (Value > 126) {
+            Value = 127;
+        }
 
     // Convert to Audio (log)-ish
-    LogValue = (int)(pow(Value, 0.6) * 6.35);
+    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
 
-//    printf("SetExpressionControl %d\n", Controller);
+    if (LogValue < 0) {
+        LogValue = 0;
+    } else
+        if (LogValue > 126) {
+            LogValue = 127;
+        }
+
+
+    printf("SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
 
     switch (Controller) {
     case ecGuitarVolume:
         // Guitar Volume
         ReturnVal = gMyInfo.AnalogVolume;
         gMyInfo.SliderGUINumber = Slider1;
-        gMyInfo.SliderGUIUpdate = Value;
-        gMyInfo.AnalogVolume = Value;
+        gMyInfo.SliderGUIUpdate = LogValue;
+        gMyInfo.AnalogVolume = LogValue;
         //      MyOSCJackVol(LogValue, 0);
         break;
 
@@ -2410,7 +2419,7 @@ int SetExpressionControl(int Controller, int Value) {
         // Master Volume (OSC)
         ReturnVal = gMyInfo.V3Volume;
         gMyInfo.SliderGUINumber = Slider3;
-        gMyInfo.SliderGUIUpdate = Value;
+        gMyInfo.SliderGUIUpdate = LogValue;
         //      SetVolume3(Value);
         break;
 
@@ -2477,7 +2486,7 @@ int SetExpressionControl(int Controller, int Value) {
                  1,
                  2,
                  Value);
-    break;
+        break;
 
     case ecChorus:
         SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -2485,7 +2494,7 @@ int SetExpressionControl(int Controller, int Value) {
                  1,
                  12,
                  Value);
-    break;
+        break;
 
     case ecWAH:
         SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -2493,7 +2502,7 @@ int SetExpressionControl(int Controller, int Value) {
                  1,
                  11,
                  Value);
-    break;
+        break;
 
 
     }
