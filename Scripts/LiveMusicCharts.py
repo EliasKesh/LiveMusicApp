@@ -747,8 +747,10 @@ parser.add_argument("-a", action='store_true', help="All Options")
 args = parser.parse_args()
 #print args.accumulate(args.integers)
 
+Version = "1.8.9"
+
 if (args.n):
-    Version = "1.8.8"
+    print ("Version ",Version)
     exit(0)
 
 # look for the base directory
@@ -897,6 +899,8 @@ if (CreateIndexFIle):
     #    print("List ----------------",len(MySongList))
     #    print(MySongList)
     GenerateIndex(BaseDir, MySongList, ReferenceCreate)
+
+print ("Version ",Version)
 
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;

@@ -25,10 +25,12 @@
 #include <unistd.h>
 #include "Timers.h"
 
+#define LiveMusicInputPortName "LiveMusic Input"
 //snd_seq_t *SeqPort1;
 //snd_seq_t *SeqPort2;
 snd_seq_t *SeqPort1In;
 snd_seq_t *SeqPortDAWIn;
+snd_seq_t *SeqPortMidiIn;
 // extern int SeqPort1Port;
 snd_mixer_t *MixerHandle;
 char *MixerHardwareName = "default";
@@ -50,8 +52,10 @@ snd_seq_event_t MTCev;
 void ProgramChange(unsigned int InputChange);
 #endif
 
-bool alsa_input_init(const char * name);
-bool alsa_input_DAW_init(const char * name);
+bool alsa_input_init(const char *name, char portnum);
+bool alsa_input_DAW_init(const char *name, char portnum);
+bool alsa_input_Midi_init(const char *name, char portnum);
+
 void KeyFADR(snd_seq_t *handle, snd_seq_event_t *ev);
 void NanoKntrl2(snd_seq_t *handle, snd_seq_event_t *ev);
 
@@ -96,6 +100,7 @@ bool MyAlsaClose(void) {
 
     ret = snd_seq_close(SeqPort1In);
     ret = snd_seq_close(SeqPortDAWIn);
+    ret = snd_seq_close(SeqPortMidiIn);
 
     if (ret < 0) {
         g_warning("Cannot close sequencer\n");
@@ -137,8 +142,9 @@ bool MyAlsaInit() {
                                       SND_SEQ_PORT_TYPE_APPLICATION);
 #endif
 
-    alsa_input_init("LiveMusic");
-    alsa_input_DAW_init("LiveDAW");
+    alsa_input_init("LiveMusic", 0);
+    alsa_input_DAW_init("LiveDAW", 1);
+    alsa_input_Midi_init("LiveMidi", 2);
 
     device_list();
 
@@ -334,8 +340,10 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
     int SeqStatus;
 
     snd_seq_set_client_name(Seq, "LiveMusic Output");
-    SeqStatus = snd_seq_create_simple_port(Seq, Name,                                     SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-                                           SND_SEQ_PORT_TYPE_APPLICATION);
+    SeqStatus = snd_seq_create_simple_port(Seq, Name,
+        SND_SEQ_PORT_CAP_READ |
+        SND_SEQ_PORT_CAP_SUBS_READ,
+        SND_SEQ_PORT_TYPE_APPLICATION);
     // SND_SEQ_PORT_TYPE_PORT, SND_SEQ_PORT_TYPE_APPLICATION
 
     if (SeqStatus < 0) {
@@ -811,8 +819,8 @@ int SendMidiPatch(PatchInfo * thePatch) {
 /*------------------------------------------
 * Function:     alsa_midi_DAW_thread
 *
-* Description:      This is a separate thread that handles midi messages
-*       received.
+* Description:      This is a separate thread
+* that handles midi messages received.
 *
 *-------------------------------------------*/
 void *alsa_midi_DAW_thread(void * context_ptr) {
@@ -824,6 +832,140 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
     }
 }
 
+
+/*------------------------------------------
+* Function:     alsa_midi_Note_thread
+*
+* Description:      This is a separate thread
+* that handles midi messages received.
+*
+*-------------------------------------------*/
+void *alsa_midi_Note_thread(void * context_ptr) {
+    snd_seq_event_t *event_ptr, ev;
+    char ControllerValue;
+
+    while (snd_seq_event_input(SeqPortMidiIn, &event_ptr) >= 0) {
+        switch (event_ptr->type) {
+
+        case SND_SEQ_EVENT_NOTE:
+            printd(LogTest, "Fishman Note");
+
+            if (WaitingforMidi) {
+                gMyInfo.GuitarMidiCallParam1 = event_ptr->data.control.value;
+                gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
+                printd(LogTest, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
+
+                //              GuitarMidiPresetComplete(event_ptr->data.control.value);
+            }
+
+            break;
+
+        case SND_SEQ_EVENT_NOTEON:
+            if (WaitingforMidi) {
+                gMyInfo.GuitarMidiCallParam1 = event_ptr->data.note.note;
+                gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
+                printd(LogTest, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
+
+            }
+            else {
+                //SendMidi(SND_SEQ_EVENT_NOTEON, 0, FluidPort, 07, (int) val);
+                if (event_ptr->data.note.velocity != 0) {
+#if 0
+                    if (drum_name != NULL) {
+                        sprintf(msg_str_ptr,
+                                "Drum: %s (%s, octave %d, velocity %u)",
+                                drum_name,
+                                note_name, octave,
+                                event_ptr->data.note.velocity);
+                    }
+#endif
+                }
+
+                if (gMyInfo.MidiPassThru) {
+                    printd(LogTest, "Fishman Pass thru");
+
+                    snd_seq_ev_clear(&ev);
+                    snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru - 1);
+                    snd_seq_ev_set_subs(&ev);
+                    snd_seq_ev_set_controller(&ev, 0, SND_SEQ_EVENT_NOTEON, (int) event_ptr->data.note.note);
+                    snd_seq_ev_set_direct(&ev);
+                    ev.type = SND_SEQ_EVENT_NOTEON;
+
+                    // EJK NOTE:Midi Threshold
+                    // We get ghost notes for the fishman.
+                    if (event_ptr->data.note.velocity > gMyInfo.MidiThresholdLevel) {
+                        printd(LogTest, "Fishman Note On gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+                        ev.data.note.velocity = gMyInfo.MidiVolume;
+                        ev.data.note.note = event_ptr->data.note.note;
+                        snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
+
+                    }
+                    else {
+                        printd(LogTest, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+                        ev.type = SND_SEQ_EVENT_NOTEOFF;
+                        ev.data.note.note = event_ptr->data.note.note;
+                        snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
+                    }
+
+                }
+            }
+
+            break;
+
+        case SND_SEQ_EVENT_NOTEOFF:
+            printd(LogTest, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+
+            if (!WaitingforMidi) {
+                if (gMyInfo.MidiPassThru) {
+                    snd_seq_ev_clear(&ev);
+                    snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru - 1);
+                    snd_seq_ev_set_subs(&ev);
+                    snd_seq_ev_set_controller(&ev, 0, SND_SEQ_EVENT_NOTEOFF, (int) event_ptr->data.note.note);
+                    snd_seq_ev_set_direct(&ev);
+                    ev.type = SND_SEQ_EVENT_NOTEOFF;
+                    ev.data.note.note = event_ptr->data.note.note;
+                    snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
+                }
+
+            }
+            else {
+                continue;
+            }
+
+            break;
+
+        case SND_SEQ_EVENT_PGMCHANGE:
+            printd(LogTest, "Fishman program change, %d\n",
+                   (unsigned int) event_ptr->data.control.value);
+
+            /* Here is where Program changes happen from Program change inputs.
+
+             EJK Check if context is OK to do this here in the thread. */
+            gMyInfo.LayoutCall = TRUE;
+            gMyInfo.LayoutCallParam1 = event_ptr->data.control.value;
+            gMyInfo.LayoutCallParam2 = TRUE;
+
+            break;
+
+
+        case SND_SEQ_EVENT_CONTROLLER:
+            printd(LogTest, "Fishman SND_SEQ_EVENT_CONTROLLER\n");
+
+            /* Switch the controller number.
+            --------------------------------------------
+            */
+            ControllerValue = event_ptr->data.control.param;
+
+            switch (ControllerValue) {
+            case MIDI_CTL_MSB_MAIN_VOLUME:
+                SetExpressionControl(ecMidiVolume,
+                                     event_ptr->data.control.value);
+                break;
+            }
+
+        }
+    }
+}
 
 /*------------------------------------------
 * Function:     SetDAWLed
@@ -1133,26 +1275,26 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             printd(LogMidi, "Dist %d\n", DataValue);
             SetExpressionControl(ecDistorion,
                                  DataValue);
-/*
-            SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                     GuitarixPort,
-                     1,
-                     2,
-                     DataValue);
-*/ 
+            /*
+                        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                                 GuitarixPort,
+                                 1,
+                                 2,
+                                 DataValue);
+            */
             break;
 
         case 21:
             printd(LogMidi, "Chorus %d\n", DataValue);
             SetExpressionControl(ecChorus,
                                  DataValue);
-/*
-            SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                     GuitarixPort,
-                     1,
-                     12,
-                     DataValue);
-*/
+            /*
+                        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                                 GuitarixPort,
+                                 1,
+                                 12,
+                                 DataValue);
+            */
             break;
 
         case 37:
@@ -1787,6 +1929,7 @@ void *alsa_midi_thread(void * context_ptr) {
             sprintf(msg_str_ptr, "Result status event");
             break;
 
+#if 1
         case SND_SEQ_EVENT_NOTE:
             sprintf(msg_str_ptr, "Note");
 
@@ -1879,6 +2022,7 @@ void *alsa_midi_thread(void * context_ptr) {
             }
 
             break;
+#endif
 
         case SND_SEQ_EVENT_KEYPRESS:
             sprintf(msg_str_ptr, "Key pressure change (aftertouch)");
@@ -2156,7 +2300,7 @@ void *alsa_midi_thread(void * context_ptr) {
             case MIDI_CTL_LSB_FOOT: // 0x24
                 cc_name = "Foot";
                 SetExpressionControl(ecMasterVolume,
-                     event_ptr->data.control.value);
+                                     event_ptr->data.control.value);
 
                 break;
 
@@ -3232,7 +3376,7 @@ void SetAlsaCaptureVolume(long volume) {
 * Description:      Setup the Alsa input port.
 *
 *-------------------------------------------*/
-bool alsa_input_init(const char * name) {
+bool alsa_input_init(const char * name, char portnum) {
     int ret;
     snd_seq_port_info_t * port_info = NULL;
     pthread_attr_t tattr;
@@ -3244,7 +3388,7 @@ bool alsa_input_init(const char * name) {
     /* safe to get existing scheduling param */
     ret = pthread_attr_getschedparam(&tattr, &param);
     /* set the priority; others are unchanged */
-    param.sched_priority = 99;
+    param.sched_priority = 50;
     /* setting the new scheduling param */
     ret = pthread_attr_setschedparam(&tattr, &param);
 
@@ -3259,7 +3403,8 @@ bool alsa_input_init(const char * name) {
 
     /* Name the port.
     */
-    snd_seq_set_client_name(SeqPort1In, "LiveMusic Input");
+    snd_seq_set_client_name(SeqPort1In, name);
+//    snd_seq_set_client_name(SeqPort1In, LiveMusicInputPortName);
 
 #ifdef HAVE_LASH_1_0
     lash_alsa_client_id(g_lashc, snd_seq_client_id(SeqPort1In));
@@ -3275,8 +3420,8 @@ bool alsa_input_init(const char * name) {
     snd_seq_port_info_set_midi_channels(port_info, 16);
     snd_seq_port_info_set_port_specified(port_info, 1);
 
-    snd_seq_port_info_set_name(port_info, "LiveMusic input");
-    snd_seq_port_info_set_port(port_info, 0);
+    snd_seq_port_info_set_name(port_info, name);
+    snd_seq_port_info_set_port(port_info, portnum);
 
     ret = snd_seq_create_port(SeqPort1In, port_info);
 
@@ -3302,14 +3447,13 @@ fail:
     return false;
 }
 
-
 /*------------------------------------------
 * Function:     alsa_input_DAW_init
 *
 * Description:      Setup the Alsa input port.
 *
 *-------------------------------------------*/
-bool alsa_input_DAW_init(const char * name) {
+bool alsa_input_DAW_init(const char * name, char portnum) {
     int ret;
     snd_seq_port_info_t * port_info = NULL;
     pthread_attr_t tattr;
@@ -3327,6 +3471,7 @@ bool alsa_input_DAW_init(const char * name) {
 
     /* Open the port
     */
+#if 1
     ret = snd_seq_open(&SeqPortDAWIn, "default",
                        SND_SEQ_OPEN_INPUT, 0);
 
@@ -3334,10 +3479,12 @@ bool alsa_input_DAW_init(const char * name) {
         g_warning("Cannot open sequncer\n");
         goto fail;
     }
-
+#else
+        SeqPortDAWIn = SeqPort1In;
+#endif
     /* Name the port.
     */
-    snd_seq_set_client_name(SeqPortDAWIn, "LiveDAW Input");
+    snd_seq_set_client_name(SeqPortDAWIn, name);
 
 #ifdef HAVE_LASH_1_0
     lash_alsa_client_id(g_lashc, snd_seq_client_id(SeqPortDAWIn));
@@ -3353,8 +3500,8 @@ bool alsa_input_DAW_init(const char * name) {
     snd_seq_port_info_set_midi_channels(port_info, 16);
     snd_seq_port_info_set_port_specified(port_info, 1);
 
-    snd_seq_port_info_set_name(port_info, "LiveDAW Input");
-    snd_seq_port_info_set_port(port_info, 0);
+    snd_seq_port_info_set_name(port_info, name);
+    snd_seq_port_info_set_port(port_info, portnum);
 
     ret = snd_seq_create_port(SeqPortDAWIn, port_info);
 
@@ -3365,7 +3512,6 @@ bool alsa_input_DAW_init(const char * name) {
 
     /* Start midi thread */
     ret = pthread_create(&g_alsa_midi_tid, &tattr, alsa_midi_DAW_thread, NULL);
-    //  ret = pthread_create(&g_alsa_midi_tid, NULL, alsa_midi_thread, NULL);
 
     return true;
 
@@ -3381,6 +3527,85 @@ fail:
 }
 
 
+/*------------------------------------------
+* Function:     alsa_input_Midi_init
+*
+* Description:      Setup the Alsa input port
+* for the fishman triple play.
+*
+*-------------------------------------------*/
+bool alsa_input_Midi_init(const char * name, char portnum) {
+    int ret;
+    snd_seq_port_info_t * port_info = NULL;
+    pthread_attr_t tattr;
+    struct sched_param param;
+
+
+    /* initialized with default attributes */
+    ret = pthread_attr_init(&tattr);
+    /* safe to get existing scheduling param */
+    ret = pthread_attr_getschedparam(&tattr, &param);
+    /* set the priority; others are unchanged */
+    param.sched_priority = 99;
+    /* setting the new scheduling param */
+    ret = pthread_attr_setschedparam(&tattr, &param);
+
+    /* Open the port
+    */
+#if 1
+    ret = snd_seq_open(&SeqPortMidiIn, "default",
+                       SND_SEQ_OPEN_INPUT, 0);
+    if (ret < 0) {
+        g_warning("Cannot open sequncer\n");
+        goto fail;
+    }
+#else
+        SeqPortMidiIn = SeqPort1In;
+#endif
+
+    /* Name the port.
+    */
+    snd_seq_set_client_name(SeqPortMidiIn, name);
+
+#ifdef HAVE_LASH_1_0
+    lash_alsa_client_id(g_lashc, snd_seq_client_id(SeqPortMidiIn));
+#endif
+
+    snd_seq_port_info_alloca(&port_info);
+
+    snd_seq_port_info_set_capability(port_info,
+                                     SND_SEQ_PORT_CAP_WRITE |
+                                     SND_SEQ_PORT_CAP_SUBS_WRITE);
+    snd_seq_port_info_set_type(port_info,
+                               SND_SEQ_PORT_TYPE_APPLICATION);
+    snd_seq_port_info_set_midi_channels(port_info, 16);
+    snd_seq_port_info_set_port_specified(port_info, 1);
+
+    snd_seq_port_info_set_name(port_info, name);
+    snd_seq_port_info_set_port(port_info, portnum);
+
+    ret = snd_seq_create_port(SeqPortMidiIn, port_info);
+
+    if (ret < 0) {
+        g_warning("Error creating ALSA sequencer port\n");
+        goto fail_close_seq;
+    }
+
+    /* Start midi thread */
+    ret = pthread_create(&g_alsa_midi_tid, &tattr, alsa_midi_Note_thread, NULL);
+
+    return true;
+
+fail_close_seq:
+    ret = snd_seq_close(SeqPortMidiIn);
+
+    if (ret < 0) {
+        g_warning("Cannot close Midi Port\n");
+    }
+
+fail:
+    return false;
+}
 
 
 

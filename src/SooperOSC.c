@@ -244,7 +244,7 @@ static int midi_handler(const char *path, const char *types, lo_arg **argv, int 
  * Description:     <Description/Comments>
  *
  *-------------------------------------------------*/
-void MyOSCInit(void) {
+void MyOSCInit(char *PortNumber) {
     lo_method LoMidi;
 
     printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
@@ -273,7 +273,7 @@ void MyOSCInit(void) {
     int osc_port;
 
     //   osc_server = lo_server_new("15200", NULL);
-    osc_server = lo_server_new("60000", NULL);
+    osc_server = lo_server_new(PortNumber, NULL);
     if (osc_server) {
         strcpy(our_url, lo_server_get_url (osc_server) );
         osc_port = lo_server_get_port (osc_server);
@@ -292,7 +292,7 @@ void MyOSCInit(void) {
 
     }
     else {
-        printf("**** ERRROR ****\n");
+        printf("*** Can't Open osc Server port 60000\n");
     }
 
     CurrentLoop = 0;

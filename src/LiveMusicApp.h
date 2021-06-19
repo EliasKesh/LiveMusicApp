@@ -63,6 +63,8 @@
 #define MaxHardSliders 5
 #define TotalMaxStrings 10
 
+#define MyOSCPortNumber "60000"
+
 char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
 int	 ShowPatchListSelect(GtkWidget *Temp, int Current);

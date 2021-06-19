@@ -119,6 +119,7 @@ at rehearsal.
 FILE    *FileHistory;
 char ResourceFileName[250];
 FILE    *LogFile;
+char OSCPortNumber[MaxStringPortName];
 
 /* Update the Tabs in GTK context.
 */
@@ -254,6 +255,9 @@ int main(int argc, char *argv[]) {
     //  InitHIDGrab();
     ScreenSize = 2;
     ButtonSize = 140;
+
+    strncpy(OSCPortNumber, MyOSCPortNumber, MaxStringPortName);
+
 
     /* initialize the GTK+ library */
     parse_cmdline(argc, argv);
@@ -431,7 +435,7 @@ int main(int argc, char *argv[]) {
 
     /* OSC controls sooperlooper and jack-volume.
     */
-    MyOSCInit();
+    MyOSCInit(OSCPortNumber);
 
     /* If the options are for Jack Master.
     */
@@ -1402,12 +1406,13 @@ void parse_cmdline(int argc, char *argv[]) {
             { "jack", required_argument, 0, 'j' },
             { "enable jack", no_argument, 0, 'e' },
             { "layout", required_argument, 0, 'l' },
+            { "OSCPort", required_argument, 0, 'p' },
             { "IncludeFile", no_argument, 0, 'i' },
             //          { "IncludeFile", required_argument, &GenerateHFile, 1 },
             { 0, 0, 0, 0 }
         };
 
-        c = getopt_long(argc, argv, "?hievd:f:j:l:",
+        c = getopt_long(argc, argv, "?hievd:f:j:l:p:",
                         long_options, &option_index);
 
         if (c == -1) {
@@ -1430,6 +1435,11 @@ void parse_cmdline(int argc, char *argv[]) {
                 ScreenSize = 0;
             }
 
+            break;
+
+        case 'p':
+            strncpy(OSCPortNumber, optarg, MaxStringPortName);
+            printd(LogInfo, "OSCPort %s\n", OSCPortNumber);
             break;
 
         case 'j':
@@ -1468,6 +1478,7 @@ void parse_cmdline(int argc, char *argv[]) {
             printf(" e enable-jack - Connect to jackserver.\n");
             printf(" l Layout - Glade layout file.\n");
             printf(" i IncludeFile - Generate include file on exit.\n");
+            printf(" p OSCPort Number - Server Port number.\n");
             printf(" d debug - Debug output level hex 0xfff \n");
             printf("  LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
             printf("  LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");

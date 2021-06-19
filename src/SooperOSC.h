@@ -37,7 +37,7 @@
 /*
  * Place Global prototypes here.
  */
-void MyOSCInit(void);
+void MyOSCInit(char *PortNumber);
 
 void MyOSCClose(void);
 void MyOSCPoll(char	DownBeat);
