@@ -32,7 +32,7 @@ src/Player.h \
 src/APlayMidi.h \
 src/SooperOSC.h 
 
-LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result -Wno-deprecated -Wdeprecated-declarations
+LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result -Wno-deprecated -Wdeprecated-declarations -Wpointer-to-int-cast
 LiveMusicApp_CPPFLAGS += $(GTK3_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(ALSA_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(GLADEUI_CFLAGS)
@@ -40,9 +40,9 @@ LiveMusicApp_CPPFLAGS += $(WEBKIT2GTK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(JACK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(LIBLO_CFLAGS)
 LiveMusicApp_CPPFLAGS += -DMY_BUILD_NUMBER=$$(cat ./Scripts/BuildNumber)
+LiveMusicApp_CPPFLAGS += -DMY_VERSION_NUMBER=$$(cat ./Scripts/version.txt)
 #LiveMusicApp_CPPFLAGS += -DBUILD_NUMBER1=$(shell ./IncBuildNumber.sh)
 LiveMusicApp_CFLAGS = $(LiveMusicApp_CPPFLAGS)
-
 
 LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/
 LiveMusicApp_LDFLAGS += -lxmltok -lxml2

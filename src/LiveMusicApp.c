@@ -1889,6 +1889,7 @@ void VScale4_Changed(GtkAdjustment *adj) {
  * Description: Change the Volume Slider based on midi input.
  *---------------------------------------------*/
 int SetVolume1(int Value) {
+
     gtk_adjustment_set_value(Adjustment1, Value);
     printd(LogDebug, "Slider 1\n");
 
@@ -2388,20 +2389,22 @@ int SetExpressionControl(int Controller, int Value) {
 
     /* Check values
     */
-    if (Value < 0) {
+    if (Value < 3) {
         Value = 0;
-    } else
-        if (Value > 126) {
+    }
+    else
+        if (Value > 124) {
             Value = 127;
         }
 
     // Convert to Audio (log)-ish
     LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
 
-    if (LogValue < 0) {
+    if (LogValue < 3) {
         LogValue = 0;
-    } else
-        if (LogValue > 126) {
+    }
+    else
+        if (LogValue > 124) {
             LogValue = 127;
         }
 
@@ -2415,7 +2418,7 @@ int SetExpressionControl(int Controller, int Value) {
         gMyInfo.SliderGUINumber = Slider1;
         gMyInfo.SliderGUIUpdate = LogValue;
         gMyInfo.AnalogVolume = LogValue;
-        //      MyOSCJackVol(LogValue, 0);
+        MyOSCJackVol(LogValue, 0);
         break;
 
     case ecMidiVolume:
@@ -2424,14 +2427,17 @@ int SetExpressionControl(int Controller, int Value) {
         gMyInfo.SliderGUINumber = Slider2;
         gMyInfo.SliderGUIUpdate = Value;
         //      SetVolume2(Value);
+        MyOSCJackVol(LogValue, 1);
         break;
 
     case ecMasterVolume:
         // Master Volume (OSC)
         ReturnVal = gMyInfo.V3Volume;
         gMyInfo.SliderGUINumber = Slider3;
-        gMyInfo.SliderGUIUpdate = LogValue;
+        gMyInfo.SliderGUIUpdate = Value;
         //      SetVolume3(Value);
+        MyOSCJackVol(LogValue, 0xff);
+
         break;
 
     case ecTempChange:
@@ -2444,6 +2450,8 @@ int SetExpressionControl(int Controller, int Value) {
         // MPS volume
         ReturnVal = gMyInfo.SetMP3PlayVolBool;
         gMyInfo.SetMP3PlayVolBool = Value;
+        MyOSCJackVol(LogValue, 2);
+
         break;
 
     case ecExpress6:

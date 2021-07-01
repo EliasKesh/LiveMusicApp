@@ -19,6 +19,8 @@ from wand.image import Image
 import sys
 from shutil import copyfile
 import subprocess
+from icecream import ic
+
 
 sPresets = []
 sSetIndex = 0
@@ -747,7 +749,9 @@ parser.add_argument("-a", action='store_true', help="All Options")
 args = parser.parse_args()
 #print args.accumulate(args.integers)
 
-Version = "1.8.9"
+# ic.disable()
+
+Version = "1.9.0"
 
 if (args.n):
     print ("Version ",Version)

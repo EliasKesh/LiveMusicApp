@@ -30,14 +30,18 @@ SOURCES += ./src/PrefsFile.c ./src/RightMenuClick.c ./src/wmctrl.c
 SOURCES += ./src/transport.c ./src/SooperOSC.c ./src/HIDGrab.c
 SOURCES += ./ChartFixer/ChartFixer.c
 
+SOURCES += ./src/transport.c
+SOURCES += ./src/APlayMidi.c
+
 INCLUDES = ./src/aconfig.h ./src/DefPrefs.h ./src/HTML.h 
 INCLUDES += ./src/PrefsFile.h ./src/Timers.h
 INCLUDES += ./src/AlsaUtils.h ./src/GenPrefs.h 
 INCLUDES += ./src/MyWidgets.h ./src/PrefsGui.h
 INCLUDES += ./src/Connections.h ./src/LiveMusicApp.h 
 INCLUDES += ./src/Player.h ./src/SooperOSC.h
-INCLUDES += ./src/transport.c
-INCLUDES += ./ChartFixer/ChartFixer.h
+INCLUDES += ./src/APlayMidi.h
+
+# INCLUDES += ./ChartFixer/ChartFixer.h
 
 OBJECTS=$(SOURCES:.cxx=.o)
 # OBJECTS+=$(SOURCES:.c=.o)

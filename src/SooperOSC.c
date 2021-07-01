@@ -435,11 +435,19 @@ void MyOSCJackVol(int Volume, int channel) {
     float VolumeFloat;
 
     VolumeFloat = ((float)Volume / 127);
-    //  printf("Vol Change %d %f\n", Volume, VolumeFloat);
+
+    if (VolumeFloat > 0.95) {
+        VolumeFloat = 1;
+    }
+    if (VolumeFloat < 0.05) {
+        VolumeFloat = 0;
+    }
 
     if (JackVoladdr == NULL) {
         return;
     }
+
+    printd(LogDebug, "MyOSCJackVol: %x %f\n", channel, VolumeFloat);
 
     switch (channel) {
     case 0xff:

@@ -1,6 +1,6 @@
 
 
-NewVersion="1.8.4"
+NewVersion="1.9.0"
 sed -i "/Version = /s/.*/    Version = \"$NewVersion\"/" Scripts/LiveMusicCharts.py
 sed -i "/echo /s/.*/echo \"$NewVersion\"/" Scripts/version.sh
 sed -i "/^AC_INIT/s/.*/AC_INIT([LiveMusicApp], \[$NewVersion\],/" configure.ac 

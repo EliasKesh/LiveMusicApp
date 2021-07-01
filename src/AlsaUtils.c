@@ -47,6 +47,7 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name);
 static void device_list(void);
 static void pcm_list(void);
 snd_seq_event_t MTCev;
+int ToggleMidi(int ControlValue);
 
 #if 0
 void ProgramChange(unsigned int InputChange);
@@ -80,6 +81,38 @@ void show_status(void *handle) {
     printd(LogInfo, "  lost = %li\n", snd_timer_status_get_lost(status));
     printd(LogInfo, "  overrun = %li\n", snd_timer_status_get_overrun(status));
     printd(LogInfo, "  queue = %li\n", snd_timer_status_get_queue(status));
+}
+
+/*------------------------------------------
+ * Function:            ToggleMidi
+ *
+ * Description:         Toggle turning midi pass
+ *             thru on and off
+ *-------------------------------------------*/
+int ToggleMidi(int ControlValue) {
+
+    if (gMyInfo.MidiPassThru) {
+        gMyInfo.MidiPassThru = 0;
+
+        printf("Calling AllNotesOff\n");
+        SetDAWLed(ControlValue, 1);
+
+        // Don't Let any notes Hang
+        SendMidi(SND_SEQ_EVENT_CONTROLLER,
+                 FluidPort, 1, MIDI_CTL_ALL_NOTES_OFF, 0);
+        //        SendMidi(MIDI_CTL_ALL_NOTES_OFF,
+        //                 FluidPort, 1, 0, 0);
+
+
+
+    }
+    else {
+        gMyInfo.MidiPassThru = 1;
+        SetDAWLed(ControlValue, 0);
+
+    }
+
+
 }
 
 /*------------------------------------------
@@ -341,9 +374,9 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 
     snd_seq_set_client_name(Seq, "LiveMusic Output");
     SeqStatus = snd_seq_create_simple_port(Seq, Name,
-        SND_SEQ_PORT_CAP_READ |
-        SND_SEQ_PORT_CAP_SUBS_READ,
-        SND_SEQ_PORT_TYPE_APPLICATION);
+                                           SND_SEQ_PORT_CAP_READ |
+                                           SND_SEQ_PORT_CAP_SUBS_READ,
+                                           SND_SEQ_PORT_TYPE_APPLICATION);
     // SND_SEQ_PORT_TYPE_PORT, SND_SEQ_PORT_TYPE_APPLICATION
 
     if (SeqStatus < 0) {
@@ -511,7 +544,9 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
         snd_seq_add_sync_master_mtc(handle, queue, &dest, time_format);
 
 #endif
+
     }
+
 
 #if 0
 The tempo is given in micro seconds per quarter beat. To convert this to BPM we needs to use the following equation:
@@ -789,16 +824,11 @@ int SendMidiPatch(PatchInfo * thePatch) {
         gMyInfo.SliderGUINumber = thePatch->Channel;
         gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
         printd(LogMidi, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
-        printd(LogTest, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
+        printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
         break;
 
     case cmdMidiOnOff:
-        if (gMyInfo.MidiPassThru) {
-            gMyInfo.MidiPassThru = 0;
-        }
-        else {
-            gMyInfo.MidiPassThru = 1;
-        }
+        ToggleMidi(0);
 
         break;
 
@@ -848,12 +878,12 @@ void *alsa_midi_Note_thread(void * context_ptr) {
         switch (event_ptr->type) {
 
         case SND_SEQ_EVENT_NOTE:
-            printd(LogTest, "Fishman Note");
+            printd(LogDebug, "Fishman Note");
 
             if (WaitingforMidi) {
                 gMyInfo.GuitarMidiCallParam1 = event_ptr->data.control.value;
                 gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
-                printd(LogTest, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
+                printd(LogDebug, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTE %d\n", gMyInfo.GuitarMidiCallParam1);
 
                 //              GuitarMidiPresetComplete(event_ptr->data.control.value);
             }
@@ -864,7 +894,7 @@ void *alsa_midi_Note_thread(void * context_ptr) {
             if (WaitingforMidi) {
                 gMyInfo.GuitarMidiCallParam1 = event_ptr->data.note.note;
                 gMyInfo.GuitarMidiCall = GuitarMidiCallComplete;
-                printd(LogTest, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
+                printd(LogDebug, "Fishman GuitarMidiCallStart SND_SEQ_EVENT_NOTEON %d\n", gMyInfo.GuitarMidiCallParam1);
 
             }
             else {
@@ -882,7 +912,7 @@ void *alsa_midi_Note_thread(void * context_ptr) {
                 }
 
                 if (gMyInfo.MidiPassThru) {
-                    printd(LogTest, "Fishman Pass thru");
+                    printd(LogDebug, "Fishman Pass thru");
 
                     snd_seq_ev_clear(&ev);
                     snd_seq_ev_set_source(&ev, gMyInfo.MidiPassThru - 1);
@@ -894,14 +924,14 @@ void *alsa_midi_Note_thread(void * context_ptr) {
                     // EJK NOTE:Midi Threshold
                     // We get ghost notes for the fishman.
                     if (event_ptr->data.note.velocity > gMyInfo.MidiThresholdLevel) {
-                        printd(LogTest, "Fishman Note On gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+                        printd(LogDebug, "Fishman Note On gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
                         ev.data.note.velocity = gMyInfo.MidiVolume;
                         ev.data.note.note = event_ptr->data.note.note;
                         snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
 
                     }
                     else {
-                        printd(LogTest, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+                        printd(LogDebug, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
                         ev.type = SND_SEQ_EVENT_NOTEOFF;
                         ev.data.note.note = event_ptr->data.note.note;
                         snd_seq_event_output_direct(gMyInfo.SeqPort[gMyInfo.MidiPassThru - 1], &ev);
@@ -913,7 +943,7 @@ void *alsa_midi_Note_thread(void * context_ptr) {
             break;
 
         case SND_SEQ_EVENT_NOTEOFF:
-            printd(LogTest, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
+            printd(LogDebug, "Fishman Note Off gMyInfo.MidiPassThru Vel %d %d\n", event_ptr->data.note.velocity, gMyInfo.MidiVolume);
 
             if (!WaitingforMidi) {
                 if (gMyInfo.MidiPassThru) {
@@ -935,7 +965,7 @@ void *alsa_midi_Note_thread(void * context_ptr) {
             break;
 
         case SND_SEQ_EVENT_PGMCHANGE:
-            printd(LogTest, "Fishman program change, %d\n",
+            printd(LogDebug, "Fishman program change, %d\n",
                    (unsigned int) event_ptr->data.control.value);
 
             /* Here is where Program changes happen from Program change inputs.
@@ -949,7 +979,7 @@ void *alsa_midi_Note_thread(void * context_ptr) {
 
 
         case SND_SEQ_EVENT_CONTROLLER:
-            printd(LogTest, "Fishman SND_SEQ_EVENT_CONTROLLER\n");
+            printd(LogDebug, "Fishman SND_SEQ_EVENT_CONTROLLER\n");
 
             /* Switch the controller number.
             --------------------------------------------
@@ -976,16 +1006,12 @@ void *alsa_midi_Note_thread(void * context_ptr) {
 void SetDAWLed(int Button, int Value) {
 
     if (Value) {
-        SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                 DAWPort, 1,
-                 Button,
-                 (int) 127);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, Button, (int) 127);
     }
     else {
-        SendMidi(SND_SEQ_EVENT_CONTROLLER,
-                 DAWPort, 1,
-                 Button,
-                 (int) 0);
+        SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
+                 1, Button, (int) 0);
     }
 }
 
@@ -1134,13 +1160,13 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         case 49:
             printd(LogMidi, "Midi Pass\n");
             if (DataValue == 0) {
-                gMyInfo.MidiPassThru = 0;
-                SetDAWLed(ControlValue, 1);
+                gMyInfo.MidiPassThru = 1;
             }
             else {
-                gMyInfo.MidiPassThru = 1;
-                SetDAWLed(ControlValue, 0);
+                gMyInfo.MidiPassThru = 0;
             }
+
+            ToggleMidi(ControlValue);
             break;
 
         case 65:
@@ -1702,12 +1728,14 @@ void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         case 9:
             printd(LogMidi, "Midi Pass\n");
 
-            if (event_ptr->data.control.value == 0) {
+            if (event_ptr->data.control.value != 0) {
                 gMyInfo.MidiPassThru = 0;
             }
             else {
                 gMyInfo.MidiPassThru = 1;
             }
+
+            ToggleMidi(9);
 
             break;
 
@@ -2115,7 +2143,7 @@ void *alsa_midi_thread(void * context_ptr) {
             /* 0x05 MP3 Volume */
             case MIDI_CTL_MSB_PORTAMENTO_TIME:
                 cc_name = "Portamento time";
-                printd(LogTest, "%s \n", cc_name);
+                printd(LogDebug, "%s \n", cc_name);
                 gMyInfo.SetMP3PlayVolBool = event_ptr->data.control.value;
                 SetExpressionControl(ecMP3Volume,
                                      event_ptr->data.control.value);
@@ -3404,7 +3432,7 @@ bool alsa_input_init(const char * name, char portnum) {
     /* Name the port.
     */
     snd_seq_set_client_name(SeqPort1In, name);
-//    snd_seq_set_client_name(SeqPort1In, LiveMusicInputPortName);
+    //    snd_seq_set_client_name(SeqPort1In, LiveMusicInputPortName);
 
 #ifdef HAVE_LASH_1_0
     lash_alsa_client_id(g_lashc, snd_seq_client_id(SeqPort1In));
@@ -3480,7 +3508,7 @@ bool alsa_input_DAW_init(const char * name, char portnum) {
         goto fail;
     }
 #else
-        SeqPortDAWIn = SeqPort1In;
+    SeqPortDAWIn = SeqPort1In;
 #endif
     /* Name the port.
     */
@@ -3560,7 +3588,7 @@ bool alsa_input_Midi_init(const char * name, char portnum) {
         goto fail;
     }
 #else
-        SeqPortMidiIn = SeqPort1In;
+    SeqPortMidiIn = SeqPort1In;
 #endif
 
     /* Name the port.

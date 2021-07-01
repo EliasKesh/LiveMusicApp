@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([LiveMusicApp], [1.8.9],
+AC_INIT([LiveMusicApp], [1.9.0],
 		[elias@kesh.com])
 
 AM_INIT_AUTOMAKE

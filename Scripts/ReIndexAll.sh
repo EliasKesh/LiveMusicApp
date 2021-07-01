@@ -1,14 +1,14 @@
 #! /bin/sh
 #------------------------------------------------
 #
-#	File: 	ReIndexAll
+#   File:   ReIndexAll
 #
-#	Contains: 	
+#   Contains:
 #
 #
-#	Written By: 	Elias Keshishoglou on Sat 18 Jul 2020 06:11:53 PM PDT
+#   Written By:     Elias Keshishoglou on Sat 18 Jul 2020 06:11:53 PM PDT
 #
-#	Copyright ©: 	2020 Elias Keshishoglou all rights reserved.
+#   Copyright ©:    2020 Elias Keshishoglou all rights reserved.
 #
 #
 #------------------------------------------------#
@@ -57,6 +57,7 @@ LiveMusicCharts.py 20_Sax_Licks_For_Guitar_ -vfc
 LiveMusicCharts.py Altered -vfc
 LiveMusicCharts.py Diminished -vfc
 LiveMusicCharts.py Dorian -vfc
+LiveMusicCharts.py 20BluesFusionLicks -vfc
 LiveMusicCharts.py FunkFusionBack -vfc
 LiveMusicCharts.py FunkFusionLicks -vfc
 LiveMusicCharts.py JohnScofield -vfc
