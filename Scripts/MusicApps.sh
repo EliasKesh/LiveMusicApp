@@ -113,6 +113,12 @@ if [ "${1}" == "guitarixNew" ] ; then
 fi
 
 # A PDF file.
+if [ "${1}" == "xopp" ] ; then
+     xournalpp "${2}"  &
+     exit 0
+fi
+
+# A PDF file.
 if [ "${1}" == "pdf" ] ; then
      okular  "${2}"  &
      exit 0

@@ -48,6 +48,7 @@
 #include "SooperOSC.h"
 #include <sys/time.h>
 #include "HTML.h"
+#include "libgen.h"
 
 /*
  * Place defines and Typedefs here
@@ -55,6 +56,8 @@
 
 #define ParseValue "Preset"
 #define MAXLINE 250
+
+#define PresistentPresets 1
 
 /*
  * Place Local prototypes here
@@ -71,17 +74,18 @@ scroll_js_finished_cb(GObject      *object,
 
 gboolean on_RightMenu_clicked(WebKitWebView* page, WebKitContextMenu* menu, char *hitTestResult, gpointer contextMenuCallback);
 
+int DecodeURI(char *s, char *dec);
+int ishex(int x);
+
 void
 HoverLink_cb(WebKitWebView *web_view,
              gchar         *title,
              gchar         *uri,
              gpointer       user_data);
 
-
 static void DrumFav_cb(gpointer *Data);
 static void SaveFav_cb(gpointer *Data);
 static void EditChart_cb(gpointer *Data);
-
 
 /*
  * Place Static variables here
@@ -144,7 +148,13 @@ char SavePresetChanges(char *FileName) {
     sprintf(FileLine, "%s.Test", FileName);
     OutFile = fopen(FileLine, "w+");
 
-    if (!InFile || !OutFile) {
+    if (!OutFile) {
+        remove(OutFile);
+        printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
+        return (1);
+    }
+
+    if (!InFile) {
         printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
         return (1);
     }
@@ -260,6 +270,7 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
 
     webkit_web_view_go_back(web_view);
 
+#ifndef PresistentPresets
     // Reset the patches
     SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
     SetPatchTitles(&PresetButtons[1], "Preset 2", 2);
@@ -267,6 +278,7 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
     SetPatchTitles(&PresetButtons[3], "Preset 4", 4);
     SetPatchTitles(&PresetButtons[4], "Preset 5", 5);
     //  SetPatchTitles(&PresetButtons[5], "Preset 6", 6);
+#endif
 }
 
 /*----------------------------------------------
@@ -556,7 +568,7 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
 /*----------------------------------------------
  * Function:        Patch Selected
  *
- * Description: The users patch 1 was selected.
+ * Description: The users custom patch was selected.
  *
  *-----------------------------------------------*/
 gboolean on_patch_clicked(GtkWidget *widget,
@@ -566,22 +578,27 @@ gboolean on_patch_clicked(GtkWidget *widget,
     int CPatch;
     GdkEvent *theEvent;
 
+    /* Event status for CTRL key.
+    */
     theEvent = gtk_get_current_event();
 
+    /* Preset Number.
+    */
     CPatch = (intptr_t) user_data;
-    printd(LogDebug, "In Button Preset %d\n", CPatch);
+    printd(LogDebug, "1 In Button Preset %d %d\n", CPatch,theEvent);
 
     /* Check to make sure the preset value is valid.    */
     if (CPatch >= 0 && CPatch < MaxPresetButtons) {
         Preset = gMyInfo.WebPresets.thePreset[CPatch];
     }
-
     else {
         return (false);
     }
 
+    /* Here is where we handle the CTRL Click to assign.
+    */
     if (theEvent->button.state & GDK_CONTROL_MASK) {
-        printd(LogInfo, "We have Control Down\n");
+        printd(LogDebug, "We have Control Down\n");
         /* FINISH, need to make the assignment in Patch_Popup_CB
         */
         CurrentPreset = CPatch + Max_Patches + 1;
@@ -590,7 +607,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
         return (TRUE);
     }
 
-    printd(LogDebug, "In Button Preset %d %d\n", CPatch, Preset);
+    printd(LogDebug, "2 In Button Preset %d %d\n", CPatch, Preset);
 
     /* Make sure the preset is at least in the correct range.
     */
@@ -598,7 +615,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
         return (false);
     }
 
-    printd(LogDebug, "In Button Preset %s\n", gMyInfo.MyPatchInfo[Preset].Name);
+    printd(LogDebug, "3 In Button Preset Name %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
     /* Execute the patch change.
     */
@@ -737,7 +754,7 @@ void PageLoaded(WebKitWebView  *web_view,
     }
 
 #if 1
-    /* We need an absolue path. For files in the current
+    /* We need an absolute path. For files in the current
     song folder add the full path before the name.
     */
     strcpy(BasePathName, MyCurrentURI);
@@ -810,40 +827,6 @@ void PageLoaded(WebKitWebView  *web_view,
     webkit_web_view_set_zoom_level(web_view, 1);
 }
 
-int ishex(int x) {
-    return  (x >= '0' && x <= '9')  ||
-            (x >= 'a' && x <= 'f')  ||
-            (x >= 'A' && x <= 'F');
-}
-
-/* Get rid of URL funky characters, like %20
-*/
-int DecodeURI(char *s, char *dec) {
-    char *o;
-    char *end = s + strlen(s);
-    int c;
-
-    for (o = dec; s <= end; o++) {
-        c = *s++;
-
-        if (c == '+') {
-            c = ' ';
-        }
-        else
-            if (c == '%' && (!ishex(*s++)   ||
-                             !ishex(*s++)   ||
-                             !sscanf(s - 2, "%2x", &c))) {
-                return -1;
-            }
-
-        if (dec) {
-            *o = c;
-        }
-    }
-
-    return o - dec;
-}
-
 /*----------------------------------------------
  * Function:        NavigationPolicy
  *
@@ -877,7 +860,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     WebKitURIRequest *request =
         webkit_response_policy_decision_get_request(responseDecision);
     char *requestURI =
-        webkit_uri_request_get_uri(request);
+        (char *)webkit_uri_request_get_uri(request);
 
     printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
 
@@ -1020,7 +1003,7 @@ void OpenSetListSong(int SongNumber) {
      * Walk thru the file and find the HREF links.
      */
     while (fgets(temp, MAXLINE - 1, SetListFile) != NULL && (++Count < 150)) {
-        temp[MAXLINE] = 0;
+        temp[MAXLINE-1] = 0;
 
         /*
          * Look for the Links and .Count the number.
@@ -1045,9 +1028,11 @@ void OpenSetListSong(int SongNumber) {
                 strcat(Copy, "/");
                 strcat(Copy, tokenizer);
                 printd(LogDebug, "Final  %s\n", Copy);
-                // ejk              webkit_web_view_open(web_view, Copy);
+#if 1
                 webkit_web_view_load_uri(web_view, Copy);
-
+#else
+                webkit_web_view_load_html(web_view, Copy, "file:///");
+#endif
                 break;
             }
         }
@@ -1215,7 +1200,11 @@ void InitHTML(GtkBuilder * gxml) {
     strncpy(FileName, "file://", 7);
     strncpy(&FileName[7], gMyInfo.BasePath, sizeof(FileName) - 7);
     printd(LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
-    webkit_web_view_load_uri(web_view, FileName);
+#if 1
+                webkit_web_view_load_uri(web_view, FileName);
+#else
+                webkit_web_view_load_html(web_view, FileName, "file:///");
+#endif
 
     WebKitSettings *settings = webkit_settings_new();
     g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
@@ -1244,6 +1233,20 @@ void InitHTML(GtkBuilder * gxml) {
     webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
+
+#if 0
+webkit_user_content_manager_add_style_sheet
+                               (WebKitUserContentManager *manager,
+                                WebKitUserStyleSheet *stylesheet);
+
+WebKitUserStyleSheet *
+webkit_user_style_sheet_new (const gchar *source,
+                             WebKitUserContentInjectedFrames injected_frames,
+                             WebKitUserStyleLevel level,
+                             const gchar * const *allow_list,
+                             const gchar * const *block_list);
+#endif
+
 
 #if 0
     webkit_settings_set_enable_accelerated_2d_canvas(G_OBJECT(settings), TRUE);
@@ -1447,9 +1450,12 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
         return (-1);
     }
 
+#ifndef PresistentPresets
+    // Clear the presets before loading new ones.
     for (Count = 0; Count < MaxPresetButtons; Count++) {
-        thePresets->thePreset[Count] = -1;
+        thePresets->thePreset[Count] = PresetInvalid;
     }
+#endif
 
     DrumFile[0] = 0;
     LoopFile[0] = 0;
@@ -1458,7 +1464,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     printd(LogDebug, "Have file %x %s\n", fp, fname);
 
     while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
-        temp[MAXLINE] = 0;
+        temp[MAXLINE-1] = 0;
 
         strncpy(Copy, temp, MAXLINE);
 
@@ -1632,6 +1638,19 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
 #endif
     }
 
+#ifdef PresistentPresets
+    if (thePresets->thePreset[0] == PresetInvalid)
+        SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
+    if (thePresets->thePreset[1] == PresetInvalid)
+        SetPatchTitles(&PresetButtons[1], "Preset 2", 2);
+    if (thePresets->thePreset[2] == PresetInvalid)
+        SetPatchTitles(&PresetButtons[2], "Preset 3", 3);
+    if (thePresets->thePreset[3] == PresetInvalid)
+        SetPatchTitles(&PresetButtons[3], "Preset 4", 4);
+    if (thePresets->thePreset[4] == PresetInvalid)
+        SetPatchTitles(&PresetButtons[4], "Preset 5", 5);
+#endif
+
     return (0);
 }
 
@@ -1672,7 +1691,6 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
     if (Value < 0 || Value >= Max_Patches) {
         return (Value);
     }
-
 
     if (PresetNum == 0) {
         DoPatch(&gMyInfo.MyPatchInfo[Value]);
@@ -1746,6 +1764,40 @@ void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
 
     printd(LogDebug, "SetPatchTitles %s\n", Text);
     MyImageButtonSetText2(MyButton, Value, Text);
+}
+
+int ishex(int x) {
+    return  (x >= '0' && x <= '9')  ||
+            (x >= 'a' && x <= 'f')  ||
+            (x >= 'A' && x <= 'F');
+}
+
+/* Get rid of URL funky characters, like %20
+*/
+int DecodeURI(char *s, char *dec) {
+    char *o;
+    char *end = s + strlen(s);
+    int c;
+
+    for (o = dec; s <= end; o++) {
+        c = *s++;
+
+        if (c == '+') {
+            c = ' ';
+        }
+        else
+            if (c == '%' && (!ishex(*s++)   ||
+                             !ishex(*s++)   ||
+                             !sscanf(s - 2, "%2x", &c))) {
+                return -1;
+            }
+
+        if (dec) {
+            *o = c;
+        }
+    }
+
+    return o - dec;
 }
 
 #if 0

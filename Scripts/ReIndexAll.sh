@@ -48,7 +48,7 @@ LiveMusicCharts.py TomQuayle -vcfp
 LiveMusicCharts.py WestCoastLicks -vcfp
 LiveMusicCharts.py JJ_WarmUpJamtracks -vcfp
 LiveMusicCharts.py ah_sophisticatedblues -vcfp
-
+LiveMusicCharts.py MO_Electric_Fusion_Soloing -vcfp
 LiveMusicCharts.py . -il
 
 cd /home/Music/Learn/GuitarLab/
@@ -95,6 +95,9 @@ echo `pwd`
 LiveMusicCharts.py GuitarMasterTapping -vcfp
 LiveMusicCharts.py JazzFusionLicks -vcfp
 LiveMusicCharts.py Sweep -vcfp
+LiveMusicCharts.py CoolLegatoPhrasesTranscriptionFiles -vcfp
+LiveMusicCharts.py DarrylPentatonics -vcfp
+LiveMusicCharts.py FITDemoVersion -vcfp
 LiveMusicCharts.py . -il
 
 cd /home/Music/Learn/CoffeeBreakGroove/
@@ -172,6 +175,20 @@ LiveMusicCharts.py . -a
 
 echo "*** MP3 Files with Errors ***"
 cat ~/MP3Errors.txt
+
+# Generate the Directory listings.
+cd /home/Music/BackingTracks/
+DirectoryToHtml.py
+
+cd /home/Music/MidiDrumLoops/
+DirectoryToHtml.py 
+
+cd /home/Music/Practice/
+DirectoryToHtml.py 
+
+cd /home/Music/Learn/
+DirectoryToHtml.py 
+
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 

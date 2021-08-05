@@ -82,6 +82,7 @@ GtkWidget *OSCHydrogenPort;
 GtkWidget *About_Close;
 
 GtkWidget *Prefs_Regenerate;
+GtkWidget *Prefs_ReConnect;
 //  GtkWidget *About_Close;
 
 /*--------------------------------------------------------------------
@@ -201,6 +202,24 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
     //  DoChartFix(gMyInfo.BasePath,
     //             1, 1, 1, 1);
     system("ReIndex.sh &");
+
+}
+
+
+/*--------------------------------------------------------------------
+ * Function:        Prefs_ReConnect_handler
+ *
+ * Description:     ReConnect connections
+ *
+ *------------------------------------------------*/
+gboolean Prefs_ReConnect_handler(GtkWidget *widget, GdkEvent *event,
+                                  gpointer user_data) {
+
+    printd (LogDebug, "Prefs_Regenerate_handler\n");
+    //  gtk_widget_destroy(user_data);
+    //  DoChartFix(gMyInfo.BasePath,
+    //             1, 1, 1, 1);
+    system("GuitarEffects -c");
 
 }
 
@@ -356,6 +375,15 @@ void InitGuiPrefs(void) {
                      "button-press-event",
                      G_CALLBACK(Prefs_Regenerate_handler),
                      &Prefs_Regenerate);
+
+    Prefs_ReConnect = GTK_WIDGET(gtk_builder_get_object(gxml, "Prefs_ReConnect"));
+    g_signal_connect(G_OBJECT(Prefs_ReConnect),
+                     "button-press-event",
+                     G_CALLBACK(Prefs_ReConnect_handler),
+                     &Prefs_ReConnect);
+
+
+
 
     //  About_Close = GTK_WIDGET(gtk_builder_get_object(gxml, "About_Close"));
 

@@ -23,6 +23,9 @@
 #define false 0
 #define true 1
 
+#define TempoAdjustment 60000000
+//#define TempoAdjustment 120000000
+
 #include <pthread.h>
 
 void *alsa_Loop_thread ( void * context_ptr );
@@ -208,12 +211,11 @@ void SetLoopTempo ( int NewTempo ) {
     snd_seq_event_t ev;
     int err;
     printd ( LogDebug, "SetLoopTempo %d\n", NewTempo );
-    printd ( LogDebug, "SetLoopTempo %d\n", NewTempo );
 
     ev.type = SND_SEQ_EVENT_TEMPO;
     ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
     ev.data.queue.queue = queue;
-    ev.data.queue.param.value = 60000000 / NewTempo;
+    ev.data.queue.param.value = TempoAdjustment / NewTempo;
     /* this blocks when the output pool has been filled */
     err = snd_seq_event_output_direct ( seq, &ev );
 
@@ -603,7 +605,7 @@ static int read_smf ( void ) {
         /* time_division is ticks per quarter */
 //		snd_seq_queue_tempo_set_tempo(queue_tempo, 500000); /* default: 120 bpm */
 
-        snd_seq_queue_tempo_set_tempo ( queue_tempo, 60000000 / gMyInfo.Tempo ); /* default: 120 bpm */
+        snd_seq_queue_tempo_set_tempo ( queue_tempo, TempoAdjustment / gMyInfo.Tempo ); /* default: 120 bpm */
 
         snd_seq_queue_tempo_set_ppq ( queue_tempo, time_division );
 
@@ -922,7 +924,7 @@ static void play_midi ( void ) {
 //				ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
                 ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
                 ev.data.queue.queue = queue;
-                event->data.tempo = 60000000 / MyTempo;
+                event->data.tempo = TempoAdjustment / MyTempo;
                 ev.data.queue.param.value = event->data.tempo;
                 printd ( LogDebug, "ejk SND_SEQ_EVENT_TEMPO %d %d\n", event->data.tempo, MyTempo );
                 break;

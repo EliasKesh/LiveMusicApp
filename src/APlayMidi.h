@@ -15,7 +15,7 @@
 #ifndef APlayMidi_h
 #define APlayMidi_h
 
-#include "APlayMidi.h"
+//#include "APlayMidi.h"
 /*
  * Place Includes here.
  */

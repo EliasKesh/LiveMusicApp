@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <error.h>
+#include "APlayMidi.h"
 
 /*
  * Place defines and Typedefs here

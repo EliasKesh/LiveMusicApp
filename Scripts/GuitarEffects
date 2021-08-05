@@ -240,7 +240,7 @@ function FindDevice {
         # AudioSampleRate=48000
         AudioSampleRate=96000
         JBuffer=128
-        JPeriod=2
+        JPeriod=3
         # AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
@@ -336,8 +336,8 @@ function FindDevice {
         # JPeriod=3
  
         AudioSampleRate=96000
-        JBuffer=128
-        JPeriod=2
+        JBuffer=256
+        JPeriod=3
 
         #       AudioSampleRate=192000
         AudioDevice="$Device"
@@ -718,7 +718,7 @@ function SetUpApplications {
         nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
-    if [ `hostname` == "Music" ]; then
+    if [ `hostname` == "LiveMusic" ]; then
         ButtonSize=105
     else
         ButtonSize=140
@@ -1133,9 +1133,9 @@ Looper=false
 MusicViewer=false
 WeAreDebugging=false
 KillJackOnExit=true
-LogFile=~/.config/LiveMusicApp/LogGuitar.txt
-#LogFile=/dev/tty
-JackFile=LogJack
+#LogFile=~/.config/LiveMusicApp/LogGuitar.txt
+LogFile=/dev/tty
+# JackFile=LogJack
 TabPlayer=false
 XOffset=0
 JamStik=false
@@ -1143,6 +1143,8 @@ ButtonLayout=1
 OneScreeOnly=false
 BackroundChecker=true
 SoundSynth=true
+Version="1.9.2"
+
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
 # sudo echo -n performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
@@ -1156,7 +1158,7 @@ echo `date` >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
 while getopts "abcdegfjkhrpmnovlswt" OPT; do
-    echo "hello "$OPT
+#    echo "hello "$OPT
     case "$OPT" in
         h)
             echo "
@@ -1177,11 +1179,11 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-            w - Working Scoring"
+        w - Working Scoring"
             exit 0
         ;;
         v)
-            echo "`basename $0` version 6.7"
+            echo "`basename $0` "$Version
             echo "2019-31-03"
             exit 0
         ;;
@@ -1204,9 +1206,10 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             Hydrogen=true
         ;;
         e)
-            
             # if the script is called
-            # twice exit.
+            # twice exit.         
+            LogFile=~/.config/LiveMusicApp/LogGuitar.txt
+
             pid=`pgrep guitarix`
             if [ -z $pid ]
             then
@@ -1214,7 +1217,6 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             else
                 StopEverything
             fi
-            
             
             pid=`pgrep LiveMusicApp`
             if [ -z $pid ]
@@ -1411,7 +1413,7 @@ Delay 3
 a2jmidi_bridge "GuitBridge" &
 #       j2amidi_bridge "MambaBridge" &
 #    a2jmidid -u &
-a2jmidi_bridge "MuseBridge" &
+# a2jmidi_bridge "MuseBridge" &
 
 SetUpApplications
 Delay 1

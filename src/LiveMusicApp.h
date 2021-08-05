@@ -162,6 +162,7 @@ typedef struct {
 
 // Presets that are set by html.
 #define MaxPresetButtons 6
+#define PresetInvalid 65535
 
 // Total usable patches.
 #define Max_Patches	 182

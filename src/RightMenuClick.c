@@ -34,7 +34,7 @@
  */
 #include <gtk/gtk.h>
 #include "LiveMusicApp.h"
-
+#include "HTML.h"
 /*
  * Place defines and Typedefs here
  */

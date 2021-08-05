@@ -133,7 +133,7 @@ int MyImageButtonSetText2( theImageButtons *theButton, int Number, char *String)
     char        FormatString[200];
     int         StrLen;
     char        FontSize = 12;
-    char        StringOff = 16;
+    char        StringOff = 14;
     // sprintf(String, "%*d\n%*s",
     //         (14 + StringLen) / 2,
     //         Loop + 1,
