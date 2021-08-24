@@ -63,7 +63,7 @@
 #define MaxHardSliders 5
 #define TotalMaxStrings 10
 
-#define MyOSCPortNumber "60000"
+#define MyOSCPortNumber "61000"
 
 char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
@@ -654,7 +654,8 @@ int SetVolume2(int Value);
 int SetVolume3(int Value);
 int SetVolume4(int Value);
 int FindString(int StringList, char *String);
-int ChorderMain(GtkWidget *MainWindow, GtkWidget *window);
+int InitChorder(GtkWidget *MainWindow, GtkWidget *window);
+int CloseChorder ( void );
 int InitConnections(void);
 void SwitchToTab(char Tab);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);

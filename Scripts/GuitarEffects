@@ -334,11 +334,11 @@ function FindDevice {
         # AudioSampleRate=48000
         # JBuffer=64
         # JPeriod=3
- 
+        
         AudioSampleRate=96000
         JBuffer=256
         JPeriod=3
-
+        
         #       AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
@@ -438,7 +438,7 @@ function StartJack {
     if [ "foo1" = "foo" ]; then
         qjackctl -p "${QJackProfile}" -s &
         echo "Starting qjackctl "${QJackProfile}
-
+        
         sleep 5
         
     else
@@ -620,11 +620,11 @@ function SetUpConnections {
     jack_connect gx_head_fx:out_1 $MainOut1
     jack_disconnect gx_head_fx:out_1 system:playback_1
     jack_disconnect gx_head_fx:out_0 system:playback_2
-
-#    jack_connect gx_head_fx:out_0 loud_comp_mono:in
-#    jack_connect gx_head_fx:out_1 loud_comp_mono:in
-#    jack_connect loud_comp_mono:out $MainOut1
-
+    
+    #    jack_connect gx_head_fx:out_0 loud_comp_mono:in
+    #    jack_connect gx_head_fx:out_1 loud_comp_mono:in
+    #    jack_connect loud_comp_mono:out $MainOut1
+    
     
     # Connect Guitarix out to looper in
     jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
@@ -753,6 +753,11 @@ function SetUpApplications {
         slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
+    if test "${InternetJamStart}" = "true"; then
+        # Internet
+        $InternetJam -l /home/MySongs/Prefs/sonobus_elias.sonobus &
+    fi
+    
     if test "${Ardour}" = "true"; then
         # We are going to record
         ardour2 /home/Music/Rehearsals/`date +"%Y%m%d"` &
@@ -827,7 +832,7 @@ function SetPlacement {
     
     xrandr | grep "HDMI1 connected"
     ExtraMonitor="$?"
-
+    
     # On home PC spread it out
     if [ `hostname` == "Keshie" ]; then
         echo "Keshie"
@@ -841,13 +846,13 @@ function SetPlacement {
         YOffset=1080
         YOffset=900
         
-#        if [ "$?" -eq "1" ]
+        #        if [ "$?" -eq "1" ]
         
         if [ "$ExtraMonitor" -eq "1" ]; then
             YOffset=0
             echo "External Monitor Not Found"
         fi
-
+        
         SetPlacement1920
     elif [ `hostname` == "Music" ]; then
         echo "Music"
@@ -941,7 +946,7 @@ function SetPlacement1920 {
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,586,420,1000,450
-
+    
     wmctrl -r qsynth -e 0,640,80,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
@@ -961,11 +966,11 @@ function SetPlacement1920 {
     
     wmctrl -r ${PatchBayName} -t $PatchageDesktop
     wmctrl -r ${PatchBayName} -e 0,0,0,1200,850
-
+    
     wmctrl -r QjackCtl -e 0,640,80,600,125
     wmctrl -r "Graph — QjackCtl" -e 0,0,940,1800,1000
     wmctrl -r QjackCtl -t $MidiDesktop
-
+    
     set +x
 }
 
@@ -1001,7 +1006,7 @@ function SetPlacement1600 {
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
     wmctrl -r TuxGuitar -t $PlayerDesktop
-
+    
     wmctrl -r QjackCtl -e 0,640,80,600,125
     wmctrl -r QjackCtl -t $MidiDesktop
 }
@@ -1035,7 +1040,7 @@ function SetPlacement1200 {
     
     wmctrl -r TuxGuitar -e 0,366,250,1000,500
     wmctrl -r TuxGuitar -t $PlayerDesktop
-
+    
     wmctrl -r QjackCtl -e 0,640,80,600,125
     wmctrl -r QjackCtl -t $MidiDesktop
 }
@@ -1066,6 +1071,7 @@ function StopEverything {
     killall tuxguitar
     killall smplayer
     killall a2jmidid
+    killall $InternetJam
     
     killall kmidimon
     killall kdialog
@@ -1077,6 +1083,7 @@ function StopEverything {
     killall mididings
     killall a2jmidid
     killall gedit
+    killall $InternetJam
     
     
     killall ${PatchBay}
@@ -1122,6 +1129,8 @@ EffectsProcessorWM="Guitarix: gx_head"
 PatchBay="catia"
 PatchBayName="Catia"
 
+InternetJam="sonobus"
+
 MidiController=true
 Rosegarden=false
 Hydrogen=false
@@ -1142,8 +1151,9 @@ JamStik=false
 ButtonLayout=1
 OneScreeOnly=false
 BackroundChecker=true
+InternetJamStart=false
 SoundSynth=true
-Version="1.9.2"
+Version="1.9.3"
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
@@ -1157,8 +1167,8 @@ echo "--------------------------------------------" >> $LogFile
 echo `date` >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdegfjkhrpmnovlswt" OPT; do
-#    echo "hello "$OPT
+while getopts "abcdefgijkhrpmnovlswt" OPT; do
+    #    echo "hello "$OPT
     case "$OPT" in
         h)
             echo "
@@ -1168,6 +1178,7 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
         d - Drum Machine
         e - Launcher Execute
         g - Generate Charts
+        i - Internet
         j - JamStik
         k - Debugging
         l - Looper
@@ -1179,7 +1190,7 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-        w - Working Scoring"
+            w - Working Scoring"
             exit 0
         ;;
         v)
@@ -1207,9 +1218,9 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
         ;;
         e)
             # if the script is called
-            # twice exit.         
+            # twice exit.
             LogFile=~/.config/LiveMusicApp/LogGuitar.txt
-
+            
             pid=`pgrep guitarix`
             if [ -z $pid ]
             then
@@ -1227,7 +1238,6 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
                 BackroundChecker=true
                 SoundSynth=true
                 Looper=true
-                
                 #                Hydrogen=true
             else
                 StopEverything
@@ -1252,6 +1262,9 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             # LiveMusicReplacePDF.py /home/elias/MySongs/FusionBlue/
             LiveMusicCharts.py /home/MySongs/FusionBlue/ -f -c -i -r
         ;;
+        i)
+            InternetJamStart=true
+        ;;
         j)
             echo "JamStik"
             JamStik=true
@@ -1265,7 +1278,6 @@ while getopts "abcdegfjkhrpmnovlswt" OPT; do
             GuitarEffects=true
             SoundSynth=true
             Looper=true
-            
         ;;
         l)
             echo "Looper"

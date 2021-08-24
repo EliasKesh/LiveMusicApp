@@ -15,145 +15,258 @@
 
 
 ReIndex.sh
+set -x
 
 cd /home/Music/
 chown elias: Learn  -R
 chmod 700 Learn
 
-cd /home/Music/Learn/
+BaseDir=/home/Music/Learn/
+cd $BaseDir
+
 find ./ -type d -exec chmod 700 {} \;
 find ./ -type f -exec chmod 600 {} \;
 
 cd /home/Music/EliasOriginals
 LiveMusicCharts.py . -vci
 
-cd /home/Music/Learn/JamTrackCentral/
+CurDir=$BaseDir/TrueFire/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py ah_20TastyDominantLicks -vcfp
-LiveMusicCharts.py ah_A7b5Licks -vcfp
-LiveMusicCharts.py ah_customfusion1 -vcfp
-LiveMusicCharts.py ah_customfusion2 -vcfp
-LiveMusicCharts.py ah_customfusion3 -vcfp
-LiveMusicCharts.py ah_bluesextensions -vcfp
-LiveMusicCharts.py ks_ultimateguitarworkout -vcfp
-LiveMusicCharts.py LatinLicks -vcfp
-LiveMusicCharts.py lm_legatomasterclass_intermediate -vcfp
-LiveMusicCharts.py dg_20outsidelicks -vcfp
-LiveMusicCharts.py gg_ford -vcfp
-LiveMusicCharts.py gg_funkfusion -vcfp
-LiveMusicCharts.py ii-VLicks -vcfp
-LiveMusicCharts.py RG_20NeoSoulFusionLicks -vcfp
-LiveMusicCharts.py RockLicks -vcfp
-LiveMusicCharts.py TomQuayle -vcfp
-LiveMusicCharts.py WestCoastLicks -vcfp
-LiveMusicCharts.py JJ_WarmUpJamtracks -vcfp
-LiveMusicCharts.py ah_sophisticatedblues -vcfp
-LiveMusicCharts.py MO_Electric_Fusion_Soloing -vcfp
+LiveMusicCharts.py 10_Guitar_Licks_You_Must_Know -vgcfp
+LiveMusicCharts.py Smart_Practice_For_Guitar -vcfgp
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/GuitarLab/
+CurDir=$BaseDir/JamTrackCentral/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py 20_Sax_Licks_For_Guitar_ -vfc
-LiveMusicCharts.py Altered -vfc
-LiveMusicCharts.py Diminished -vfc
-LiveMusicCharts.py Dorian -vfc
-LiveMusicCharts.py 20BluesFusionLicks -vfc
-LiveMusicCharts.py FunkFusionBack -vfc
-LiveMusicCharts.py FunkFusionLicks -vfc
-LiveMusicCharts.py JohnScofield -vfc
-LiveMusicCharts.py LydianDominant -vfc
-LiveMusicCharts.py Mixolydian -vfc
-LiveMusicCharts.py Phrasing -vfc
-LiveMusicCharts.py Robben_Ford -vfc
-LiveMusicCharts.py ScottHenderson -vfc
-LiveMusicCharts.py Spain_20_Fusion_Guitar_Licks -vfc
-LiveMusicCharts.py The_Chicken_20_Licks_Part1 -vfc
+cd $CurDir/ah_20TastyDominantLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_A7b5Licks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_customfusion1
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_customfusion2
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_customfusion3
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_bluesextensions
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ks_ultimateguitarworkout
+LiveMusicCharts.py . -vcfir
+cd $CurDir/LatinLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/lm_legatomasterclass_intermediate
+LiveMusicCharts.py . -vcfir
+cd $CurDir/dg_20outsidelicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/gg_ford
+LiveMusicCharts.py . -vcfir
+cd $CurDir/gg_funkfusion
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ii-VLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/RG_20NeoSoulFusionLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/RockLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/TomQuayle
+LiveMusicCharts.py . -vcfir
+cd $CurDir/WestCoastLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JJ_WarmUpJamtracks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ah_sophisticatedblues
+LiveMusicCharts.py . -vcfir
+cd $CurDir/MO_Electric_Fusion_Soloing
+LiveMusicCharts.py . -vcfir
+cd $CurDir/MM_20LicksNLFingerstyle
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-
-cd /home/Music/Learn/PeopleLearn/
+CurDir=$BaseDir/GuitarLab/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py AlDiMeola -vcfp
-LiveMusicCharts.py Carlton -vcfp
-LiveMusicCharts.py DavidLeeRoth -vcfp
-LiveMusicCharts.py FrankGambale -vcfp
-LiveMusicCharts.py Holdsworth -vcfp
-LiveMusicCharts.py mingus_examples -vcfp
-LiveMusicCharts.py SteveMorse -vcfp
+cd $CurDir/20_Sax_Licks_For_Guitar
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Altered
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Diminished
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Dorian
+LiveMusicCharts.py . -vcfir
+cd $CurDir/20BluesFusionLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FunkFusionBack
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FunkFusionLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JohnScofield
+LiveMusicCharts.py . -vcfir
+cd $CurDir/LydianDominant
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Mixolydian
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Phrasing
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Robben_Ford
+LiveMusicCharts.py . -vcfir
+cd $CurDir/ScottHenderson
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Spain_20_Fusion_Guitar_Licks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/The_Chicken_20_Licks_Part1
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/FlatFiv
+CurDir=$BaseDir/PeopleLearn/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py AndroidTab -vcfp
-LiveMusicCharts.py FusionSolos -vcfp
-LiveMusicCharts.py Tapping -vcfp
+cd $CurDir/AlDiMeola
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Carlton
+LiveMusicCharts.py . -vcfir
+cd $CurDir/DavidLeeRoth
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FrankGambale
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Holdsworth
+LiveMusicCharts.py . -vcfir
+cd $CurDir/mingus_examples
+LiveMusicCharts.py . -vcfir
+cd $CurDir/SteveMorse
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-
-cd /home/Music/Learn/GuitarMaster
+CurDir=$BaseDir/FlatFiv/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py GuitarMasterTapping -vcfp
-LiveMusicCharts.py JazzFusionLicks -vcfp
-LiveMusicCharts.py Sweep -vcfp
-LiveMusicCharts.py CoolLegatoPhrasesTranscriptionFiles -vcfp
-LiveMusicCharts.py DarrylPentatonics -vcfp
-LiveMusicCharts.py FITDemoVersion -vcfp
+cd $CurDir/AndroidTab
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FusionSolos
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Tapping
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/CoffeeBreakGroove/
+CurDir=$BaseDir/GuitarMaster/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py JazzFusionPremium4 -vcfp
+cd $CurDir/GuitarMasterTapping
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JazzFusionLicks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Sweep
+LiveMusicCharts.py . -vcfir
+cd $CurDir/CoolLegatoPhrasesTranscriptionFiles
+LiveMusicCharts.py . -vcfir
+cd $CurDir/DarrylPentatonics
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FITDemoVersion
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-
-cd /home/Music/Learn/GuitarPlayback
+CurDir=$BaseDir/CoffeeBreakGroove/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py 30OutsideDorian -vcfp
-LiveMusicCharts.py GPB_Backing_Track_Sampler -vcfp
-LiveMusicCharts.py AeolianIslandGroove -vcfp
-LiveMusicCharts.py AcidFusionModulation -vcfp
-LiveMusicCharts.py JazzFusionModulation -vcfp
-LiveMusicCharts.py JazzRockAmbientPads -vcfp
-LiveMusicCharts.py JazzRockFusionGroove -vcfp
-LiveMusicCharts.py DorianLaidBackFeel -vcfp
-LiveMusicCharts.py FunkInB -vcfp
-LiveMusicCharts.py FunkyMinorModes -vcfp
-LiveMusicCharts.py FusionFunkMaster -vcfp
-LiveMusicCharts.py FusionPads -vcfp
-LiveMusicCharts.py JazzRockPhrasing -vcfp
-LiveMusicCharts.py MellowFuse -vcfp
-LiveMusicCharts.py PersonalCourse -vcfp
-LiveMusicCharts.py SoloInMultipleKeys -vcfp
-LiveMusicCharts.py FusionScales -vcfp
-LiveMusicCharts.py FusionPads -vcfp
+cd $CurDir/JazzFusionPremium4
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/MBonus
+CurDir=$BaseDir/GuitarPlayback/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py Adv_StringSkipping -vcfp
-LiveMusicCharts.py GuitarChords -vcfp
-LiveMusicCharts.py BasicJazzChords -vcfp
-LiveMusicCharts.py FingerstyleGuitar -vcfp
-LiveMusicCharts.py HardRockTapping -vcfp
-LiveMusicCharts.py StringSkipping -vcfp
-LiveMusicCharts.py SweepPicking -vcfp
+cd $CurDir/30OutsideDorian
+LiveMusicCharts.py . -vcfir
+cd $CurDir/GPB_Backing_Track_Sampler
+LiveMusicCharts.py . -vcfir
+cd $CurDir/AeolianIslandGroove
+LiveMusicCharts.py . -vcfir
+cd $CurDir/AcidFusionModulation
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JazzFusionModulation
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JazzRockAmbientPads
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JazzRockFusionGroove
+LiveMusicCharts.py . -vcfir
+cd $CurDir/DorianLaidBackFeel
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FunkInB
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FunkyMinorModes
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FusionFunkMaster
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FusionPads
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JazzRockPhrasing
+LiveMusicCharts.py . -vcfir
+cd $CurDir/MellowFuse
+LiveMusicCharts.py . -vcfir
+cd $CurDir/PersonalCourse
+LiveMusicCharts.py . -vcfir
+cd $CurDir/SoloInMultipleKeys
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FusionScales
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FusionPads
+LiveMusicCharts.py . -vcfir
+cd $CurDir/
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/DLP
+CurDir=$BaseDir/MBonus/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py Example -vcfp
-LiveMusicCharts.py Licks -vcfp
-LiveMusicCharts.py Sample -vcfp
+cd $CurDir/Adv_StringSkipping
+LiveMusicCharts.py . -vcfir
+cd $CurDir/GuitarChords
+LiveMusicCharts.py . -vcfir
+cd $CurDir/BasicJazzChords
+LiveMusicCharts.py . -vcfir
+cd $CurDir/FingerstyleGuitar
+LiveMusicCharts.py . -vcfir
+cd $CurDir/HardRockTapping
+LiveMusicCharts.py . -vcfir
+cd $CurDir/StringSkipping
+LiveMusicCharts.py . -vcfir
+cd $CurDir/SweepPicking
+LiveMusicCharts.py . -vcfir
+cd $CurDir
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/50RockLicks
+CurDir=$BaseDir/DLP/
+cd $CurDir
 echo `pwd`
-LiveMusicCharts.py BonusMaterial -vcfp
-LiveMusicCharts.py JamTracks -vcfp
-LiveMusicCharts.py PowerTabFiles -vcfp
+cd $CurDir/Example
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Licks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/Sample
+LiveMusicCharts.py . -vcfir
+cd..
 LiveMusicCharts.py . -il
 
-cd /home/Music/Learn/
+CurDir=$BaseDir/50RockLicks/
+cd $CurDir
+echo `pwd`
+cd $CurDir/BonusMaterial
+LiveMusicCharts.py . -vcfir
+cd $CurDir/JamTracks
+LiveMusicCharts.py . -vcfir
+cd $CurDir/PowerTabFiles
+LiveMusicCharts.py . -vcfir
+cd $CurDir
+LiveMusicCharts.py . -il
+
+CurDir=$BaseDir
+cd $CurDir
 echo `pwd`
 # LiveMusicCharts.py RickBeato -vcf
 LiveMusicCharts.py Tapping -vcfp
@@ -163,12 +276,9 @@ LiveMusicCharts.py PentaTrick -vcfp
 # LiveMusicCharts.py Material -vcfp
 LiveMusicCharts.py Material -il
 
-
 cd /home/Music/Learn/
 echo `pwd`
 LiveMusicCharts.py . -il
-
-#cd /home/Music/BackingTracks
 
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
@@ -178,17 +288,28 @@ cat ~/MP3Errors.txt
 
 # Generate the Directory listings.
 cd /home/Music/BackingTracks/
+LiveMusicCharts.py . -vg
 DirectoryToHtml.py
 
 cd /home/Music/MidiDrumLoops/
-DirectoryToHtml.py 
+LiveMusicCharts.py . -vg
+DirectoryToHtml.py
 
 cd /home/Music/Practice/
-DirectoryToHtml.py 
+LiveMusicCharts.py . -vg
+DirectoryToHtml.py
 
 cd /home/Music/Learn/
-DirectoryToHtml.py 
+# LiveMusicCharts.py . -vg
+DirectoryToHtml.py
 
-
+# Normalize the audio output
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 
+# Mix seperate MP3 files into one
+# ffmpeg -i mtjpsf-020-drums.mp3 -i mtjpsf-020-bass.mp3 -i mtjpsf-020-rg.mp3 -filter_complex amerge=inputs=3 -ac 2 Output.mp3
+
+
+# find ./ -iname \*.pdf.jpg -exec rm {} \;
+# find ./ -name \*.conv -print0 | xargs -0 rename 's/.conv$//'
+#

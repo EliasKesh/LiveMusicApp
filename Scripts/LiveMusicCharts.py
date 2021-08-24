@@ -703,15 +703,23 @@ def isFullPdf(f):
     end_content = ''
     start_content = ''
     size = os.path.getsize(f)
-    if size < 1024: return False 
-    with open(f, 'rb') as fin: 
-        #start content 
-        fin.seek(0, 0)
-        start_content = fin.read(1024)
-        start_content = start_content.decode("ascii", 'ignore' )
-        fin.seek(-1024, 2)
-        end_content = fin.read()
-        end_content = end_content.decode("ascii", 'ignore' )
+
+    if size < 1024: 
+        return False 
+
+    try:
+        with open(f, 'rb') as fin: 
+            #start content 
+            fin.seek(0, 0)
+            start_content = fin.read(1024)
+            start_content = start_content.decode("ascii", 'ignore' )
+            fin.seek(-1024, 2)
+            end_content = fin.read()
+            end_content = end_content.decode("ascii", 'ignore' )
+    except:
+        print("PDF Exception\n")
+        return
+
     start_flag = False
     #%PDF
     if start_content.count('%PDF') > 0:
@@ -818,7 +826,7 @@ args = parser.parse_args()
 
 # ic.disable()
 
-Version = "1.9.2"
+Version = "1.9.3"
 
 if (args.n):
     print ("Version ",Version)

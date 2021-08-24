@@ -129,6 +129,8 @@ char  RemoveMuteCount;
 char *homedir;
 int VolumeControllerNum;
 
+gint WinWidth, WinHeight;
+
 /*
  * Place Local prototypes here
  */
@@ -266,6 +268,8 @@ int main(int argc, char *argv[]) {
     myScreen = gdk_screen_get_default();
     //    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 
+//    gtk_window_get_default_size (theMainWindow, &WinWidth,&WinHeight);
+
 #if 0
     /* Based on the screen, size the buttons.
     */
@@ -341,8 +345,8 @@ int main(int argc, char *argv[]) {
     /* Get the button sizes.
     B are the preset buttons
     M are the main application buttons */
-    BButtonX = (int)((float) ButtonSize * 1.0);
-    BButtonY = (int)((float) ButtonSize * 0.5);
+    BButtonX = (int)((float) ButtonSize * 1.1);
+    BButtonY = (int)((float) ButtonSize * 0.7);
     MButtonX = (int)((float) ButtonSize * 0.9);
     MButtonY = (int)((float) ButtonSize * 0.4);
 
@@ -479,7 +483,7 @@ int main(int argc, char *argv[]) {
     * Set the up Chord page in case we need it later.
     */
     ChordWidget = GTK_WIDGET(gtk_builder_get_object(gxml, "ChordFrame"));
-    ChorderMain(theMainWindow, ChordWidget);
+    InitChorder(theMainWindow, ChordWidget);
 
     /*
     * Set the initial Volumes.
@@ -555,6 +559,7 @@ int main(int argc, char *argv[]) {
     */
     //  CloseHIDGrab();
     WritePrefs();
+    CloseChorder();
     MyAlsaClose();
     MyOSCClose();
     CloseJackTransport();
@@ -1207,6 +1212,8 @@ gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer da
 void SwitchToTab(char Tab) {
     int Loop;
 
+    printd(LogDebug, "SwitchToTab %d\n", Tab);
+
     // Check for a valid tab number
     if (Tab < 0 || Tab >= tabpageMAX) {
         return;
@@ -1266,7 +1273,7 @@ gboolean layout_click_handler(GtkWidget *widget,
     theImageButtons *theButton;
 
     theButton = (theImageButtons * ) user_data;
-    printd(LogInfo, "layout_click %x\n", theButton);
+    printd(LogDebug, "layout_click %x\n", theButton);
     IncrementLayoutMode();
     MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonDownImage);

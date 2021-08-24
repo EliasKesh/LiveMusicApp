@@ -71,3 +71,12 @@ def index_folder(folderPath):
 #Indexing root directory (Script position)
 index_folder('.')
 
+# rename 's/\d+/sprintf("%05d", $&)/e' *.mp3
+
+# sourcedir = "/path/to/files"; extensions = (".jpg", ".jpeg")
+# files = [(f, f[f.rfind("."):], f[:f.rfind(".")]) for f in os.listdir(sourcedir)if f.endswith(extensions)]
+# maxlen = len(max([f[2] for f in files], key = len))
+
+# for item in files:
+#     zeros = maxlen-len(item[2])
+#     shutil.move(sourcedir+"/"+item[0], sourcedir+"/"+str(zeros*"0")+item[0])

@@ -115,7 +115,7 @@ int MyImageButtonSetText( theImageButtons *theButton, char *String) {
             FontSize,
             gMyInfo.ButtonTextColor, String);
 
-    printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);
+    //printd(LogDebug, "MyImageButtonSetText %x %s \n", theButton, String);
     //  printf("MyImageButtonSetText %x %s \n", theButton, String);
 
     gtk_label_set_markup((theButton->Label), (gchar *)FormatString);

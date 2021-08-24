@@ -63,25 +63,19 @@ if [ "${1}" == "rg" ] ; then
 fi
 
 # https://ftp.osuosl.org/pub/musescore-nightlies/linux/4x/nightly/?C=M;O=D
-if [ "${1}" == "mscz" ] ; then
-#    mscore "${2}" &>/dev/null &
-/usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
-    # sleep 1
-    # aconnect "TriplePlay Connect":0 MuseBridge:0
-    # aconnect "Fishman TriplePlay":0  MuseBridge:0
-    # jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
-    exit 0
-fi
 
-if [ "${1}" == "gp3" ] |
-[ "${1}" == "gp" ] |
-[ "${1}" == "gpx" ] |
-[ "${1}" == "gp4" ] |
-[ "${1}" == "gp5" ] |
-[ "${1}" == "gp6" ] |
+echo "About to check gp5"
+
+if [ "${1}" == "gp3" ] ||
+[ "${1}" == "mscz" ] ||
+[ "${1}" == "gp" ] ||
+[ "${1}" == "gpx" ] ||
+[ "${1}" == "gp4" ] ||
+[ "${1}" == "gp5" ] ||
+[ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
-    echo "${1}  ${2}"
-    mscore  "${2}"  &>/dev/null &
+    echo "Muse Score ${1}  ${2}"
+/usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
     exit 0
 fi
 
