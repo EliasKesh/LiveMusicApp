@@ -686,14 +686,18 @@ def ExtractPDF(Files, dirname):
                 Command = "echo " + f + ">> ~/MP3Errors.txt"
                 os.system(Command)
 
-            with (Image(filename=f, resolution=200)) as source:
-                for i, image in enumerate(source.sequence):
-                    #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
-                    # -4 is to remove the .pdf
-                    newfilename = f[:-4] + "_" + str(i +
-                                  1).zfill(3) + '.pdf.jpg'
-                    Image(image).save(filename=newfilename)
-                    print("PDF to ", newfilename)
+            try:
+                with (Image(filename=f, resolution=200)) as source:
+                    for i, image in enumerate(source.sequence):
+                        #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
+                        # -4 is to remove the .pdf
+                        newfilename = f[:-4] + "_" + str(i +
+                                      1).zfill(3) + '.pdf.jpg'
+                        Image(image).save(filename=newfilename)
+                        print("PDF to ", newfilename)
+            except:
+                print("Image Exception\n")
+                return
 
             if (os.path.exists(f)):
                 os.rename(f, f + ".conv")
@@ -826,7 +830,7 @@ args = parser.parse_args()
 
 # ic.disable()
 
-Version = "1.9.3"
+Version = "1.9.4"
 
 if (args.n):
     print ("Version ",Version)
@@ -835,7 +839,6 @@ if (args.n):
 # look for the base directory
 if (args.BaseDir == "./"):
     BaseDir = os.getcwd()
-#    BaseDir="/mnt/Personal/ChartsHTML"
 else:
     BaseDir = args.BaseDir
 
@@ -846,6 +849,8 @@ CreateHTML = args.c
 CreateIndexFIle = args.i
 ReferenceCreate = args.r
 
+# sometimes let's just make an index of the top
+# level files, usually html
 if (args.l):
     DirectoryLevel = 2
 else:
@@ -865,6 +870,7 @@ if (args.a):
 for Root, Dir, Files in os.walk(BaseDir):
     FoundHTML = 0
     Files.sort()
+#    print(BaseDir, Root, Dir, "\n")
     ClearVariables()
     for filename in Files:
         #        Check for an html file

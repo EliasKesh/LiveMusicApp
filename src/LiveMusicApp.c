@@ -334,13 +334,16 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(theMainWindow), "destroy", G_CALLBACK(on_window1_destroy), NULL);
     gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
 
+#if 1
     GdkPixbuf *pixbuf;
     pixbuf = gdk_pixbuf_new_from_file(Icon_FILE, &err);
 
     gtk_window_set_icon(GTK_WINDOW(theMainWindow), pixbuf);
-    // gtk_window_set_icon_name (
-    //     GTK_WINDOW(theMainWindow),
-    //     "media-playlist-shuffle");
+#else
+    gtk_window_set_icon_name (
+        GTK_WINDOW(theMainWindow),
+        "guitar");
+#endif
 
     /* Get the button sizes.
     B are the preset buttons
@@ -596,7 +599,7 @@ int GTKIdel_cb(gpointer data) {
 
     printd(LogRealTime, "GTKIdel_cb %d %d\n", AlsaEvent.data.control.param, gMyInfo.ExpreP1Slider);
 
-    // gMyInfo.SliderGUIUpdate
+    // gMyInfo.SliderGUIValue
     //  if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
     if (gMyInfo.SliderGUIUpdate) {
         printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
@@ -605,17 +608,17 @@ int GTKIdel_cb(gpointer data) {
         //      switch (gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Channel) {
         case Slider1:
             printd(LogTest, "GTKIdel_cb Slider1 %d \n", Slider1);
-            SetVolume1(gMyInfo.SliderGUIUpdate / 1.27);
+            SetVolume1(gMyInfo.SliderGUIValue / 1.27);
             break;
 
         case Slider2:
             printd(LogTest, "GTKIdel_cb Slider2 %d \n", Slider2);
-            SetVolume2(gMyInfo.SliderGUIUpdate / 1.27);
+            SetVolume2(gMyInfo.SliderGUIValue / 1.27);
             break;
 
         case Slider3:
             printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
-            SetVolume3(gMyInfo.SliderGUIUpdate / 1.27);
+            SetVolume3(gMyInfo.SliderGUIValue / 1.27);
             break;
 
         case Slider4:
@@ -627,7 +630,7 @@ int GTKIdel_cb(gpointer data) {
             //          printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
             printd(LogTest, "GTKIdel_cb Default\n");
             //          SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.ExpreP1Slider].Name);
-            SetVolume4(gMyInfo.SliderGUIUpdate / 1.26);
+            SetVolume4(gMyInfo.SliderGUIValue / 1.26);
             break;
         }
 
@@ -635,7 +638,7 @@ int GTKIdel_cb(gpointer data) {
         */
         AlsaEvent.data.control.param = 0;
         //      gMyInfo.SliderGUINumber = 0;
-        gMyInfo.SliderGUIUpdate = 0;
+        gMyInfo.SliderGUIUpdate--;
     }
 
     if (gMyInfo.SetMP3PlayVolBool) {
@@ -2405,7 +2408,11 @@ int SetExpressionControl(int Controller, int Value) {
         }
 
     // Convert to Audio (log)-ish
-    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
+//    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
+    LogValue = (int)(pow(Value, 0.675) * 4.8) - 1;
+//    LogValue = (int)(24*log2(Value));
+
+
 
     if (LogValue < 3) {
         LogValue = 0;
@@ -2416,6 +2423,7 @@ int SetExpressionControl(int Controller, int Value) {
         }
 
 
+    printd(LogDebug, "SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
     printf("SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
 
     switch (Controller) {
@@ -2423,7 +2431,8 @@ int SetExpressionControl(int Controller, int Value) {
         // Guitar Volume
         ReturnVal = gMyInfo.AnalogVolume;
         gMyInfo.SliderGUINumber = Slider1;
-        gMyInfo.SliderGUIUpdate = LogValue;
+        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
+        gMyInfo.SliderGUIValue = LogValue;
         gMyInfo.AnalogVolume = LogValue;
         MyOSCJackVol(LogValue, 0);
         break;
@@ -2432,7 +2441,8 @@ int SetExpressionControl(int Controller, int Value) {
         // Midi Volume
         ReturnVal = gMyInfo.MidiVolume;
         gMyInfo.SliderGUINumber = Slider2;
-        gMyInfo.SliderGUIUpdate = Value;
+        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
+        gMyInfo.SliderGUIValue = Value;
         //      SetVolume2(Value);
         MyOSCJackVol(LogValue, 1);
         break;
@@ -2441,7 +2451,8 @@ int SetExpressionControl(int Controller, int Value) {
         // Master Volume (OSC)
         ReturnVal = gMyInfo.V3Volume;
         gMyInfo.SliderGUINumber = Slider3;
-        gMyInfo.SliderGUIUpdate = Value;
+        gMyInfo.SliderGUIValue = Value;
+        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
         //      SetVolume3(Value);
         MyOSCJackVol(LogValue, 0xff);
 
@@ -2470,7 +2481,8 @@ int SetExpressionControl(int Controller, int Value) {
         // Pedal Volume
         ReturnVal = gMyInfo.V4Volume;
         gMyInfo.SliderGUINumber = Slider4;
-        gMyInfo.SliderGUIUpdate = Value;
+        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
+        gMyInfo.SliderGUIValue = Value;
         //      SetVolume4(Value);
         break;
 

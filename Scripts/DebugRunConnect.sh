@@ -33,7 +33,7 @@ pid=`pgrep -i LiveMusicApp`
 if [ -z $pid ]
 then
 # ./LiveMusicApp -v 0x140 &
-./LiveMusicApp -v 0x220 &
+./LiveMusicApp -d 0x220 &
 sleep 3
 fi 
 
@@ -44,13 +44,13 @@ aconnect "LiveMusic Output":2 "qmidiroute:in"
 aconnect "LiveMusic Output":3 "qmidiroute:in"
 aconnect "LiveMusic Output":7 "qmidiroute:in"
 
-aconnect "EliasPedal3":0 "LiveMusic Input":0
-aconnect "Fishman TriplePlay":0 "LiveMusic Input":0
-aconnect "TriplePlay Connect":0 "LiveMusic Input":0
+aconnect "EliasPedal3":0 "LiveMusic":0
+aconnect "Fishman TriplePlay":0 "LiveMusic":0
+aconnect "TriplePlay Connect":0 "LiveMusic":0
 aconnect "LPD8":0 "LiveMusic Input":0
-aconnect "USB Uno MIDI Interface":0 "LiveMusic Input":0
-aconnect "Midi Through":0 "LiveMusic Input":0
-aconnect "EliasGuitar":"0" "LiveMusic Input":"0"
+aconnect "USB Uno MIDI Interface":0 "LiveMusic":0
+aconnect "Midi Through":0 "LiveMusic":0
+aconnect "EliasGuitar":"0" "LiveMusic":"0"
 
 aconnect  "LiveMusic Output":6 "EliasPedal3":0
 aconnect  "LiveMusic Output":6 "LPD8":0
@@ -59,10 +59,10 @@ aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
 aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
 aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
 
-aconnect  "Reloop KeyFadr":"0" "LiveDAW Input":"0"
+aconnect  "Reloop KeyFadr":"0" "LiveDAW":"1"
 aconnect  "LiveMusic Output":7 "Reloop KeyFadr":"0"
 
-aconnect  "nanoKONTROL2":"0" "LiveDAW Input":"0"
+aconnect  "nanoKONTROL2":"0" "LiveDAW":"1"
 aconnect  "LiveMusic Output":7 "nanoKONTROL2":"0"
 aconnect  "LiveMusic Output":6 "nanoKONTROL2":"0"
 

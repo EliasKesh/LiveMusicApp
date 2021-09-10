@@ -65,6 +65,8 @@
 
 #define MyOSCPortNumber "61000"
 
+#define GuiUpdateCount 4
+
 char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
 int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
@@ -337,6 +339,7 @@ typedef struct {
     unsigned int    V6Volume;
     char    PatchUpdate;
     unsigned int    SliderGUIUpdate;
+    unsigned int    SliderGUIValue;
     unsigned int    SliderGUINumber;
     unsigned int    MarkerUpdate;
 
