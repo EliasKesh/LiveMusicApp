@@ -1,28 +1,28 @@
 /*------------------------------------------------
  |
- |	File: 	LiveMusicApp.h
+ |  File:   LiveMusicApp.h
  |
- |	Contains: Global information for the entire projects
+ |  Contains: Global information for the entire projects
  |            should be placed in this file.
  |
  |
- |	Written By: 	Elias Keshishoglou on Wed Dec 26 14:13:15 PST 2012
+ |  Written By:     Elias Keshishoglou on Wed Dec 26 14:13:15 PST 2012
  |
- |	Copyright : 	2012-2021 Elias Keshishoglou all rights reserved.
+ |  Copyright :     2012-2021 Elias Keshishoglou all rights reserved.
  |
- |	This program is free software; you can redistribute it and/or
- |	modify it under the terms of the GNU General Public License
- |	as published by the Free Software Foundation; either version 2
- |	of the License, or (at your option) any later version.
+ |  This program is free software; you can redistribute it and/or
+ |  modify it under the terms of the GNU General Public License
+ |  as published by the Free Software Foundation; either version 2
+ |  of the License, or (at your option) any later version.
  |
- |	This program is distributed in the hope that it will be useful,
- |	but WITHOUT ANY WARRANTY; without even the implied warranty of
- |	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- |	GNU General Public License for more details.
+ |  This program is distributed in the hope that it will be useful,
+ |  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ |  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ |  GNU General Public License for more details.
  |
- |	You should have received a copy of the GNU General Public License
- |	along with this program; if not, write to the Free Software
- |	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ |  You should have received a copy of the GNU General Public License
+ |  along with this program; if not, write to the Free Software
+ |  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  |
  |
  |------------------------------------------------*/
@@ -46,18 +46,18 @@
 
 /* Debugging definitions.
 */
-#define LogHold1	0x0800
-#define LogPlayer 	0x400
-#define LogMidi 	0x200
+#define LogHold1    0x0800
+#define LogPlayer   0x400
+#define LogMidi     0x200
 #define LogRealTime 0x100
-#define LogTimer 	0x40
-#define LogDebug 	0x20
-#define LogError 	0x10
-#define LogAlert 	0x08
-#define LogWarn 	0x04
-#define LogInfo 	0x02
-#define LogTest 	0x01
-#define MyLogLevel	LogNone
+#define LogTimer    0x40
+#define LogDebug    0x20
+#define LogError    0x10
+#define LogAlert    0x08
+#define LogWarn     0x04
+#define LogInfo     0x02
+#define LogTest     0x01
+#define MyLogLevel  LogNone
 
 #define PatchNameSize 60
 #define MaxHardSliders 5
@@ -69,12 +69,13 @@
 
 char *printd(int LogLevel, const char *fmt, ...);
 int WriteToHistory(char *str);
-int	 ShowPatchListSelect(GtkWidget *Temp, int Current);
+int  ShowPatchListSelect(GtkWidget *Temp, int Current);
 
-//#define ResourceDirectory	"/usr/share/LiveMusicApp/"
-//#define ResourceDirectory	"~/.config/LiveMusicApp/"
+//#define ResourceDirectory "/usr/share/LiveMusicApp/"
+//#define ResourceDirectory "~/.config/LiveMusicApp/"
+#define NoteNameLength 12
 
-#define MaxStringPortName	32
+#define MaxStringPortName   32
 #if 1
 enum {
     FluidPort = 0,
@@ -106,7 +107,7 @@ enum {
 };
 
 // Timer countdown in Miliseconds
-#define Timer1Ticks		250
+#define Timer1Ticks     250
 
 /* Type used for patches.
 */
@@ -167,7 +168,7 @@ typedef struct {
 #define PresetInvalid 65535
 
 // Total usable patches.
-#define Max_Patches	 182
+#define Max_Patches  182
 #define Patch_Not_Found (Max_Patches + 1)
 #define Preset1Patch (Max_Patches + 2)
 #define Preset2Patch (Max_Patches + 3)
@@ -178,8 +179,8 @@ typedef struct {
 #define Max_Patches_W_Presets Preset6Patch
 
 // Total number of Layouts
-#define Max_Layouts	 10
-#define FileNameMaxLength	400
+#define Max_Layouts  10
+#define FileNameMaxLength   400
 
 // Total number of patches per layout
 #define MaxLayoutPatches 81
@@ -224,8 +225,8 @@ typedef struct {
 
 #define MaxPresetButtons 6
 typedef struct {
-    tPatchIndex	thePreset[MaxPresetButtons];
-    int	theTempo;
+    tPatchIndex thePreset[MaxPresetButtons];
+    int theTempo;
 } WebLoadPresets;
 
 // Application names index,
@@ -255,8 +256,8 @@ typedef struct {
     PortInformation Apps[MaxApps];
     char TempoMax;
     char MetronomeOn;
-    char	Drum1;
-    char	DrumRest;
+    char    Drum1;
+    char    DrumRest;
     tPatchIndex MidiBaseNote;
     unsigned char Tempo;
     unsigned char CountInBeats;
@@ -270,15 +271,15 @@ typedef struct {
     /*
      * Colors
     */
-    unsigned long	StatusTextColor;
-    unsigned long	ButtonTextColor;
+    unsigned long   StatusTextColor;
+    unsigned long   ButtonTextColor;
 
-    char 		OSCIPAddress[20];
-    char 		OSCPortNumLooper[6];
-    char 		OSCPortNumJackVol[6];
-    char 		OSCPortNumHydrogen[6];
+    char        OSCIPAddress[20];
+    char        OSCPortNumLooper[6];
+    char        OSCPortNumJackVol[6];
+    char        OSCPortNumHydrogen[6];
     char        NumberOfStrings;
-    char 		BaseStringName[TotalMaxStrings];
+    char        BaseStringName[TotalMaxStrings];
 
     ControllerRoute ControlRoute[MaxControllers];
     LayoutType LayoutPresets[Max_Layouts];
@@ -295,7 +296,7 @@ typedef struct {
     */
     WebLoadPresets WebPresets;
     char LoopFileName[FileNameMaxLength];
-    //	unsigned int	Timer1Count;	/* Not used	*/
+    //  unsigned int    Timer1Count;    /* Not used */
     unsigned long TempoReload;
     unsigned long TimerCount;
     unsigned long KeyTimer;
@@ -315,25 +316,25 @@ typedef struct {
     unsigned int ExpreP1Slider;
     tPatchIndex HardSlider[MaxHardSliders];
     tPatchIndex SliderUpdate;
-    float 	LoopPosition;
-    int   	LoopTempo;
-    float 	RecordStopLoop;
-    int 	GuitarMidiCall;
-    int 	GuitarMidiCallParam1;
-    int 	LayoutCall;
-    int 	LayoutCallParam1;
-    int 	LayoutCallParam2;
-    //	int 	CurrentLoop;
-    unsigned int 	TabSwitch;
-    unsigned int 	RaiseSwitch;
-    unsigned int 	NextDeskSwitch;
-    unsigned int 	PrevDeskSwitch;
-    unsigned int 	GoToDeskSwitch;
-    unsigned int 	IncrementSwitch;
-    unsigned char 	MidiThresholdLevel;
-    unsigned char 	MidiAnalMixLevel;
-    unsigned int 	SetMP3PlayVolBool;
-    unsigned int 	ScrollUpdate;
+    float   LoopPosition;
+    int     LoopTempo;
+    float   RecordStopLoop;
+    int     GuitarMidiCall;
+    int     GuitarMidiCallParam1;
+    int     LayoutCall;
+    int     LayoutCallParam1;
+    int     LayoutCallParam2;
+    //  int     CurrentLoop;
+    unsigned int    TabSwitch;
+    unsigned int    RaiseSwitch;
+    unsigned int    NextDeskSwitch;
+    unsigned int    PrevDeskSwitch;
+    unsigned int    GoToDeskSwitch;
+    unsigned int    IncrementSwitch;
+    unsigned char   MidiThresholdLevel;
+    unsigned char   MidiAnalMixLevel;
+    unsigned int    SetMP3PlayVolBool;
+    unsigned int    ScrollUpdate;
     unsigned int    V3Volume;
     unsigned int    V4Volume;
     unsigned int    V6Volume;
@@ -347,7 +348,7 @@ typedef struct {
 
 /* Semophore for UI in GTK not timers.
 */
-#define NULLSwitch	250
+#define NULLSwitch  250
 
 /* State for using midi control to change patches.
 */
@@ -392,9 +393,9 @@ enum {
 
 enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, cmdLnTUp, cmdLnTDown, cmdLnTSeekFw, cmdLnTSeekBk };
 
-#define fsPatchNames	1
-#define fsPortNames		2
-#define fsAppNames		3
+#define fsPatchNames    1
+#define fsPortNames     2
+#define fsAppNames      3
 
 #if 0
 /*
@@ -411,10 +412,10 @@ enum { cmdLnTSetA, cmdLnTSetB, cmdLnTStart, cmdLnTLoop, cmdLnTNext, cmdLnTPrev, 
 #define SFRolandTenor  7
 #define SFAltoSax  8
 #define SFFlute  9
-#define SFDrums		128
+#define SFDrums     128
 #define SFDrumsElias 129
 #endif
-#define NoBank		0xff
+#define NoBank      0xff
 
 enum {
     ToDesktop0 = 60,
@@ -440,9 +441,9 @@ enum {
     FishmanSynth
 };
 
-#define DefaultMidiChannel		1
-#define DrumMidiChannel		10
-#define MidiProgramChange		32
+#define DefaultMidiChannel      1
+#define DrumMidiChannel     10
+#define MidiProgramChange       32
 
 #ifndef MY_BUILD_NUMBER
 #define MY_BUILD_NUMBER 1
@@ -467,7 +468,7 @@ enum { cntStateWaitingIdle = 0,
 #if 0
 // Default Settings for Akai LPD8
 enum {
-    //	dLEDBeat1 = 36,
+    //  dLEDBeat1 = 36,
     dLEDBeat1 = 64,
     dLEDBeat2,
     dLEDBeat3,
@@ -477,13 +478,13 @@ enum {
     dLEDBeat7,
     dLEDBeat8
 };
-#define dLEDMIDI	SND_SEQ_EVENT_NOTEOFF
-#define dLEDMIDIO	SND_SEQ_EVENT_NOTEON
+#define dLEDMIDI    SND_SEQ_EVENT_NOTEOFF
+#define dLEDMIDIO   SND_SEQ_EVENT_NOTEON
 #define dLEDChan 1
 #else
 // Default Settings for kayfadr
 enum {
-    //	dLEDBeat1 = 40,
+    //  dLEDBeat1 = 40,
     dLEDBeat1 = 64,
     dLEDBeat2,
     dLEDBeat3,
@@ -493,8 +494,8 @@ enum {
     dLEDBeat7,
     dLEDBeat8
 };
-#define dLEDMIDI	SND_SEQ_EVENT_CONTROLLER
-#define dLEDMIDIO	SND_SEQ_EVENT_CONTROLLER
+#define dLEDMIDI    SND_SEQ_EVENT_CONTROLLER
+#define dLEDMIDIO   SND_SEQ_EVENT_CONTROLLER
 #define dLEDChan 1
 //#define dLEDChan 2
 #endif
@@ -518,7 +519,7 @@ enum {
     PedalLED7Off,
     PedalLED8Off,
     PedalLED8On,
-    PedalLEDAlert=50
+    PedalLEDAlert = 50
 };
 
 
@@ -535,7 +536,7 @@ enum { NValueA = 0, NValueBb, NValueB,
 char *GlobalNoteNames[] = {
     "A", "Bb", "B", "C", "Db",
     "D", "Eb", "E", "F", "Gb",
-    "G", "Ab"
+    "G", "Ab", "NA"
 };
 
 char *CustomCommands[] = {
@@ -573,6 +574,7 @@ char *CustomCommands[] = {
 extern char *CustomPorts[];
 extern char *CustomCommands[];
 extern char *SoundFontBankNames[];
+extern char *GlobalNoteNames[];
 #endif
 
 //PatchInfo  *MyPatchInfo;
@@ -583,52 +585,52 @@ EXTERN int LastPortUsed;
 EXTERN PortsInfo theInPorts;
 EXTERN PortsInfo theOutPorts;
 
-EXTERN int 		WaitingforMidi;
-EXTERN int 		WaitingforMidiHold;
+EXTERN int      WaitingforMidi;
+EXTERN int      WaitingforMidiHold;
 EXTERN GtkBuilder *gxml;
-EXTERN int 		CountInCount;
-EXTERN int 		LoopRecBeats;
-EXTERN char 	CountInActiveState;
-EXTERN char		SysCallString[200];
+EXTERN int      CountInCount;
+EXTERN int      LoopRecBeats;
+EXTERN char     CountInActiveState;
+EXTERN char     SysCallString[200];
 EXTERN GdkPixbuf *MainButtonOnImage;
 EXTERN GdkPixbuf *MainButtonOffImage;
 EXTERN GdkPixbuf *PatchButtonOnImage;
 EXTERN GdkPixbuf *PatchButtonOffImage;
 EXTERN char gUpdateTempo;
-EXTERN int		CurrentSetListSong;
+EXTERN int      CurrentSetListSong;
 EXTERN unsigned int CurrentLayout;
 EXTERN unsigned int CurrentPreset;
 EXTERN GtkWidget *PatchPopupMenu;
-EXTERN char		ScreenSize;
+EXTERN char     ScreenSize;
 EXTERN int      GenerateHFile;
-EXTERN char		JackName[MaxStringPortName];
-EXTERN int 		FishmanSwitch;
-EXTERN int 		FishmanSelSwitch;
-EXTERN int 		CurrentTab;
-EXTERN int 		PreviousTab;
+EXTERN char     JackName[MaxStringPortName];
+EXTERN int      FishmanSwitch;
+EXTERN int      FishmanSelSwitch;
+EXTERN int      CurrentTab;
+EXTERN int      PreviousTab;
 EXTERN snd_seq_event_t AlsaEvent;
 EXTERN theImageButtons TempoDraw;
 // Standard font description we use across the program
 EXTERN PangoFontDescription *Tempofont_desc;
 // Hold the tempo string so we do not draw at inturrupt time.
-EXTERN char 	TempoUpdateString[100];
-EXTERN int 		BeatCount;
-EXTERN int 		UIUpdateFromTimer;
-EXTERN char 	TempStrBuf[100];
+EXTERN char     TempoUpdateString[100];
+EXTERN int      BeatCount;
+EXTERN int      UIUpdateFromTimer;
+EXTERN char     TempStrBuf[100];
 EXTERN GtkWidget *theMainWindow;
-EXTERN char 	JackRunning;
-EXTERN char 	NewInstall;
-EXTERN float 	PlayerDisTime;
-EXTERN char 	PlayerDisSection[30];
-EXTERN char 	DisableTextInput;
-EXTERN char 	WeAreRunning;
-EXTERN volatile char 	gLooperWaitForSync;
+EXTERN char     JackRunning;
+EXTERN char     NewInstall;
+EXTERN float    PlayerDisTime;
+EXTERN char     PlayerDisSection[30];
+EXTERN char     DisableTextInput;
+EXTERN char     WeAreRunning;
+EXTERN volatile char    gLooperWaitForSync;
 // The button size my change based on the screen size.
 EXTERN int ButtonSize;
 
-#define MaxSongMarks	200
-#define SongSectionMax	30
-EXTERN int 		NumberSongMarks;
+#define MaxSongMarks    200
+#define SongSectionMax  30
+EXTERN int      NumberSongMarks;
 typedef struct {
     float SongMark;
     char SongSection[SongSectionMax];
@@ -648,7 +650,7 @@ void CreatePatchPopupMenu(void);
 
 tPatchIndex ModeSwitchPatch(tPatchIndex MidiIn, char DoAction);
 
-void PrintDataStructure (LiveMusicInfo * myInfo, char *PrefsRef);
+void PrintDataStructure(LiveMusicInfo * myInfo, char *PrefsRef);
 
 int GuitarMidiPresetComplete(tPatchIndex MidiNote);
 int GuitarMidiPreset(char Wait);
@@ -658,7 +660,7 @@ int SetVolume3(int Value);
 int SetVolume4(int Value);
 int FindString(int StringList, char *String);
 int InitChorder(GtkWidget *MainWindow, GtkWidget *window);
-int CloseChorder ( void );
+int CloseChorder(void);
 int InitConnections(void);
 void SwitchToTab(char Tab);
 void SetUpMainButtons(PatchInfo *MyPatchInfo);

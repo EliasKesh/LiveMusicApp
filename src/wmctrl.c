@@ -105,9 +105,10 @@ static gboolean envir_utf8;
 void RaiseWindows(char *AppName) {
     Display *disp = NULL;
     memset(&options, 0, sizeof(options)); /* just for sure */
+    printf("RaiseWindows. %s\n", AppName);
 
     if (!(disp = XOpenDisplay(NULL))) {
-        //		printf("Cannot open display. %x\n", stderr);
+       printf("Cannot open display. %x\n", stderr);
         //		fputs("Cannot open display. %x\n", stderr);
         return;
     }
@@ -925,7 +926,7 @@ static int action_window_str(Display *disp, char mode) { /*{{{*/
     unsigned long client_list_size;
     int i;
 
-    //	printf("action_window_str %s %c\n", options.param_window, mode);
+	printf("action_window_str %s %c\n", options.param_window, mode);
     if (strcmp(SELECT_WINDOW_MAGIC, options.param_window) == 0) {
         activate = Select_Window(disp);
         if (activate) {
@@ -1002,6 +1003,7 @@ static int action_window_str(Display *disp, char mode) { /*{{{*/
             return action_window(disp, activate, mode);
         }
         else {
+//            printf("Failed\n");
             return EXIT_FAILURE;
         }
     }

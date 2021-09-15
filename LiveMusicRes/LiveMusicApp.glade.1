@@ -180,6 +180,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="tooltip-text" translatable="yes">Switch between different layouts.</property>
                     <property name="label" translatable="yes">Layout</property>
                     <property name="justify">center</property>
                   </object>
@@ -306,6 +307,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkLabel" id="MainStatusBar">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Status pane. What has been selected or switched on.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -319,6 +321,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkLabel" id="PlayTimeStat">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">For Solo performance this will cound down to the markers set in the player.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -404,6 +407,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <object class="GtkFrame" id="frame3">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Midi output volume</property>
                         <property name="label-xalign">0.5</property>
                         <property name="shadow-type">none</property>
                         <child>
@@ -500,7 +504,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                               <object class="GtkVScale" id="vscale4">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="tooltip-text" translatable="yes">Expression</property>
+                                <property name="tooltip-text" translatable="yes">Expression Pedal. Text will update based on what is being controlled.</property>
                                 <property name="margin-top">2</property>
                                 <property name="margin-bottom">16</property>
                                 <property name="adjustment">adj_Express</property>
@@ -2465,6 +2469,48 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                         <child>
                           <placeholder/>
                         </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -2510,6 +2556,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <object class="GtkEventBox" id="ForwardButton">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">HTML forward button</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -2524,6 +2571,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <object class="GtkEventBox" id="BackButton">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">HTML back button</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -2566,6 +2614,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <object class="GtkEventBox" id="SetList">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Select an HTML list of songs as a set list. Advance charts using patches.</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -2580,6 +2629,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <object class="GtkEventBox" id="PlayPause">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Start stop music player</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -2820,10 +2870,10 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkScrolledWindow" id="PatchScroller">
-                            <property name="width-request">400</property>
-                            <property name="height-request">200</property>
+                            <property name="width-request">475</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Set the Patch list here.</property>
                             <property name="double-buffered">False</property>
                             <property name="border-width">2</property>
                             <signal name="button-press-event" handler="on_PatchScroller_button_press_event" swapped="no"/>
@@ -2838,25 +2888,32 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox">
+                          <object class="GtkBox" id="RightPane">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">False</property>
+                            <property name="vexpand">True</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <!-- n-columns=3 n-rows=5 -->
-                              <object class="GtkGrid">
+                              <!-- n-columns=3 n-rows=6 -->
+                              <object class="GtkGrid" id="IndivPrefs">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="double-buffered">False</property>
                                 <property name="margin-top">3</property>
                                 <property name="margin-bottom">3</property>
-                                <property name="border-width">2</property>
+                                <property name="border-width">5</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">6</property>
+                                <property name="row-homogeneous">True</property>
+                                <property name="column-homogeneous">True</property>
                                 <property name="baseline-row">2</property>
                                 <child>
-                                  <object class="GtkFrame">
+                                  <object class="GtkFrame" id="AnalogVolume">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -2865,6 +2922,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                         <property name="height-request">30</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
+                                        <property name="tooltip-text" translatable="yes">Default Analog Volume</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="max-width-chars">3</property>
@@ -2878,6 +2936,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">Default Analog Volume</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Analog Volume</property>
@@ -2890,11 +2949,10 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame">
-                                    <property name="width-request">100</property>
-                                    <property name="height-request">-1</property>
+                                  <object class="GtkFrame" id="MidiVolume">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -2908,6 +2966,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="height-request">30</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">Default Midi Volume</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="max-width-chars">3</property>
@@ -2923,6 +2982,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">Default Midi Volume</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Midi Volume</property>
@@ -2935,56 +2995,12 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">center</property>
-                                    <property name="label-xalign">0</property>
-                                    <property name="shadow-type">none</property>
-                                    <child>
-                                      <object class="GtkAlignment">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="left-padding">12</property>
-                                        <child>
-                                          <object class="GtkSpinButton" id="Midi_Base">
-                                            <property name="width-request">100</property>
-                                            <property name="height-request">30</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="halign">start</property>
-                                            <property name="valign">center</property>
-                                            <property name="max-width-chars">3</property>
-                                            <property name="text" translatable="yes">0</property>
-                                            <property name="adjustment">adjustment12</property>
-                                            <property name="climb-rate">1</property>
-                                            <property name="numeric">True</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="halign">start</property>
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Midi Base Note</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">2</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkFrame" id="CountInBeats">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="valign">center</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -2998,6 +3014,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="height-request">30</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">The default tempo for the metronome. This can be changed in the HTML meta data.</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="max-width-chars">3</property>
@@ -3014,6 +3031,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">The default tempo for the metronome. This can be changed in the HTML meta data.</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Tempo</property>
@@ -3026,9 +3044,10 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame">
+                                  <object class="GtkFrame" id="RecordBeats">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -3042,6 +3061,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="height-request">30</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">The default number beats to record once record is started. This can be changed by the html meta data.</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="max-width-chars">3</property>
@@ -3057,6 +3077,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">The default number beats to record once record is started. This can be changed by the html meta data.</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Record Beats</property>
@@ -3069,9 +3090,10 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame">
+                                  <object class="GtkFrame" id="Count-in">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -3085,6 +3107,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="height-request">30</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">The default number wait before the actual record starts. This can be changed in the HTML meta data.</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="max-width-chars">3</property>
@@ -3100,6 +3123,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">The default number wait before the actual record starts. This can be changed in the HTML meta data.</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Count in Beats</property>
@@ -3115,6 +3139,141 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   <object class="GtkFrame">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="border-width">2</property>
+                                    <property name="label-xalign">0</property>
+                                    <property name="shadow-type">none</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="left-padding">12</property>
+                                        <child>
+                                          <object class="GtkEntry" id="OSCLoopPort">
+                                            <property name="name">OSCAddress</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">OSC Port for Jack Sooper Looper. </property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="text" translatable="yes">9951</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">OSC Port for Jack Sooper Looper. </property>
+                                        <property name="halign">start</property>
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">OSC Loop Port</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">2</property>
+                                    <property name="top-attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="border-width">2</property>
+                                    <property name="label-xalign">0</property>
+                                    <property name="shadow-type">none</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="left-padding">12</property>
+                                        <child>
+                                          <object class="GtkEntry" id="OSCVolumePort">
+                                            <property name="name">OSCAddress</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">OSC Port for Jack Volume Control. You can use the CLI to set the Jack Volume.</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="text" translatable="yes">9952</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">OSC Port for Jack Volume Control. You can use the CLI to set the Jack Volume.</property>
+                                        <property name="halign">start</property>
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">OSC Volume Port</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">2</property>
+                                    <property name="top-attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame" id="MidiBaseNote">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">center</property>
+                                    <property name="border-width">2</property>
+                                    <property name="label-xalign">0</property>
+                                    <property name="shadow-type">none</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="left-padding">12</property>
+                                        <child>
+                                          <object class="GtkSpinButton" id="Midi_Base">
+                                            <property name="width-request">100</property>
+                                            <property name="height-request">30</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">Base midi note used as patch set 0. Notes above this set Note-Base patch.</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="max-width-chars">3</property>
+                                            <property name="text" translatable="yes">0</property>
+                                            <property name="adjustment">adjustment12</property>
+                                            <property name="climb-rate">1</property>
+                                            <property name="numeric">True</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">Base midi note used as patch set 0. Notes above this set Note-Base patch.</property>
+                                        <property name="halign">start</property>
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">Midi Base Note</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">1</property>
+                                    <property name="top-attach">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame" id="BeatsMinute">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -3128,6 +3287,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="height-request">30</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">The default beats per measure for the metronome. This can be changed in the HTML meta data.</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="max-width-chars">3</property>
@@ -3143,6 +3303,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">The default beats per measure for the metronome. This can be changed in the HTML meta data.</property>
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="label" translatable="yes">Beats Per Measure</property>
@@ -3150,144 +3311,17 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">4</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkFrame">
-                                    <property name="width-request">100</property>
-                                    <property name="height-request">-1</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">start</property>
-                                    <property name="label-xalign">0</property>
-                                    <property name="shadow-type">none</property>
-                                    <child>
-                                      <object class="GtkAlignment">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="left-padding">12</property>
-                                        <child>
-                                          <object class="GtkEntry" id="OSC_Address">
-                                            <property name="name">OSCAddress</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="halign">start</property>
-                                            <property name="valign">center</property>
-                                            <property name="text" translatable="yes">127.0.0.1</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="halign">start</property>
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">OSC Address</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">2</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkFrame">
-                                    <property name="width-request">100</property>
-                                    <property name="height-request">-1</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">start</property>
-                                    <property name="label-xalign">0</property>
-                                    <property name="shadow-type">none</property>
-                                    <child>
-                                      <object class="GtkAlignment">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="left-padding">12</property>
-                                        <child>
-                                          <object class="GtkEntry" id="OSCLoopPort">
-                                            <property name="name">OSCAddress</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="halign">start</property>
-                                            <property name="valign">center</property>
-                                            <property name="text" translatable="yes">9951</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="halign">start</property>
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">OSC Loop Port</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">2</property>
+                                    <property name="left-attach">1</property>
                                     <property name="top-attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkFrame">
-                                    <property name="width-request">100</property>
-                                    <property name="height-request">-1</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="valign">start</property>
-                                    <property name="label-xalign">0</property>
-                                    <property name="shadow-type">none</property>
-                                    <child>
-                                      <object class="GtkAlignment">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="left-padding">12</property>
-                                        <child>
-                                          <object class="GtkEntry" id="OSCVolumePort">
-                                            <property name="name">OSCAddress</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="halign">start</property>
-                                            <property name="valign">center</property>
-                                            <property name="text" translatable="yes">9952</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="halign">start</property>
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">OSC Volume Port</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">2</property>
-                                    <property name="top-attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkFrame">
-                                    <property name="width-request">100</property>
-                                    <property name="height-request">-1</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">start</property>
+                                    <property name="border-width">2</property>
                                     <property name="label-xalign">0</property>
                                     <property name="shadow-type">none</property>
                                     <child>
@@ -3300,6 +3334,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                             <property name="name">OSCAddress</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">OSC Port for Hydogen Control</property>
                                             <property name="halign">start</property>
                                             <property name="valign">center</property>
                                             <property name="text" translatable="yes">9000</property>
@@ -3319,8 +3354,60 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </object>
                                   <packing>
                                     <property name="left-attach">2</property>
-                                    <property name="top-attach">4</property>
+                                    <property name="top-attach">1</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="border-width">2</property>
+                                    <property name="label-xalign">0</property>
+                                    <property name="shadow-type">none</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="left-padding">12</property>
+                                        <child>
+                                          <object class="GtkEntry" id="OSC_Address">
+                                            <property name="name">OSCAddress</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">Local Open Sound Control (OSC) IP address.</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">center</property>
+                                            <property name="text" translatable="yes">127.0.0.1</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="tooltip-text" translatable="yes">Local Open Sound Control (OSC) IP address.</property>
+                                        <property name="halign">start</property>
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">OSC Address</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">2</property>
+                                    <property name="top-attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -3338,21 +3425,25 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
+                                <property name="padding">2</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkBox" id="StringBoxes">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="homogeneous">True</property>
                                 <child>
-                                  <object class="GtkTreeView" id="MidiOutputList">
-                                    <property name="name">MidiOutputList</property>
+                                  <object class="GtkScrolledWindow" id="ApplicationNames">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <child internal-child="selection">
-                                      <object class="GtkTreeSelection"/>
+                                    <property name="double-buffered">False</property>
+                                    <property name="hexpand">False</property>
+                                    <property name="vexpand">False</property>
+                                    <property name="shadow-type">in</property>
+                                    <child>
+                                      <placeholder/>
                                     </child>
                                   </object>
                                   <packing>
@@ -3362,19 +3453,78 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkScrolledWindow" id="Layouts">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes">Pick the layouts to use.</property>
+                                    <property name="shadow-type">in</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
+                                <property name="padding">4</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="StringWindow">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes">Notes for Tab and Scales. 0 is the highest pitch note.</property>
+                                    <property name="shadow-type">in</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="PortNames">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes">Output Port names used by Alsa and used in the patch list fo director the output</property>
+                                    <property name="shadow-type">in</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
+                            <property name="expand">True</property>
                             <property name="fill">True</property>
+                            <property name="padding">6</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -3382,6 +3532,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
+                        <property name="padding">5</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -3392,12 +3543,24 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                       <placeholder/>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbox2">
+                      <object class="GtkHBox" id="BottomRow">
                         <property name="width-request">50</property>
                         <property name="height-request">25</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="spacing">14</property>
+                        <child>
+                          <object class="GtkLabel" id="SongPath">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Song Path</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                         <child>
                           <object class="GtkEntry" id="BasePath">
                             <property name="width-request">400</property>
@@ -3411,7 +3574,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -3422,13 +3585,14 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
+                            <property name="tooltip-text" translatable="yes">Regnerate the HTML charts if changes have been made. This will also update the index.html for each folder.</property>
                             <property name="halign">center</property>
                             <property name="valign">center</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -3439,13 +3603,14 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
+                            <property name="tooltip-text" translatable="yes">Reconnect all of the Jack and Alsa connections.</property>
                             <property name="halign">center</property>
                             <property name="valign">center</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -3462,7 +3627,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                       </object>

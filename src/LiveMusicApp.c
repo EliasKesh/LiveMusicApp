@@ -268,7 +268,7 @@ int main(int argc, char *argv[]) {
     myScreen = gdk_screen_get_default();
     //    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 
-//    gtk_window_get_default_size (theMainWindow, &WinWidth,&WinHeight);
+    //    gtk_window_get_default_size (theMainWindow, &WinWidth,&WinHeight);
 
 #if 0
     /* Based on the screen, size the buttons.
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
 
     gtk_window_set_icon(GTK_WINDOW(theMainWindow), pixbuf);
 #else
-    gtk_window_set_icon_name (
+    gtk_window_set_icon_name(
         GTK_WINDOW(theMainWindow),
         "guitar");
 #endif
@@ -462,7 +462,7 @@ int main(int argc, char *argv[]) {
     EventBox = GTK_WIDGET(
                    gtk_builder_get_object(gxml,
                                           "LayoutEvent"));
-    printd(LogInfo, "LayoutEvent %x\n", (void * ) EventBox);
+    printd(LogInfo, "LayoutEvent %x\n", (void *) EventBox);
     MyImageButtonInit(&LayoutButton, EventBox, MainButtonOnImage, MainButtonOffImage);
 
     MyImageButtonSetText(&LayoutButton, gMyInfo.LayoutPresets[0].Name);
@@ -623,8 +623,7 @@ int GTKIdel_cb(gpointer data) {
 
         case Slider4:
             printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
-
-        //          SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
+//          SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
 
         default:
             //          printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
@@ -803,7 +802,7 @@ int GTKIdel_cb(gpointer data) {
             0xff8000,
             gMyInfo.LoopPosition);
 
-    gtk_label_set_markup((GtkLabel * ) PlayerCurWid, ForString);
+    gtk_label_set_markup((GtkLabel *) PlayerCurWid, ForString);
     //  printd(LogDebug, "GTKIdel_cb out\n");
     return (FALSE);
     //  return (TRUE);
@@ -1275,7 +1274,7 @@ gboolean layout_click_handler(GtkWidget *widget,
                               gpointer user_data) {
     theImageButtons *theButton;
 
-    theButton = (theImageButtons * ) user_data;
+    theButton = (theImageButtons *) user_data;
     printd(LogDebug, "layout_click %x\n", theButton);
     IncrementLayoutMode();
     MyImageButtonSetText(theButton, gMyInfo.LayoutPresets[CurrentLayout].Name);
@@ -1296,7 +1295,7 @@ gboolean layout_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {
     theImageButtons *theButton;
-    theButton = (theImageButtons * ) user_data;
+    theButton = (theImageButtons *) user_data;
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
     g_idle_add(GTKIdel_cb, theMainWindow);
     return TRUE; /* stop event propagation */
@@ -1469,9 +1468,9 @@ void parse_cmdline(int argc, char *argv[]) {
             break;
 
         case 'v':
-            printf("Build date  : %s:%s\n", __DATE__, __TIME__);
-            printf("Build Number %d\n", MY_BUILD_NUMBER);
-            printf("Version Number %s\n", MY_VERSION_NUMBER);
+            // printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+            // printf("Build Number %d\n", MY_BUILD_NUMBER);
+            // printf("Version Number %s\n", MY_VERSION_NUMBER);
             break;
 
         case 'e':
@@ -1536,20 +1535,20 @@ void UpdateStatus(char *String) {
         StringOff += sprintf((DisString + StringOff),
                              "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
                              gMyInfo.StatusTextColor,
-                             (char * )&HoldStatus[Loop]);
+                             (char *)&HoldStatus[Loop]);
     }
 
     strcpy(HoldStatus[MaxStatusHold - 1], String);
     sprintf((DisString + StringOff),
             "<span font=\"12\" color='#%lx'><b>%12s\n</b></span>",
             gMyInfo.StatusTextColor,
-            (char * ) String);
+            (char *) String);
 
     /* Actually draw the text to the window.
      */
     gtk_widget_override_font(MainStatus,
                              pango_font_description_from_string("Sans Bold 12"));
-    gtk_label_set_markup((GtkLabel * ) MainStatus, DisString);
+    gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
 }
 
 
@@ -1668,11 +1667,11 @@ void CreateTabButtons(void) {
                          (gpointer)Loop);
     }
 
-    MyImageButtonSetText( &TabButtons[0], "Patch");
-    MyImageButtonSetText( &TabButtons[1], "Chart");
-    MyImageButtonSetText( &TabButtons[2], "Player");
-    MyImageButtonSetText( &TabButtons[3], "Chords");
-    MyImageButtonSetText( &TabButtons[4], "Prefs");
+    MyImageButtonSetText(&TabButtons[0], "Patch");
+    MyImageButtonSetText(&TabButtons[1], "Chart");
+    MyImageButtonSetText(&TabButtons[2], "Player");
+    MyImageButtonSetText(&TabButtons[3], "Chords");
+    MyImageButtonSetText(&TabButtons[4], "Prefs");
     gtk_image_set_from_pixbuf(GTK_IMAGE(TabButtons[0].Image),
                               TabButtons[0].ButtonDownImage);
 
@@ -1709,40 +1708,40 @@ void CreateMainButtons(void) {
         g_signal_connect(G_OBJECT(EventBox),
                          "button-release-event",
                          G_CALLBACK(release_handler),
-                         (void * )Loop);
+                         (void *)Loop);
     }
 
 #endif
     GtkWidget *Label;
 
     VScale1 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale1"));
-    Adjustment1 = (GtkAdjustment * )(gtk_builder_get_object(gxml, "adj_Analog"));
+    Adjustment1 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Analog"));
     g_signal_connect(G_OBJECT(VScale1), "value_changed",
                      G_CALLBACK(VScale1_Changed), NULL);
     Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label1"));
-    gtk_label_set_text((Label), (gchar * ) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[0]].Name);
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[0]].Name);
 
 
     VScale2 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale2"));
-    Adjustment2 = (GtkAdjustment * )(gtk_builder_get_object(gxml, "adj_Midi"));
+    Adjustment2 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Midi"));
     g_signal_connect(G_OBJECT(VScale2), "value_changed",
                      G_CALLBACK(VScale2_Changed), NULL);
     Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label2"));
-    gtk_label_set_text((Label), (gchar * ) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[1]].Name);
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[1]].Name);
 
     VScale3 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale3"));
-    Adjustment3 = (GtkAdjustment * )(gtk_builder_get_object(gxml, "adj_Master"));
+    Adjustment3 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Master"));
     g_signal_connect(G_OBJECT(VScale3), "value_changed",
                      G_CALLBACK(VScale3_Changed), NULL);
     Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label3"));
-    gtk_label_set_text((Label), (gchar * ) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[2]].Name);
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[2]].Name);
 
     VScale4 = GTK_WIDGET(gtk_builder_get_object(gxml, "vscale4"));
-    Adjustment4 = (GtkAdjustment * )(gtk_builder_get_object(gxml, "adj_Express"));
+    Adjustment4 = (GtkAdjustment *)(gtk_builder_get_object(gxml, "adj_Express"));
     g_signal_connect(G_OBJECT(VScale4), "value_changed",
                      G_CALLBACK(VScale4_Changed), NULL);
     Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
-    gtk_label_set_text((Label), (gchar * ) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[3]].Name);
+    gtk_label_set_text((Label), (gchar *) gMyInfo.MyPatchInfo[gMyInfo.HardSlider[3]].Name);
 
 }
 
@@ -1757,7 +1756,7 @@ void SetScale4Label(char *String) {
 
     Label = GTK_WIDGET(gtk_builder_get_object(gxml, "label4"));
     printd(LogDebug, "SetScale4Label %d %s\n", Label, String);
-    gtk_label_set_text((Label), (gchar * ) String);
+    gtk_label_set_text((Label), (gchar *) String);
 }
 
 /*--------------------------------------------
@@ -2104,7 +2103,6 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
            CurrentLayout
           );
 #if 0
-
     switch (CurrentLayout) {
     case ModeDefault:
         NewValue = Value;
@@ -2130,7 +2128,6 @@ tPatchIndex GetModePreset(tPatchIndex Value) {
         NewValue = Value;
         break;
     }
-
 #endif
     //  printd(LogInfo, "Get Mode Preset Old %d New %d\n", Value, NewValue);
     return (NewValue);
@@ -2312,7 +2309,8 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 /*--------------------------------------------
  * Function:        FindString
  *
- * Description: Find the offset into a list of strings.
+ * Description: Find the offset into a list 
+ * of strings.
  *---------------------------------------------*/
 int FindString(int StringList, char *String) {
     int Loop;
@@ -2322,31 +2320,28 @@ int FindString(int StringList, char *String) {
     printd(LogDebug, "FindString %d %s\n",
            StringList, String);
 
+    // Look for Patch Names
     if (StringList == fsPatchNames) {
         for (Loop = 0; Loop < Max_Patches; Loop++) {
-            // printd(LogDebug,"FindString %d %s %s\n",
-            //      Loop, String,
-            //      gMyInfo.MyPatchInfo[Loop].Name);
-
             if (!strcmp(gMyInfo.MyPatchInfo[Loop].Name, String)) {
                 return (Loop);
             }
         }
-
         return (-1);
     }
 
+    // Look for Port Names
     if (StringList == fsPortNames) {
         for (Loop = 0; Loop < MaxOutPorts; Loop++) {
             gMyInfo.OutPortName[Loop];
         }
     }
 
+    // Look for external App Names
     if (StringList == fsAppNames) {
         for (Loop = 0; Loop < MaxApps; Loop++) {
             gMyInfo.Apps[Loop].Name;
         }
-
     }
 
     return (0);
@@ -2371,6 +2366,13 @@ int InitHistoryFile(void) {
     }
 }
 
+/*-----------------------------------------------
+* Function: WriteToHistory
+*
+* Description:  Write what I am doing to history.
+* My memory sucks.
+* 
+*----------------------------------------------*/
 int WriteToHistory(char *str) {
     time_t t = time(NULL);
     struct tm tm = * localtime(&t);
@@ -2382,6 +2384,12 @@ int WriteToHistory(char *str) {
     }
 }
 
+/*-----------------------------------------------
+* Function: CloseHistoryFile
+*
+* Description:  Close the history file.
+* 
+*----------------------------------------------*/
 int CloseHistoryFile(void) {
     fflush(FileHistory);
     fclose(FileHistory);
@@ -2408,11 +2416,9 @@ int SetExpressionControl(int Controller, int Value) {
         }
 
     // Convert to Audio (log)-ish
-//    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
+    //    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
     LogValue = (int)(pow(Value, 0.675) * 4.8) - 1;
-//    LogValue = (int)(24*log2(Value));
-
-
+    //    LogValue = (int)(24*log2(Value));
 
     if (LogValue < 3) {
         LogValue = 0;
@@ -2451,11 +2457,10 @@ int SetExpressionControl(int Controller, int Value) {
         // Master Volume (OSC)
         ReturnVal = gMyInfo.V3Volume;
         gMyInfo.SliderGUINumber = Slider3;
-        gMyInfo.SliderGUIValue = Value;
+        gMyInfo.SliderGUIValue = LogValue;
         gMyInfo.SliderGUIUpdate = GuiUpdateCount;
-        //      SetVolume3(Value);
+        //      SetVolume3(Value/1.27);
         MyOSCJackVol(LogValue, 0xff);
-
         break;
 
     case ecTempChange:
@@ -2467,9 +2472,8 @@ int SetExpressionControl(int Controller, int Value) {
     case ecMP3Volume:
         // MPS volume
         ReturnVal = gMyInfo.SetMP3PlayVolBool;
-        gMyInfo.SetMP3PlayVolBool = Value;
+        gMyInfo.SetMP3PlayVolBool = LogValue;
         MyOSCJackVol(LogValue, 2);
-
         break;
 
     case ecExpress6:
@@ -2497,7 +2501,7 @@ int SetExpressionControl(int Controller, int Value) {
         break;
 
 
-
+    // Not used
     case ecMidiAnaMix:
         ReturnVal = gMyInfo.MidiAnalMixLevel;
         gMyInfo.MidiAnalMixLevel = Value;
@@ -2505,15 +2509,9 @@ int SetExpressionControl(int Controller, int Value) {
         ReturnVal = gMyInfo.MidiVolume;
 
         if (Value > 64) {
-
-
         }
         else {
-
-
         }
-
-
 
         //      SetExpressionControl
         break;
@@ -2541,8 +2539,6 @@ int SetExpressionControl(int Controller, int Value) {
                  11,
                  Value);
         break;
-
-
     }
 
     return (ReturnVal);

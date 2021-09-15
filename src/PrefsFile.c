@@ -515,6 +515,7 @@ void WritePrefs(void) {
         xmlSetProp(node, "Chain", gMyInfo.MyPatchInfo[Loop].Chain);
     }
 
+#if 1
     /* Application names.
     */
     node1 = xmlNewChild(root_node, NULL, BAD_CAST "AppNames", NULL);
@@ -537,7 +538,8 @@ void WritePrefs(void) {
         sprintf(buff, "%03d", gMyInfo.ControlRoute[Loop].OutControl);
         xmlSetProp(node, "Midi", buff);
     }
-
+#endif
+    
     /*
      * Dump the layouts to the XML File.
      */

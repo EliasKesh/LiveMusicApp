@@ -587,7 +587,8 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
 /*------------------------------------------
 * Function:     SendMidiPatch
 *
-* Description:      This should not get called via the thread.
+* Description:      This should not get
+* called via the thread.
 *
 *-------------------------------------------*/
 int SendMidiPatch(PatchInfo * thePatch) {
@@ -822,7 +823,7 @@ int SendMidiPatch(PatchInfo * thePatch) {
         //      gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
         // Check this.
         gMyInfo.SliderGUINumber = thePatch->Channel;
-        gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+        gMyInfo.SliderGUIValue = AlsaEvent.data.control.value;
         printd(LogMidi, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
         printd(LogDebug, "cmdSetExpr %d %d\n", thePatch->Patch, gMyInfo.ExpreP1Slider);
         break;
@@ -1126,9 +1127,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         case 64:
             printd(LogMidi, "Patch 1\n");
             // Call Patch
-            if (DataValue == 0) {
-                gMyInfo.PatchUpdate = 1;
-            }
+            //           if (DataValue == 0) {
+            gMyInfo.PatchUpdate = 1;
+            //            }
             break;
 
         // -----------  Slot 2 Midi
@@ -1172,9 +1173,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         case 65:
             printd(LogMidi, "Patch 2\n");
             // Call Patch
-            if (DataValue == 0) {
-                gMyInfo.PatchUpdate = 2;
-            }
+            gMyInfo.PatchUpdate = 2;
 
             break;
 
@@ -1213,13 +1212,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             printd(LogMidi, "Patch 3\n");
 
             // Call Patch
-            if (DataValue == 0)
-
-            {
-                gMyInfo.PatchUpdate = 3;
-            }
-
-
+            gMyInfo.PatchUpdate = 3;
             break;
 
 
@@ -1256,11 +1249,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 67:
             printd(LogMidi, "Patch 4\n");
-
-            // Call Patch
-            if (DataValue == 0) {
-                gMyInfo.PatchUpdate = 4;
-            }
+            gMyInfo.PatchUpdate = 4;
 
             break;
 
@@ -1288,10 +1277,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
         case 68:
             printd(LogMidi, "Record 5\n");
-            // Call Patch
-            if (DataValue == 0) {
-                gMyInfo.PatchUpdate = 5;
-            }
+            gMyInfo.PatchUpdate = 5;
 
             break;
 
@@ -2325,9 +2311,9 @@ void *alsa_midi_thread(void * context_ptr) {
 #endif
                 break;
 
-            case MIDI_CTL_LSB_FOOT: // 0x24
+            case MIDI_CTL_LSB_FOOT: // 0x24 -> 36
                 cc_name = "Foot";
-                SetExpressionControl(ecMasterVolume,
+                SetExpressionControl(ecGuitarVolume,
                                      event_ptr->data.control.value);
 
                 break;
@@ -2689,7 +2675,8 @@ void *alsa_midi_thread(void * context_ptr) {
                         gMyInfo.ExpreP1Slider =
                             FindString(fsPatchNames, "Expr P");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-                        gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+                        gMyInfo.SliderGUIValue = AlsaEvent.data.control.value;
+                        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
                         break;
 
                     case 2: //  Midi Volume
@@ -2698,7 +2685,8 @@ void *alsa_midi_thread(void * context_ptr) {
                         gMyInfo.ExpreP1Slider =
                             FindString(fsPatchNames, "Midi V");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-                        gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+                        gMyInfo.SliderGUIValue = AlsaEvent.data.control.value;
+                        gMyInfo.SliderGUIUpdate = GuiUpdateCount;
                         break;
 
                     case 3: // Main Volume
@@ -2707,7 +2695,7 @@ void *alsa_midi_thread(void * context_ptr) {
                         gMyInfo.ExpreP1Slider =
                             FindString(fsPatchNames, "Master V");
                         gMyInfo.SliderGUINumber = gMyInfo.ExpreP1Slider;
-                        gMyInfo.SliderGUIUpdate = AlsaEvent.data.control.value;
+                        gMyInfo.SliderGUIValue = AlsaEvent.data.control.value;
                     }
 
                     printd(LogMidi, "FishmanSwitch %d\n", FishmanSwitch);
