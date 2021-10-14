@@ -33,8 +33,6 @@
 
 #include "MyWidgets.h"
 
-
-
 /*
  * Place defines and Typedefs here
  */
@@ -54,32 +52,28 @@
  *
  * Description:         Create a new button from an eventbox..
  *---------------------------------------------*/
-int MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
+int MyImageButtonInit(theImageButtons *theButton, GtkWidget *EventBox, GdkPixbuf *On, GdkPixbuf *Off) {
     GtkWidget *overlay;
 
     /*
-       * A GtkImage doesn't have a window, so we need to put it inside
-       * a GtkEventBox so we can capture events.
-       */
-    GtkWidget *image = gtk_image_new ();
+     * A GtkImage doesn't have a window, so we need to put it inside
+     * a GtkEventBox so we can capture events.
+     */
+    GtkWidget *image = gtk_image_new();
 
-    overlay = gtk_overlay_new ();
+    overlay = gtk_overlay_new();
     gtk_container_add(GTK_CONTAINER(overlay), image);
     gtk_container_add(GTK_CONTAINER(EventBox), overlay);
     theButton->Label = gtk_label_new("!!PROB!!");
 
     MyImageButtonSetText(theButton, "!!PROB!!");
-
-    //            gtk_label_set_markup(GTK_LABEL(theButton->Label),
-    //             "<span font=\"16\" color=\"white\"><b>Hello There:</b></span>");
-
-    gtk_overlay_add_overlay (GTK_OVERLAY (overlay), GTK_WIDGET(theButton->Label));
+    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(theButton->Label));
     theButton->EventBox = EventBox;
     theButton->Image = image;
     theButton->Overlay = overlay;
     theButton->ButtonUpImage = Off;
     theButton->ButtonDownImage = On;
-    gtk_image_set_from_pixbuf (GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image), theButton->ButtonUpImage);
 
 #if 0
     g_signal_connect(G_OBJECT(EventBox),
@@ -95,7 +89,7 @@ int MyImageButtonInit( theImageButtons *theButton, GtkWidget *EventBox, GdkPixbu
  *
  * Description:         Change or Set the text of a button..
  *---------------------------------------------*/
-int MyImageButtonSetText( theImageButtons *theButton, char *String) {
+int MyImageButtonSetText(theImageButtons *theButton, char *String) {
     char        FormatString[200];
     char        FontSize = 12;
     // https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
@@ -129,17 +123,11 @@ int MyImageButtonSetText( theImageButtons *theButton, char *String) {
  *
  * Description:         Change or Set the text of a button..
  *---------------------------------------------*/
-int MyImageButtonSetText2( theImageButtons *theButton, int Number, char *String) {
+int MyImageButtonSetText2(theImageButtons *theButton, int Number, char *String) {
     char        FormatString[200];
     int         StrLen;
     char        FontSize = 12;
     char        StringOff = 14;
-    // sprintf(String, "%*d\n%*s",
-    //         (14 + StringLen) / 2,
-    //         Loop + 1,
-    //         (14 + StringLen) / 2,
-    //         gMyInfo.MyPatchInfo[PatchIndex].Name);
-
 
     if (ScreenSize == 0) {
         FontSize = 9;
@@ -161,7 +149,11 @@ int MyImageButtonSetText2( theImageButtons *theButton, int Number, char *String)
     return (0);
 }
 
-
+/*--------------------------------------------
+ * Function:            normal_release_handler
+ *
+ * Description:         Change or Set the text of a button..
+ *---------------------------------------------*/
 gboolean normal_release_handler(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer user_data) {

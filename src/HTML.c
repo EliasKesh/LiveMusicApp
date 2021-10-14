@@ -230,8 +230,6 @@ char SavePresetChanges(char *FileName) {
 
         }
 
-        //      printf("%s", FileLine);
-
         /* Now write the line back to the output file.
         */
         fprintf(OutFile, "%s", FileLine);
@@ -265,9 +263,7 @@ void on_Back_clicked(GtkButton * button, gpointer user_data) {
     /* Get the currently loaded page.
     */
     CurrentURI = webkit_web_view_get_uri(web_view);
-
     SavePresetChanges((char *) &CurrentURI[7]);
-
     webkit_web_view_go_back(web_view);
 
 #ifndef PresistentPresets
@@ -293,8 +289,6 @@ void on_Forward_clicked(GtkButton * button, gpointer user_data) {
                               ForwardButton.ButtonDownImage);
     webkit_web_view_go_forward(web_view);
 }
-
-//#define MaxChartRepeat 10
 
 /*----------------------------------------------
  * Function:        web_view_javascript_finished
@@ -585,7 +579,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
     /* Preset Number.
     */
     CPatch = (intptr_t) user_data;
-    printd(LogDebug, "1 In Button Preset %d %d\n", CPatch,theEvent);
+    printd(LogDebug, "1 In Button Preset %d %d\n", CPatch, theEvent);
 
     /* Check to make sure the preset value is valid.    */
     if (CPatch >= 0 && CPatch < MaxPresetButtons) {
@@ -849,9 +843,9 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     int PageNumber;
     char *FileName;
 
-    if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE) {
-        return FALSE;
-    }
+    // if (decision_type != WEBKIT_POLICY_DECISION_TYPE_RESPONSE) {
+    //     return FALSE;
+    // }
 
     WebKitResponsePolicyDecision *responseDecision =
         WEBKIT_RESPONSE_POLICY_DECISION(decision);
@@ -862,7 +856,13 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     char *requestURI =
         (char *)webkit_uri_request_get_uri(request);
 
+
     printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
+
+    if (requestURI == NULL) {
+        printd(LogDebug, "*** URI Null");
+        return TRUE;
+    }
 
     //   webkit_policy_decision_download(decision);
     //   return TRUE;
@@ -890,8 +890,11 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     Let the WebKit handle it.
     */
     if (strstr(theURI, ".html") || (ext == NULL)) {
-        return (FALSE);
+        printd(LogDebug, "*** theURI is html");
+//       return (FALSE);
+       return (TRUE);
     }
+//    return TRUE;
 
     // Let's check if the MusicApp.sh can handle this.
     sprintf(string, "MusicApps.sh %s \'%s\' \'%s\' ", ext + 1, &theURI[7], theURI);
@@ -904,7 +907,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     if (!SysRet) {
         webkit_policy_decision_ignore(WEBKIT_POLICY_DECISION(decision));
         printd(LogInfo, "NavPol return true\n");
-        return (true);
+        return (TRUE);
     }
 
     /* If we find an MP3 file then handle it ourselves and tell WebKit
@@ -926,7 +929,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         /*
          * This tells webkit we are dealing with it.
          */
-        return (true);
+        return (TRUE);
     }
 
     if (strstr(theURI, ".mp4")) {
@@ -944,7 +947,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         /*
          * This tells webkit we are dealing with it.
          */
-        return (true);
+        return (TRUE);
     }
 
     if (strstr(theURI, ".mid")) {
@@ -963,11 +966,11 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         /*
          * This tells webkit we are dealing with it.
          */
-        return (true);
+        return (TRUE);
     }
 
     // Tell Webkit to handle the URI
-    return (false);
+    return (FALSE);
 }
 
 /*----------------------------------------------
@@ -1003,7 +1006,7 @@ void OpenSetListSong(int SongNumber) {
      * Walk thru the file and find the HREF links.
      */
     while (fgets(temp, MAXLINE - 1, SetListFile) != NULL && (++Count < 150)) {
-        temp[MAXLINE-1] = 0;
+        temp[MAXLINE - 1] = 0;
 
         /*
          * Look for the Links and .Count the number.
@@ -1201,9 +1204,11 @@ void InitHTML(GtkBuilder * gxml) {
     strncpy(&FileName[7], gMyInfo.BasePath, sizeof(FileName) - 7);
     printd(LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
 #if 1
-                webkit_web_view_load_uri(web_view, FileName);
+//    webkit_web_view_load_uri(web_view, "http:///www.google.com");
+    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
+//    webkit_web_view_load_uri(web_view, FileName);
 #else
-                webkit_web_view_load_html(web_view, FileName, "file:///");
+    webkit_web_view_load_html(web_view, FileName, "file:///");
 #endif
 
     WebKitSettings *settings = webkit_settings_new();
@@ -1235,16 +1240,16 @@ void InitHTML(GtkBuilder * gxml) {
     webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
 
 #if 0
-webkit_user_content_manager_add_style_sheet
-                               (WebKitUserContentManager *manager,
-                                WebKitUserStyleSheet *stylesheet);
+    webkit_user_content_manager_add_style_sheet
+    (WebKitUserContentManager * manager,
+     WebKitUserStyleSheet * stylesheet);
 
-WebKitUserStyleSheet *
-webkit_user_style_sheet_new (const gchar *source,
-                             WebKitUserContentInjectedFrames injected_frames,
-                             WebKitUserStyleLevel level,
-                             const gchar * const *allow_list,
-                             const gchar * const *block_list);
+    WebKitUserStyleSheet *
+    webkit_user_style_sheet_new(const gchar * source,
+                                WebKitUserContentInjectedFrames injected_frames,
+                                WebKitUserStyleLevel level,
+                                const gchar * const * allow_list,
+                                const gchar * const * block_list);
 #endif
 
 
@@ -1464,7 +1469,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     printd(LogDebug, "Have file %x %s\n", fp, fname);
 
     while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
-        temp[MAXLINE-1] = 0;
+        temp[MAXLINE - 1] = 0;
 
         strncpy(Copy, temp, MAXLINE);
 
@@ -1639,16 +1644,21 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     }
 
 #ifdef PresistentPresets
-    if (thePresets->thePreset[0] == PresetInvalid)
+    if (thePresets->thePreset[0] == PresetInvalid) {
         SetPatchTitles(&PresetButtons[0], "Preset 1", 1);
-    if (thePresets->thePreset[1] == PresetInvalid)
+    }
+    if (thePresets->thePreset[1] == PresetInvalid) {
         SetPatchTitles(&PresetButtons[1], "Preset 2", 2);
-    if (thePresets->thePreset[2] == PresetInvalid)
+    }
+    if (thePresets->thePreset[2] == PresetInvalid) {
         SetPatchTitles(&PresetButtons[2], "Preset 3", 3);
-    if (thePresets->thePreset[3] == PresetInvalid)
+    }
+    if (thePresets->thePreset[3] == PresetInvalid) {
         SetPatchTitles(&PresetButtons[3], "Preset 4", 4);
-    if (thePresets->thePreset[4] == PresetInvalid)
+    }
+    if (thePresets->thePreset[4] == PresetInvalid) {
         SetPatchTitles(&PresetButtons[4], "Preset 5", 5);
+    }
 #endif
 
     return (0);
@@ -1767,9 +1777,9 @@ void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
 }
 
 int ishex(int x) {
-    return  (x >= '0' && x <= '9')  ||
-            (x >= 'a' && x <= 'f')  ||
-            (x >= 'A' && x <= 'F');
+    return (x >= '0' && x <= '9')  ||
+           (x >= 'a' && x <= 'f')  ||
+           (x >= 'A' && x <= 'F');
 }
 
 /* Get rid of URL funky characters, like %20

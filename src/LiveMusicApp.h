@@ -494,6 +494,21 @@ enum {
     dLEDBeat7,
     dLEDBeat8
 };
+
+enum {
+    dLEDCnt_NoOp = 0,
+    dLEDCnt_Beat1,
+    dLEDCnt_Beat2,
+    dLEDCnt_Beat3,
+    dLEDCnt_Beat4,
+    dLEDCnt_AllOff = 7,
+    dLEDCnt_CountD1,
+    dLEDCnt_CountD2,
+    dLEDCnt_CountD3,
+
+
+};
+
 #define dLEDMIDI    SND_SEQ_EVENT_CONTROLLER
 #define dLEDMIDIO   SND_SEQ_EVENT_CONTROLLER
 #define dLEDChan 1

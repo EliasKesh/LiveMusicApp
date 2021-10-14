@@ -830,7 +830,7 @@ args = parser.parse_args()
 
 # ic.disable()
 
-Version = "1.9.5"
+Version = "1.9.6"
 
 if (args.n):
     print ("Version ",Version)

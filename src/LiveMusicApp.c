@@ -163,7 +163,6 @@ gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer da
 void CheckForStartupDirs(void);
 void parse_cmdline(int argc, char *argv[]);
 
-
 /*--------------------------------------------
  * Function:        printd
  *
@@ -187,7 +186,6 @@ char *printd(int LogLevel, const char *fmt, ...) {
 
     return NULL;
 }
-
 
 /*--------------------------------------------
  * Function:            main
@@ -339,6 +337,7 @@ int main(int argc, char *argv[]) {
     pixbuf = gdk_pixbuf_new_from_file(Icon_FILE, &err);
 
     gtk_window_set_icon(GTK_WINDOW(theMainWindow), pixbuf);
+    g_object_unref(pixbuf);    
 #else
     gtk_window_set_icon_name(
         GTK_WINDOW(theMainWindow),
@@ -575,6 +574,122 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+/*--------------------------------------------
+ * Function:            parse_cmdline
+ *
+ * Description:     Deal with command line arguments.
+ *---------------------------------------------*/
+void parse_cmdline(int argc, char *argv[]) {
+    int c;
+    int digit_optind = 0;
+
+    //  printf("Arg 0 %s\n", argv[0]);
+    while (1)  {
+        int this_option_optind = optind ? optind : 1;
+        int option_index = 0;
+        static struct option long_options[] = {
+            { "Version", no_argument, 0, 'v' },
+            { "Debug", required_argument, 0, 'd' },
+            { "FontSize", required_argument, 0, 'f' },
+            { "jack", required_argument, 0, 'j' },
+            { "enable jack", no_argument, 0, 'e' },
+            { "layout", required_argument, 0, 'l' },
+            { "OSCPort", required_argument, 0, 'p' },
+            { "IncludeFile", no_argument, 0, 'i' },
+            //          { "IncludeFile", required_argument, &GenerateHFile, 1 },
+            { 0, 0, 0, 0 }
+        };
+
+        // Get the arguments
+        c = getopt_long(argc, argv, "?hievd:f:j:l:p:",
+                        long_options, &option_index);
+
+        // If no arguments, then break out.
+        if (c == -1) {
+            break;
+        }
+
+        // Do something with the information
+        switch (c) {
+        case 'i':
+            printf("IncludeFile \n");
+            GenerateHFile = 1;
+            break;
+
+        case 'f':
+            ButtonSize = atoi(optarg);
+            printd(LogInfo, "Font Size %d\n", ButtonSize);
+            if (ButtonSize < 121) {
+                ScreenSize = 1;
+            }
+            if (ButtonSize < 101) {
+                ScreenSize = 0;
+            }
+
+            break;
+
+        case 'p':
+            strncpy(OSCPortNumber, optarg, MaxStringPortName);
+            printd(LogInfo, "OSCPort %s\n", OSCPortNumber);
+            break;
+
+        case 'j':
+            strncpy(JackName, optarg, MaxStringPortName);
+            printd(LogInfo, "JackName %s\n", JackName);
+            break;
+
+        case 'l':
+            KeyLayout = atoi(optarg);
+            printd(LogInfo, "Layout %d\n", KeyLayout);
+            break;
+
+        case 'd':
+            //          RunLogLevel = atoi(optarg);
+            sscanf(optarg, "%x", &RunLogLevel);
+            printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
+            break;
+
+        case 'v':
+            // printf("Build date  : %s:%s\n", __DATE__, __TIME__);
+            // printf("Build Number %d\n", MY_BUILD_NUMBER);
+            // printf("Version Number %s\n", MY_VERSION_NUMBER);
+            break;
+
+        case 'e':
+            JackMaster = 1;
+            printd(LogInfo, "JackMaster off\n");
+            break;
+
+        default:
+        case 'h':
+            printf("Live Music CLI Usage\n");
+            printf(" v Version - Print version and build info\n");
+            printf(" f FontSize - Font Size for smaller screens.\n");
+            printf(" j jack - Jack master name.\n");
+            printf(" e enable-jack - Connect to jackserver.\n");
+            printf(" l Layout - Glade layout file.\n");
+            printf(" i IncludeFile - Generate include file on exit.\n");
+            printf(" p OSCPort Number - Server Port number.\n");
+            printf(" d debug - Debug output level hex 0xfff \n");
+            printf("   LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
+            printf("   LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");
+            printf("   LogRealTime 0x100,LogMidi 0x200,LogPlayer 0x400\n");
+
+            exit(0);
+            break;
+        }
+    }
+
+    if (optind < argc) {
+        printd(LogInfo, "non-option ARGV-elements: ");
+
+        while (optind < argc) {
+            printd(LogInfo, "%s ", argv[optind++]);
+        }
+
+        printd(LogInfo, "\n");
+    }
+}
 
 /*--------------------------------------------
 * Function:            GTKIdel_cb
@@ -601,6 +716,11 @@ int GTKIdel_cb(gpointer data) {
 
     // gMyInfo.SliderGUIValue
     //  if (AlsaEvent.data.control.param == MIDI_CTL_MSB_MAIN_VOLUME) {
+
+    /* Calling GTK function from another thread is not good, so,
+    we queue up the requests for UI updates and process them here in
+    the idle thread.
+    */
     if (gMyInfo.SliderGUIUpdate) {
         printd(LogDebug, "GTKIdel_cb slider %d \n", gMyInfo.ExpreP1Slider);
 
@@ -623,7 +743,7 @@ int GTKIdel_cb(gpointer data) {
 
         case Slider4:
             printd(LogTest, "GTKIdel_cb Slider4 %d \n", Slider4);
-//          SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
+        //          SetScale4Label(gMyInfo.MyPatchInfo[3].Name);
 
         default:
             //          printd(LogInfo, "GTKIdel_cb: %d\n", AlsaEvent.data.control.param);
@@ -740,13 +860,15 @@ int GTKIdel_cb(gpointer data) {
             printd(LogDebug, "SliderUpdate \n");
             SetScale4Label(gMyInfo.MyPatchInfo[gMyInfo.SliderUpdate].Name);
         }
-
         gMyInfo.SliderUpdate = 0;
     }
 
-    /* Needs to update more quickly.
+    /* Update the player UI and remmote mplayer.
     */
     PlayerPoll(TRUE);
+
+    /* Clear the button.
+    */
     MyImageButtonSetText(&TempoDraw, TempoUpdateString);
 
     /* If the timer went off, update the metronome.
@@ -771,6 +893,8 @@ int GTKIdel_cb(gpointer data) {
         MyOSCPoll(FALSE);
         //      HIDPoll();
 
+        /* Handle the various LEDs using midi messages.
+        */
         SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
                  1, MIDI_CTL_GENERAL_PURPOSE5, (int) 0);
         SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
@@ -779,6 +903,7 @@ int GTKIdel_cb(gpointer data) {
                  1, MIDI_CTL_GENERAL_PURPOSE7, (int) 0);
         SendMidi(SND_SEQ_EVENT_CONTROLLER, DAWPort,
                  1, MIDI_CTL_GENERAL_PURPOSE8, (int) 0);
+
         /*  Turn Pedal lights off
         */
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
@@ -1322,7 +1447,6 @@ void on_About_clicked(GtkButton *button, gpointer user_data) {
  *---------------------------------------------*/
 void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 
-    /* break gtk_main() loop */
     //  printd(LogInfo, "In Destroy\n");
     WritePrefs();
     gtk_main_quit();
@@ -1394,121 +1518,6 @@ void ClearMainButtons(void) {
         }
 }
 
-
-/*--------------------------------------------
- * Function:            parse_cmdline
- *
- * Description:     Deal with command line arguments.
- *---------------------------------------------*/
-void parse_cmdline(int argc, char *argv[]) {
-    int c;
-    int digit_optind = 0;
-
-    //  printf("Arg 0 %s\n", argv[0]);
-    while (1)  {
-        int this_option_optind = optind ? optind : 1;
-        int option_index = 0;
-        static struct option long_options[] = {
-            { "Version", no_argument, 0, 'v' },
-            { "Debug", required_argument, 0, 'd' },
-            { "FontSize", required_argument, 0, 'f' },
-            { "jack", required_argument, 0, 'j' },
-            { "enable jack", no_argument, 0, 'e' },
-            { "layout", required_argument, 0, 'l' },
-            { "OSCPort", required_argument, 0, 'p' },
-            { "IncludeFile", no_argument, 0, 'i' },
-            //          { "IncludeFile", required_argument, &GenerateHFile, 1 },
-            { 0, 0, 0, 0 }
-        };
-
-        c = getopt_long(argc, argv, "?hievd:f:j:l:p:",
-                        long_options, &option_index);
-
-        if (c == -1) {
-            break;
-        }
-
-        switch (c) {
-        case 'i':
-            printf("IncludeFile \n");
-            GenerateHFile = 1;
-            break;
-
-        case 'f':
-            ButtonSize = atoi(optarg);
-            printd(LogInfo, "Font Size %d\n", ButtonSize);
-            if (ButtonSize < 121) {
-                ScreenSize = 1;
-            }
-            if (ButtonSize < 101) {
-                ScreenSize = 0;
-            }
-
-            break;
-
-        case 'p':
-            strncpy(OSCPortNumber, optarg, MaxStringPortName);
-            printd(LogInfo, "OSCPort %s\n", OSCPortNumber);
-            break;
-
-        case 'j':
-            strncpy(JackName, optarg, MaxStringPortName);
-            printd(LogInfo, "JackName %s\n", JackName);
-            break;
-
-        case 'l':
-            KeyLayout = atoi(optarg);
-            printd(LogInfo, "Layout %d\n", KeyLayout);
-            break;
-
-        case 'd':
-            //          RunLogLevel = atoi(optarg);
-            sscanf(optarg, "%x", &RunLogLevel);
-            printd(LogInfo, "RunLogLevel 1-no -> 6-all %d\n", RunLogLevel);
-            break;
-
-        case 'v':
-            // printf("Build date  : %s:%s\n", __DATE__, __TIME__);
-            // printf("Build Number %d\n", MY_BUILD_NUMBER);
-            // printf("Version Number %s\n", MY_VERSION_NUMBER);
-            break;
-
-        case 'e':
-            JackMaster = 1;
-            printd(LogInfo, "JackMaster off\n");
-            break;
-
-        default:
-        case 'h':
-            printf("Live Music CLI Usage\n");
-            printf(" v Version - Print version and build info\n");
-            printf(" f FontSize - Font Size for smaller screens.\n");
-            printf(" j jack - Jack master name.\n");
-            printf(" e enable-jack - Connect to jackserver.\n");
-            printf(" l Layout - Glade layout file.\n");
-            printf(" i IncludeFile - Generate include file on exit.\n");
-            printf(" p OSCPort Number - Server Port number.\n");
-            printf(" d debug - Debug output level hex 0xfff \n");
-            printf("  LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
-            printf("  LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");
-            printf("  LogRealTime 0x100,LogMidi 0x200,LogPlayer 0x400\n");
-
-            exit(0);
-            break;
-        }
-    }
-
-    if (optind < argc) {
-        printd(LogInfo, "non-option ARGV-elements: ");
-
-        while (optind < argc) {
-            printd(LogInfo, "%s ", argv[optind++]);
-        }
-
-        printd(LogInfo, "\n");
-    }
-}
-
 /*--------------------------------------------
  * Function:        Update the display status
  * Description:     raw the previous patches on the screen to make
@@ -1551,7 +1560,6 @@ void UpdateStatus(char *String) {
     gtk_label_set_markup((GtkLabel *) MainStatus, DisString);
 }
 
-
 /*--------------------------------------------
  * Function:        SetMetronomeStatus
  *
@@ -1570,10 +1578,7 @@ void SetMetronomeStatus(char State) {
         MyImageButtonSetText(&TempoDraw, "Off");
         gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image), TempoDraw.ButtonUpImage);
     }
-
-
 }
-
 
 /*--------------------------------------------
  * Function:        Main Button Handler
@@ -1991,23 +1996,6 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
         printd(LogInfo, "SetUpMainButtons1:IMG %d %d \n", Loop, PatchIndex);
 
         if (PatchIndex >= 0 && PatchIndex < Max_Patches) {
-            // StringLen = strlen(gMyInfo.MyPatchInfo[PatchIndex].Name);
-            // sprintf(String, "      %03d      \n%*s",
-            //         Loop + 1,
-            //         (15 + StringLen) / 2,
-            //         gMyInfo.MyPatchInfo[PatchIndex].Name);
-
-            // sprintf(String, "%*d\n%*s",
-            //         (14 + StringLen) / 2,
-            //         Loop + 1,
-            //         (14 + StringLen) / 2,
-            //         gMyInfo.MyPatchInfo[PatchIndex].Name);
-
-
-
-            //            printd(LogInfo, "SetUpMainButtons:IMG %d %d %s \n", Loop, PatchIndex, gMyInfo.MyPatchInfo[PatchIndex].Name);
-
-            //            MyImageButtonSetText(&MainButtons[Loop], String);
             MyImageButtonSetText2(&MainButtons[Loop],
                                   Loop + 1,
                                   gMyInfo.MyPatchInfo[PatchIndex].Name);
@@ -2309,7 +2297,7 @@ int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
 /*--------------------------------------------
  * Function:        FindString
  *
- * Description: Find the offset into a list 
+ * Description: Find the offset into a list
  * of strings.
  *---------------------------------------------*/
 int FindString(int StringList, char *String) {
@@ -2371,7 +2359,7 @@ int InitHistoryFile(void) {
 *
 * Description:  Write what I am doing to history.
 * My memory sucks.
-* 
+*
 *----------------------------------------------*/
 int WriteToHistory(char *str) {
     time_t t = time(NULL);
@@ -2388,7 +2376,7 @@ int WriteToHistory(char *str) {
 * Function: CloseHistoryFile
 *
 * Description:  Close the history file.
-* 
+*
 *----------------------------------------------*/
 int CloseHistoryFile(void) {
     fflush(FileHistory);
@@ -2605,7 +2593,7 @@ void LEDControl(char Beat, char State) {
     SetDAWLed(dLEDBeat4, 0);
 
     switch (Beat) {
-    case 1:
+    case dLEDCnt_Beat1:
 
         // DAW Lights On
         SetDAWLed(dLEDBeat1, 1);
@@ -2625,7 +2613,7 @@ void LEDControl(char Beat, char State) {
 
         break;
 
-    case 2:
+    case dLEDCnt_Beat2:
 
         // DAW Lights On
         SetDAWLed(dLEDBeat2, 1);
@@ -2644,7 +2632,7 @@ void LEDControl(char Beat, char State) {
                  DrumMidiChannel, 04, (int) PedalLED3On);
         break;
 
-    case 3:
+    case dLEDCnt_Beat3:
         SetDAWLed(dLEDBeat3, 1);
 
         // LPD8
@@ -2661,7 +2649,7 @@ void LEDControl(char Beat, char State) {
                  DrumMidiChannel, 04, (int) PedalLED3On);
         break;
 
-    case 4:
+    case dLEDCnt_Beat4:
         SetDAWLed(dLEDBeat4, 1);
 
         // LPD8
@@ -2678,8 +2666,8 @@ void LEDControl(char Beat, char State) {
                  DrumMidiChannel, 04, (int) PedalLED3On);
         break;
 
-    case 7:
-        // DAW Lights On
+    case dLEDCnt_AllOff:
+        // DAW Lights Off
         SendMidi(dLEDMIDI, DAWPort,
                  dLEDChan, (int) dLEDBeat6, 0);
         SendMidi(dLEDMIDI, DAWPort,
@@ -2688,19 +2676,19 @@ void LEDControl(char Beat, char State) {
                  dLEDChan, (int) dLEDBeat8, 0);
         break;
 
-    case 8:
+    case dLEDCnt_CountD1:
         // DAW Lights On
         SendMidi(dLEDMIDIO, DAWPort,
                  dLEDChan, (int) dLEDBeat6, 127);
         break;
 
-    case 9:
+    case dLEDCnt_CountD2:
         // DAW Lights On
         SendMidi(dLEDMIDIO, DAWPort,
                  dLEDChan, (int) dLEDBeat7, 127);
         break;
 
-    case 10:
+    case dLEDCnt_CountD3:
         // DAW Lights On
         SendMidi(dLEDMIDIO, DAWPort,
                  dLEDChan, (int) dLEDBeat8, 127);

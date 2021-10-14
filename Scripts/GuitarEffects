@@ -1153,7 +1153,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="1.9.3"
+Version="1.9.6"
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
@@ -1165,6 +1165,7 @@ xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # Exec=env WINEPREFIX="/home/elias/.wine64" wine64 MIDIGuitar2-64bit.exe
 echo "--------------------------------------------" >> $LogFile
 echo `date` >> $LogFile
+echo $PATH >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
 while getopts "abcdefgijkhrpmnovlswt" OPT; do
@@ -1221,7 +1222,9 @@ while getopts "abcdefgijkhrpmnovlswt" OPT; do
             # twice exit.
             LogFile=~/.config/LiveMusicApp/LogGuitar.txt
             
-            pid=`pgrep guitarix`
+#	    echo $PATH >> $LogFile
+#  		exit 0
+ 	    pid=`pgrep guitarix`
             if [ -z $pid ]
             then
                 echo "GuitarEffects Auto 1"
@@ -1334,7 +1337,7 @@ while getopts "abcdefgijkhrpmnovlswt" OPT; do
     esac
 done
 
-RunCount=`pgrep -c LivrMusicApp `
+RunCount=`pgrep -c LiveMusicApp `
 if [[ RunCount -gt 1 ]]; then
     echo "********** Multiple Version running, killing."
     exit 1

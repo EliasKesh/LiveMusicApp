@@ -98,8 +98,8 @@ InitPref(void) {
         NewInstall = 1;
     }
 
-    //    PrintDataStructure(&gMyInfo, NULL);
-    //    exit(0);
+//        PrintDataStructure(&gMyInfo, NULL);
+//        exit(0);
 #else
     memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
 #endif

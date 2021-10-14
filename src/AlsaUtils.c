@@ -102,17 +102,11 @@ int ToggleMidi(int ControlValue) {
                  FluidPort, 1, MIDI_CTL_ALL_NOTES_OFF, 0);
         //        SendMidi(MIDI_CTL_ALL_NOTES_OFF,
         //                 FluidPort, 1, 0, 0);
-
-
-
     }
     else {
         gMyInfo.MidiPassThru = 1;
         SetDAWLed(ControlValue, 0);
-
     }
-
-
 }
 
 /*------------------------------------------
@@ -547,7 +541,6 @@ int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
 
     }
 
-
 #if 0
 The tempo is given in micro seconds per quarter beat. To convert this to BPM we needs to use the following equation:
     BPM = 60, 000, 000 / [tt tt tt]
@@ -639,7 +632,6 @@ int SendMidiPatch(PatchInfo * thePatch) {
         break;
 
 #if 0
-
     case cmdPreset:
         if (thePatch->Patch == 1) {
             SendMidiPatch(&gMyInfo.MyPatchInfo[gMyInfo.WebPresets.thePreset1]);
@@ -862,7 +854,6 @@ void *alsa_midi_DAW_thread(void * context_ptr) {
         NanoKntrl2(SeqPortDAWIn, event_ptr);
     }
 }
-
 
 /*------------------------------------------
 * Function:     alsa_midi_Note_thread

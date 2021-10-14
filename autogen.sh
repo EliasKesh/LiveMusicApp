@@ -8,7 +8,7 @@ rm -rf LiveMusicApp config.log \
 	src/makefile stamp-h1 ltmain.sh \
 	debian/livemusicapp debian/.debhelper
 # rm ChartFixer/makefile
-rm .deps ./src/.deps ./ChartFixer/.deps -rf
+rm .deps ./src/.deps -rf
 rm makefile autom4te.cache -rf
 else
 ./Scripts/ChangeVersion.sh

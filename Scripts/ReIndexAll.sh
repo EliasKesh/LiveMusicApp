@@ -241,6 +241,14 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir
 LiveMusicCharts.py . -il
 
+CurDir=$BaseDir/MyMasterClass/
+cd $CurDir
+echo `pwd`
+cd $CurDir/ScottHenderson
+LiveMusicCharts.py . -vfcp
+cd..
+LiveMusicCharts.py . -il
+
 CurDir=$BaseDir/DLP/
 cd $CurDir
 echo `pwd`

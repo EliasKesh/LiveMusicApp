@@ -193,8 +193,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     //    gtk_scale_set_value_pos (PositionSlider, GTK_POS_TOP);
     gtk_scale_set_draw_value(PositionSlider, TRUE);
     gtk_scale_set_value_pos(PositionSlider, GTK_POS_BOTTOM);
-    g_signal_connect(G_OBJECT (PositionSlider), "change_value",
-                     G_CALLBACK (PositionSlider_Changed), NULL);
+    g_signal_connect(G_OBJECT(PositionSlider), "change_value",
+                     G_CALLBACK(PositionSlider_Changed), NULL);
 
     /*
      * A Set Controls, Button
@@ -218,16 +218,16 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     StartAdjustment = gtk_adjustment_new(0.0, -1, 1, 0.02, 0.1, 0);
     StartSpin = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,
                               GTK_ADJUSTMENT(StartAdjustment));
-    g_signal_connect(G_OBJECT (StartSpin), "value_changed",
-                     G_CALLBACK (SetASlider_Changed), NULL);
+    g_signal_connect(G_OBJECT(StartSpin), "value_changed",
+                     G_CALLBACK(SetASlider_Changed), NULL);
 
     /*
      * A Set Controls, Fine Controls
      */
     FineStartAdjustment = gtk_adjustment_new(0, 0, 400, 0.05, .1, 0);
     FineStartSpin = gtk_spin_button_new(FineStartAdjustment, 0.05, 3);
-    g_signal_connect(G_OBJECT (FineStartSpin), "value_changed",
-                     G_CALLBACK (SetAFineTickBox_Changed), NULL);
+    g_signal_connect(G_OBJECT(FineStartSpin), "value_changed",
+                     G_CALLBACK(SetAFineTickBox_Changed), NULL);
 
     /*
      * Length Set Controls, Button
@@ -251,16 +251,16 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     EndAdjustment = gtk_adjustment_new(0.0, -1, 1, 0.001, 1, 0);
     EndSpin = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,
                             GTK_ADJUSTMENT(EndAdjustment));
-    g_signal_connect(G_OBJECT (EndSpin), "value_changed",
-                     G_CALLBACK (SetBSlider_Changed), NULL);
+    g_signal_connect(G_OBJECT(EndSpin), "value_changed",
+                     G_CALLBACK(SetBSlider_Changed), NULL);
 
     /*
      * Length Set Controls, Fine control
      */
     FineEndAdjustment = gtk_adjustment_new(0, 0, 400, 0.05, .1, 0);
     FineEndSpin = gtk_spin_button_new(FineEndAdjustment, 0.05, 3);
-    g_signal_connect(G_OBJECT (FineEndSpin), "value_changed",
-                     G_CALLBACK (SetBFineTickBox_Changed), NULL);
+    g_signal_connect(G_OBJECT(FineEndSpin), "value_changed",
+                     G_CALLBACK(SetBFineTickBox_Changed), NULL);
 
     /*
      * Play/Pause Button
@@ -309,8 +309,8 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
      */
     SpeedAdjustment = gtk_adjustment_new(1.0, 0.35, 1.5, 0.05, 1, 0);
     SpeedSpin = gtk_spin_button_new(SpeedAdjustment, 0.05, 2);
-    g_signal_connect(G_OBJECT (SpeedSpin), "value_changed",
-                     G_CALLBACK (SpeedSlider_Changed), NULL);
+    g_signal_connect(G_OBJECT(SpeedSpin), "value_changed",
+                     G_CALLBACK(SpeedSlider_Changed), NULL);
 #if 0
     gtk_widget_set_size_request(SpeedSpin, 50, 50);
     gtk_widget_set_margin_top(SpeedSpin, 20);
@@ -343,11 +343,11 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     //     gtk_widget_set_vexpand (VolumeSpin, TRUE);
 
     gtk_widget_set_margin_bottom(VolumeSpin, 15);
-    gtk_range_set_range (GTK_RANGE (VolumeSpin), 0, 100);
-    gtk_range_set_inverted (GTK_RANGE (VolumeSpin), TRUE);
+    gtk_range_set_range(GTK_RANGE(VolumeSpin), 0, 100);
+    gtk_range_set_inverted(GTK_RANGE(VolumeSpin), TRUE);
 
-    g_signal_connect(G_OBJECT (VolumeSpin), "value_changed",
-                     G_CALLBACK (VolumeSlider_Changed), NULL);
+    g_signal_connect(G_OBJECT(VolumeSpin), "value_changed",
+                     G_CALLBACK(VolumeSlider_Changed), NULL);
     gtk_scale_set_draw_value((GtkScale *)VolumeSpin, TRUE);
     gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
     gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
@@ -457,7 +457,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     gtk_fixed_put(GTK_FIXED(SaveFixed), SavedLabel, 0, 0);
     gtk_fixed_put(GTK_FIXED(SaveFixed), SaveCombo, 0, 25);
     g_signal_connect(G_OBJECT(SaveCombo), "changed",
-                     G_CALLBACK(SaveLoopPopup_cb), (gpointer ) SavedLabel);
+                     G_CALLBACK(SaveLoopPopup_cb), (gpointer) SavedLabel);
     gtk_widget_set_size_request(SaveCombo, 130, 60);
     gtk_widget_set_tooltip_text(SaveCombo, "Select a saved loop.");
 
@@ -628,6 +628,12 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
                              mySavedLoops[CurrentSavedLoop].Start);
     gtk_adjustment_set_value(FineEndAdjustment,
                              mySavedLoops[CurrentSavedLoop].Length);
+
+    printd(LogPlayer, "SaveLoopPopup_cb %f %f\n", mySavedLoops[CurrentSavedLoop].Start,
+           mySavedLoops[CurrentSavedLoop].Length);
+
+    // Change the position to point to Mark.
+    plSetPosition(mySavedLoops[CurrentSavedLoop].Start);
 }
 
 /*-----------------------------------------------
@@ -638,12 +644,9 @@ static void SaveLoopPopup_cb(GtkWidget *widget, GtkWidget *entry) {
  *------------------------------------------------*/
 int ResetPlayer(void) {
 
-
     // Clear the Marker display.
     PlayerDisSection[0] = 0;
     PlayerDisTime = 0;
-
-    //  system("killall mplayer");
     printd(LogPlayer, "ResetPlayer\n");
 
     gtk_adjustment_set_value(PositionAdjustment, 0);
@@ -651,19 +654,10 @@ int ResetPlayer(void) {
     gtk_adjustment_set_value(FineEndAdjustment, 0);
     gtk_adjustment_set_value(SpeedAdjustment, 1.0);
 
-    // gtk_image_set_from_pixbuf(GTK_IMAGE(LoopButton.Image),
-    //              LoopButton.ButtonUpImage);
-    //  plLoopToggle();
-
-    //  WeAreLooping = 1;
     CurrentSpeed = 1.0;
     CurrentSongPosition = 0.0;
-    //  plLoopToggle();
-    //  usleep(150);
     PlayerWrite("set_property stream_pos 0.000\n");
-    //  usleep(150);
     PlayerWrite("set_property time_pos 0.000\n");
-    //  usleep(150);
     return (0);
 }
 
@@ -683,9 +677,6 @@ int LivePlayerClose(void) {
     strcpy(PlayerDisSection, "-----");
 
     SaveLoopFile(CurrentFile);
-    //  SaveSongMarkers(CurrentFile);
-
-    //  PlayerWrite("quit\n");
     system("killall mplayer");
     return (0);
 }
@@ -706,7 +697,7 @@ void SetPlayerFile(char *FileName) {
         //      SaveSongMarkers(CurrentFile);
     }
 
-    LEDControl(7, 1);
+    LEDControl(dLEDCnt_AllOff, 1);
 
     strncpy(CurrentFile, FileName, FileNameMaxLength);
     strncpy(CurrentFileSpec, FileName, FileNameMaxLength);
@@ -720,6 +711,10 @@ void SetPlayerFile(char *FileName) {
     }
     RestartPlayer = RestartPlayerValue;
     sprintf(PlayerString, "load \"%s\"\n", FileName);
+
+    // Don't start with the loop on.
+    WeAreLooping = 1;
+    plLoopToggle();
 
     // EJK check this.
     ResetPlayer();
@@ -758,21 +753,19 @@ void OpenSavedLoopFile(char *FileName) {
                    &mySavedLoops[NumSavedLoops].Start,
                    &mySavedLoops[NumSavedLoops].Length,
                    &mySavedLoops[NumSavedLoops].Position);
-#if 1
             printd(LogPlayer, "Reading Loop %d %s %f %f %f\n", NumSavedLoops,
                    mySavedLoops[NumSavedLoops].LoopName,
                    mySavedLoops[NumSavedLoops].Start,
                    mySavedLoops[NumSavedLoops].Length,
                    mySavedLoops[NumSavedLoops].Position);
-#endif
             gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
                                            mySavedLoops[NumSavedLoops].LoopName);
 
             // Check for Zero entries and don't save
-            if ( !((mySavedLoops[NumSavedLoops].LoopName[0] == 0) &&
-                   (mySavedLoops[NumSavedLoops].Start == 0) &&
-                   (mySavedLoops[NumSavedLoops].Length == 0) &&
-                   (mySavedLoops[NumSavedLoops].Position == 0)) ) {
+            if (!((mySavedLoops[NumSavedLoops].LoopName[0] == 0) &&
+                  (mySavedLoops[NumSavedLoops].Start == 0) &&
+                  (mySavedLoops[NumSavedLoops].Length == 0) &&
+                  (mySavedLoops[NumSavedLoops].Position == 0))) {
                 NumSavedLoops++;
             }
             /*
@@ -813,7 +806,7 @@ void SaveLoopFile(char *FileName) {
     errno = 0;
     SavedLoopFD = fopen(SaveLoopName, "w+");
     //  sprintf(SaveLoopName, "MyTest.loop");
-    printd(LogPlayer, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno) );
+    printd(LogPlayer, " SavedLoopFile FD %d %s\n", SavedLoopFD, strerror(errno));
 
     // Save the list in Time order.
     for (i = NumSavedLoops - 2; i >= 0; i--) {
@@ -833,15 +826,11 @@ void SaveLoopFile(char *FileName) {
                     mySavedLoops[Loop].Start,
                     mySavedLoops[Loop].Length,
                     mySavedLoops[Loop].Position);
-#if 1
             printd(LogPlayer, "Saving Loop %d %s %f %f %f\n", NumSavedLoops,
                    mySavedLoops[NumSavedLoops].LoopName,
                    mySavedLoops[NumSavedLoops].Start,
                    mySavedLoops[NumSavedLoops].Length,
                    mySavedLoops[NumSavedLoops].Position);
-#endif
-
-
             Loop++;
         }
         fclose(SavedLoopFD);
@@ -905,7 +894,7 @@ void PlayerPoll(char How) {
      * If we were called directly then lock out the interrupt call
      */
     if (!How) {
-        InPlayerTimer = 2;
+        InPlayerTimer = 3;
     }
 
     /*
@@ -982,7 +971,7 @@ void PlayerPoll(char How) {
                 FValue = atof(Found);
                 CurrentSongPosition = FValue;
                 PlayerAsk--;
-                printd(LogPlayer, "Mpl Time %f - %s\n", FValue, Found );
+                printd(LogPlayer, "Mpl Time %f - %s\n", FValue, Found);
 
                 /* Set the variables for the
                 SongMarkers.
@@ -997,19 +986,19 @@ void PlayerPoll(char How) {
 
                             if (PlayerDisTime < 10) {
                                 if (PlayerDisTime < 1) {
-                                    LEDControl(7, 1);
+                                    LEDControl(dLEDCnt_AllOff, 1);
                                 }
                                 else
                                     if (PlayerDisTime < 4) {
-                                        LEDControl(8, 0);
+                                        LEDControl(dLEDCnt_CountD1, 0);
                                     }
                                     else
                                         if (PlayerDisTime < 7) {
-                                            LEDControl(9, 0);
+                                            LEDControl(dLEDCnt_CountD2, 0);
                                         }
                                         else
                                             if (PlayerDisTime < 10) {
-                                                LEDControl(10, 0);
+                                                LEDControl(dLEDCnt_CountD3, 0);
                                             }
 
                             }
@@ -1029,7 +1018,7 @@ void PlayerPoll(char How) {
                                 //     mySavedLoops[PrevMarkerIndex].Position);
 
                                 // Use the Previous Scroll location since we are showing the upcoming part.
-                                if (mySavedLoops[Loop].Position >= 0 ) {
+                                if (mySavedLoops[Loop].Position >= 0) {
                                     ScrollCtrl(mySavedLoops[PrevMarkerIndex].Position);
                                 }
 
@@ -1074,12 +1063,11 @@ void PlayerPoll(char How) {
 #endif
                 /* Set the Global.
                 */
-#if 1
                 if ((TotalLength > 0) && (CurrentSongPosition + 0.5 >= TotalLength))  {
                     printd(LogPlayer, "Player Stopping\n");
                     plSetPosition(0.0);
                 }
-#endif
+
                 /*
                  * If someone is moving the position slider don't update it.
                  */
@@ -1109,14 +1097,20 @@ void PlayerPoll(char How) {
 void PositionSlider_Changed(GtkAdjustment *adj) {
     float NewValue;
 
-    LEDControl(7, 1);
+    LEDControl(dLEDCnt_AllOff, 1);
 
     NewValue = gtk_adjustment_get_value(PositionAdjustment);
-    printd(LogPlayer, "PositionSlider_Changed %f %f\n", NewValue, CurrentSongPosition);
+    printd(LogPlayer, "PositionSlider_Changed %f %f\n",
+           NewValue,
+           CurrentSongPosition);
+
     /* If we change the current position while stopped.
     */
     CurrentSongPosition = NewValue;
-    plSetPosition(gtk_adjustment_get_value(PositionAdjustment));
+    if (InPlayingState) {
+        StartPlayer();
+    }
+    //    plSetPosition(NewValue);
 }
 
 /*-----------------------------------------------
@@ -1255,7 +1249,6 @@ gboolean Speed_click_handler(GtkWidget *widget, GdkEvent *event,
 
     CurrentSpeed = 1.0;
     PlayerWrite("speed_set 1.0\n");
-    //  gtk_adjustment_set_value(FineEndAdjustment, CurrentSongPosition - gtk_adjustment_get_value(FineStartAdjustment));
 
     return TRUE; /* stop event propagation */
 }
@@ -1274,7 +1267,6 @@ int NewLoop_click_handler(GtkWidget *widget, GdkEvent *event,
     char *entry_line;
 
     NewLoopDialog();
-
     theButton = (theImageButtons *) user_data;
     printd(LogPlayer, "NextSeg_click_handler %x\n", theButton);
     gtk_image_set_from_pixbuf(GTK_IMAGE(theButton->Image),
@@ -1338,8 +1330,6 @@ int NewLoopDialog(void) {
                mySavedLoops[NumSavedLoops].Length,
                mySavedLoops[NumSavedLoops].Position);
 
-        // gtk_combo_box_text_append_text(GTK_COMBO_BOX(SaveCombo),
-        //                                mySavedLoops[NumSavedLoops].LoopName);
         NumSavedLoops++;
 
         SaveLoopFile(CurrentFile);
@@ -1388,8 +1378,6 @@ int NewMarker_click_handler(GtkWidget *widget, GdkEvent *event,
     return TRUE; /* stop event propagation */
 }
 
-
-
 /*-----------------------------------------------
  * Function:        NewMarkerDialog
  *
@@ -1401,7 +1389,6 @@ int NewMarkerDialog(void) {
     GtkWidget *content_area;
     char *entry_line;
     float theTime;
-
 
     PlayerPoll(FALSE);
     //  PlayerDisTime
@@ -1603,7 +1590,6 @@ int StartPlayer(void) {
     --hr-mp3-seek Helps with exact position for seek
     for stereo use two output system:playback_(21|22)
     */
-
     if (WeAreLooping) {
         sprintf(PlayerString,
                 //              "-use-filedir-conf=./Prefs/mplayer/
@@ -1723,7 +1709,9 @@ bool plLoopToggle(void) {
                                   LoopButton.ButtonDownImage);
         WeAreLooping = 1;
         printd(LogPlayer, "After Close\n");
-        StartPlayer();
+        if (InPlayingState) {
+            StartPlayer();
+        }
 
     }
     else {
@@ -1736,7 +1724,9 @@ bool plLoopToggle(void) {
         */
         if (InPlayingState) {
             printd(LogPlayer, "plLoopToggle:InPlayingState->StartPlayer\n");
-            StartPlayer();
+            if (InPlayingState) {
+                StartPlayer();
+            }
         }
     }
     return (WeAreLooping);
@@ -1882,14 +1872,16 @@ void plSpeedDown(void) {
 }
 
 /*-----------------------------------------------
- * Function:        plSeekFw
+ * Function:        plSetPosition
  *
  * Description:     .
  *------------------------------------------------*/
 void plSetPosition(float position) {
     sprintf(PlayerString, "set_property time_pos %4.2f\n", position);
     PlayerWrite(PlayerString);
-    printd(LogPlayer, "plSetPosition\n");
+    printd(LogPlayer, "plSetPosition %f\n", position);
+    CurrentSongPosition = position;
+    gtk_adjustment_set_value(PositionAdjustment, position);
 }
 
 /*-----------------------------------------------
