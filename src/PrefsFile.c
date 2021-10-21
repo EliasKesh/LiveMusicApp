@@ -92,15 +92,15 @@ InitPref(void) {
     /* If we can not read the XML file load up the defaults.
     */
 #if 1
-//    if (NewInstall) {
-//        printd(LogDebug, "New Install Copy Pref\n");
-//        strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes));
-//       memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
-//    }
-//    else {
-        printd(LogDebug, "Read xml File\n");
-        ReadPrefs();
-//    }
+    //    if (NewInstall) {
+    //        printd(LogDebug, "New Install Copy Pref\n");
+    //        strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes));
+    //       memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
+    //    }
+    //    else {
+    printd(LogDebug, "Read xml File\n");
+    ReadPrefs();
+    //    }
 
     // if (ReadPrefs()) {
     //     memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
@@ -108,8 +108,8 @@ InitPref(void) {
     //     NewInstall = 1;
     // }
 
-//        PrintDataStructure(&gMyInfo, NULL);
-//        exit(0);
+    //        PrintDataStructure(&gMyInfo, NULL);
+    //        exit(0);
 #else
     memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
 #endif
@@ -543,7 +543,7 @@ void WritePrefs(void) {
         xmlSetProp(node, "Midi", buff);
     }
 #endif
-    
+
     /*
      * Dump the layouts to the XML File.
      */

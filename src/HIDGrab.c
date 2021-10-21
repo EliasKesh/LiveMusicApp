@@ -85,13 +85,13 @@ int HIDPoll() {
 #endif
 
     rd = read(theHID_fd, ev, size * 64);
-//  printf("Read %d %x\n", rd, theHID_fd);
+    //  printf("Read %d %x\n", rd, theHID_fd);
     if (rd != -1) {
         for (i = 0; i < (rd / sizeof(struct input_event)); i++) {
             if (ev[i].code != 69)
                 switch (ev[i].type) {
                 case EV_SYN:
-//        printf("---------------------------------------\n");
+                    //        printf("---------------------------------------\n");
                     break;
 
                 case EV_KEY:
@@ -100,8 +100,8 @@ int HIDPoll() {
                     case 0:
                         printd(LogDebug, "Key Code: %d released\n", ev[i].code);
                         if (KeyCode == 48) {
-//              theOldPane = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPaneS));
-//              gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPaneS), 1);
+                            //              theOldPane = gtk_notebook_get_current_page(GTK_NOTEBOOK(NoteBookPaneS));
+                            //              gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPaneS), 1);
                             SwitchToTab(PreviousTab);
 
                             WaitingforMidi = 0;
@@ -115,7 +115,7 @@ int HIDPoll() {
                         if (KeyCode == 48) {
                             SwitchToTab(0);
 
-//              gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPaneS), theOldPane);
+                            //              gtk_notebook_set_current_page(GTK_NOTEBOOK(NoteBookPaneS), theOldPane);
                             WaitingforMidi = 1;
                             WaitingforMidiHold = 1;
                         }
@@ -123,7 +123,7 @@ int HIDPoll() {
                         break;
 
                     case 2:
-//          printd(LogDebug,"Key pressed continue\n", ev[i].code);
+                        //          printd(LogDebug,"Key pressed continue\n", ev[i].code);
                         break;
 
                     default:
@@ -192,18 +192,18 @@ int InitHIDGrab() {
     int scan_fd = -1;
 
     count = scandir("/dev/input", &files, 0, 0) - 1;
-    while ( count >= 0 ) {
-        if ( scan_fd == -1 && strncmp(files[count]->d_name, "event", 5) == 0 ) {
+    while (count >= 0) {
+        if (scan_fd == -1 && strncmp(files[count]->d_name, "event", 5) == 0) {
             sprintf(path, "/dev/input/%s", files[count]->d_name);
             printd(LogDebug, "/dev/input/%s ", files[count]->d_name);
             scan_fd = open(path, O_RDONLY);
-            if ( scan_fd >= 0 ) {
-                if ( ioctl(scan_fd, EVIOCGID, (void *)&id) < 0 ) {
+            if (scan_fd >= 0) {
+                if (ioctl(scan_fd, EVIOCGID, (void *)&id) < 0) {
                     perror("ioctl EVIOCGID");
                 }
                 else {
                     printd(LogDebug, "V=%x D=%x\n", id.vendor, id.product);
-                    if ( id.vendor == VENDORID && id.product == PRODUCTID ) {
+                    if (id.vendor == VENDORID && id.product == PRODUCTID) {
                         printd(LogDebug, "scanner attached to %s\n", path);
                     }
                     else {
@@ -221,7 +221,7 @@ int InitHIDGrab() {
     }
     free(files);
 
-    if ( scan_fd >= 0 ) {
+    if (scan_fd >= 0) {
         ioctl(scan_fd, EVIOCGRAB);
     }
     else {
@@ -380,18 +380,18 @@ char* readScanner(int *loopcond) {
     int i = 0;
     struct input_event ev;
 
-    while ( loopcond == NULL ? 1 : *loopcond ) {
+    while (loopcond == NULL ? 1 : *loopcond) {
         read(scan_fd, &ev, sizeof(struct input_event));
-        if ( ev.type == 1 && ev.value == 1 ) {
-            if ( ev.code == 28 ) { //carriage return
+        if (ev.type == 1 && ev.value == 1) {
+            if (ev.code == 28) {   //carriage return
                 code[i] = 0;
                 strcpy(barcode, code);
                 return barcode;
             }
             else {
-                if ( ev.code != 0 ) {
+                if (ev.code != 0) {
                     code[i++] = keycodelist(ev.code);
-                    if ( i == SCN_BCD_SZ - 1 ) {
+                    if (i == SCN_BCD_SZ - 1) {
                         printf("Barcode buffer full\n");
                         return NULL;
                     }

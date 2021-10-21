@@ -62,7 +62,7 @@
  */
 static gboolean time_handler(GtkWidget *widget);
 static gboolean tempo_handler(GtkWidget *widget);
-static void time_handlerRT (union sigval val);
+static void time_handlerRT(union sigval val);
 
 void com_stop(void);
 void com_play(void);
@@ -302,7 +302,7 @@ void SetTempo(unsigned int NewTempo) {
     OldTempo = gMyInfo.Tempo = NewTempo;
 
 #if 0
-    pthread_attr_init( &attr );
+    pthread_attr_init(&attr);
     parm.sched_priority = 255;
     pthread_attr_setschedparam(&attr, &parm);
     sig.sigev_notify_attributes = &attr;
@@ -335,10 +335,10 @@ void SetTempo(unsigned int NewTempo) {
     /* Was == 0 but this works much better.
     */
     memset(&in, 0, sizeof(in));
-   // its.it_value.tv_sec = freq_nanosecs / 1000000000;
-   // its.it_value.tv_nsec = freq_nanosecs % 1000000000;
-   // its.it_interval.tv_sec = its.it_value.tv_sec;
-   // its.it_interval.tv_nsec = its.it_value.tv_nsec;
+    // its.it_value.tv_sec = freq_nanosecs / 1000000000;
+    // its.it_value.tv_nsec = freq_nanosecs % 1000000000;
+    // its.it_interval.tv_sec = its.it_value.tv_sec;
+    // its.it_interval.tv_nsec = its.it_value.tv_nsec;
 
     // Can't be zero.
     in.it_value.tv_sec = 1;
@@ -359,10 +359,10 @@ void SetTempo(unsigned int NewTempo) {
 
     //issue the periodic timer request here.
     Ret = timer_settime(gMyInfo.TempoTimerID, 0, &in, NULL);
-    printd(LogTimer, "***** RT Timer SetTime **** %d %ld %x\n", Ret, in.it_interval.tv_nsec,gMyInfo.TempoTimerID);
+    printd(LogTimer, "***** RT Timer SetTime **** %d %ld %x\n", Ret, in.it_interval.tv_nsec, gMyInfo.TempoTimerID);
 
     if (Ret == -1) {
-      printd(LogError, "***** RT Timer SetTime Error **** %d %s\n", errno,strerror(errno));
+        printd(LogError, "***** RT Timer SetTime Error **** %d %s\n", errno, strerror(errno));
     }
 
 }
@@ -373,7 +373,7 @@ void SetTempo(unsigned int NewTempo) {
  * Description:     <Description/Comments>
  *
  *------------------------------------------------*/
-static void time_handlerRT (union sigval val) {
+static void time_handlerRT(union sigval val) {
     ToggleTempo();
 
     //    printd(LogTimer, "IN time_handler %d\n", SubBeats);
@@ -440,7 +440,7 @@ void ToggleTempo(void) {
             break;
 #endif
         case cntStateWaitingforRecCount:
-            printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats );
+            printd(LogTimer, "cntStateWaitingforRecCount %d %d\n", CountInCount, gMyInfo.CountInBeats);
 
             if (CountInCount-- == gMyInfo.CountInBeats) {
 
@@ -461,28 +461,28 @@ void ToggleTempo(void) {
 
             }
 
-            if ( LoopRecBeats == 4) {
+            if (LoopRecBeats == 4) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3On);
+                         DrumMidiChannel, 04, (int) PedalLED3On);
             }
 
-            if ( CountInCount == 3) {
+            if (CountInCount == 3) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                         DrumMidiChannel, 04, (int) PedalLED3Off);
             }
 
-            if ( CountInCount == 2) {
+            if (CountInCount == 2) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED4On);
+                         DrumMidiChannel, 04, (int) PedalLED4On);
             }
 
-            if ( CountInCount == 1) {
+            if (CountInCount == 1) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3On);
+                         DrumMidiChannel, 04, (int) PedalLED3On);
             }
 
 
-            if ( CountInCount == 0) {
+            if (CountInCount == 0) {
                 CountInActiveState = cntStateRecording;
 
                 //                          DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "LP Rec")]);
@@ -490,9 +490,9 @@ void ToggleTempo(void) {
                 gMyInfo.MetronomeOn = FALSE;
                 printd(LogTimer, "Loop Start 1\n\n");
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                         DrumMidiChannel, 04, (int) PedalLED3Off);
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED4Off);
+                         DrumMidiChannel, 04, (int) PedalLED4Off);
             }
 
             break;
@@ -506,7 +506,7 @@ void ToggleTempo(void) {
 
                 /* Start the looper for recording.
                 */
-// ejk1                OSCCommand(OSCSyncSource, 0);
+                // ejk1                OSCCommand(OSCSyncSource, 0);
 
                 OSCCommand(OSCStartRecord, 0);
                 printd(LogTimer, "Start Recording %d\n", LoopRecBeats);
@@ -519,24 +519,24 @@ void ToggleTempo(void) {
                 OSCCommand(OSCStopRecord, 0);
             }
 #endif
-            if ( LoopRecBeats == 4) {
+            if (LoopRecBeats == 4) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3On);
+                         DrumMidiChannel, 04, (int) PedalLED3On);
             }
 
-            if ( LoopRecBeats == 3) {
+            if (LoopRecBeats == 3) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                         DrumMidiChannel, 04, (int) PedalLED3Off);
             }
 
-            if ( LoopRecBeats == 2) {
+            if (LoopRecBeats == 2) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED4On);
+                         DrumMidiChannel, 04, (int) PedalLED4On);
             }
 
-            if ( LoopRecBeats == 1) {
+            if (LoopRecBeats == 1) {
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3On);
+                         DrumMidiChannel, 04, (int) PedalLED3On);
             }
 
             if (LoopRecBeats == 0) {
@@ -559,9 +559,9 @@ void ToggleTempo(void) {
 
                 printd(LogTimer, "Loop Off\n\n");
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3Off);
+                         DrumMidiChannel, 04, (int) PedalLED3Off);
                 SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED4Off);
+                         DrumMidiChannel, 04, (int) PedalLED4Off);
 
                 CountInActiveState = cntStatePostRecord;
             }
@@ -603,7 +603,7 @@ void ToggleTempo(void) {
                          DrumMidiChannel, 00, (int) gMyInfo.Drum1);
             }
 
- //           sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
+            //           sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
         }
         else {
             gLooperWaitForSync = 0;
@@ -621,7 +621,7 @@ void ToggleTempo(void) {
         /* On the first beat play a different sound.
          */
         sprintf(TempoUpdateString, "%d-%d\nLP %2.2f", gMyInfo.Tempo, BeatCount, gMyInfo.LoopPosition);
-//        UIUpdateFromTimer = TRUE;
+        //        UIUpdateFromTimer = TRUE;
 
     }
 #endif
@@ -638,10 +638,10 @@ void ToggleTempo(void) {
         /*  Turn lights off
          */
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED3Off );
+                 DrumMidiChannel, 04, (int) PedalLED3Off);
 
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
-                 DrumMidiChannel, 04, (int) PedalLED4Off );
+                 DrumMidiChannel, 04, (int) PedalLED4Off);
         //      }
     }
 #endif

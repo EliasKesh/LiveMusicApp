@@ -184,8 +184,9 @@ char *printd(int LogLevel, const char *fmt, ...) {
         printf("L%x %s", LogLevel, p);
     }
 
-    if (LogFile != NULL)
+    if (LogFile != NULL) {
         fprintf(LogFile, "L%x %s", LogLevel, p);
+    }
 
     return NULL;
 }
@@ -210,7 +211,7 @@ int main(int argc, char *argv[]) {
     GdkDisplay *display;
     GdkScreen *screen;
 #endif
-    
+
     /*-----------------------*/
     int BButtonX, BButtonY, MButtonX, MButtonY;
     int Loop;
@@ -346,7 +347,7 @@ int main(int argc, char *argv[]) {
     pixbuf = gdk_pixbuf_new_from_file(Icon_FILE, &err);
 
     gtk_window_set_icon(GTK_WINDOW(theMainWindow), pixbuf);
-    g_object_unref(pixbuf);    
+    g_object_unref(pixbuf);
 #else
     gtk_window_set_icon_name(
         GTK_WINDOW(theMainWindow),
@@ -998,12 +999,12 @@ void CheckForStartupDirs(void) {
 
     UserName = getenv("USER");
 
-//    NewInstall = 0;
+    //    NewInstall = 0;
 
     sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
 
     err = lstat(FileString, &s);
-//    err = access(FileString, &s);
+    //    err = access(FileString, &s);
 
     if (err < 0) {
         // Copy LiveMusic Prefs folder the local location
@@ -1023,7 +1024,7 @@ void CheckForStartupDirs(void) {
         printf("Write to Preferences file\n");
         WritePrefs();
 
-//        NewInstall = 1;
+        //        NewInstall = 1;
     }
 }
 

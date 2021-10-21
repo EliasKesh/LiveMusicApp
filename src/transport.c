@@ -30,7 +30,7 @@
 #include <jack/transport.h>
 #include "LiveMusicApp.h"
 
-char *package = "LiveMusicTrans";				/* program name */
+char *package = "LiveMusicTrans";               /* program name */
 int done = 0;
 jack_client_t *client;
 
@@ -42,7 +42,7 @@ float time_beats_per_bar = 4.0;
 float time_beat_type = 4.0;
 double time_ticks_per_beat = 1920.0;
 double time_beats_per_minute = 120.0;
-volatile int time_reset = 1;		/* true when time values change */
+volatile int time_reset = 1;        /* true when time values change */
 
 /* JACK timebase callback.
  *
@@ -50,9 +50,9 @@ volatile int time_reset = 1;		/* true when time values change */
  */
 static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
                      jack_position_t *pos, int new_pos) {
-    double min;			/* minutes since frame 0 */
-    long abs_tick;			/* ticks since frame 0 */
-    long abs_beat;			/* beats since frame 0 */
+    double min;         /* minutes since frame 0 */
+    long abs_tick;          /* ticks since frame 0 */
+    long abs_beat;          /* beats since frame 0 */
 
     if (new_pos || time_reset) {
 
@@ -62,7 +62,7 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
         pos->ticks_per_beat = time_ticks_per_beat;
         pos->beats_per_minute = time_beats_per_minute;
 
-        time_reset = 0;		/* time change complete */
+        time_reset = 0;     /* time change complete */
 
         /* Compute BBT info from frame number.  This is relatively
          * simple here, but would become complex if we supported tempo
@@ -78,7 +78,7 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
         pos->tick = abs_tick - (abs_beat * pos->ticks_per_beat);
         pos->bar_start_tick = pos->bar * pos->beats_per_bar *
                               pos->ticks_per_beat;
-        pos->bar++;		/* adjust start to bar 1 */
+        pos->bar++;     /* adjust start to bar 1 */
 
 #if 1
         /* some debug code... */
@@ -92,23 +92,23 @@ static void timebase(jack_transport_state_t state, jack_nframes_t nframes,
 
         /* Compute BBT info based on previous period. */
         pos->tick +=
-        nframes * pos->ticks_per_beat * pos->beats_per_minute
-        / (pos->frame_rate * 60);
+            nframes * pos->ticks_per_beat * pos->beats_per_minute
+            / (pos->frame_rate * 60);
 
         while (pos->tick >= pos->ticks_per_beat) {
             pos->tick -= pos->ticks_per_beat;
-//			ToggleTempo();
+            //          ToggleTempo();
             printd(LogDebug, "Beat %ld\n", pos->beat);
             if (++pos->beat > pos->beats_per_bar) {
                 pos->beat = 1;
                 ++pos->bar;
                 pos->bar_start_tick +=
-                pos->beats_per_bar
-                * pos->ticks_per_beat;
+                    pos->beats_per_bar
+                    * pos->ticks_per_beat;
             }
         }
-//		printd(LogDebug, "Old Jack Position %ld %ld %ld\n", pos->beat,
-//			pos->tick, pos->ticks_per_beat);
+        //      printd(LogDebug, "Old Jack Position %ld %ld %ld\n", pos->beat,
+        //          pos->tick, pos->ticks_per_beat);
     }
 }
 
@@ -116,7 +116,7 @@ void jack_poll(void) {
     jack_position_t current;
     jack_transport_state_t transport_state;
 
-    transport_state = jack_transport_query (client, &current);
+    transport_state = jack_transport_query(client, &current);
 
     printd(LogDebug, "JackPoll: %lf %d %d %d\n",
            current.beats_per_minute,
@@ -199,7 +199,7 @@ void com_setBeats(int Beats, int Type) {
 static void com_timeout(int TimeOut) {
     double timeout = TimeOut;
 
-    jack_set_sync_timeout(client, (jack_time_t) (timeout * 1000000));
+    jack_set_sync_timeout(client, (jack_time_t)(timeout * 1000000));
 }
 
 /* Toggle between play and stop state */
@@ -207,14 +207,14 @@ static void com_toggle(void) {
     jack_position_t current;
     jack_transport_state_t transport_state;
 
-    transport_state = jack_transport_query (client, &current);
+    transport_state = jack_transport_query(client, &current);
 
     switch (transport_state) {
     case JackTransportStopped:
-        com_play(  );
+        com_play();
         break;
     case JackTransportRolling:
-        com_stop(  );
+        com_stop();
         break;
     case JackTransportStarting:
         printd(LogError, "state: Starting - no transport toggling");
@@ -238,7 +238,7 @@ int InitJackTransport(void) {
     }
 #endif
     /* open a connection to the JACK server */
-    client = jack_client_open (package, JackNullOption, &status);
+    client = jack_client_open(package, JackNullOption, &status);
     if (client == NULL) {
         printd(LogError, "jack_client_open() failed, "
                "status = 0x%2.0x\n", status);
@@ -255,7 +255,7 @@ int InitJackTransport(void) {
     com_master();
     // Using jack as tempo master.
     JackRunning = FALSE;
-//	com_play();
+    //  com_play();
     com_activate();
     printd(LogDebug, "*********** Jack done\n");
 }

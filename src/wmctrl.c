@@ -108,8 +108,8 @@ void RaiseWindows(char *AppName) {
     printf("RaiseWindows. %s\n", AppName);
 
     if (!(disp = XOpenDisplay(NULL))) {
-       printf("Cannot open display. %x\n", stderr);
-        //		fputs("Cannot open display. %x\n", stderr);
+        printf("Cannot open display. %x\n", stderr);
+        //      fputs("Cannot open display. %x\n", stderr);
         return;
     }
     options.param_window = AppName;
@@ -184,7 +184,7 @@ int wmctl(int argc, char **argv) { /* {{{ */
 
     memset(&options, 0, sizeof(options)); /* just for sure */
 
-    //	printf("wmcrtl Arg %d\n", argc);
+    //  printf("wmcrtl Arg %d\n", argc);
     /* necessary to make g_get_charset() and g_locale_*() work */
     setlocale(LC_ALL, "");
 
@@ -349,7 +349,7 @@ static void init_charset(void) { /*{{{*/
     const gchar *charset; /* unused */
     gchar *lang = getenv("LANG") ? g_ascii_strup(getenv("LANG"), -1) : NULL;
     gchar *lc_ctype =
-    getenv("LC_CTYPE") ? g_ascii_strup(getenv("LC_CTYPE"), -1) : NULL;
+        getenv("LC_CTYPE") ? g_ascii_strup(getenv("LC_CTYPE"), -1) : NULL;
 
     /* this glib function doesn't work on my system ... */
     envir_utf8 = g_get_charset(&charset);
@@ -384,7 +384,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
     event.xclient.message_type = XInternAtom(disp, msg, False);
     event.xclient.window = win;
     event.xclient.format = 32;
-    //	printf("client_msg %ld\n", data0);
+    //  printf("client_msg %ld\n", data0);
     event.xclient.data.l[0] = data0;
     event.xclient.data.l[1] = data1;
     event.xclient.data.l[2] = data2;
@@ -414,7 +414,7 @@ static gchar *get_output_str(gchar *str, gboolean is_utf8) { /*{{{*/
         else {
             if (!(out = g_locale_to_utf8(str, -1, NULL, NULL, NULL))) {
                 p_verbose(
-                "Cannot convert string from locale charset to UTF-8.\n");
+                    "Cannot convert string from locale charset to UTF-8.\n");
                 out = g_strdup(str);
             }
         }
@@ -423,7 +423,7 @@ static gchar *get_output_str(gchar *str, gboolean is_utf8) { /*{{{*/
         if (is_utf8) {
             if (!(out = g_locale_from_utf8(str, -1, NULL, NULL, NULL))) {
                 p_verbose(
-                "Cannot convert string from UTF-8 to locale charset.\n");
+                    "Cannot convert string from UTF-8 to locale charset.\n");
                 out = g_strdup(str);
             }
         }
@@ -535,8 +535,8 @@ static int showing_desktop(Display *disp) { /*{{{*/
         }
         else {
             fputs(
-            "The argument to the -k option must be either \"on\" or \"off\"\n",
-            stderr);
+                "The argument to the -k option must be either \"on\" or \"off\"\n",
+                stderr);
             return EXIT_FAILURE;
         }
 
@@ -547,7 +547,7 @@ static int showing_desktop(Display *disp) { /*{{{*/
 static int change_viewport(Display *disp) { /*{{{*/
     unsigned long x, y;
     const char *argerr =
-    "The -o option expects two integers separated with a comma.\n";
+        "The -o option expects two integers separated with a comma.\n";
 
     if (sscanf(options.param, "%lu,%lu", &x, &y) == 2) {
         return client_msg(disp, DefaultRootWindow(disp),
@@ -562,7 +562,7 @@ static int change_viewport(Display *disp) { /*{{{*/
 static int change_geometry(Display *disp) { /*{{{*/
     unsigned long x, y;
     const char *argerr =
-    "The -g option expects two integers separated with a comma.\n";
+        "The -g option expects two integers separated with a comma.\n";
 
     if (sscanf(options.param, "%lu,%lu", &x, &y) == 2) {
         return client_msg(disp, DefaultRootWindow(disp),
@@ -626,7 +626,7 @@ static void window_set_title(Display *disp, Window win, /* {{{ */
         }
         (disp, win, XInternAtom(disp, "_NET_WM_NAME", False), XInternAtom(disp,
                 "UTF8_STRING", False), 8, PropModeReplace, title_utf8, strlen(
-         title_utf8));
+             title_utf8));
     }
 
     if (mode == 'T' || mode == 'I') {
@@ -709,7 +709,7 @@ static int window_state(Display *disp, Window win, char *arg) { /*{{{*/
     Atom prop2 = 0;
     char *p1, *p2;
     const char *argerr =
-    "The -b option expects a list of comma separated parameters: \"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
+        "The -b option expects a list of comma separated parameters: \"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
 
     if (!arg || strlen(arg) == 0) {
         fputs(argerr, stderr);
@@ -750,7 +750,7 @@ static int window_state(Display *disp, Window win, char *arg) { /*{{{*/
                 return EXIT_FAILURE;
             }
             tmp_prop2 = g_strdup_printf("_NET_WM_STATE_%s", tmp2 =
-                                        g_ascii_strup(p2, -1));
+                                            g_ascii_strup(p2, -1));
             p_verbose("State 2: %s\n", tmp_prop2);
             prop2 = XInternAtom(disp, tmp_prop2, False);
             g_free(tmp2);
@@ -805,7 +805,7 @@ static int window_move_resize(Display *disp, Window win, char *arg) { /*{{{*/
     signed long grav, x, y, w, h;
     unsigned long grflags;
     const char *argerr =
-    "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
+        "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
 
     if (!arg || strlen(arg) == 0) {
         fputs(argerr, stderr);
@@ -819,8 +819,8 @@ static int window_move_resize(Display *disp, Window win, char *arg) { /*{{{*/
 
     if (grav < 0) {
         fputs(
-        "Value of gravity mustn't be negative. Use zero to use the default gravity of the window.\n",
-        stderr);
+            "Value of gravity mustn't be negative. Use zero to use the default gravity of the window.\n",
+            stderr);
         return EXIT_FAILURE;
     }
 
@@ -847,7 +847,7 @@ static int window_move_resize(Display *disp, Window win, char *arg) { /*{{{*/
     }
     else {
         p_verbose(
-        "WM doesn't support _NET_MOVERESIZE_WINDOW. Gravity will be ignored.\n");
+            "WM doesn't support _NET_MOVERESIZE_WINDOW. Gravity will be ignored.\n");
         if ((w < 1 || h < 1) && (x >= 0 && y >= 0)) {
             XMoveWindow(disp, win, x, y);
         }
@@ -888,7 +888,7 @@ static int action_window(Display *disp, Window win, char mode) { /*{{{*/
         /* move the window to the current desktop and activate it => -r */
         if (window_to_desktop(disp, win, -1) == EXIT_SUCCESS) {
             usleep(100000); /* 100 ms - make sure the WM has enough
-				 time to move the window, before we activate it */
+                 time to move the window, before we activate it */
             return activate_window(disp, win, FALSE);
         }
         else {
@@ -926,7 +926,7 @@ static int action_window_str(Display *disp, char mode) { /*{{{*/
     unsigned long client_list_size;
     int i;
 
-	printf("action_window_str %s %c\n", options.param_window, mode);
+    printf("action_window_str %s %c\n", options.param_window, mode);
     if (strcmp(SELECT_WINDOW_MAGIC, options.param_window) == 0) {
         activate = Select_Window(disp);
         if (activate) {
@@ -1003,7 +1003,7 @@ static int action_window_str(Display *disp, char mode) { /*{{{*/
             return action_window(disp, activate, mode);
         }
         else {
-//            printf("Failed\n");
+            //            printf("Failed\n");
             return EXIT_FAILURE;
         }
     }
@@ -1071,7 +1071,7 @@ static int list_desktops(Display *disp) { /*{{{*/
                              DefaultRootWindow(disp),
                              XA_CARDINAL, "_NET_DESKTOP_GEOMETRY", &desktop_geometry_size))) {
         p_verbose(
-        "Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");
+            "Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");
     }
 
     /* desktop viewport */
@@ -1079,7 +1079,7 @@ static int list_desktops(Display *disp) { /*{{{*/
                              DefaultRootWindow(disp),
                              XA_CARDINAL, "_NET_DESKTOP_VIEWPORT", &desktop_viewport_size))) {
         p_verbose(
-        "Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
+            "Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
     }
 
     /* desktop workarea */
@@ -1114,7 +1114,7 @@ static int list_desktops(Display *disp) { /*{{{*/
         if (desktop_geometry_size == 2 * sizeof(*desktop_geometry)) {
             /* only one value - use it for all desktops */
             p_verbose(
-            "WM provides _NET_DESKTOP_GEOMETRY value common for all desktops.\n");
+                "WM provides _NET_DESKTOP_GEOMETRY value common for all desktops.\n");
             for (i = 0; i < *num_desktops; i++) {
                 desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
                                           desktop_geometry[0], desktop_geometry[1]);
@@ -1123,7 +1123,7 @@ static int list_desktops(Display *disp) { /*{{{*/
         else {
             /* seperate values for desktops of different size */
             p_verbose(
-            "WM provides separate _NET_DESKTOP_GEOMETRY value for each desktop.\n");
+                "WM provides separate _NET_DESKTOP_GEOMETRY value for each desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i < desktop_geometry_size / sizeof(*desktop_geometry) / 2) {
                     desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
@@ -1148,7 +1148,7 @@ static int list_desktops(Display *disp) { /*{{{*/
         if (desktop_viewport_size == 2 * sizeof(*desktop_viewport)) {
             /* only one value - use it for current desktop */
             p_verbose(
-            "WM provides _NET_DESKTOP_VIEWPORT value only for the current desktop.\n");
+                "WM provides _NET_DESKTOP_VIEWPORT value only for the current desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i == *cur_desktop) {
                     desktop_viewport_str[i] = g_strdup_printf("%lu,%lu",
@@ -1185,7 +1185,7 @@ static int list_desktops(Display *disp) { /*{{{*/
         if (desktop_workarea_size == 4 * sizeof(*desktop_workarea)) {
             /* only one value - use it for current desktop */
             p_verbose(
-            "WM provides _NET_WORKAREA value only for the current desktop.\n");
+                "WM provides _NET_WORKAREA value only for the current desktop.\n");
             for (i = 0; i < *num_desktops; i++) {
                 if (i == *cur_desktop) {
                     desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu",
@@ -1440,7 +1440,7 @@ static gchar *get_property(Display *disp, Window win, /*{{{*/
      * http://mail.gnome.org/archives/wm-spec-list/2003-March/msg00067.html
      * In particular:
      *
-     * 	When the X window system was ported to 64-bit architectures, a
+     *  When the X window system was ported to 64-bit architectures, a
      * rather peculiar design decision was made. 32-bit quantities such
      * as Window IDs, atoms, etc, were kept as longs in the client side
      * APIs, even when long was changed to 64 bits.

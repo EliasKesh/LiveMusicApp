@@ -696,14 +696,14 @@ static GtkWidget *CreatePatchViewModel(void) {
     g_object_set(renderer,
                  "editable", TRUE,
                  "editable-set", TRUE,
- //                "width-chars", 300,
- //                "wrap-width", 300,
+                 //                "width-chars", 300,
+                 //                "wrap-width", 300,
                  NULL);
 
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             Name_COLUMN, "Name", renderer, "text", Name_COLUMN,
             NULL);
-    
+
     g_object_set_data(G_OBJECT(renderer), "column",
                       GUINT_TO_POINTER(Name_COLUMN));
     g_signal_connect(renderer, "edited",
@@ -758,8 +758,8 @@ static GtkWidget *CreatePatchViewModel(void) {
     col = (GtkTreeViewColumn *)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             Output_COLUMN, "Patch", renderer,
             "text", Output_COLUMN,
-                // "width-chars", 300,
-                //  "wrap-width", 300,
+            // "width-chars", 300,
+            //  "wrap-width", 300,
             //          "default-width", 300,
             (void *)NULL);
 
@@ -808,8 +808,8 @@ static GtkWidget *CreatePatchViewModel(void) {
     /* --- Patch_COLUMN --- */
     renderer = gtk_cell_renderer_combo_new();
     g_object_set(renderer, "text-column", 0, "model", ChainModel, "mode",
-                 GTK_CELL_RENDERER_MODE_ACTIVATABLE, 
-                 "editable", TRUE, 
+                 GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+                 "editable", TRUE,
                  "has-entry", FALSE,
                  NULL);
     col = (GtkTreeViewColumn *)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
@@ -843,7 +843,7 @@ static GtkWidget *CreatePatchViewModel(void) {
     g_object_set_data(G_OBJECT(renderer), "column",
                       GUINT_TO_POINTER(Chain_COLUMN));
     g_signal_connect(renderer, "edited", (GCallback) PatchListEdited, view);
-//    g_object_set(renderer, "editable-set", TRUE, NULL);
+    //    g_object_set(renderer, "editable-set", TRUE, NULL);
     g_signal_connect(G_OBJECT(renderer), "editing-started",
                      G_CALLBACK(text_editing_started), Chain_COLUMN);
 #endif
@@ -996,7 +996,7 @@ static GtkWidget *CreateStringViewModel(void) {
     /* --- String Name --- */
     renderer = gtk_cell_renderer_combo_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-//    g_object_set(renderer, "editable-set", TRUE, NULL);
+    //    g_object_set(renderer, "editable-set", TRUE, NULL);
     g_object_set(renderer, "text-column", 0,
                  "model", combomodel, "mode",
                  GTK_CELL_RENDERER_MODE_ACTIVATABLE,
@@ -1135,7 +1135,7 @@ static GtkWidget *CreatePortsViewModel(void) {
     /* --- Port Name --- */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-//    g_object_set(renderer, "editable-set", TRUE, NULL);
+    //    g_object_set(renderer, "editable-set", TRUE, NULL);
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             StringColumn2, "Port Name", renderer, "text", StringColumn2,
             NULL);
@@ -1195,7 +1195,7 @@ static GtkTreeModel *CreateLayoutModel(void) {
 *
 *------------------------------------------------*/
 static void LayoutsListEdited(GtkCellRendererText * cell, gchar * path_string,
-                                   gchar * new_text, gpointer user_data) {
+                              gchar * new_text, gpointer user_data) {
     GtkTreeView *treeview = (GtkTreeView *) user_data;
     GtkTreeModel *model;
     GtkTreeIter iter;
@@ -1272,7 +1272,7 @@ static GtkWidget *CreateLayoutsViewModel(void) {
     /* --- Port Name --- */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-//    g_object_set(renderer, "editable-set", TRUE, NULL);
+    //    g_object_set(renderer, "editable-set", TRUE, NULL);
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             StringColumn2, "Layout Name", renderer, "text", StringColumn2,
             NULL);
@@ -1383,7 +1383,7 @@ static GtkWidget *CreateApplicationViewModel(void) {
     /* --- Port Name --- */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-//    g_object_set(renderer, "editable-set", TRUE, NULL);
+    //    g_object_set(renderer, "editable-set", TRUE, NULL);
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             StringColumn2, "Application Name", renderer, "text", StringColumn2,
             NULL);

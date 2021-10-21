@@ -658,6 +658,9 @@ int ResetPlayer(void) {
     CurrentSongPosition = 0.0;
     PlayerWrite("set_property stream_pos 0.000\n");
     PlayerWrite("set_property time_pos 0.000\n");
+    // printd(LogPlayer, "stream_end\n");
+    // PlayerWrite("get_property stream_end \n");
+    // PlayerWrite("get_property stream_length \n");
     return (0);
 }
 
@@ -937,12 +940,40 @@ void PlayerPoll(char How) {
      */
     ReturnCount = read(InPipeFD, Buffer, sizeof(Buffer));
     Current = Buffer;
+    printd(LogPlayer, "M buffer %s\n", Current);
 
     if (ReturnCount > 0) {
         printd(LogPlayer, "**V**  %d  %s\n", ReturnCount,  Current);
 
         while (CommandsDone == 0) {
             CommandsDone = 1;
+            // ID_CLIP_INFO_VALUE0 title
+            // ID_CLIP_INFO_VALUE1 Artist
+            // ID_AUDIO_BITRATE=128000
+            // ID_AUDIO_RATE=44100
+            // ID_AUDIO_NCH=2
+            // ID_START_TIME=0.00
+            // ID_LENGTH=590.95
+            // ID_SEEKABLE=1
+            // ID_CHAPTERS=0
+
+            /*
+             * Get the current song length since the ANS_LENGTH is not
+             * Always correct. Many messages about the issues but no
+             * Resolution. So we did this instead.
+             */
+            Found = strstr(Current, "ID_LENGTH");
+            if (Found != NULL) {
+                CommandsDone = 0;
+                Found += 10;
+                Current = Found;
+                FValue = atof(Found) + .5;
+                TotalLength = FValue;
+                printd(LogPlayer, "Found TOTAL LENGTH ID_LENGTH %f\n", FValue);
+                gtk_adjustment_set_upper(PositionAdjustment, FValue);
+                gtk_adjustment_set_upper(FineStartAdjustment, FValue);
+                gtk_adjustment_set_upper(FineEndAdjustment, FValue);
+            }
 
             /*
              * Get the current song length
@@ -1588,13 +1619,14 @@ int StartPlayer(void) {
     --quiet prevents console output
     --nocache used for seeking
     --hr-mp3-seek Helps with exact position for seek
+    possible fix for length
+    -demuxer lavf
     for stereo use two output system:playback_(21|22)
     */
     if (WeAreLooping) {
         sprintf(PlayerString,
                 //              "-use-filedir-conf=./Prefs/mplayer/
-                "mplayer -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
-                //              "mplayer -ao jack:port=jack-volume:name=MPlayer -slave -hr-mp3-seek -quiet -idle -af scaletempo -loop 0 -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" >/tmp/LiveMusicIn &>/dev/null" ,
+                "mplayer -identify -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
                 gtk_adjustment_get_value(FineStartAdjustment),
                 gtk_adjustment_get_value(FineEndAdjustment),
                 gtk_adjustment_get_value(VolumeAdjustment),
@@ -1602,12 +1634,11 @@ int StartPlayer(void) {
                 CurrentSpeed, CurrentFile);
         // -fixed-ao hangs
         printd(LogPlayer, "calling  Loop %s\n", PlayerString);
-        printf("Looping %s\n", PlayerString);
 
     }
     else {
         sprintf(PlayerString,
-                "mplayer \"%s\" -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null", (char *)CurrentFile,
+                "mplayer \"%s\" -identify -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null", (char *)CurrentFile,
                 CurrentSongPosition,
                 gtk_adjustment_get_value(VolumeAdjustment),
                 CurrentSpeed);
@@ -1787,7 +1818,10 @@ bool plPausePlay(void) {
         //      PlayerWrite("pause\n");
         printd(LogPlayer, "plPausePlay->StartPlayer\n");
         StartPlayer();
+
+        // Ask for the total length.
         PlayerWrite("get_time_length\n");
+        // mp3info -p%S
 
         printd(LogPlayer, "Mplayer Play\n");
         InPlayingState = 1;

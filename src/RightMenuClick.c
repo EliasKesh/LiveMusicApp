@@ -1,27 +1,27 @@
 /*------------------------------------------------
 |
-|	File: 	RightMenuClick
+|   File:   RightMenuClick
 |
-|	Contains:
+|   Contains:
 |
 |
-|	Written By: 	Elias Keshishoglou on Thu Sep 25 13:12:39 PDT 2014
+|   Written By:     Elias Keshishoglou on Thu Sep 25 13:12:39 PDT 2014
 |
-|	Copyright �: 	2014 Elias Keshishoglou all rights reserved.
+|   Copyright �:  2014 Elias Keshishoglou all rights reserved.
 |
-|	This program is free software; you can redistribute it and/or
-|	modify it under the terms of the GNU General Public License
-|	as published by the Free Software Foundation; either version 2
-|	of the License, or (at your option) any later version.
+|   This program is free software; you can redistribute it and/or
+|   modify it under the terms of the GNU General Public License
+|   as published by the Free Software Foundation; either version 2
+|   of the License, or (at your option) any later version.
 |
-|	This program is distributed in the hope that it will be useful,
-|	but WITHOUT ANY WARRANTY; without even the implied warranty of
-|	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-|	GNU General Public License for more details.
+|   This program is distributed in the hope that it will be useful,
+|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|   GNU General Public License for more details.
 |
-|	You should have received a copy of the GNU General Public License
-|	along with this program; if not, write to the Free Software
-|	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|   You should have received a copy of the GNU General Public License
+|   along with this program; if not, write to the Free Software
+|   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 |
 |
 |------------------------------------------------*/
@@ -48,7 +48,7 @@
  */
 
 /*-----------------------------------------------
- * Function:		view_popup_menu
+ * Function:        view_popup_menu
  * Description:
  *
  *------------------------------------------------*/
@@ -60,13 +60,13 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
 
     menuitem = gtk_menu_item_new_with_label("Do something");
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    //	g_signal_connect(menuitem, "activate",
-    //	                 (GCallback ) view_popup_menu_onDoSomething, 1);
+    //  g_signal_connect(menuitem, "activate",
+    //                   (GCallback ) view_popup_menu_onDoSomething, 1);
 
     menuitem = gtk_menu_item_new_with_label("or something");
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    //	g_signal_connect(menuitem, "activate",
-    //	                 (GCallback ) view_popup_menu_onDoSomething, 2);
+    //  g_signal_connect(menuitem, "activate",
+    //                   (GCallback ) view_popup_menu_onDoSomething, 2);
 
     gtk_widget_show_all(menu);
 
@@ -77,7 +77,7 @@ void view_popup_menu(GtkWidget *treeview, GdkEventButton *event,
 }
 
 /*-----------------------------------------------
- * Function:		Patch_Popup_CB
+ * Function:        Patch_Popup_CB
  * Description:
  *
  *------------------------------------------------*/
@@ -86,8 +86,8 @@ void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
     uintptr_t MyValue = (uintptr_t)userdata;
 
     /* we passed the view as userdata when we connected the signal */
-    //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-    //	g_print("Do something! %d\n", (int)userdata);
+    //  GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
+    //  g_print("Do something! %d\n", (int)userdata);
     printd(LogDebug, "Patch_Popup_CB %d\n", MyValue);
 
 
@@ -107,13 +107,13 @@ void Patch_Popup_CB(GtkWidget *menuitem, gpointer userdata) {
 }
 
 /*-----------------------------------------------
- * Function:		CreatePatchPopupMenu
+ * Function:        CreatePatchPopupMenu
  * Description:
  *
  *------------------------------------------------*/
 void CreatePatchPopupMenu(void) {
     GtkWidget *menuitem;
-    int	Loop;
+    int Loop;
 
     if (PatchPopupMenu) {
         // Should free something.
@@ -130,19 +130,19 @@ void CreatePatchPopupMenu(void) {
 }
 
 /*-----------------------------------------------
- * Function:		ShowPatchListSelect
- * Description:		Bring up the list of Popup's
+ * Function:        ShowPatchListSelect
+ * Description:     Bring up the list of Popup's
  *
  *
  *------------------------------------------------*/
-int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
+int  ShowPatchListSelect(GtkWidget *Temp, int Current) {
 
     GtkWidget *treeview;
     printd(LogInfo, "On Butting Pressed CB\n");
 
     /* single click with the right mouse button? */
     printd(LogDebug, "view_onButtonPressed");
-    //	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+    //  if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
     if (1) {
         gtk_widget_show_all(PatchPopupMenu);
 
@@ -160,14 +160,14 @@ int	 ShowPatchListSelect(GtkWidget *Temp, int Current) {
 #if 0
 
 /*-----------------------------------------------
- * Function:		view_popup_menu_onDoSomething
+ * Function:        view_popup_menu_onDoSomething
  * Description:
  *
  *------------------------------------------------*/
 void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata) {
     /* we passed the view as userdata when we connected the signal */
-    //	GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
-    //	g_print("Do something! %d\n", (int)userdata);
+    //  GtkTreeView *treeview = GTK_TREE_VIEW(userdata);
+    //  g_print("Do something! %d\n", (int)userdata);
 
     switch ((int) userdata) {
     case 1:
@@ -179,7 +179,7 @@ void view_popup_menu_onDoSomething(GtkWidget *menuitem, int userdata) {
 }
 
 /*-----------------------------------------------
- * Function:		view_onButtonPressed
+ * Function:        view_onButtonPressed
  * Description:
  *
  *------------------------------------------------*/
@@ -205,15 +205,15 @@ gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata) {
 }
 
 /*-----------------------------------------------
- * Function:		create_Popup_view
- * Description:		Here is where is initialize the Popup
+ * Function:        create_Popup_view
+ * Description:     Here is where is initialize the Popup
  *
  *------------------------------------------------*/
 void create_Popup_view(GtkWidget *view) {
-    //	GtkWidget *view;
+    //  GtkWidget *view;
     printd(LogInfo, "Before TreeView\n");
 
-    //	view = gtk_tree_view_new();
+    //  view = gtk_tree_view_new();
 
     g_signal_connect(view, "button-press-event",
                      (GCallback) view_onButtonPressed, NULL);

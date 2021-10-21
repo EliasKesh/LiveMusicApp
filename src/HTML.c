@@ -891,10 +891,10 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     */
     if (strstr(theURI, ".html") || (ext == NULL)) {
         printd(LogDebug, "*** theURI is html");
-//       return (FALSE);
-       return (TRUE);
+        //       return (FALSE);
+        return (TRUE);
     }
-//    return TRUE;
+    //    return TRUE;
 
     // Let's check if the MusicApp.sh can handle this.
     sprintf(string, "MusicApps.sh %s \'%s\' \'%s\' ", ext + 1, &theURI[7], theURI);
@@ -1204,8 +1204,8 @@ void InitHTML(GtkBuilder * gxml) {
     strncpy(&FileName[7], gMyInfo.BasePath, sizeof(FileName) - 7);
     printd(LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
 #if 1
-//    webkit_web_view_load_uri(web_view, "http:///www.google.com");
-//    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
+    //    webkit_web_view_load_uri(web_view, "http:///www.google.com");
+    //    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
     webkit_web_view_load_uri(web_view, FileName);
 #else
     webkit_web_view_load_html(web_view, FileName, "file:///");

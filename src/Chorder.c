@@ -742,6 +742,8 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
         return (0);
     }
 
+    Fheight -= 150;
+
     FretOffset = Fwidth / MaxDisplayFrets;
     StringOffset = (Fheight) / NumStrings;
 
@@ -1162,7 +1164,7 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
         cairo_line_to(cr, StaffX + StaffLength, StaffY + (Loop * StaffOffSet));
         cairo_stroke(cr);
     }
-    
+
     cairo_set_source_surface(cr, TrebleClef,
                              StaffX,
                              StaffY - 30);
