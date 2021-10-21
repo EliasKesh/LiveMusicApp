@@ -74,7 +74,7 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo);
  */
 
 //#include "DefPrefs.h"
-#include "GenPrefs.h"
+//#include "GenPrefs.h"
 
 /*--------------------------------------------------------------------
  * Function:        InitPref
@@ -92,23 +92,27 @@ InitPref(void) {
     /* If we can not read the XML file load up the defaults.
     */
 #if 1
-    if (ReadPrefs()) {
-        memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
-        printd(LogDebug, "ReadFrefs Failed. \n");
-        NewInstall = 1;
-    }
+//    if (NewInstall) {
+//        printd(LogDebug, "New Install Copy Pref\n");
+//        strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes));
+//       memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
+//    }
+//    else {
+        printd(LogDebug, "Read xml File\n");
+        ReadPrefs();
+//    }
+
+    // if (ReadPrefs()) {
+    //     memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
+    //     printd(LogDebug, "ReadFrefs Failed. \n");
+    //     NewInstall = 1;
+    // }
 
 //        PrintDataStructure(&gMyInfo, NULL);
 //        exit(0);
 #else
     memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
 #endif
-    /* If it's a new install set the Charts directory.
-    */
-    if (NewInstall) {
-        strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes));
-        printd(LogDebug, "New Install\n");
-    }
 
     printd(LogDebug, "Prefs file %s\n", gMyInfo.BasePath);
 
@@ -132,7 +136,7 @@ InitPref(void) {
     /* Setup some parameters that require preferences values.
     */
     PostProcessPrefs(&gMyInfo);
-    gMyInfo.MidiThresholdLevel = 35;
+    gMyInfo.MidiThresholdLevel = 30;
 
     //  exit(0);
 }

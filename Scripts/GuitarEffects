@@ -554,26 +554,46 @@ function SetUpConnections {
     # ********************************
     aconnect "TriplePlay Connect":"0" "LiveMidi":2
     aconnect "Fishman TriplePlay":"0" "LiveMidi":2
+
+    # for Keyboard
     aconnect "USB Uno MIDI Interface":"0" "LiveMidi":2
+
+    # Pedal Versions
     aconnect "EliasPedal3":"0" "LiveMusic":"0"
     aconnect "EliasGuitar":"0" "LiveMusic":"0"
     aconnect "LPD8":"0" "LiveDAW":"1"
     
+    # Midi
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
+    # Metronome
     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+    # Drum Looper
     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+
+    # Temp control for sooper
+#    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
     
+    # TO Pedalboard
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
+    # To Guitar Controller
     aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
+    # To KorgNano
     aconnect "LiveMusic Output":"7" "LPD8":"0"
+    aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
+    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
+
+
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
-    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
     aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
-    aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
     aconnect "Fishman TriplePlay":0 "MusE":0
     
     
+    aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
+    aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
+    aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
+    aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
+
     # ********************************
     # **** Jack audio and midi connections
     # ********************************

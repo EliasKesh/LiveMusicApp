@@ -17,15 +17,8 @@
 ReIndex.sh
 set -x
 
-cd /home/Music/
-chown elias: Learn  -R
-chmod 700 Learn
-
 BaseDir=/home/Music/Learn/
 cd $BaseDir
-
-find ./ -type d -exec chmod 700 {} \;
-find ./ -type f -exec chmod 600 {} \;
 
 cd /home/Music/EliasOriginals
 LiveMusicCharts.py . -vci
@@ -81,6 +74,8 @@ LiveMusicCharts.py . -vcfirpg
 cd $CurDir/MO_Electric_Fusion_Soloing
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/MM_20LicksNLFingerstyle
+LiveMusicCharts.py . -vcfirpg
+cd $CurDir/MO_20FunkedUpFusionLicks
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir
 LiveMusicCharts.py . -il
@@ -310,6 +305,14 @@ DirectoryToHtml.py
 cd /home/Music/Learn/
 # LiveMusicCharts.py . -vg
 DirectoryToHtml.py
+
+
+# find ./ -type d -exec chmod 700 {} \;
+# find ./ -type f -exec chmod 600 {} \;
+
+cd $BaseDir
+chown elias: *  -R
+chmod 700 *
 
 # Normalize the audio output
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;

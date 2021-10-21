@@ -1205,8 +1205,8 @@ void InitHTML(GtkBuilder * gxml) {
     printd(LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
 #if 1
 //    webkit_web_view_load_uri(web_view, "http:///www.google.com");
-    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
-//    webkit_web_view_load_uri(web_view, FileName);
+//    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
+    webkit_web_view_load_uri(web_view, FileName);
 #else
     webkit_web_view_load_html(web_view, FileName, "file:///");
 #endif

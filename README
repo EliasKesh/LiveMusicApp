@@ -17,14 +17,18 @@ an analog effects processor (rakarrack), midi font player
 However all of these are configurable so that they can be changed
 based on the preferences of the user.
 
-Building:
+Ubuntu Studio 21.10 requires these to be installed.
+apt-get install libtool m4 automake gtk+-3.0-dev libasound2-dev libglade2-dev libgladeui-dev libwebkit2gtk-4.0-dev libjack-jackd2-dev liblo-dev libxml2-dev libxmu-dev libxmuu-dev gedit git glade llibxmltok1-devReading
+
+
+# Building:
 ./autogen.sh clean
 ./autogen.sh
 ./confgure
 make
 sudo make install
 
-To build a debian package
+# To build a debian package
 # Change Version
 dch -v 1.7.3 - 1
 # build the deb

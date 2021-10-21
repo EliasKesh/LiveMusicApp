@@ -54,6 +54,8 @@ include file.
 #include <pwd.h>
 #include "libgen.h"
 #include <sys/stat.h>
+#include "GenPrefs.h"
+
 
 #define GLADE_FILE "LiveMusicApp.glade"
 #define Icon_FILE GetResourceDir("LiveIcon.png",FileLocConfig)
@@ -182,7 +184,8 @@ char *printd(int LogLevel, const char *fmt, ...) {
         printf("L%x %s", LogLevel, p);
     }
 
-    fprintf(LogFile, "L%x %s", LogLevel, p);
+    if (LogFile != NULL)
+        fprintf(LogFile, "L%x %s", LogLevel, p);
 
     return NULL;
 }
@@ -201,10 +204,13 @@ int main(int argc, char *argv[]) {
     GtkWidget *PlayerWidget;
     GtkWidget *EventBox;
     GError *err = NULL;
+#if 0
     /*----- CSS ----------- */
     GtkCssProvider *provider;
     GdkDisplay *display;
     GdkScreen *screen;
+#endif
+    
     /*-----------------------*/
     int BButtonX, BButtonY, MButtonX, MButtonY;
     int Loop;
@@ -233,6 +239,7 @@ int main(int argc, char *argv[]) {
 
     /* Let's see what's already installed.
     */
+    LogFile = NULL;
     CheckForStartupDirs();
     GetResourceDir("./MyFile.png", FileLocConfig);
     LogFile = fopen(GetResourceDir("GuitarLog.txt", FileLocConfig), "w+");
@@ -316,6 +323,7 @@ int main(int argc, char *argv[]) {
      */
     theMainWindow = GTK_WIDGET(gtk_builder_get_object(gxml, "window1"));
 
+#if 0
     /*------------- CSS  ---------------------------*/
     provider = gtk_css_provider_new();
     display = gdk_display_get_default();
@@ -324,6 +332,7 @@ int main(int argc, char *argv[]) {
     gtk_style_context_add_provider_for_screen(screen,
             GTK_STYLE_PROVIDER(provider),
             GTK_STYLE_PROVIDER_PRIORITY_USER);
+#endif
 
     printd(LogInfo, "ejk About to load\n");
 
@@ -977,7 +986,7 @@ char *GetResourceDir(char *FileName, char WhichLoc) {
 void CheckForStartupDirs(void) {
     struct stat s;
     int err;
-    char FileString[255];
+    char FileString[250];
     char CommandString[400];
     char *UserName;
 
@@ -989,14 +998,32 @@ void CheckForStartupDirs(void) {
 
     UserName = getenv("USER");
 
-    NewInstall = 0;
-    sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
-    err = stat(FileString, &s);
+//    NewInstall = 0;
 
-    if (-1 == err) {
-        printf("Not Found %s\n", FileString);
-        sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
+    sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
+
+    err = lstat(FileString, &s);
+//    err = access(FileString, &s);
+
+    if (err < 0) {
+        // Copy LiveMusic Prefs folder the local location
+        sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/local/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
         system(CommandString);
+        printf("New Inst %s\n", CommandString);
+
+        // Copy the Songs directory
+        sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/local/share/LiveMusicApp/MySongs %s/", UserName, UserName, homedir);
+        system(CommandString);
+        printf("New Inst %s\n", CommandString);
+
+        // Create a generic pref files.
+        printf("Fill in local preferences\n");
+        memcpy(&gMyInfo, &GlobalInfo, sizeof(LiveMusicInfo));
+        strcpy(gMyInfo.BasePath, GetResourceDir("index.html", FileLocTunes));
+        printf("Write to Preferences file\n");
+        WritePrefs();
+
+//        NewInstall = 1;
     }
 }
 
