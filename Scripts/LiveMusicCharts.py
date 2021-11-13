@@ -24,7 +24,6 @@ import subprocess
 #from icecream import ic
 import logging
 
-
 sPresets = []
 sSetIndex = 0
 sSetNow = []
@@ -51,6 +50,7 @@ sGPIndex = 0
 sTitle = ""
 
 # Write out the new HTML file
+# Here is where you can change the format.
 # ------------------------------------------
 def WriteFile(fname, dirname):
     global sSetIndex
@@ -134,9 +134,12 @@ def WriteFile(fname, dirname):
         elif (FileRef.find("mscz") > 0):
             theFile.write("<a style=\"color:orange\" href=\"" + FileRef +
                           "\">[" + FileName + "]</a>\n")
-        else:
-            theFile.write("<a style=\"color:lightgreen\" href=\"" + FileRef +
+        elif (FileRef.find("pdf") > 0):
+            theFile.write("<a style=\"color:gold\" href=\"" + FileRef +
                           "\">[" + FileName + "]</a>\n")
+#        else:
+#            theFile.write("<a style=\"color:lightgreen\" href=\"" + FileRef +
+#                          "\">[" + FileName + "]</a>\n")
 
     # Re-insert any user data
     ModString = sGlobalNotes.replace("\n\n", "\n")
@@ -155,44 +158,15 @@ def WriteFile(fname, dirname):
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
             logger.info("PDF Name: ", dirname + "/" + FileName)
-            theFile.write("<a style=\"color:blue\" href=\"" + FileName +
+            theFile.write("<a style=\"color:Gold\" href=\"" + FileName +
                           "\">[" + FileName + "]</a>\n")
-
-            #         pdf = PdfFileReader(open(dirname+"/"+FileName,'rb'))
-            #         pdfPages=pdf.getNumPages()
-
-            # #       a Bug in the evince browser plugin
-            #         if (pdf.getNumPages() == 2):
-            #           logger.debug ("Elias FIX: ",dirname+"/"+FileName )
-
-            # If it's a two page PDF set side by side mode
-            #        if (pdf.getNumPages() == 1):
-
-
-#            theFile.write(
-#                "<embed src=\"" + FileName +
-#                "\"  zoommode=\"auto\" height=\"100%\" continuous=\"false\" width=\"100%\" >\n"
-#            )
-#       else:
-#        theFile.write("<embed src=\""+FileName+"\"  zoommode=\"auto\" dual=\"true\" currentpage=\"2\"  continuous=\"false\" height=\"100%\" width=\"100%\" >\n")
         else:
             theFile.write("<img alt=\"\" src=\"" + FileName +
                           "\" width=\"100%\" >\n")
-#       theFile.write("<img alt=\"\" src=\""+FileName+"\" width=\"75%\" >\n")
-#       theFile.write("<img alt=\"\" src=\""+FileName+"\" >\n")
-#       theFile.write("<img alt=\"\" src=\""+FileName+"\" height=\"100%\" width=\"100%\" >\n")
-
-# Options for evince browser plugin
-#  ZoomMode "none"  "fit-page" "fit-width"  "auto") == 0)
-# Use pdfmod to insert a dummy front page.
-#from PyPDF2 import PdfFileReader
-#pdf = PdfFileReader(open('path/to/file.pdf','rb'))
-#pdf.getNumPages()
-
     theFile.write("</body>\n</html>\n")
     theFile.close()
 
-
+# There has to be a better way to do this.
 # ------------------------------------------
 def ClearVariables():
     global sSetIndex
@@ -312,7 +286,7 @@ def ClearVariables():
     sLoopLength = 4
     sSolo = "XXX"
 
-
+# Debug routine to all the variables.
 # ------------------------------------------
 def PrintVariables():
     global sSetIndex
@@ -344,8 +318,7 @@ def PrintVariables():
 
     print("Notes=", sGlobalNotes)
 
-
-# Check for a valid file.
+# Check for a valid LiveMusic file.
 # ------------------------------------------
 def ParseFile(fname, dirname):
     global sSetIndex
@@ -513,7 +486,7 @@ def LoadVariables(Files):
                 os.system(Command)
 
         if (filename.endswith("mscz")):
-            logger.debug ("Midi %s", filename)
+            logger.debug ("Midi %s %d", filename, sHREFIndex)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
@@ -533,12 +506,12 @@ def LoadVariables(Files):
             sHREFIndex = sHREFIndex + 1
 
         if (filename.endswith("mkv")):
-            logger.debug ("mkv %s", filename)
+            logger.debug ("mkv %s %d", filename, sHREFIndex)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
         if (filename.endswith("mp4")):
-            logger.debug ("mp4 %s", filename)
+            logger.debug ("mp4 %s %d", filename, sHREFIndex)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
@@ -555,10 +528,15 @@ def LoadVariables(Files):
                 sSrcFile[sSrcIndex] = filename
                 sSrcIndex = sSrcIndex + 1
 
+        # if (filename.endswith("txt")):
+        #     logger.debug ("txt %s", filename)
+        #     sSrcFile[sSrcIndex] = filename
+        #     sSrcIndex = sSrcIndex + 1
+
         if (filename.endswith("pdf")):
-            logger.info ("pdf sSrc %s", filename)
-            sSrcFile[sSrcIndex] = filename
-            sSrcIndex = sSrcIndex + 1
+            logger.info ("pdf sHREFIndex %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
 
 
 #        if (filename.endswith("webm")):
@@ -792,7 +770,7 @@ def index_folder(folderPath):
                     pass
 #                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:yellow\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("pdf")):
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:blue\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:gold \" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 else:
                     indexText += "\t\t<li>\n\t\t\t<a style=\"color:black\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
 
@@ -817,16 +795,19 @@ global logger
 
 parser = argparse.ArgumentParser(description='Usage: LiveMusicCharts.py . -a ')
 parser.add_argument("BaseDir", help="Base Directory")
-parser.add_argument("-v", action='store_true', help="Verify")
+parser.add_argument("-a", action='store_true', help="All Options")
+parser.add_argument("-c", action='store_true', help="Create HTML from folder")
+parser.add_argument("-d", action='store_true', help="Debugging print")
 parser.add_argument("-f", action='store_true', help="Fix additional meta Data")
+parser.add_argument("-g", action='store_true', help="Gp? to mscz")
 parser.add_argument("-i", action='store_true', help="Create index.html")
 parser.add_argument("-l", action='store_true', help="Directory Level")
-parser.add_argument("-c", action='store_true', help="Create HTML from folder")
-parser.add_argument("-r", action='store_true', help="Reference on Create")
-parser.add_argument("-p", action='store_true', help="Pdf to JPG")
-parser.add_argument("-g", action='store_true', help="Gp? to mscz")
 parser.add_argument("-n", action='store_true', help="Version Number")
-parser.add_argument("-a", action='store_true', help="All Options")
+parser.add_argument("-p", action='store_true', help="Pdf to JPG")
+parser.add_argument("-r", action='store_true', help="Reference on Create")
+parser.add_argument("-v", action='store_true', help="Verify")
+parser.add_argument("-z", action='store_true', help="Force Create")
+
 args = parser.parse_args()
 
 # updated by the version script do not change.
@@ -836,9 +817,12 @@ logger = logging.getLogger(__name__)
 
 # levels:logging.NOTSET,logging.DEBUG,logging.INFO,
 # logging.WARNING, logging.ERROR, logging.CRITICAL
-#MyLevel=logging.CRITICAL
-MyLevel=logging.INFO
-#MyLevel=logging.NOTSET
+#    MyLevel=logging.CRITICAL
+
+if (args.d):
+    MyLevel=logging.NOTSET
+else:
+    MyLevel=logging.INFO
 
 logger.setLevel(MyLevel)
 logging.basicConfig(level=MyLevel)
@@ -886,25 +870,32 @@ if (args.a):
 # Guitar Pro to MuseScore do that first so
 # the new files can be found and added.
 #-------------------------------------------------------
-for Root, Dir, Files in os.walk(BaseDir):
-    FoundHTML = 0
-    Files.sort()
-    logger.debug(BaseDir, Root, Dir, "\n")
-    ClearVariables()
-    for filename in Files:
+if (ConvertPDF):
+    for Root, Dir, Files in os.walk(BaseDir):
+        FoundHTML = 0
+        Files.sort()
+        logger.debug(BaseDir, Root, Dir, "\n")
+        ClearVariables()
+        for filename in Files:
         #        Check for an html file
-
-        if (ConvertPDF):
             logger.debug("Convert PDF")
             if filename.endswith('.html') and not filename.startswith('.'):
                 #            sys.stdout.write("\n 1-"+filename+" ")
                 FoundHTML = 1
+
                 #           walk thru a file and pull out meta data.
                 if (ParseFile(filename, Root) == 0):
                     #                logger.debug("Filename %s",filename)
                     ExtractPDF(Files, Root)
 
-        if (ConvertGP):
+if (ConvertGP):
+    for Root, Dir, Files in os.walk(BaseDir):
+        FoundHTML = 0
+        Files.sort()
+        logger.debug("GP-> %s %s %s\n",BaseDir, Root, Dir)
+        ClearVariables()
+        for filename in Files:
+            #        Check for an html file
             if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5",
                                    "gp6", "gp7", "gpx"))):
                 #           logger.debug ("Guitar Pro %s", filename)
@@ -954,7 +945,7 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
         for filename in Files:
             if (filename.endswith(".mp3") or filename.endswith(".mp4")
                     or filename.endswith(".webm")):
-                logger.debug("Found File %s", filename)
+                logger.debug("Found MP3 File %s", filename)
                 if (not os.path.exists(Root + "/" + filename + ".spec.png")):
                     logger.debug("Running Subprocess")
                     subprocess.run([
@@ -964,9 +955,15 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
                     ])
 
             # Check for an html file
-            if filename.endswith('.html') and (FoundHTML == 0):
+            if filename.endswith('.html') and (FoundHTML == 0 and
+                filename != "index_dir.html" ):
+                logger.debug("Found HTML File %s", filename)
 
                 FoundHTML = 1
+                if (args.z):
+                    FoundHTML = 0
+
+
                 ClearVariables()
 
                 # walk thru a file and pull out meta data.
@@ -993,8 +990,9 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
                     copyfile("/home/MySongs/logo.jpg", Root + "/logo.jpg")
 
         # If we did find a valid html and were asked to create one.
+        logger.debug("CreateHTML and FoundHTML %s %s %s \n", CreateHTML, FoundHTML, sTitle)
         if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.')):
-            logger.info("Create file from Directory ", sTitle)
+            logger.info("Create file from Directory %s", sTitle)
             #        ClearVariables()
             CreateNewHTML(sTitle, Root, Files)
             MySongList.append(Root + "/" + sTitle + ".html")

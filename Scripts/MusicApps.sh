@@ -40,7 +40,17 @@ if [ "${1}" == "mid" ] ; then
 fi
 
 if [ "${1}" == "med" ] ; then
+    muse "${2}" &
+    exit 0
+fi
+
+if [ "${1}" == "Score" ] ; then
     mscore "${2}" &
+    exit 0
+fi
+
+if [ "${1}" == "MidPlay" ] ; then
+    muse "${2}" &
     exit 0
 fi
 

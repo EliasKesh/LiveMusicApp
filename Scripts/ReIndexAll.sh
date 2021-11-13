@@ -13,7 +13,6 @@
 #
 #------------------------------------------------#
 
-
 ReIndex.sh
 set -x
 
@@ -23,14 +22,27 @@ cd $BaseDir
 cd /home/Music/EliasOriginals
 LiveMusicCharts.py . -vci
 
-CurDir=$BaseDir/TrueFire/
+CurDir=$BaseDir/TrueFire
 cd $CurDir
 echo `pwd`
-LiveMusicCharts.py 10_Guitar_Licks_You_Must_Know -vgcfp
+LiveMusicCharts.py 50BluesLicks -vgcf
 LiveMusicCharts.py Smart_Practice_For_Guitar -vcfgp
-LiveMusicCharts.py . -il
 
-CurDir=$BaseDir/JamTrackCentral/
+CurDir=$CurDir/50RockLicks
+cd $CurDir
+echo `pwd`
+cd $CurDir/BonusMaterial
+LiveMusicCharts.py . -vfcp
+cd $CurDir/JamTracks
+LiveMusicCharts.py . -vfcp
+cd $CurDir/PowerTabFiles
+LiveMusicCharts.py . -vfcp
+cd $CurDir
+LiveMusicCharts.py . -ilz
+cd ..
+LiveMusicCharts.py . -ilz
+
+CurDir=$BaseDir/JamTrackCentral
 cd $CurDir
 echo `pwd`
 cd $CurDir/ah_20TastyDominantLicks
@@ -45,8 +57,10 @@ cd $CurDir/ah_customfusion3
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/ah_bluesextensions
 LiveMusicCharts.py . -vcfirpg
-cd $CurDir/ks_ultimateguitarworkout
+cd $CurDir/ah_jazzyjamscomplete
 LiveMusicCharts.py . -vcfirpg
+cd $CurDir/ks_ultimateguitarworkout
+LiveMusicCharts.py . -vcfir
 cd $CurDir/LatinLicks
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/lm_legatomasterclass_intermediate
@@ -57,7 +71,7 @@ cd $CurDir/gg_ford
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/gg_funkfusion
 LiveMusicCharts.py . -vcfirpg
-cd $CurDir/ii-VLicks
+cd $CurDir/ii_VLicks
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/RG_20NeoSoulFusionLicks
 LiveMusicCharts.py . -vcfirpg
@@ -78,9 +92,9 @@ LiveMusicCharts.py . -vcfirpg
 cd $CurDir/MO_20FunkedUpFusionLicks
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/GuitarLab/
+CurDir=$BaseDir/GuitarLab
 cd $CurDir
 echo `pwd`
 cd $CurDir/20_Sax_Licks_For_Guitar
@@ -114,9 +128,9 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/The_Chicken_20_Licks_Part1
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/PeopleLearn/
+CurDir=$BaseDir/PeopleLearn
 cd $CurDir
 echo `pwd`
 cd $CurDir/AlDiMeola
@@ -134,21 +148,19 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/SteveMorse
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/FlatFiv/
+CurDir=$BaseDir/FlatFiv
 cd $CurDir
 echo `pwd`
-cd $CurDir/AndroidTab
-LiveMusicCharts.py . -vfcp
 cd $CurDir/FusionSolos
 LiveMusicCharts.py . -vfcp
 cd $CurDir/Tapping
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/GuitarMaster/
+CurDir=$BaseDir/GuitarMaster
 cd $CurDir
 echo `pwd`
 cd $CurDir/GuitarMasterTapping
@@ -164,17 +176,17 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/FITDemoVersion
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/CoffeeBreakGroove/
+CurDir=$BaseDir/CoffeeBreakGroove
 cd $CurDir
 echo `pwd`
 cd $CurDir/JazzFusionPremium4
 LiveMusicCharts.py . -vcfirp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/GuitarPlayback/
+CurDir=$BaseDir/GuitarPlayback
 cd $CurDir
 echo `pwd`
 cd $CurDir/30OutsideDorian
@@ -214,17 +226,17 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/FusionPads
 LiveMusicCharts.py . -vfcp
 cd $CurDir/
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/MBonus/
+CurDir=$BaseDir/MBonus
 cd $CurDir
 echo `pwd`
-cd $CurDir/Adv_StringSkipping
-LiveMusicCharts.py . -vfcp
+#cd $CurDir/Adv_StringSkipping
+#LiveMusicCharts.py . -vfcp
 cd $CurDir/GuitarChords
 LiveMusicCharts.py . -vfcp
-cd $CurDir/BasicJazzChords
-LiveMusicCharts.py . -vfcp
+#cd $CurDir/BasicJazzChords
+#LiveMusicCharts.py . -vfcp
 cd $CurDir/FingerstyleGuitar
 LiveMusicCharts.py . -vfcp
 cd $CurDir/HardRockTapping
@@ -234,54 +246,52 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/SweepPicking
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/MyMasterClass/
+CurDir=$BaseDir/MyMasterClass
 cd $CurDir
 echo `pwd`
 cd $CurDir/ScottHenderson
 LiveMusicCharts.py . -vfcp
-cd..
-LiveMusicCharts.py . -il
+cd $CurDir
+LiveMusicCharts.py . -ilz
 
-CurDir=$BaseDir/DLP/
+CurDir=$BaseDir/DLP/Augmented
 cd $CurDir
 echo `pwd`
-cd $CurDir/Example
+cd $CurDir/AugmentedScale
 LiveMusicCharts.py . -vfcp
 cd $CurDir/Licks
 LiveMusicCharts.py . -vfcp
-cd $CurDir/Sample
-LiveMusicCharts.py . -vfcp
-cd..
-LiveMusicCharts.py . -il
-
-CurDir=$BaseDir/50RockLicks/
-cd $CurDir
-echo `pwd`
-cd $CurDir/BonusMaterial
-LiveMusicCharts.py . -vfcp
-cd $CurDir/JamTracks
-LiveMusicCharts.py . -vfcp
-cd $CurDir/PowerTabFiles
+cd $CurDir/PeopleRiffs
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
+cd ..
+LiveMusicCharts.py . -ilz
 
 CurDir=$BaseDir
 cd $CurDir
 echo `pwd`
-# LiveMusicCharts.py RickBeato -vcf
+LiveMusicCharts.py RickBeato -vcf
 LiveMusicCharts.py Tapping -vcfp
 LiveMusicCharts.py FusionPractice -vcfp
-#  LiveMusicCharts.py JazzGuitar -vcfp
+LiveMusicCharts.py JazzGuitar -vcf
 LiveMusicCharts.py PentaTrick -vcfp
-# LiveMusicCharts.py Material -vcfp
-LiveMusicCharts.py Material -il
+#cd $CurDir/MyMasterClass
+#LiveMusicCharts.py . -vcf
+#cd $CurDir/Material
+#LiveMusicCharts.py . -vcf
 
-cd /home/Music/Learn/
+LiveMusicCharts.py MusicNotes -vcfz
+LiveMusicCharts.py P4Tuning -vcfz
+LiveMusicCharts.py Slonimsky -vcfz
+#LiveMusicCharts.py Theory -vcfz
+LiveMusicCharts.py . -vc
+
+cd $BaseDir
 echo `pwd`
-LiveMusicCharts.py . -il
+LiveMusicCharts.py . -ilz
 
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
@@ -290,22 +300,21 @@ echo "*** MP3 Files with Errors ***"
 cat ~/MP3Errors.txt
 
 # Generate the Directory listings.
-cd /home/Music/BackingTracks/
+cd /home/Music/BackingTracks
 LiveMusicCharts.py . -vg
 DirectoryToHtml.py
 
-cd /home/Music/MidiDrumLoops/
+cd /home/Music/MidiDrumLoops
 LiveMusicCharts.py . -vg
 DirectoryToHtml.py
 
-cd /home/Music/Practice/
+cd /home/Music/Practice
 LiveMusicCharts.py . -vg
 DirectoryToHtml.py
 
-cd /home/Music/Learn/
+cd /home/Music/Learn
 # LiveMusicCharts.py . -vg
 DirectoryToHtml.py
-
 
 # find ./ -type d -exec chmod 700 {} \;
 # find ./ -type f -exec chmod 600 {} \;
@@ -313,6 +322,11 @@ DirectoryToHtml.py
 cd $BaseDir
 chown elias: *  -R
 chmod 700 *
+
+
+
+
+
 
 # Normalize the audio output
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;

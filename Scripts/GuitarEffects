@@ -593,11 +593,17 @@ function SetUpConnections {
     aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
     aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
     aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
+    aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
+    aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
+    aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"   
+    aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"   
+    aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"   
+    aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"   
+    aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"   
 
     # ********************************
     # **** Jack audio and midi connections
     # ********************************
-    
     # To find devices
     # jack_lsp -c
     
@@ -695,7 +701,7 @@ function SetUpConnections {
     
     # Muse Connection
     aconnect "Fishman TriplePlay":0  MusE:0
-    aconnect MusE:0 "FLUID Synth":0
+    aconnect "MusE":0 "FLUID Synth":0
     jack_connect "MusE:Out 1-0" "system:playback_1"
     jack_connect "MusE:Out 1-1" "system:playback_1"
     
@@ -719,6 +725,12 @@ function FindUSB {
                     echo "0" > /sys/bus/usb/devices/$f/power/state
                 else
                     echo "1" > /sys/bus/usb/devices/$f/power/state
+                fi
+
+                echo "$MyDevice" | grep -i audio
+                if [ $? == 0 ]; then
+                    echo "$MyDevice"
+
                 fi
             fi
         fi
@@ -747,21 +759,17 @@ function SetUpApplications {
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
-        #       cd /home/Dropbox/LiveEffects/
         nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
         -e -v 0x40 \
         -l $ButtonLayout \
         -f $ButtonSize \
         -j "${AudioOutDevice}"` \
         >> $LogFile 2>&1 &
-        #        ./LiveMusicApp -v 6 -l $ButtonLayout -j "${AudioOutDevice}"  >> /home/Dropbox/LiveTest &
     fi
     
     # This is the Guitar effects processor
     if test "${GuitarEffects}" = "true"; then
         echo "Starting Guitar Effects"  >> $LogFile
-        #   rakarrack -b $EffectsDir/EliasBankNew.rkrb &
-        #        nice -15   ${EffectsProcessorName}  --disable-multi-client --sync -p 7000 >> $LogFile 2>&1 &
         MusicApps.sh EffectsProcessorApp >> $LogFile 2>&1 &
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr &
         Delay 2
@@ -769,7 +777,6 @@ function SetUpApplications {
     
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
-        #        nice -15 sooperlooper -p 9951 -m ./Prefs/SLMidiF.slb -L ./Prefs/EliasLooper.slsess &
         slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
@@ -780,7 +787,7 @@ function SetUpApplications {
     
     if test "${Ardour}" = "true"; then
         # We are going to record
-        ardour2 /home/Music/Rehearsals/`date +"%Y%m%d"` &
+        ardour /home/Music/Rehearsals/`date +"%Y%m%d"` &
     fi
     
     if test "${MP3Player}" = "true"; then
@@ -790,12 +797,14 @@ function SetUpApplications {
     
     if test "${MusePlayer}" = "true"; then
         # Set the first Desktop to use.
-        QT_STYLE_OVERRIDE=QtCurve muse &
+        MusicApps.sh MidPlay >> $LogFile 2>&1 &
+ #       QT_STYLE_OVERRIDE=QtCurve muse &
     fi
     
     if test "${MuseScore}" = "true"; then
         # Set the first Desktop to use.
-        QT_STYLE_OVERRIDE=QtCurve musescore3 &
+        MusicApps.sh Score >> $LogFile 2>&1 &
+#        QT_STYLE_OVERRIDE=QtCurve musescore3 &
     fi
     
     # External viewer, not used anymore
@@ -1067,7 +1076,17 @@ function SetPlacement1200 {
 
 function StopEverything {
     echo "Closing down Effects"
+
     killall KeepLiveMusicRunning.sh
+
+    wmctrl -c ${EffectsProcessorWM}
+    wmctrl -c LiveMusicApp_1
+    wmctrl -c Patchage
+    wmctrl -c SooperLooper
+    wmctrl -c qsynth
+    wmctrl -c clementine
+    wmctrl -c QjackCtl
+
     killall patchage
     killall ${EffectsProcessorName}
     killall qsynth
