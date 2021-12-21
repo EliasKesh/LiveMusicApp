@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 #-------------------------------------------
 #
 #   File:   GuitarEffects
@@ -317,8 +317,8 @@ function FindDevice {
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
-        #       AudioSampleRate=48000
-        AudioSampleRate=96000
+        AudioSampleRate=48000
+        # AudioSampleRate=96000
         #       AudioSampleRate=192000
         AudioDevice="$Device"
         AudioInDevice="$Device"
@@ -971,7 +971,8 @@ function SetPlacement1920 {
     wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
     
     wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
+#    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
+    wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1850,1050
     
     wmctrl -r SooperLooper -t $LooperDesktop
     wmctrl -r SooperLooper -e 0,586,420,1000,450
@@ -1192,7 +1193,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="1.9.6"
+Version="1.9.8"
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness

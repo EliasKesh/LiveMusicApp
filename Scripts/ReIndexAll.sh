@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 #------------------------------------------------
 #
 #   File:   ReIndexAll
@@ -26,7 +26,12 @@ CurDir=$BaseDir/TrueFire
 cd $CurDir
 echo `pwd`
 LiveMusicCharts.py 50BluesLicks -vgcf
+LiveMusicCharts.py 50RockLicks -vgcf
+LiveMusicCharts.py Jazz_Anatomy -vgcf
+LiveMusicCharts.py Take_5_Jazz_Blues_Soloing -vgcf
 LiveMusicCharts.py Smart_Practice_For_Guitar -vcfgp
+LiveMusicCharts.py 10_Guitar_Licks_You_Must_Know -vcfgp
+LiveMusicCharts.py . -izl 2
 
 CurDir=$CurDir/50RockLicks
 cd $CurDir
@@ -38,15 +43,15 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/PowerTabFiles
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 cd ..
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/JamTrackCentral
 cd $CurDir
 echo `pwd`
 cd $CurDir/ah_20TastyDominantLicks
-LiveMusicCharts.py . -vcfirpg
+LiveMusicCharts.py . -vfcp
 cd $CurDir/ah_A7b5Licks
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/ah_customfusion1
@@ -91,8 +96,14 @@ cd $CurDir/MM_20LicksNLFingerstyle
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/MO_20FunkedUpFusionLicks
 LiveMusicCharts.py . -vcfirpg
+cd $CurDir/lb_fingerpickingmasterclass
+LiveMusicCharts.py . -vcfirpg
+cd $CurDir/JM_21stCen_JFC
+LiveMusicCharts.py . -vcfirpg
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
+
+# find ./ -type d -mindepth 4
 
 CurDir=$BaseDir/GuitarLab
 cd $CurDir
@@ -128,7 +139,7 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/The_Chicken_20_Licks_Part1
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/PeopleLearn
 cd $CurDir
@@ -142,13 +153,16 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/FrankGambale
 LiveMusicCharts.py . -vfcp
 cd $CurDir/Holdsworth
-LiveMusicCharts.py . -vfcp
-cd $CurDir/mingus_examples
-LiveMusicCharts.py . -vfcp
-cd $CurDir/SteveMorse
+# too many pdfs and jpgs for just leave them.
+LiveMusicCharts.py . -vfc
+cd $CurDir/TimothyPedonAdvancedHarmonicConcepts
+# too many pdfs and jpgs for just leave them.
+LiveMusicCharts.py . -vcfirg
+
+\cd $CurDir/SteveMorse
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/FlatFiv
 cd $CurDir
@@ -157,8 +171,14 @@ cd $CurDir/FusionSolos
 LiveMusicCharts.py . -vfcp
 cd $CurDir/Tapping
 LiveMusicCharts.py . -vfcp
+cd $CurDir/CoolLegatoPhrasesTranscriptionFiles
+LiveMusicCharts.py . -vfcp
+cd $CurDir/DarrylPentatonics
+LiveMusicCharts.py . -vfcp
+cd $CurDir/FITDemoVersion
+LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/GuitarMaster
 cd $CurDir
@@ -169,14 +189,8 @@ cd $CurDir/JazzFusionLicks
 LiveMusicCharts.py . -vfcp
 cd $CurDir/Sweep
 LiveMusicCharts.py . -vfcp
-cd $CurDir/CoolLegatoPhrasesTranscriptionFiles
-LiveMusicCharts.py . -vfcp
-cd $CurDir/DarrylPentatonics
-LiveMusicCharts.py . -vfcp
-cd $CurDir/FITDemoVersion
-LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/CoffeeBreakGroove
 cd $CurDir
@@ -184,7 +198,7 @@ echo `pwd`
 cd $CurDir/JazzFusionPremium4
 LiveMusicCharts.py . -vcfirp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/GuitarPlayback
 cd $CurDir
@@ -226,7 +240,7 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/FusionPads
 LiveMusicCharts.py . -vfcp
 cd $CurDir/
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/MBonus
 cd $CurDir
@@ -246,7 +260,7 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/SweepPicking
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/MyMasterClass
 cd $CurDir
@@ -254,7 +268,7 @@ echo `pwd`
 cd $CurDir/ScottHenderson
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir/DLP/Augmented
 cd $CurDir
@@ -266,18 +280,27 @@ LiveMusicCharts.py . -vfcp
 cd $CurDir/PeopleRiffs
 LiveMusicCharts.py . -vfcp
 cd $CurDir
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
 cd ..
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 2
+
+CurDir=$BaseDir/FusionPractice
+cd $CurDir
+echo `pwd`
+cd $CurDir/OutsideDorianLicks
+LiveMusicCharts.py . -vfcp
+cd $CurDir/PentaTrick
+LiveMusicCharts.py . -vfcp
+cd $CurDir/Tapping
+LiveMusicCharts.py . -vfcp
+cd ..
+LiveMusicCharts.py . -izl 2
 
 CurDir=$BaseDir
 cd $CurDir
 echo `pwd`
 LiveMusicCharts.py RickBeato -vcf
-LiveMusicCharts.py Tapping -vcfp
-LiveMusicCharts.py FusionPractice -vcfp
-LiveMusicCharts.py JazzGuitar -vcf
-LiveMusicCharts.py PentaTrick -vcfp
+# LiveMusicCharts.py JazzGuitar -vcf
 #cd $CurDir/MyMasterClass
 #LiveMusicCharts.py . -vcf
 #cd $CurDir/Material
@@ -291,7 +314,7 @@ LiveMusicCharts.py . -vc
 
 cd $BaseDir
 echo `pwd`
-LiveMusicCharts.py . -ilz
+LiveMusicCharts.py . -izl 3
 
 cd /home/Music/Practice
 LiveMusicCharts.py . -a
@@ -323,11 +346,7 @@ cd $BaseDir
 chown elias: *  -R
 chmod 700 *
 
-
-
-
-
-
+# =================================================================
 # Normalize the audio output
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 

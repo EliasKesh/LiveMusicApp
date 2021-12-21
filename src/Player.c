@@ -47,7 +47,7 @@
  * Place defines and Typedefs here
  */
 #define InPipeName "/tmp/LiveMusicIn"
-#define OutPipeName "/tmp/LiveMusicOut"
+// #define OutPipeName "/tmp/LiveMusicOut"
 #define RestartPlayerValue      20
 
 /*

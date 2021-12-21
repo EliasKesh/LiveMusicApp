@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm ./debian/livemusicapp/ -rf
 
 echo "Edit changelog for the correct version"

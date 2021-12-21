@@ -20,10 +20,9 @@ from wand.image import Image
 import sys
 from shutil import copyfile
 import subprocess
-
-#from icecream import ic
 import logging
 
+MaxLinkSize = 2500
 sPresets = []
 sSetIndex = 0
 sSetNow = []
@@ -188,93 +187,22 @@ def ClearVariables():
     global SongMarkIndex
 
     sSetIndex = 0
-    sPresets = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', ''
-    ]
-    sSetNow = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', ''
-    ]
+
+    try:
+        for i in range(MaxLinkSize-5):
+            sPresets[i] = ''
+            sSetNow[i] = ''
+            sHREFFile[i] = ''
+            SongMark[i] = ''
+            sSrcFile[i] = ''
+
+    except:
+        print("Index is ",i)
+
     sSetIndex = 0
-    sHREFFile = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
-    ]
     sHREFIndex = 0
-    SongMark = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', ''
-    ]
     SongMarkIndex = 0
-    sSrcFile = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', ''
-    ]
+
     sSrcIndex = 0
     sGlobalNotes = ""
 
@@ -340,6 +268,8 @@ def ParseFile(fname, dirname):
     userContEnd = 0
 
     # open file in variable
+#    print("*****************************")
+#    print(dirname + "/" + fname)
     theHtmlFile = open(dirname + "/" + fname, 'r')
     theFileStr = theHtmlFile.read()
 
@@ -548,6 +478,20 @@ def LoadVariables(Files):
 # Create the main index html page
 # ------------------------------------------
 def GenerateIndex(Base, List, Reference):
+    global sSetIndex
+    global sHREFIndex
+    global sTempo
+    global sSolo
+    global sDrumFile
+    global sLoopFile
+    global sSrcIndex
+    global sGlobalNotes
+    global sBeatsPerMeasure
+    global sLoopLength
+    global sIntroCount
+    global SongMarkIndex
+    global SongMark
+
     MaxNameLength = 18
     Padding = "_____________________________________"
 
@@ -581,6 +525,38 @@ height: 100%; }\n\
         )
 
     PreviousIndex = 'Z'
+
+
+    print("Generate index ", sHREFIndex)
+# Add links for the external media files.
+    for x in range(0, sHREFIndex):
+        FileName = sHREFFile[x]
+        FileRef = sHREFFile[x]
+        if (len(FileName) > 30):
+            FileName = FileName[0:30]
+
+        if (FileRef.find("mp3") > 0):
+            theFile.write("<a style=\"color:red\" href=\"" + FileRef + "\">[" +
+                          FileName + "]</a>\n")
+        elif (FileRef.find("tg") > 0):
+            theFile.write("<a style=\"color:blue\" href=\"" + FileRef +
+                          "\">[" + FileName + "]</a>\n")
+        elif (FileRef.find("mid") > 0):
+            theFile.write("<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">[" + FileName + "]</a>\n")
+        elif (FileRef.find("mscz") > 0):
+            theFile.write("<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">[" + FileName + "]</a>\n")
+        elif (FileRef.find("pdf") > 0):
+            theFile.write("<a style=\"color:gold\" href=\"" + FileRef +
+                          "\">[" + FileName + "]</a>\n")
+
+
+
+
+
+
+
     for x in List:
         FileName = os.path.basename(x)
         DirName = os.path.basename(os.path.dirname(x))
@@ -645,11 +621,14 @@ def CreateNewHTML(fname, dirname, Files):
 <font color=#88ffff>Structure:  </font>\n\
 </pre></code>"
 
-    sPresets = [
-        '', 'Str_Pre', 'Juicy_A', 'Blues_Pre', 'Jazz_Pre', 'MidiTog', '', '',
-        '', '', '', '', ''
-    ]
-    sSetNow = ['PlaceHolder', '', '', '', '', '', '', '', '', '', '', '', '']
+    sPresets[1] = 'Str_Pre'
+    sPresets[2] = 'Juicy_A'
+    sPresets[3] = 'Blues_Pre'
+    sPresets[4] = 'Jazz_Pre'
+    sPresets[5] = 'Str_Pre'
+
+    sSetNow[1] = 'PlaceHolder'
+
     sSetIndex = 1
     WriteFile(dirname + "/" + fname + ".html", dirname)
 
@@ -748,6 +727,7 @@ def index_folder(folderPath):
     root = folderPath
     if folderPath == '.':
         root = 'Root'
+    
     indexText = indexTextStart.format(folderPath=root)
     for file in files:
         #Avoiding index.html files
@@ -793,6 +773,17 @@ MySongList = []
 FoundHTML = 0
 global logger
 
+
+for i in range(MaxLinkSize):
+#        my_list.append(0)
+    sPresets.append(0)
+    sSetNow.append(0)
+    sHREFFile.append(0)
+    SongMark.append(0)
+    sSrcFile.append(0)
+
+
+
 parser = argparse.ArgumentParser(description='Usage: LiveMusicCharts.py . -a ')
 parser.add_argument("BaseDir", help="Base Directory")
 parser.add_argument("-a", action='store_true', help="All Options")
@@ -801,7 +792,7 @@ parser.add_argument("-d", action='store_true', help="Debugging print")
 parser.add_argument("-f", action='store_true', help="Fix additional meta Data")
 parser.add_argument("-g", action='store_true', help="Gp? to mscz")
 parser.add_argument("-i", action='store_true', help="Create index.html")
-parser.add_argument("-l", action='store_true', help="Directory Level")
+parser.add_argument("-l", type=int, help="Directory Level")
 parser.add_argument("-n", action='store_true', help="Version Number")
 parser.add_argument("-p", action='store_true', help="Pdf to JPG")
 parser.add_argument("-r", action='store_true', help="Reference on Create")
@@ -811,7 +802,7 @@ parser.add_argument("-z", action='store_true', help="Force Create")
 args = parser.parse_args()
 
 # updated by the version script do not change.
-Version = "1.9.6"
+Version = "1.9.8"
 
 logger = logging.getLogger(__name__)
 
@@ -822,11 +813,11 @@ logger = logging.getLogger(__name__)
 if (args.d):
     MyLevel=logging.NOTSET
 else:
-    MyLevel=logging.INFO
+    MyLevel=logging.CRITICAL
+#    MyLevel=logging.INFO
 
 logger.setLevel(MyLevel)
 logging.basicConfig(level=MyLevel)
-
 
 logger.debug("Testing")
 
@@ -847,13 +838,13 @@ ConvertPDF = args.p
 ConvertGP = args.g
 FixMetaData = args.f
 CreateHTML = args.c
-CreateIndexFIle = args.i
+CreateIndexFile = args.i
 ReferenceCreate = args.r
 
 # sometimes let's just make an index of the top
 # level files, usually html
 if (args.l):
-    DirectoryLevel = 2
+    DirectoryLevel = args.l
 else:
     DirectoryLevel = 20 # should be enough
 
@@ -862,7 +853,7 @@ if (args.a):
     ConvertPDF = 1
     FixMetaData = 1
     CreateHTML = 1
-    CreateIndexFIle = 1
+    CreateIndexFile = 1
     ReferenceCreate = 1
     ConvertGP = 1
 
@@ -897,7 +888,7 @@ if (ConvertGP):
         for filename in Files:
             #        Check for an html file
             if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5",
-                                   "gp6", "gp7", "gpx"))):
+                                   "gp6", "gp7", "gpx", "ptb"))):
                 #           logger.debug ("Guitar Pro %s", filename)
                 MuseFileName = os.path.splitext(filename)[0]
                 MuseFileName = Root + "/" + MuseFileName + ".mscz"
@@ -998,14 +989,14 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
             MySongList.append(Root + "/" + sTitle + ".html")
 
 
-if (CreateIndexFIle):
+if (CreateIndexFile):
     MySongList.sort()
-    logger.debug("List ---------------- %d",len(MySongList))
+    logger.info("CreateIndexFile ----- List %d",len(MySongList))
     logger.debug(MySongList)
     GenerateIndex(BaseDir, MySongList, ReferenceCreate)
 
 
-# Indexing root directory (Script position)
+# Indexing root directory without modification (Script position)
 index_folder(BaseDir)
 
 logger.info("Version %s",Version)

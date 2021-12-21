@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 #------------------------------------------------
 #
 #	File: 	CreateIndexFromCSV
@@ -28,9 +28,9 @@ OldAIndex="z"
 
 while read -r line
 do
-    Song=$(echo $line | awk -F',' '{printf "%s", $2}' | tr -d '"')
-    Book=$(echo $line | awk -F',' '{printf "%s", $1}' | tr -d '"')
-    Page=$(echo $line | awk -F',' '{printf "%s", $4}' | tr -d '"' | tr -d '\r' | tr -d ' ' )
+    Song=$(echo $line | awk -F',' '{printSem "%s", $2}' | tr -d '"')
+    Book=$(echo $line | awk -F',' '{printSem "%s", $1}' | tr -d '"')
+    Page=$(echo $line | awk -F',' '{printSem "%s", $4}' | tr -d '"' | tr -d '\r' | tr -d ' ' )
 
     firstLetter=${Song:0:1}
     if  [[ "$firstLetter" =~ ^[A-Z]+$ ]]; then

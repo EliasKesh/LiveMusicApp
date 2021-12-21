@@ -1001,11 +1001,12 @@ void CheckForStartupDirs(void) {
 
     //    NewInstall = 0;
 
+    // Check for an existing config directory
     sprintf(FileString, "%s/.config/LiveMusicApp", homedir);
-
     err = lstat(FileString, &s);
     //    err = access(FileString, &s);
 
+    // if not then copy the default from /usr/share
     if (err < 0) {
         // Copy LiveMusic Prefs folder the local location
         sprintf(CommandString, "rsync -avrx --chown=%s:%s /usr/local/share/LiveMusicApp %s/.config/", UserName, UserName, homedir);
@@ -2082,7 +2083,6 @@ tPatchIndex DoPatch(PatchInfo *thePatch) {
         else {
             NextCommand = -1;
         }
-
 
     }
     while (NextCommand != -1);

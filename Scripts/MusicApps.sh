@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 #------------------------------------------------
 #
 #   File:   LiveMusicApps
@@ -109,6 +109,7 @@ fi
 
 if [ "${1}" == "guitarixNew" ] ; then
     echo "Running guitarix"
+    GTK_THEME="LiveMusicApp"  \
     GDK_BACKEND=x11 nice -15 \
     guitarix \
     -p 7000 \
