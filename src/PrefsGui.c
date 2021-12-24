@@ -206,7 +206,7 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
                                   gpointer user_data) {
 
     printd(LogDebug, "Prefs_Regenerate_handler\n");
-    system("ReIndex.sh &");
+    system("MusicApps.sh Reindex");
 }
 
 
@@ -220,7 +220,7 @@ gboolean Prefs_ReConnect_handler(GtkWidget *widget, GdkEvent *event,
                                  gpointer user_data) {
 
     printd(LogDebug, "Prefs_Regenerate_handler\n");
-    system("GuitarEffects -c");
+    system("MusicApps.sh connect");
 }
 
 /*--------------------------------------------------------------------
