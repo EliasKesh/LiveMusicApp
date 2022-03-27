@@ -47,6 +47,7 @@
 /* Debugging definitions.
 */
 #define LogHold1    0x0800
+#define LogHTML     0x800
 #define LogPlayer   0x400
 #define LogMidi     0x200
 #define LogRealTime 0x100

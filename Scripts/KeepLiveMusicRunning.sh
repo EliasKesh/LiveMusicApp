@@ -30,7 +30,6 @@ echo "Launching LiveMusic"
 	./GuitarEffects -b
 fi
 
-
 pid=`pgrep -i guitarix | head -n1 `
 if [ -z $pid ]
 then
@@ -46,6 +45,8 @@ fi
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 
 sleep 5
+qdbus org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity
+
 #jack_disconnect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"
 #jack_connect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"
 done

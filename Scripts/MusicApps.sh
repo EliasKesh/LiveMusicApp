@@ -19,6 +19,16 @@ if [ "${1}" == "html" ] ; then
     exit 0
 fi
 
+if [ "${1}" == "desktop" ] ; then
+#    gtk-launch "${2}" &
+
+    echo "desktop -> " "${2}" "${2%/*}/"
+
+#    kioclient5 exec "${2}" &
+    kioclient5 exec "${2%/*}/" &
+    exit 0
+fi
+
 if [ "${1}" == "DrumFile" ] ; then
     exit 0
 fi
@@ -136,5 +146,17 @@ if grep -q "pdf" <<< "$1"; then
     okular ${PDFPage} &
     exit 0
 fi
+
+if [ "${1}" == "connect" ] ; then
+     GuitarEffects -c
+     exit 0
+fi
+
+if [ "${1}" == "Reindex" ] ; then
+     ReIndex.sh  &
+     exit 0
+fi
+
+
 
 exit 1

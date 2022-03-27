@@ -232,13 +232,13 @@ function FindDevice {
         QJackProfile="Scarlett"
     fi
     
-    # If we have the iRid 2
+    # If we have the iRig 2
     Device="iRig HD 2"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
-        # AudioSampleRate=48000
-        AudioSampleRate=96000
+        AudioSampleRate=48000
+#        AudioSampleRate=96000
         JBuffer=128
         JPeriod=3
         # AudioSampleRate=192000
@@ -535,7 +535,7 @@ function SetUpConnections {
     # Max out the USB Device.
     amixer -c 1 sset 'PCM' 128
     
-    amixer sset 'Master' 100
+    amixer sset 'Master' 65535
     
     # ********************************
     # **** Definitions
@@ -561,6 +561,7 @@ function SetUpConnections {
     # Pedal Versions
     aconnect "EliasPedal3":"0" "LiveMusic":"0"
     aconnect "EliasGuitar":"0" "LiveMusic":"0"
+    aconnect "EliasMidi":"0" "LiveMusic":"0"
     aconnect "LPD8":"0" "LiveDAW":"1"
     
     # Midi
@@ -577,15 +578,18 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
     # To Guitar Controller
     aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
+    aconnect "LiveMusic Output":"6" "EliasMidi":"0"
     # To KorgNano
     aconnect "LiveMusic Output":"7" "LPD8":"0"
     aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
+    aconnect "LiveMusic Output":"6" "NMSVE":"0"
     aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
 
 
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
     aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
+    aconnect "NMSVE":"0" "LiveMusic":"0"
     aconnect "Fishman TriplePlay":0 "MusE":0
     
     
@@ -750,8 +754,8 @@ function SetUpApplications {
         nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
-    if [ `hostname` == "LiveMusic" ]; then
-        ButtonSize=105
+    if [ `hostname` == "livemusic" ]; then
+        ButtonSize=96
     else
         ButtonSize=140
     fi
@@ -879,7 +883,11 @@ function SetPlacement {
         
         if [ "$ExtraMonitor" -eq "1" ]; then
             YOffset=0
+            ExMonitor=0
             echo "External Monitor Not Found"
+        else
+            echo "External Monitor Found"
+            ExMonitor=1
         fi
         
         SetPlacement1920
@@ -967,21 +975,42 @@ function SetPlacement1920 {
     
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-    wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
+
+    if [ "$ExtraMonitor" -eq "1" ]; then
+
+        wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
+        wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
+
+        wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
+        wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1850,1050
+        
+        wmctrl -r SooperLooper -t $LooperDesktop
+        wmctrl -r SooperLooper -e 0,586,420,1000,450
+        
+        wmctrl -r qsynth -e 0,640,80,1600,400
+        wmctrl -r qsynth -t $MidiDesktop
+
+    else
+        wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
+        wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1350
+
+        wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
+    #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
+        wmctrl -F -r LiveMusicApp_1 -e 0,100,0,2300,1350
+        
+        wmctrl -r SooperLooper -t $LooperDesktop
+        wmctrl -r SooperLooper -e 0,1350,420,1100,450
+        
+        wmctrl -r qsynth -e 0,1450,80,1400,400
+        wmctrl -r qsynth -t $MidiDesktop
+    fi
+
+
+
     
-    wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-#    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
-    wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1850,1050
-    
-    wmctrl -r SooperLooper -t $LooperDesktop
-    wmctrl -r SooperLooper -e 0,586,420,1000,450
-    
-    wmctrl -r qsynth -e 0,640,80,1600,400
-    wmctrl -r qsynth -t $MidiDesktop
     
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
-    wmctrl -r clementine -e 0,$XOffset,YOffset,1920,1000
+    wmctrl -r clementine -e 0,$XOffset,$YOffset,1920,1000
     wmctrl -r clementine -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
@@ -1193,7 +1222,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="1.9.8"
+Version="2.0.4"
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
@@ -1384,8 +1413,9 @@ if [[ RunCount -gt 1 ]]; then
 fi
 
 #  the computer from screen saving.
-xset s off
-xset -dpms
+xset s off         # don't activate screensaver
+xset -dpms         # disable DPMS (Energy Star) features.
+xset s noblank     # don't blank the video device
 qdbus org.freedesktop.ScreenSaver /ScreenSaver Inhibit NULL NULL
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
 # FAHClient --send-pause "LiveMusicApp_Running"
@@ -1458,6 +1488,11 @@ if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
     jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
 fi
 
+# In case the OSC port didn't close.
+NetSt=`netstat -np | grep -i Live`
+OSCPID=`echo $NetSt awk -F '[ /]'  '{ print $8}'`
+kill $OSCPID
+
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
 Delay 3
@@ -1477,27 +1512,16 @@ echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections
 
+# Put apps in the right place/desktop
 echo "***************** Starting SetPlacement"
-# Put apps in the right place/desktop
-SetPlacement
-sleep 3
-
-# Set up the mier levels and the interconnection between devices.
-SetUpConnections
-# Put apps in the right place/desktop
-SetPlacement
-
-sleep 3
-
-# Set up the mier levels and the interconnection between devices.
-SetUpConnections
-# Put apps in the right place/desktop
 SetPlacement
 
 sleep 8
 
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections
+
+echo "***************** Starting SetPlacement"
 # Put apps in the right place/desktop
 SetPlacement
 

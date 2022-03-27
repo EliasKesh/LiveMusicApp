@@ -76,7 +76,7 @@ def WriteFile(fname, dirname):
     #  theFile.write("{text-align: left; width: 100%; height: 100%;}\n body {\n")
 
     theFile.write(
-        "body {\nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%; }"
+        "body { \nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%;}"
     )
     theFile.write("</style>\n</head>\n")
 
@@ -86,7 +86,7 @@ def WriteFile(fname, dirname):
     # height: 100%; }\n\
 
     theFile.write("<title>" + sTitle + "</title>\n")
-    theFile.write("<p style=\"line-height:125%\">\n<body>\n<big>\n")
+    theFile.write("<p style=\"line-height:125%\">\n<big>\n")
 
     # Add the preset and other liveMusic meta data.
     for x in range(1, 6):
@@ -117,6 +117,8 @@ def WriteFile(fname, dirname):
         "<img style=\"width:60px; height:50px\" SRC=\"../logo.jpg\" align=right>"
     )
 
+    theFile.write("<body style=\"color:powderblue;\">")
+
     # Add links for the external media files.
     for x in range(0, sHREFIndex):
         FileName = sHREFFile[x]
@@ -125,23 +127,29 @@ def WriteFile(fname, dirname):
             FileName = FileName[0:30]
 
         if (FileRef.find("mp3") > 0):
-            theFile.write("<a style=\"color:red\" href=\"" + FileRef + "\">[" +
-                          FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:red\" href=\"" + FileRef + "\">" +
+                          FileName + "</a>]\n")
         elif (FileRef.find("tg") > 0):
-            theFile.write("<a style=\"color:blue\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:blue\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mid") > 0):
-            theFile.write("<a style=\"color:yellow\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mscz") > 0):
-            theFile.write("<a style=\"color:orange\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
         elif (FileRef.find("pdf") > 0):
-            theFile.write("<a style=\"color:gold\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:gold\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("desktop") > 0):
+            theFile.write("[<a style=\"color:green\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        else:
+            theFile.write("[<a style=\"color:cyan\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
 #        else:
-#            theFile.write("<a style=\"color:lightgreen\" href=\"" + FileRef +
-#                          "\">[" + FileName + "]</a>\n")
+#            theFile.write("[<a style=\"color:lightgreen\" href=\"" + FileRef +
+#                          "\">" + FileName + "</a>]\n")
 
     # Re-insert any user data
     ModString = sGlobalNotes.replace("\n\n", "\n")
@@ -160,8 +168,8 @@ def WriteFile(fname, dirname):
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
             logger.info("PDF Name: ", dirname + "/" + FileName)
-            theFile.write("<a style=\"color:Gold\" href=\"" + FileName +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:Gold\" href=\"" + FileName +
+                          "\">" + FileName + "</a>]\n")
         else:
             theFile.write("<img alt=\"\" src=\"" + FileName +
                           "\" width=\"100%\" >\n")
@@ -410,12 +418,12 @@ def LoadVariables(Files):
             sHREFIndex = sHREFIndex + 1
 
         if filename.endswith(".mp3"):
-            Command = "mpck " + Root + "/" + filename + "> /dev/null"
+            Command = "mpck " + Root + "/" + filename + " > /dev/null"
             logger.info(Command)
             Mp3Problem=os.system(Command)
 
             if (Mp3Problem):
-                Command = "echo " + Root + "/" + filename + ">> ~/MP3Errors.txt"
+                Command = "echo " + Root + "/" + filename + " >> ~/MP3Errors.txt"
                 logger.debug("*** MP3 Problem " + Command)
                 os.system(Command)
 
@@ -441,6 +449,12 @@ def LoadVariables(Files):
 
         if (filename.endswith("mkv")):
             logger.debug ("mkv %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        # Launch File manager of other applications.
+        if (filename.endswith("desktop")):
+            logger.debug ("desktop %s %d", filename, sHREFIndex)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
@@ -482,6 +496,11 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        # if (filename == "index_dir.html"):
+        #     logger.info ("index_dir.html sHREFIndex %s %d", filename, sHREFIndex)
+        #     sHREFFile[sHREFIndex] = filename
+        #     sHREFIndex = sHREFIndex + 1
+
 
 #        if (filename.endswith("webm")):
 #             logger.debug ("webm ", filename)
@@ -521,7 +540,7 @@ width: 100%; height: 100%;}\
     theFile.write("background-image: url(../background.png);\n\
 background-repeat: no-repeat;\n\
 background-size: 100%;\n\
-color: blue;\n\
+color: powderblue;\n\
 background-color: #000000;\n\
 height: 100%; }\n\
 </style>\n\
@@ -535,34 +554,14 @@ height: 100%; }\n\
     logger.info("in GenerateIndex " + Base + "/" + IndexName + ".html")
     if (Reference):
         theFile.write(
-            "<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[__A__]</a><a href=\"#Baaa\">[__B__]</a><a href=\"#Caaa\">[__C__]</a><a href=\"#Daaa\">[__D__]</a><a href=\"#Eaaa\">[__E__]</a><a href=\"#Faaa\">[__F__]</a><a href=\"#Gaaa\">[__G__]</a><a href=\"#Haaa\">[__H__]</a><a href=\"#Iaaa\">[__I__]</a><a href=\"#Jaaa\">[__J__]</a><a href=\"#Kaaa\">[__K__]</a><a href=\"#Laaa\">[__L__]</a><a href=\"#Maaa\">[__M__]</a><a href=\"#Naaa\">[__N__]</a><a href=\"#Oaaa\">[__O__]</a><a href=\"#Paaa\">[__P__]</a><a href=\"#Qaaa\">[__Q__]</a><a href=\"#Raaa\">[__R__]</a><a href=\"#Saaa\">[__S__]</a><a href=\"#Taaa\">[__T__]</a><a href=\"#Uaaa\">[__U__]</a><a href=\"#Vaaa\">[__V__]</a><a href=\"#Waaa\">[__W__]</a><a href=\"#Xaaa\">[__X__]</a><a href=\"#Yaaa\">[__Y__]</a><a href=\"#Zaaa\">[__Z__]</a><br>"
+            "<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[__A__]</a><a href=\"#Baaa\">[__B__]</a><a href=\"#Caaa\">[__C__]</a><a href=\"#Daaa\">[__D__]</a><a href=\"#Eaaa\">[__E__]</a><a href=\"#Faaa\">[__F__]</a><a href=\"#Gaaa\">[__G__]</a><a href=\"#Haaa\">[__H__]</a><a href=\"#Iaaa\">[__I__]</a><a href=\"#Jaaa\">[__J__]</a><a href=\"#Kaaa\">[__K__]</a><a href=\"#Laaa\">[__L__]</a><a href=\"#Maaa\">[__M__]</a><a href=\"#Naaa\">[__N__]</a><a href=\"#Oaaa\">[__O__]</a><a href=\"#Paaa\">[__P__]</a><a href=\"#Qaaa\">[__Q__]</a><a href=\"#Raaa\">[__R__]</a><a href=\"#Saaa\">[__S__]</a><a href=\"#Taaa\">[__T__]</a><a href=\"#Uaaa\">[__U__]</a><a href=\"#Vaaa\">[__V__]</a><a href=\"#Waaa\">[__W__]</a><a href=\"#Xaaa\">[__X__]</a><a href=\"#Yaaa\">[__Y__]</a><a href=\"#Zaaa\">[__Z__]</a>  "
         )
 
     PreviousIndex = 'Z'
 
-
-# Add links for the external media files.
-    for x in range(0, sHREFIndex):
-        FileName = sHREFFile[x]
-        FileRef = sHREFFile[x]
-        if (len(FileName) > 30):
-            FileName = FileName[0:30]
-
-        if (FileRef.find("mp3") > 0):
-            theFile.write("<a style=\"color:red\" href=\"" + FileRef + "\">[" +
-                          FileName + "]</a>\n")
-        elif (FileRef.find("tg") > 0):
-            theFile.write("<a style=\"color:blue\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
-        elif (FileRef.find("mid") > 0):
-            theFile.write("<a style=\"color:yellow\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
-        elif (FileRef.find("mscz") > 0):
-            theFile.write("<a style=\"color:orange\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
-        elif (FileRef.find("pdf") > 0):
-            theFile.write("<a style=\"color:gold\" href=\"" + FileRef +
-                          "\">[" + FileName + "]</a>\n")
+    PadLev = (MaxNameLength + 1) - 14
+    PadString = Padding[1:PadLev]
+    theFile.write("[<a style=\"color:cyan\" href=\"index_dir.html\">Directory View" + PadString + "</a>] ")
 
     for x in List:
         FileName = os.path.basename(x)
@@ -592,7 +591,36 @@ height: 100%; }\n\
         theFile.write("[<a href=" + x + ">" + FileNoExt + PadString +
                       "</a>]\n")
         PreviousIndex = CurrentIndex
+#        theFile.write("<body style=\"color:powderblue;\">")
 
+# Add links for the external media files.
+    for x in range(0, sHREFIndex):
+        FileName = sHREFFile[x]
+        FileRef = sHREFFile[x]
+#        if (len(FileName) > 30):
+#            FileName = FileName[0:30]
+
+        if (FileRef.find("mp3") > 0):
+            theFile.write("[<a style=\"color:red\" href=\"" + FileRef + "\">" +
+                          FileName + "</a>]\n")
+        elif (FileRef.find("tg") > 0):
+            theFile.write("[<a style=\"color:blue\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mid") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mscz") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("pdf") > 0):
+            theFile.write("[<a style=\"color:gold\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("desktop") > 0):
+            theFile.write("[<a style=\"color:green\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        else:
+            theFile.write("[<a style=\"color:cyan\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
 
     # Add the link for the charts
     for x in range(0, sSrcIndex):
@@ -602,8 +630,8 @@ height: 100%; }\n\
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
             logger.info("PDF Name: ", dirname + "/" + FileName)
-            theFile.write("<a style=\"color:Gold\" href=\"" + FileName +
-                          "\">[" + FileName + "]</a>\n")
+            theFile.write("[<a style=\"color:Gold\" href=\"" + FileName +
+                          "\">" + FileName + "</a>]\n")
         else:
             theFile.write("<img alt=\"\" src=\"" + FileName +
                           "\" width=\"100%\" >\n")
@@ -734,13 +762,14 @@ import os
 
 indexTextStart = """<!DOCTYPE html>
 <html>
+
 <head><title>Index of {folderPath}</title></head>
 <body>
-    <h2>Index of {folderPath}</h2>
+    <h3><p style="color:blue">Index of {folderPath}</p></h3>
     <hr>
     <ul>
         <li>
-            <a href='../'>../</a>
+            <a href='../index_dir.html'>../</a>
         </li>
 """
 indexTextEnd = """
@@ -758,21 +787,26 @@ def index_folder(folderPath):
     root = folderPath
     if folderPath == '.':
         root = 'Root'
-    
+  
     indexText = indexTextStart.format(folderPath=root)
+    indexText += "<html>\n<head>\n<style type=\"text/css\">\n"
+    indexText += "body { \nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%;}"
+    indexText += "</style>\n</head>\n"
+
+
     for file in files:
         #Avoiding index.html files
-        if file != 'index_dir.html':
+        if file != 'index_dir.html' and file != "background.png":
             # if it's a directory then add the index
             if os.path.isdir(folderPath+'/'+file):
-                indexText += "\t\t<li>\n\t\t\t<a href='" + file + "/index_dir.html'>" + file + "</a>\n\t\t</li>\n"
+                indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:darkorange\" href='" + file + "/index_dir.html'>" + file + "</a>\n\t\t</li>\n"
             else:
                 if (file.endswith("mscz")):
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("mp3")):
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:red\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:red\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("mid")):
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("Loops")):
                     pass
                 elif (file.endswith("spec.png")):
@@ -781,9 +815,9 @@ def index_folder(folderPath):
                     pass
 #                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:yellow\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("pdf")):
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:gold \" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:gold \" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 else:
-                    indexText += "\t\t<li>\n\t\t\t<a style=\"color:black\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                    indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:white\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
 
         #Recursive call to continue indexing
         if os.path.isdir(folderPath+'/'+file):
@@ -833,7 +867,7 @@ parser.add_argument("-z", action='store_true', help="Force Create")
 args = parser.parse_args()
 
 # updated by the version script do not change.
-Version = "1.9.8"
+Version = "2.0.4"
 
 logger = logging.getLogger(__name__)
 

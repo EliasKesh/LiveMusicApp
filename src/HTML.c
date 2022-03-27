@@ -579,7 +579,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
     /* Preset Number.
     */
     CPatch = (intptr_t) user_data;
-    printd(LogDebug, "1 In Button Preset %d %d\n", CPatch, theEvent);
+    printd(LogHTML, "1 In Button Preset %d %d\n", CPatch, theEvent);
 
     /* Check to make sure the preset value is valid.    */
     if (CPatch >= 0 && CPatch < MaxPresetButtons) {
@@ -592,7 +592,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
     /* Here is where we handle the CTRL Click to assign.
     */
     if (theEvent->button.state & GDK_CONTROL_MASK) {
-        printd(LogDebug, "We have Control Down\n");
+        printd(LogHTML, "We have Control Down\n");
         /* FINISH, need to make the assignment in Patch_Popup_CB
         */
         CurrentPreset = CPatch + Max_Patches + 1;
@@ -601,7 +601,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
         return (TRUE);
     }
 
-    printd(LogDebug, "2 In Button Preset %d %d\n", CPatch, Preset);
+    printd(LogHTML, "2 In Button Preset %d %d\n", CPatch, Preset);
 
     /* Make sure the preset is at least in the correct range.
     */
@@ -609,7 +609,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
         return (false);
     }
 
-    printd(LogDebug, "3 In Button Preset Name %s\n", gMyInfo.MyPatchInfo[Preset].Name);
+    printd(LogHTML, "3 In Button Preset Name %s\n", gMyInfo.MyPatchInfo[Preset].Name);
 
     /* Execute the patch change.
     */
@@ -672,7 +672,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
     g_print("Save %s\n", CurrentURI);
     Buffer = webkit_web_view_get_title(web_view);
 
-    printd(LogDebug, "Len = %d\n %s\n", (int) strlen(Buffer), Buffer);
+    printd(LogHTML, "Len = %d\n %s\n", (int) strlen(Buffer), Buffer);
 
     /* Get passed the file://
      */
@@ -713,7 +713,7 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
     //         &CurrentURI[7]);
     sprintf(ExecuteString, "MusicApps.sh html %s &\n",
             &CurrentURI[7]);
-    printd(LogDebug, "Edit: %s\n", ExecuteString);
+    printd(LogHTML, "Edit: %s\n", ExecuteString);
     system(ExecuteString);
 }
 #endif
@@ -735,7 +735,7 @@ void PageLoaded(WebKitWebView  *web_view,
     /* Get the URL that was selected.
     */
     MyCurrentURI = (gchar *)webkit_web_view_get_uri(web_view);
-    printd(LogDebug, "load_status_cb %s event %d \n", MyCurrentURI, load_event);
+    printd(LogHTML, "load_status_cb %s event %d \n", MyCurrentURI, load_event);
     ScrollPosition = 0;
 
     /* We only care about the completed event.
@@ -761,9 +761,9 @@ void PageLoaded(WebKitWebView  *web_view,
         }
 
 
-    //  printd(LogDebug, "Base Name %s \n", BasePathName);
+    //  printd(LogHTML, "Base Name %s \n", BasePathName);
 #endif
-    printd(LogDebug, "After Basename %s \n", BasePathName);
+    printd(LogHTML, "After Basename %s \n", BasePathName);
 
 #if 0
 
@@ -796,8 +796,12 @@ void PageLoaded(WebKitWebView  *web_view,
     }
 
     else
+        // if (strstr(MyCurrentURI, ".mp3") || 
+        //     strstr(MyCurrentURI, ".wma ") ||
+        //     strstr(MyCurrentURI, ".wav")) {
+
         if (strstr(MyCurrentURI, ".mp3")) {
-            printd(LogDebug, "*** MP3 file.\n");
+            printd(LogHTML, "*** MP3 file.\n");
             //      UpdateStatus(FileName);
 
             return;
@@ -805,14 +809,13 @@ void PageLoaded(WebKitWebView  *web_view,
 
         else
             if (strstr(MyCurrentURI, ".mid")) {
-                printd(LogDebug, "*** mid file.\n");
+                printd(LogHTML, "*** mid file.\n");
                 //      UpdateStatus(FileName);
-
                 return;
             }
 
             else {
-                printd(LogDebug, "Not HTML File\n");
+                printd(LogHTML, "Not HTML File\n");
                 return;
             }
 
@@ -847,6 +850,8 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     //     return FALSE;
     // }
 
+    printd(LogHTML, "NavigationPolicy\n");
+
     WebKitResponsePolicyDecision *responseDecision =
         WEBKIT_RESPONSE_POLICY_DECISION(decision);
     WebKitWebResource *mainResource =
@@ -857,10 +862,10 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         (char *)webkit_uri_request_get_uri(request);
 
 
-    printd(LogDebug, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
+    printd(LogHTML, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
 
     if (requestURI == NULL) {
-        printd(LogDebug, "*** URI Null");
+        printd(LogHTML, "*** URI Null");
         return TRUE;
     }
 
@@ -869,7 +874,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
     theOrgURI = requestURI;
     DecodeURI(theOrgURI, theURI);
-    printd(LogDebug, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
+    printd(LogHTML, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
 
     for (Loop = strlen(requestURI); Loop >= 0; Loop--)
         if (requestURI[Loop] == '/') {
@@ -890,7 +895,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     Let the WebKit handle it.
     */
     if (strstr(theURI, ".html") || (ext == NULL)) {
-        printd(LogDebug, "*** theURI is html");
+        printd(LogHTML, "*** theURI is html");
         //       return (FALSE);
         return (TRUE);
     }
@@ -921,7 +926,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
         webkit_policy_decision_ignore(WEBKIT_POLICY_DECISION(decision));
-        printd(LogDebug, "*** After systemcall %s\n", SysCallString);
+        printd(LogHTML, "*** After systemcall %s\n", SysCallString);
         printf("*** MP3 file. %s\n", FileName);
 
         UpdateStatus(FileName);
@@ -940,7 +945,7 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
         printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
         webkit_policy_decision_ignore(WEBKIT_POLICY_DECISION(decision));
-        printd(LogDebug, "*** MP4 After systemcall %s\n", SysCallString);
+        printd(LogHTML, "*** MP4 After systemcall %s\n", SysCallString);
 
         UpdateStatus(FileName);
 
@@ -988,17 +993,17 @@ void OpenSetListSong(int SongNumber) {
     int Count = 0;
     int SongCount = 0;
 
-    printd(LogDebug, "Made it to OpenSetListSong %d\n", SongNumber);
+    printd(LogHTML, "Made it to OpenSetListSong %d\n", SongNumber);
 
     if (SongNumber < 1) {
-        printd(LogDebug, "Invalid SongNumber %d\n", SongNumber);
+        printd(LogHTML, "Invalid SongNumber %d\n", SongNumber);
         return;
     }
 
     SetListFile = fopen(&SetListFileName[7], "r");
 
     if (!SetListFile) {
-        printd(LogDebug, "Can't open Setlist file  %s\n", SetListFileName);
+        printd(LogHTML, "Can't open Setlist file  %s\n", SetListFileName);
         return;
     }
 
@@ -1017,7 +1022,7 @@ void OpenSetListSong(int SongNumber) {
             SongCount++;
             Found += 6;
             tokenizer = strtok(Found, ">");
-            printd(LogDebug, "Parser found %d %s\n", SongCount, tokenizer);
+            printd(LogHTML, "Parser found %d %s\n", SongCount, tokenizer);
 
             /*
              * If the is the SongNumber HREF count then grab the file name.
@@ -1027,10 +1032,10 @@ void OpenSetListSong(int SongNumber) {
                 strcpy(Copy, SetListFileName);
                 //              dirname(SetListFileName);
                 dirname(Copy);
-                printd(LogDebug, "After  %s\n", Copy);
+                printd(LogHTML, "After  %s\n", Copy);
                 strcat(Copy, "/");
                 strcat(Copy, tokenizer);
-                printd(LogDebug, "Final  %s\n", Copy);
+                printd(LogHTML, "Final  %s\n", Copy);
 #if 1
                 webkit_web_view_load_uri(web_view, Copy);
 #else
@@ -1041,7 +1046,7 @@ void OpenSetListSong(int SongNumber) {
         }
     }
 
-    printd(LogDebug, "Leaving OpenSetListSong\n");
+    printd(LogHTML, "Leaving OpenSetListSong\n");
 
     // Close the file if still open.
     if (SetListFile) {
@@ -1061,7 +1066,7 @@ void on_SetList_clicked(GtkWidget * widget, gpointer data) {
     int Length;
     int Loop;
 
-    printd(LogDebug, "on_SetList_clicked  1\n");
+    printd(LogHTML, "on_SetList_clicked  1\n");
 
     CurrentURI = webkit_web_view_get_uri(web_view);
     strcpy(SetListFileName, CurrentURI);
@@ -1078,7 +1083,7 @@ void on_SetList_clicked(GtkWidget * widget, gpointer data) {
     BasePtr[Length - 5] = 0;
     MyImageButtonSetText(&SetListButton, BasePtr);
     strcpy(SetListFileName, CurrentURI);
-    printd(LogDebug, "on_SetList_clicked  4\n");
+    printd(LogHTML, "on_SetList_clicked  4\n");
 }
 
 // /usr/lib/mozilla/plugins
@@ -1202,7 +1207,7 @@ void InitHTML(GtkBuilder * gxml) {
 
     strncpy(FileName, "file://", 7);
     strncpy(&FileName[7], gMyInfo.BasePath, sizeof(FileName) - 7);
-    printd(LogDebug, "Path %s %s\n", gMyInfo.BasePath, FileName);
+    printd(LogHTML, "Path %s %s\n", gMyInfo.BasePath, FileName);
 #if 1
     //    webkit_web_view_load_uri(web_view, "http:///www.google.com");
     //    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
@@ -1234,7 +1239,7 @@ void InitHTML(GtkBuilder * gxml) {
     g_object_set(G_OBJECT(settings), "default-monospace-font-size", 28, NULL);
 #endif
 
-    printd(LogDebug, "Settings for webkit\n");
+    printd(LogHTML, "Settings for webkit\n");
     webkit_settings_set_enable_media_stream(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_mediasource(G_OBJECT(settings), FALSE);
     webkit_settings_set_enable_fullscreen(G_OBJECT(settings), TRUE);
@@ -1366,7 +1371,7 @@ static void DrumFav_cb(gpointer *Data) {
             LastDrumName, LastDrumName,
             GetResourceDir("DrumFav.html", FileLocUser));
 
-    printd(LogDebug, "DrumFav %s\n", lFileName);
+    printd(LogHTML, "DrumFav %s\n", lFileName);
     system(lFileName);
 
     //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
@@ -1392,7 +1397,7 @@ static void SaveFav_cb(gpointer *Data) {
             CurrentURI, CurrentURI,
             GetResourceDir("SaveFav.html", FileLocUser));
 
-    printd(LogDebug, "SaveFav %s\n", lFileName);
+    printd(LogHTML, "SaveFav %s\n", lFileName);
     system(lFileName);
 
     //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
@@ -1415,7 +1420,7 @@ static void EditChart_cb(gpointer *Data) {
     CurrentURI = webkit_web_view_get_uri(thepage);
 
     sprintf(ExecuteString, "MusicApps.sh html %s &\n", &CurrentURI[7]);
-    printd(LogDebug, "Edit: %s\n", ExecuteString);
+    printd(LogHTML, "Edit: %s\n", ExecuteString);
     system(ExecuteString);
 
     //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
@@ -1466,7 +1471,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     LoopFile[0] = 0;
     Count = 0;
 
-    printd(LogDebug, "Have file %x %s\n", fp, fname);
+    printd(LogHTML, "Have file %x %s\n", fp, fname);
 
     while (fgets(temp, MAXLINE - 1, fp) != NULL && (++Count < 150)) {
         temp[MAXLINE - 1] = 0;
@@ -1489,7 +1494,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
             if (Value >= 0 && Value < 10) {
                 thePresets->thePreset[Value] = AssignPreset(Value + 1, Found);
                 //              printf("Preset%d %d\n", Value, thePresets->thePreset[Value]);
-                printd(LogDebug, "Preset%d %d\n", Value, thePresets->thePreset[Value]);
+                printd(LogHTML, "Preset%d %d\n", Value, thePresets->thePreset[Value]);
                 strncpy(temp, Copy, MAXLINE);
             }
         }
@@ -1544,14 +1549,14 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
             Found += 10 + ContentTagLen;
             String = Found;
             tokenizer = strtok(String, "\"");    //break up by spaces
-            printd(LogDebug, "LoopFile %s\n", tokenizer);
+            printd(LogHTML, "LoopFile %s\n", tokenizer);
 
             //          strcpy(gMyInfo.LoopFileName, BasePathName);
             //          strcat(gMyInfo.LoopFileName, tokenizer);
 
             strcpy(gMyInfo.LoopFileName, tokenizer);
 
-            printd(LogDebug, "LoopFile name %s\n", gMyInfo.LoopFileName);
+            printd(LogHTML, "LoopFile name %s\n", gMyInfo.LoopFileName);
             MyOSCLoadFile(gMyInfo.LoopFileName);
             strncpy(temp, Copy, MAXLINE);
         }
@@ -1564,7 +1569,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
             Found += 10 + ContentTagLen;
             String = Found;
             tokenizer = strtok(String, "\"");    //break up by spaces
-            printd(LogDebug, "DrumFile %s\n", tokenizer);
+            printd(LogHTML, "DrumFile %s\n", tokenizer);
             strcpy(DrumFile, tokenizer);
             strncpy(temp, Copy, MAXLINE);
 
@@ -1588,7 +1593,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
         if (Found != NULL) {
             Found += 12 + ContentTagLen;
             Value = atoi(Found);
-            printd(LogDebug, "IntroCount %d\n", Value);
+            printd(LogHTML, "IntroCount %d\n", Value);
             strncpy(temp, Copy, MAXLINE);
             gMyInfo.CountInBeats = Value;
             sprintf(StatusString, "Intro Count %d", Value);
@@ -1602,7 +1607,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
         if (Found != NULL) {
             Found += 17 + ContentTagLen;
             Value = atoi(Found);
-            printd(LogDebug, "BeatsPerMeasure %d\n", Value);
+            printd(LogHTML, "BeatsPerMeasure %d\n", Value);
             strncpy(temp, Copy, MAXLINE);
             gMyInfo.BeatsPerMeasure = Value;
             sprintf(StatusString, "Beats  %d", Value);
@@ -1616,7 +1621,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
         if (Found != NULL) {
             Found += 12 + ContentTagLen;
             Value = atoi(Found);
-            printd(LogDebug, "LoopLength %d\n", Value);
+            printd(LogHTML, "LoopLength %d\n", Value);
             strncpy(temp, Copy, MAXLINE);
             gMyInfo.LoopRecBeats = Value;
             sprintf(StatusString, "Loop Len  %d", Value);
@@ -1635,7 +1640,7 @@ int Search_in_File(const char *fname, WebLoadPresets * thePresets) {
     if (DrumFile[0]) {
 #if 0
         sprintf(Copy, "MusicApps.sh DrumFile %s & ", DrumFile);
-        printd(LogDebug, "Calling System with %s\n", Copy);
+        printd(LogHTML, "Calling System with %s\n", Copy);
         system(Copy);
 #else
         LoadMidiLoop(DrumFile);
@@ -1674,28 +1679,28 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
     int Value;
     char *tokenizer;
 
-    printd(LogDebug, "AssignPreset %d %s\n", PresetNum, String);
+    printd(LogHTML, "AssignPreset %d %s\n", PresetNum, String);
 
     /* If we Start with a quote it's a name lookup.
      */
     if (*String == '"') {
         String++;
         tokenizer = strtok(String, "\"");    //break up by spaces
-        printd(LogDebug, "Token1 [%s]\n", tokenizer);
+        printd(LogHTML, "Token1 [%s]\n", tokenizer);
         Value = FindString(fsPatchNames, tokenizer);
 
     }
 
     else {
         Value = atoi(String);
-        printd(LogDebug, "***** Assign Value %s %d\n", String, Value);
+        printd(LogHTML, "***** Assign Value %s %d\n", String, Value);
 
         if (Value >= Max_Patches) {
             Value = 0;
         }
     }
 
-    printd(LogDebug, "Preset %d %d %s\n", PresetNum, Value,
+    printd(LogHTML, "Preset %d %d %s\n", PresetNum, Value,
            gMyInfo.MyPatchInfo[Value].Name);
 
     if (Value < 0 || Value >= Max_Patches) {
@@ -1707,7 +1712,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
     }
 
     if (PresetNum > 0 && PresetNum < 9) {
-        printd(LogDebug, "*********PresetNum Case %d\n", PresetNum);
+        printd(LogHTML, "*********PresetNum Case %d\n", PresetNum);
 
         SetPatchTitles(&PresetButtons[PresetNum - 1],
                        gMyInfo.MyPatchInfo[Value].Name,
@@ -1723,7 +1728,7 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
         break;
 
     case 1:
-        printd(LogDebug, "*********PresetNum Case 1 ");
+        printd(LogHTML, "*********PresetNum Case 1 ");
         SetPatchTitles(&PresetButtons[0], gMyInfo.MyPatchInfo[Value].Name, 1);
         break;
 
@@ -1765,14 +1770,14 @@ void SetPatchTitles(theImageButtons * MyButton, char *Text, int Value) {
     //    char String[PatchNameSize];
     //    int StringLen;
 
-    printd(LogDebug, "SetPatchTitles %x %s\n", MyButton, Text);
+    printd(LogHTML, "SetPatchTitles %x %s\n", MyButton, Text);
     // StringLen=strlen(Text);
     // sprintf(String, "      %03d      \n%*s",
     //         Value,
     //         (15 + StringLen) / 2,
     //         Text);
 
-    printd(LogDebug, "SetPatchTitles %s\n", Text);
+    printd(LogHTML, "SetPatchTitles %s\n", Text);
     MyImageButtonSetText2(MyButton, Value, Text);
 }
 
@@ -1813,7 +1818,7 @@ int DecodeURI(char *s, char *dec) {
 #if 0
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
                       gpointer data) {
-    printd(LogDebug, "Finished downloading %s\n",
+    printd(LogHTML, "Finished downloading %s\n",
            webkit_web_view_get_uri(web_view));
     ScalePage();
 }
@@ -1860,7 +1865,7 @@ DownloadRequestcb(WebKitWebView *web_view,
                   WebKitDownload *download,
                   gpointer user_data) {
 
-    printd(LogDebug, "DownloadRequestcb %s\n", download);
+    printd(LogHTML, "DownloadRequestcb %s\n", download);
 
 }
 
@@ -1870,7 +1875,7 @@ PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
                 WebKitWebPolicyDecision* decision, gpointer data) {
     //    char* type = (char*)data;
 
-    printd(LogDebug, "PolicyRequestCD %s %s\n", mime_type, data);
+    printd(LogHTML, "PolicyRequestCD %s %s\n", mime_type, data);
 #if 0
 
     if (g_str_equal(type, "pdf")) {
@@ -1907,7 +1912,7 @@ PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
 
                 if (g_str_equal(mime_type, "audio/mpeg")) {
                     g_assert(webkit_web_view_can_show_mime_type(view, mime_type));
-                    printd(LogDebug, "PolicyRequestCD MP3 Found %s \n", mime_type);
+                    printd(LogHTML, "PolicyRequestCD MP3 Found %s \n", mime_type);
                 }
 
     //   g_free(type);
@@ -1921,7 +1926,7 @@ PolicyRequestCD(WebKitWebView* view, WebKitWebFrame* frame,
 if (Amount == ScrollPgDn)
     if ((VIncrement + Value) >= UpperV) {
         gtk_adjustment_set_value(Adjust, 0);
-        printd(LogDebug, "ScrollDown Rolling Over\n");
+        printd(LogHTML, "ScrollDown Rolling Over\n");
     }
 
     else {
@@ -1931,7 +1936,7 @@ if (Amount == ScrollPgDn)
 if (Amount == ScrollPgUp)
     if ((Value - VIncrement) < 0) {
         gtk_adjustment_set_value(Adjust, 0);
-        printd(LogDebug, "ScrollDown Rolling Over\n");
+        printd(LogHTML, "ScrollDown Rolling Over\n");
     }
 
     else {
@@ -1988,7 +1993,7 @@ gtk_adjustment_set_page_size(Adjust, 100);
 gtk_adjustment_set_page_increment(Adjust, UpperV / 4);
 VIncrement = gtk_adjustment_get_page_increment(Adjust);
 Value = gtk_adjustment_get_value(Adjust);
-printd(LogDebug, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
+printd(LogHTML, "In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
 printf("In ScrollDown %f  %f %f\n", UpperV, VIncrement, Value);
 printf("Page Size %f\n", gtk_adjustment_get_value(Adjust));
 #endif
@@ -2008,7 +2013,7 @@ if (strstr(theURI, ".mp3")) {
     printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
     webkit_policy_decision_ignore(WEBKIT_POLICY_DECISION(decision));
-    printd(LogDebug, "*** MP3 After systemcall %s\n", SysCallString);
+    printd(LogHTML, "*** MP3 After systemcall %s\n", SysCallString);
     /*
      * This tells webkit we are dealing with it.
      */
@@ -2025,7 +2030,7 @@ if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mpg"))
     printd(LogInfo, "Call SetPlayer %s \n", theURI);
 
     webkit_policy_decision_ignore(WEBKIT_POLICY_DECISION(decision));
-    printd(LogDebug, "*** MP4 After systemcall %s\n", SysCallString);
+    printd(LogHTML, "*** MP4 After systemcall %s\n", SysCallString);
     /*
      * This tells webkit we are dealing with it.
      */

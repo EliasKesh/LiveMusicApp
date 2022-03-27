@@ -237,6 +237,13 @@ static int midi_handler(const char *path, const char *types, lo_arg **argv, int 
     return 0;
 }
 
+lo_err_handler OSCErrHandler(int num, const char *msg, const char *where) {
+
+    printf("OSCErrHandler %d, %s, %s \n", num, msg, where);
+
+}
+
+// netstat -np | grep -i Live
 
 /*------------------------------------------------
  * Function:        MyOSCInit.
@@ -273,7 +280,7 @@ void MyOSCInit(char *PortNumber) {
     int osc_port;
 
     //   osc_server = lo_server_new("15200", NULL);
-    osc_server = lo_server_new(PortNumber, NULL);
+    osc_server = lo_server_new(PortNumber, OSCErrHandler);
     if (osc_server) {
         strcpy(our_url, lo_server_get_url (osc_server) );
         osc_port = lo_server_get_port (osc_server);

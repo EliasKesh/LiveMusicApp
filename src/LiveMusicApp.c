@@ -684,6 +684,7 @@ void parse_cmdline(int argc, char *argv[]) {
             printf("   LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
             printf("   LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");
             printf("   LogRealTime 0x100,LogMidi 0x200,LogPlayer 0x400\n");
+            printf("   LogHTML 0x800 \n");
 
             exit(0);
             break;
