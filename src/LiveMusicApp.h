@@ -597,7 +597,8 @@ extern char *GlobalNoteNames[];
 EXTERN LiveMusicInfo gMyInfo;
 //LayoutType LayoutPresets[Max_Layouts];
 EXTERN int LastPortUsed;
-
+EXTERN int UsePipewire;
+EXTERN char *CmdPipewire;
 EXTERN PortsInfo theInPorts;
 EXTERN PortsInfo theOutPorts;
 

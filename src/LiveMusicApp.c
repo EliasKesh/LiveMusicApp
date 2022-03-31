@@ -228,6 +228,8 @@ int main(int argc, char *argv[]) {
     GenerateHFile = 0;
     KeyLayout = 1;
     JackMaster = 0;
+    UsePipewire = 0;
+    CmdPipewire = "";
     RemoveMuteCount = 0;
     RunLogLevel = 0;
     gMyInfo.TimerCount = 0;
@@ -606,12 +608,13 @@ void parse_cmdline(int argc, char *argv[]) {
             { "layout", required_argument, 0, 'l' },
             { "OSCPort", required_argument, 0, 'p' },
             { "IncludeFile", no_argument, 0, 'i' },
+            { "Pipewire", no_argument, 0, 'w' },
             //          { "IncludeFile", required_argument, &GenerateHFile, 1 },
             { 0, 0, 0, 0 }
         };
 
         // Get the arguments
-        c = getopt_long(argc, argv, "?hievd:f:j:l:p:",
+        c = getopt_long(argc, argv, "?hievwd:f:j:l:p:",
                         long_options, &option_index);
 
         // If no arguments, then break out.
@@ -670,6 +673,12 @@ void parse_cmdline(int argc, char *argv[]) {
             printd(LogInfo, "JackMaster off\n");
             break;
 
+        case 'w':
+            UsePipewire = 1;
+            CmdPipewire="pw-jack ";
+            printd(LogInfo, "UsePipewire on\n");
+            break;
+
         default:
         case 'h':
             printf("Live Music CLI Usage\n");
@@ -680,6 +689,7 @@ void parse_cmdline(int argc, char *argv[]) {
             printf(" l Layout - Glade layout file.\n");
             printf(" i IncludeFile - Generate include file on exit.\n");
             printf(" p OSCPort Number - Server Port number.\n");
+            printf(" w pipewire - Use pipewire for playback \n");
             printf(" d debug - Debug output level hex 0xfff \n");
             printf("   LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
             printf("   LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");

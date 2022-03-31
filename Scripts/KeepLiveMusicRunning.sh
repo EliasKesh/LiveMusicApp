@@ -24,7 +24,12 @@ then
 theDATE=$(date +"%d%H%M%S")
 echo "Launching LiveMusic"
 #	cd /home/Dropbox/LiveEffects
- nice -15 `GTK_THEME=LiveMusicTheme $1 -e -v 1 -l 1` >> $LogFile 2>&1 &
+	if [[ $3 == "Yes" ]]; then
+ 		nice -15 `GTK_THEME=LiveMusicTheme $1 -w -e -v 1 -l 1` >> $LogFile 2>&1 &
+ 	else
+ 		nice -15 `GTK_THEME=LiveMusicTheme $1 -e -v 1 -l 1` >> $LogFile 2>&1 &
+ 	fi
+
 	sleep 3
 	./GuitarEffects -c
 	./GuitarEffects -b

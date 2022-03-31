@@ -50,22 +50,22 @@ if [ "${1}" == "mid" ] ; then
 fi
 
 if [ "${1}" == "med" ] ; then
-    muse "${2}" &
+    pw-jack muse "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "Score" ] ; then
-    mscore "${2}" &
+    pw-jack mscore "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "MidPlay" ] ; then
-    muse "${2}" &
+    pw-jack muse "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "rg" ] ; then
-    rosegarden "${2}" &
+    pw-jack rosegarden "${2}" &
     sleep 1
 #    aconnect -x "rosegarden":0
 #    aconnect -x "rosegarden":1
@@ -95,19 +95,20 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
     echo "Muse Score ${1}  ${2}"
-/usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
+pw-jack /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
     exit 0
 fi
 
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicApp" nice -15 guitarix --log-terminal &
+    GTK_THEME="LiveMusicTheme" nice -15 pw-jack guitarix --log-terminal &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicApp" nice -15 guitarix --log-terminal &
+    GTK_THEME="LiveMusicTheme" nice -15 \
+    pw-jack guitarix --log-terminal &
     # /AppImages/guitarix-0.39-x86_64.AppImage \
     # -p 7000 &
    
@@ -119,9 +120,9 @@ fi
 
 if [ "${1}" == "guitarixNew" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicApp"  \
+    GTK_THEME="LiveMusicTheme"  \
     GDK_BACKEND=x11 nice -15 \
-    guitarix \
+    pw-jack guitarix \
     -p 7000 \
     --log-terminal &
     exit 0

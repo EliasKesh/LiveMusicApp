@@ -406,7 +406,11 @@ function SetDefinitions {
 #-------------------------------------------#
 function StartJack {
     
-    
+    if [[ $UsePipeWire == "Yes" ]]; then
+        return
+    fi
+
+
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         #        ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -475,10 +479,6 @@ function StartJack {
         
     fi
     
-    # Jack can be a bit slow to come up.
-    Delay 1
-    echo " About to Start Jack-Volume"
-    nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
     
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
@@ -751,7 +751,7 @@ function SetUpApplications {
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
         echo "Starting qsynth"  >> $LogFile
-        nice -15 `QT_STYLE_OVERRIDE=QtCurve qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+        nice -15 `QT_STYLE_OVERRIDE=QtCurve $PipeStart qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
     if [ `hostname` == "livemusic" ]; then
@@ -759,16 +759,18 @@ function SetUpApplications {
     else
         ButtonSize=140
     fi
+
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
-        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
-        -e -v 0x40 \
-        -l $ButtonLayout \
-        -f $ButtonSize \
-        -j "${AudioOutDevice}"` \
-        >> $LogFile 2>&1 &
+        echo "Pipewire option "$PipeOption
+        # nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
+        # -e -v $PipeOption \
+        # -l $ButtonLayout \
+        # -f $ButtonSize \
+        # -j "${AudioOutDevice}"` \
+        # >> $LogFile 2>&1 &
     fi
     
     # This is the Guitar effects processor
@@ -781,7 +783,7 @@ function SetUpApplications {
     
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
-        slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
+       $PipeStart slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
     
     if test "${InternetJamStart}" = "true"; then
@@ -844,7 +846,7 @@ function SetUpApplications {
     # This script check for a failed app
     # and will relaunch it
     if test "${BackroundChecker}" = "true"; then
-        KeepLiveMusicRunning.sh "LiveMusicApp" "${EffectsProcessorApp}"  &
+        KeepLiveMusicRunning.sh "LiveMusicApp" "${EffectsProcessorApp}"  $UsePipeWire &
     fi
     #  kdialog --progressbar  "Elias Guitar Effects Hints" 0
 }
@@ -867,7 +869,8 @@ function SetPlacement {
     ExtraMonitor="$?"
     
     # On home PC spread it out
-    if [ `hostname` == "Keshie" ]; then
+    if [ `hostname` == "Keshie" ] || 
+       [ `hostname` == "KeshP15" ]; then
         echo "Keshie"
         AnalogDesktop=5
         LiveMusicAppDesktop=5
@@ -1197,7 +1200,6 @@ EffectsProcessorWM="Guitarix: gx_head"
 # PatchBay="carla"
 PatchBay="catia"
 PatchBayName="Catia"
-
 InternetJam="sonobus"
 
 MidiController=true
@@ -1222,7 +1224,19 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="2.0.4"
+Version="2.0.5"
+
+
+UsePipeWire="Yes"
+
+if [[ $UsePipeWire == "Yes" ]]; then
+PipeStart="pw-jack" 
+PipeOption=" -w " 
+else
+PipeStart="" 
+PipeOption="" 
+fi
+
 
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
@@ -1466,26 +1480,29 @@ if [ `ps -ew | grep -c jackd` == 0 ] ; then
     StartJack
 fi
 
-if [ `ps -ew | grep -c jackd` == 0 ] ; then
-    zenity --warning \
-    --text=" Can\'t Start Jack"
-    exit 1
-fi
+if [[ $UsePipeWire == "No" ]]; then
+    if [ `ps -ew | grep -c jackd` == 0 ] ; then
+        zenity --warning \
+        --text=" Can\'t Start Jack"
+        exit 1
+    fi
 
-# If jackd is still not running then exit.
-if [ `ps -ew|grep -c jackd` == 0 ] ; then
-    echo "Exiting, could not launch Sound System"  >> $LogFile
-    exit 1
+    # If jackd is still not running then exit.
+    if [ `ps -ew|grep -c jackd` == 0 ] ; then
+        echo "Exiting, could not launch Sound System"  >> $LogFile
+        exit 1
+    fi
 fi
 
 if [ `ps -ew | grep -c jack-volume` == 0 ] ; then
     # Jack can be a bit slow to come up.
     echo " About to Start Jack-Volume"
-    nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
+    $PipeStart  nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
 fi
 
+
 if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
-    jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
+    $PipeStart  jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
 fi
 
 # In case the OSC port didn't close.
@@ -1506,7 +1523,7 @@ a2jmidi_bridge "GuitBridge" &
 # a2jmidi_bridge "MuseBridge" &
 
 SetUpApplications
-Delay 1
+Delay 1 
 
 echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
@@ -1536,4 +1553,8 @@ exit 0
 
 
 # GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 gtk3-demo
+
+# Pipewire
+# pw-metadata -n settings 0 clock.force-quantum 128
+# PIPEWIRE_LATENCY="128/48000" pw-jack reaper
 
