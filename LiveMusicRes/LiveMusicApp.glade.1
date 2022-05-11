@@ -123,12 +123,18 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
   <object class="GtkWindow" id="window1">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
+    <property name="halign">center</property>
+    <property name="valign">start</property>
+    <property name="hexpand">False</property>
     <property name="title" translatable="yes">LiveMusic</property>
+    <property name="default-height">800</property>
+    <property name="has-resize-grip">True</property>
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <child>
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="valign">start</property>
         <child>
           <object class="GtkVBox" id="vbox5">
             <property name="width-request">56</property>
@@ -136,6 +142,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
             <property name="can-focus">False</property>
             <property name="double-buffered">False</property>
             <property name="halign">start</property>
+            <property name="valign">start</property>
             <child>
               <object class="GtkEventBox" id="Tempo">
                 <property name="visible">True</property>
@@ -342,6 +349,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="double-buffered">False</property>
+            <property name="valign">start</property>
             <property name="tab-pos">left</property>
             <property name="show-tabs">False</property>
             <property name="enable-popup">True</property>
@@ -349,6 +357,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkTable" id="table1">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">start</property>
                 <property name="n-columns">2</property>
                 <child>
                   <object class="GtkVBox" id="vbox3">
@@ -371,13 +380,14 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="left-padding">12</property>
                             <child>
                               <object class="GtkVScale" id="vscale1">
+                                <property name="height-request">125</property>
                                 <property name="visible">True</property>
                                 <property name="app-paintable">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
                                 <property name="tooltip-text" translatable="yes">Guitar Volume</property>
                                 <property name="margin-top">2</property>
-                                <property name="margin-bottom">20</property>
+                                <property name="margin-bottom">16</property>
                                 <property name="adjustment">adj_Analog</property>
                                 <property name="inverted">True</property>
                                 <property name="fill-level">100</property>
@@ -417,11 +427,12 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="left-padding">12</property>
                             <child>
                               <object class="GtkVScale" id="vscale2">
+                                <property name="height-request">125</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-text" translatable="yes">Midi Volume</property>
                                 <property name="margin-top">2</property>
-                                <property name="margin-bottom">20</property>
+                                <property name="margin-bottom">16</property>
                                 <property name="adjustment">adj_Midi</property>
                                 <property name="inverted">True</property>
                                 <property name="fill-level">100</property>
@@ -460,11 +471,12 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="left-padding">12</property>
                             <child>
                               <object class="GtkVScale" id="vscale3">
+                                <property name="height-request">125</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-text" translatable="yes">Master Volume</property>
                                 <property name="margin-top">2</property>
-                                <property name="margin-bottom">20</property>
+                                <property name="margin-bottom">16</property>
                                 <property name="adjustment">adj_Master</property>
                                 <property name="inverted">True</property>
                                 <property name="fill-level">100</property>
@@ -502,6 +514,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="left-padding">12</property>
                             <child>
                               <object class="GtkVScale" id="vscale4">
+                                <property name="height-request">125</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="tooltip-text" translatable="yes">Expression Pedal. Text will update based on what is being controlled.</property>
@@ -540,6 +553,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                   <object class="GtkVBox" id="vbox4">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="valign">start</property>
                     <property name="margin-top">5</property>
                     <property name="margin-bottom">5</property>
                     <property name="hexpand">True</property>
@@ -2517,6 +2531,12 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                         <child>
                           <placeholder/>
                         </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -2796,6 +2816,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkAspectFrame" id="PlayerFrame">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">start</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <property name="xalign">0.10000000149011612</property>
@@ -2830,6 +2851,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkAspectFrame" id="ChordFrame">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">start</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <property name="xalign">0.10000000149011612</property>
@@ -2864,16 +2886,19 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkFrame" id="frame2">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">start</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <child>
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="valign">start</property>
                     <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="valign">center</property>
                         <child>
                           <object class="GtkScrolledWindow" id="PatchScroller">
                             <property name="width-request">475</property>
@@ -2898,21 +2923,19 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="hexpand">False</property>
-                            <property name="vexpand">True</property>
+                            <property name="valign">start</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <!-- n-columns=3 n-rows=6 -->
+                              <!-- n-columns=3 n-rows=4 -->
                               <object class="GtkGrid" id="IndivPrefs">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="double-buffered">False</property>
+                                <property name="valign">start</property>
                                 <property name="margin-top">3</property>
                                 <property name="margin-bottom">3</property>
                                 <property name="border-width">5</property>
-                                <property name="row-spacing">6</property>
                                 <property name="column-spacing">6</property>
-                                <property name="row-homogeneous">True</property>
                                 <property name="column-homogeneous">True</property>
                                 <property name="baseline-row">2</property>
                                 <child>
@@ -3409,28 +3432,10 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                 <child>
                                   <placeholder/>
                                 </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="padding">2</property>
                                 <property name="position">0</property>
                               </packing>
@@ -3439,14 +3444,15 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                               <object class="GtkBox" id="StringBoxes">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="double-buffered">False</property>
+                                <property name="valign">start</property>
                                 <property name="homogeneous">True</property>
                                 <child>
                                   <object class="GtkScrolledWindow" id="ApplicationNames">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="double-buffered">False</property>
-                                    <property name="hexpand">False</property>
-                                    <property name="vexpand">False</property>
+                                    <property name="valign">start</property>
                                     <property name="shadow-type">in</property>
                                     <child>
                                       <placeholder/>
@@ -3463,6 +3469,8 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-text" translatable="yes">Pick the layouts to use.</property>
+                                    <property name="double-buffered">False</property>
+                                    <property name="valign">start</property>
                                     <property name="shadow-type">in</property>
                                     <child>
                                       <placeholder/>
@@ -3477,7 +3485,7 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
+                                <property name="fill">False</property>
                                 <property name="padding">4</property>
                                 <property name="position">1</property>
                               </packing>
@@ -3486,12 +3494,17 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="double-buffered">False</property>
+                                <property name="valign">start</property>
+                                <property name="spacing">1</property>
                                 <property name="homogeneous">True</property>
                                 <child>
                                   <object class="GtkScrolledWindow" id="StringWindow">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-text" translatable="yes">Notes for Tab and Scales. 0 is the highest pitch note.</property>
+                                    <property name="double-buffered">False</property>
+                                    <property name="valign">start</property>
                                     <property name="shadow-type">in</property>
                                     <child>
                                       <placeholder/>
@@ -3508,6 +3521,8 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="tooltip-text" translatable="yes">Output Port names used by Alsa and used in the patch list fo director the output</property>
+                                    <property name="double-buffered">False</property>
+                                    <property name="valign">start</property>
                                     <property name="shadow-type">in</property>
                                     <child>
                                       <placeholder/>
@@ -3528,8 +3543,8 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
                             <property name="padding">6</property>
                             <property name="position">1</property>
                           </packing>

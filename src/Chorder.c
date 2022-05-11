@@ -44,19 +44,20 @@
  * Constants
  */
 
-#define MaxDisplayFrets 9
+#define MaxDisplayFrets 11
 #define MaxNumStrings   TotalMaxStrings
 #define MaxNumFrets     24
 
 #define XOffset     20
-#define YOffset     40
+#define YOffset     30
 
-#define ChordFontSize 18
-
+#define ChordFontSize 16
+#define FheightOff 125
+#define FheightOff1 175
 #define StaffX 50
-#define StaffY 675
+#define StaffY 475
 #define StaffLength 900
-#define NoteOffSet (13)
+#define NoteOffSet (9)
 #define StaffOffSet (2 * NoteOffSet)
 
 
@@ -722,6 +723,8 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
     image_width = cairo_image_surface_get_width(CSurface);
     image_height = cairo_image_surface_get_height(CSurface);
     gtk_window_get_size(GTK_WIDGET(MainWindow), &Fwidth, &Fheight);
+    Fheight -= FheightOff;
+
     //  gtk_widget_get_size_request((window), &Fwidth, &Fheight);
 
     //    Fwidth  = 1200;
@@ -733,6 +736,7 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
                                 &Fwidth, &Fheight);
     printd(LogInfo, "FretOffset 2 %d %d\n", Fwidth, Fheight);
     gtk_widget_set_size_request(MyFretArea, Fwidth, Fheight);
+    Fheight -= FheightOff1;
 
     NoteNames = FlatNotes;
     SetOpenString();
@@ -742,7 +746,6 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
         return (0);
     }
 
-    Fheight -= 150;
 
     FretOffset = Fwidth / MaxDisplayFrets;
     StringOffset = (Fheight) / NumStrings;

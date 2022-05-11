@@ -1,4 +1,4 @@
-NewVersion="2.0.4"
+NewVersion="2.1.5"
 sed -i "/Version = /s/.*/Version = \"$NewVersion\"/" Scripts/LiveMusicCharts.py
 sed -i "/Version=/s/.*/Version=\"$NewVersion\"/" Scripts/GuitarEffects
 sed -i "/echo /s/.*/echo \"$NewVersion\"/" Scripts/version.sh

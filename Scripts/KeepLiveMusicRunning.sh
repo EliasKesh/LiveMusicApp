@@ -31,8 +31,8 @@ echo "Launching LiveMusic"
  	fi
 
 	sleep 3
-	./GuitarEffects -c
-	./GuitarEffects -b
+	GuitarEffects -c
+	GuitarEffects -b
 fi
 
 pid=`pgrep -i guitarix | head -n1 `
@@ -43,8 +43,8 @@ echo "Launching Guitarix"
 #	cd /home/Dropbox/LiveEffects
     MusicApps.sh EffectsProcessorApp &
 	sleep 6
-	./GuitarEffects -c
-	./GuitarEffects -b
+	GuitarEffects -c
+	GuitarEffects -b
 fi
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1

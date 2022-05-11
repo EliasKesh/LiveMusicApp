@@ -940,7 +940,6 @@ int GTKIdel_cb(gpointer data) {
     // Update the player time if playing.
     gtk_widget_override_font(PlayerCurWid,
                              pango_font_description_from_string("Sans Bold 16"));
-
     sprintf(ForString, "<span font=\"16\" color='#%lx'><b>%3.1f\n%s\n</b></span><span font=\"12\" color='#%lx'><b>LP %2.2f</b></span>",
             0x80ff00,
             PlayerDisTime,

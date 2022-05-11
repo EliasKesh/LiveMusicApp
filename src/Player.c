@@ -1595,6 +1595,7 @@ gboolean Loop_click_handler(GtkWidget *widget, GdkEvent *event,
  * Description:     Position Sliders changed.
  *------------------------------------------------*/
 int StartPlayer(void) {
+char *OutputString;
 
     system("killall mplayer &>/dev/null");
     sleep(.3);
@@ -1607,7 +1608,10 @@ int StartPlayer(void) {
 
     printd(LogPlayer, "StartPlayer:After Kill\n");
 
-
+    if (UsePipewire == 1)
+      OutputString = "pulse";
+    else
+      OutputString = "jack:port=input_3:name=MPlayer";
 
 #if 1
     if (OutPipe) {
@@ -1628,8 +1632,8 @@ int StartPlayer(void) {
     if (WeAreLooping) {
         sprintf(PlayerString,
                 //              "-use-filedir-conf=./Prefs/mplayer/
-                "%s mplayer -identify -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
-                CmdPipewire,
+                "mplayer -identify -nocache -ao %s -slave -ss %f -endpos %f  -volume %3.1f -speed %0.2f \"%s\" -hr-mp3-seek -fixed-vo -osdlevel 0 -quiet -idle -af scaletempo -loop 0  >/tmp/LiveMusicIn 2>/dev/null",
+                OutputString,
                 gtk_adjustment_get_value(FineStartAdjustment),
                 gtk_adjustment_get_value(FineEndAdjustment),
                 gtk_adjustment_get_value(VolumeAdjustment),
@@ -1637,13 +1641,11 @@ int StartPlayer(void) {
                 CurrentSpeed, CurrentFile);
         // -fixed-ao hangs
         printd(LogPlayer, "calling  Loop %s\n", PlayerString);
-
     }
     else {
-        sprintf(PlayerString,
-                "%s mplayer \"%s\" -identify -nocache -ao jack:port=input_3:name=MPlayer -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null", 
-                 CmdPipewire,
-               (char *)CurrentFile,
+       sprintf(PlayerString,
+                "mplayer \"%s\" -identify -nocache -ao %s -slave -ss %f -volume %f -speed %0.2f -idle  -hr-mp3-seek -fixed-vo -quiet -idle -af scaletempo >/tmp/LiveMusicIn 2>/dev/null", 
+               (char *)CurrentFile, OutputString, 
                 CurrentSongPosition,
                 gtk_adjustment_get_value(VolumeAdjustment),
                 CurrentSpeed);

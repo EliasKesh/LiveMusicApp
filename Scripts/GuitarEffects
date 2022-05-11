@@ -682,8 +682,8 @@ function SetUpConnections {
     jack_connect Hydrogen:out_L $MainOut2
     jack_connect Hydrogen:out_R $MainOut2
     
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut3
-    jack_connect Clementine:out_jackaudiosink-1_1 $MainOut3
+    jack_connect strawberry:out_jackaudiosink-1_1 $MainOut3
+    jack_connect strawberry:out_jackaudiosink-1_1 $MainOut3
     
     jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
@@ -708,7 +708,12 @@ function SetUpConnections {
     aconnect "MusE":0 "FLUID Synth":0
     jack_connect "MusE:Out 1-0" "system:playback_1"
     jack_connect "MusE:Out 1-1" "system:playback_1"
-    
+
+
+    if [[ $UsePipeWire == "Yes" ]]; then
+        PipeConnect.sh
+    fi
+
 }
 
 #-------------------------------------------#
@@ -750,10 +755,11 @@ function SetUpApplications {
     
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
-        echo "Starting qsynth"  >> $LogFile
-        nice -15 `QT_STYLE_OVERRIDE=QtCurve $PipeStart qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+        echo "Starting qsynth "$PipeStart   >> $LogFile
+        echo "Starting qsynth "$PipeStart
+        nice -15 `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
-    
+
     if [ `hostname` == "livemusic" ]; then
         ButtonSize=96
     else
@@ -793,12 +799,12 @@ function SetUpApplications {
     
     if test "${Ardour}" = "true"; then
         # We are going to record
-        ardour /home/Music/Rehearsals/`date +"%Y%m%d"` &
+         $PipeStart ardour /home/Music/Rehearsals/`date +"%Y%m%d"` &
     fi
     
     if test "${MP3Player}" = "true"; then
         # Set the first Desktop to use.
-        QT_STYLE_OVERRIDE=QtCurve clementine &
+       QT_STYLE_OVERRIDE=QtCurve  $PipeStart strawberry &
     fi
     
     if test "${MusePlayer}" = "true"; then
@@ -825,7 +831,7 @@ function SetUpApplications {
     
     # Are we practicing ? then run the sequence
     if test "${Rosegarden}" = "true"; then
-        rosegarden &
+         $PipeStart rosegarden &
         Delay 2
     fi
     
@@ -835,7 +841,7 @@ function SetUpApplications {
     
     # Do we launch the drum machine .
     if test "${Hydrogen}" = "true"; then
-        hydrogen -k GMKit -s  /home/elias/MySongs/Drums/JustFunky.h2song &
+        $PipeStart hydrogen -k GMKit -s  /home/elias/MySongs/Drums/JustFunky.h2song &
     fi
     
     # mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
@@ -982,17 +988,17 @@ function SetPlacement1920 {
     if [ "$ExtraMonitor" -eq "1" ]; then
 
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-        wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,860
+ #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
+        wmctrl -r ${EffectsProcessorWM} -e 0,10,0,700,1350
 
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -F -r LiveMusicApp_1 -e 0,0,0,1850,1050
+        wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
         
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,586,420,1000,450
         
         wmctrl -r qsynth -e 0,640,80,1600,400
         wmctrl -r qsynth -t $MidiDesktop
-
     else
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
         wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1350
@@ -1007,14 +1013,10 @@ function SetPlacement1920 {
         wmctrl -r qsynth -e 0,1450,80,1400,400
         wmctrl -r qsynth -t $MidiDesktop
     fi
-
-
-
     
-    
-    #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
-    wmctrl -r clementine -e 0,$XOffset,$YOffset,1920,1000
-    wmctrl -r clementine -t $PlayerDesktop
+    #       wmctrl -r strawberry -e 0,$NewOffset,350,1000,700
+    wmctrl -r strawberry -e 0,$XOffset,$YOffset,1920,1000
+    wmctrl -r strawberry -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -t $PlayerDesktop
@@ -1062,8 +1064,8 @@ function SetPlacement1600 {
     wmctrl -r qsynth -t $MidiDesktop
     
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r clementine -e 0,$NewOffset,350,1000,700
-    wmctrl -r clementine -t $PlayerDesktop
+    wmctrl -r strawberry -e 0,$NewOffset,350,1000,700
+    wmctrl -r strawberry -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
@@ -1097,8 +1099,8 @@ function SetPlacement1200 {
     wmctrl -r qsynth -e 0,640,0,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
-    wmctrl -r clementine -e 1,0,150,1000,600
-    wmctrl -r clementine -t $PlayerDesktop
+    wmctrl -r strawberry -e 1,0,150,1000,600
+    wmctrl -r strawberry -t $PlayerDesktop
     
     wmctrl -r TuxGuitar -e 0,366,250,1000,500
     wmctrl -r TuxGuitar -t $PlayerDesktop
@@ -1111,17 +1113,19 @@ function StopEverything {
     echo "Closing down Effects"
 
     killall KeepLiveMusicRunning.sh
-
+KillAll guitarix
+KillAll guitarix
+KillAll guitarix
     wmctrl -c ${EffectsProcessorWM}
     wmctrl -c LiveMusicApp_1
     wmctrl -c Patchage
     wmctrl -c SooperLooper
     wmctrl -c qsynth
-    wmctrl -c clementine
+    wmctrl -c strawberry
     wmctrl -c QjackCtl
 
     killall patchage
-    killall ${EffectsProcessorName}
+    killall -I ${EffectsProcessorName}
     killall qsynth
     killall ardour2
     killall jack-volume
@@ -1133,7 +1137,7 @@ function StopEverything {
     killall rosegarden
     killall hydrogen
     killall qsynth
-    killall clementine
+    killall strawberry
     killall okular
     killall livedings
     killall jack-volume
@@ -1158,6 +1162,7 @@ function StopEverything {
     killall $InternetJam
     
     
+    killall -I ${EffectsProcessorName}
     killall ${PatchBay}
     KillAll catia
     killall a2jmidid
@@ -1179,7 +1184,7 @@ function StopEverything {
     #    fi
     xset s on
     xset +dpms
-    
+    powerprofilesctl set balanced
     exit 0
 }
 
@@ -1198,8 +1203,8 @@ EffectsProcessorName="Guitarix"
 EffectsProcessorApp="guitarixOld"
 EffectsProcessorWM="Guitarix: gx_head"
 # PatchBay="carla"
-PatchBay="catia"
-PatchBayName="Catia"
+PatchBay="qpwgraph"
+PatchBayName="qpwgraph"
 InternetJam="sonobus"
 
 MidiController=true
@@ -1224,20 +1229,32 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="2.0.5"
+Version="2.1.5"
 
 
+PipeActive=`ps aux | grep pipewire1 | wc -l`
+
+if [ $PipeActive > 1 ];  then
+echo "Pipe found"
 UsePipeWire="Yes"
+else 
+echo "Pipe Not found"
+UsePipeWire="No"
+fi
+
 
 if [[ $UsePipeWire == "Yes" ]]; then
-PipeStart="pw-jack" 
+PipeStart="pw-jack " 
 PipeOption=" -w " 
 else
 PipeStart="" 
 PipeOption="" 
+#PIPEWIRE_LATENCY=128/48000
 fi
 
+# systemctl --user restart pipewire pipewire-pulse wireplumber
 
+powerprofilesctl set performance
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
 # sudo echo 5 > /proc/sys/vm/swappiness
 # sudo echo -n performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
@@ -1475,6 +1492,7 @@ SetDefinitions
 echo "Start Jack"
 StartJack
 
+
 # If at first you don't succeed ....
 if [ `ps -ew | grep -c jackd` == 0 ] ; then
     StartJack
@@ -1499,7 +1517,6 @@ if [ `ps -ew | grep -c jack-volume` == 0 ] ; then
     echo " About to Start Jack-Volume"
     $PipeStart  nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
 fi
-
 
 if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
     $PipeStart  jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &

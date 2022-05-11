@@ -14,6 +14,15 @@
 #------------------------------------------------#
 echo "MusicApp -> ${1}  ${2} ${3}"
 
+PipeActive=`ps aux | grep pipewire | wc -l`
+if [ $PipeActive > 1 ];  then
+echo "Pipe found"
+PipeStart="pw-jack " 
+else 
+echo "Pipe Not found"
+PipeStart=" " 
+fi
+
 if [ "${1}" == "html" ] ; then
     gedit "${2}" &
     exit 0
@@ -50,22 +59,22 @@ if [ "${1}" == "mid" ] ; then
 fi
 
 if [ "${1}" == "med" ] ; then
-    pw-jack muse "${2}" &
+${PipeStart} muse "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "Score" ] ; then
-    pw-jack mscore "${2}" &
+    ${PipeStart} mscore "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "MidPlay" ] ; then
-    pw-jack muse "${2}" &
+    ${PipeStart} muse "${2}" &
     exit 0
 fi
 
 if [ "${1}" == "rg" ] ; then
-    pw-jack rosegarden "${2}" &
+    ${PipeStart} rosegarden "${2}" &
     sleep 1
 #    aconnect -x "rosegarden":0
 #    aconnect -x "rosegarden":1
@@ -94,21 +103,21 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "gp5" ] ||
 [ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
-    echo "Muse Score ${1}  ${2}"
-pw-jack /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
+    echo "Muse Score ${1} ${2} ${PipeStart}"
+    /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
     exit 0
 fi
 
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme" nice -15 pw-jack guitarix --log-terminal &
+    GTK_THEME="LiveMusicTheme" nice -15 ${PipeStart} guitarix --log-terminal &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
     GTK_THEME="LiveMusicTheme" nice -15 \
-    pw-jack guitarix --log-terminal &
+    ${PipeStart} guitarix --log-terminal &
     # /AppImages/guitarix-0.39-x86_64.AppImage \
     # -p 7000 &
    
@@ -120,9 +129,9 @@ fi
 
 if [ "${1}" == "guitarixNew" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme"  \
+    GTK_THEME="LiveMusicApp"  \
     GDK_BACKEND=x11 nice -15 \
-    pw-jack guitarix \
+    ${PipeStart} guitarix \
     -p 7000 \
     --log-terminal &
     exit 0
