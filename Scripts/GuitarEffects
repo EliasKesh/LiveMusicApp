@@ -784,8 +784,6 @@ function SetUpApplications {
         -f $ButtonSize \
         -j "${AudioOutDevice}"` \
         >> $LogFile 2>&1 &
-echo "***************** Start Applications"
-        exit 0
     fi
     
     # This is the Guitar effects processor
