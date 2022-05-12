@@ -520,21 +520,26 @@ function SetUpConnections {
     #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
     
     # Turn on the Headphone output
-    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
+#    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
     
     # Turn on the Master output
-    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
+#    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
     
     # Set the input mode to be a line level signal not a mic.
-    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
+#    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
     
-    amixer sset "Mic Boost" 0
+ #   amixer sset "Mic Boost" 0
     #   amixer sset "Capture" 70
-    amixer cset name='Capture Switch' 2
+ #   amixer cset name='Capture Switch' 2
     
     # Max out the USB Device.
-    amixer -c 1 sset 'PCM' 128
+#    amixer -c 1 sset 'PCM' 128
     
+    amixer -c 0 sset 'Speaker' mute
+    amixer -c 1 sset 'Speaker' mute
+    amixer -c 0 sset 'Speaker' 0
+    amixer -c 1 sset 'Speaker' 0
+
     amixer sset 'Master' 65535
     
     # ********************************
@@ -761,22 +766,26 @@ function SetUpApplications {
     fi
 
     if [ `hostname` == "livemusic" ]; then
-        ButtonSize=96
+        ButtonSize=88
     else
         ButtonSize=140
     fi
+
 
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
         echo "Starting Midi Router"
-        echo "Pipewire option "$PipeOption
-        # nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
-        # -e -v $PipeOption \
-        # -l $ButtonLayout \
-        # -f $ButtonSize \
-        # -j "${AudioOutDevice}"` \
-        # >> $LogFile 2>&1 &
+        echo "Pipewire option "$PipeOption" ButtonSize "$ButtonSizes
+        echo "Button "$ButtonLayout" AudioOut "$AudioOutDevice
+        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
+        -e -v $PipeOption \
+        -l $ButtonLayout \
+        -f $ButtonSize \
+        -j "${AudioOutDevice}"` \
+        >> $LogFile 2>&1 &
+echo "***************** Start Applications"
+        exit 0
     fi
     
     # This is the Guitar effects processor
@@ -900,7 +909,7 @@ function SetPlacement {
         fi
         
         SetPlacement1920
-    elif [ `hostname` == "Music" ]; then
+    elif [ `hostname` == "livemusic" ]; then
         echo "Music"
         AnalogDesktop=0
         LiveMusicAppDesktop=1
@@ -1232,7 +1241,7 @@ SoundSynth=true
 Version="2.1.5"
 
 
-PipeActive=`ps aux | grep pipewire1 | wc -l`
+PipeActive=`ps aux | grep pipewire | wc -l`
 
 if [ $PipeActive > 1 ];  then
 echo "Pipe found"
