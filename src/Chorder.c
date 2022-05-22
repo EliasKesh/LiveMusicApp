@@ -52,11 +52,13 @@
 #define YOffset     30
 
 #define ChordFontSize 16
-#define FheightOff 125
-#define FheightOff1 175
+#define FheightOff 200
+#define FheightOff1 200
 #define StaffX 50
 #define StaffY 475
-#define StaffLength 900
+#define StaffLength 800
+
+
 #define NoteOffSet (9)
 #define StaffOffSet (2 * NoteOffSet)
 
@@ -746,8 +748,8 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
         return (0);
     }
 
-
-    FretOffset = Fwidth / MaxDisplayFrets;
+    Fwidth -= 40;
+    FretOffset = Fwidth / (MaxDisplayFrets + 2);
     StringOffset = (Fheight) / NumStrings;
 
     printd(LogInfo, "FretOffset %d %d %d %d %d\n", FretOffset, Fwidth, Fheight, NumStrings, StringOffset);
@@ -972,31 +974,32 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
     PangoLayout* layout = pango_layout_new(context);
     cairo_set_operator(cr, CAIRO_OPERATOR_ATOP);
 
+    #define YOffSetInc  20
     //    CAIRO_OPERATOR_ATOP CAIRO_OPERATOR_SOURCE
     /* Draw three layers of frets.
      */
     for (Loop = 0; Loop <= MaxDisplayFrets; ++Loop) {
         cairo_set_line_width(cr, 1);
         cairo_set_source_rgb(cr, 1, .9, .9);
-        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + 20);
+        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + YOffSetInc);
         cairo_line_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + Fheight);
         cairo_stroke(cr);
 
         cairo_set_line_width(cr, .5);
         cairo_set_source_rgb(cr, .8, .7, .7);
-        cairo_move_to(cr, XOffset + 32 + Loop * FretOffset, YOffset + 20);
+        cairo_move_to(cr, XOffset + 32 + Loop * FretOffset, YOffset + YOffSetInc);
         cairo_line_to(cr, XOffset + 32 + Loop * FretOffset, YOffset + Fheight);
         cairo_stroke(cr);
 
         cairo_set_line_width(cr, .2);
         cairo_set_source_rgb(cr, .45, .43, .5);
-        cairo_move_to(cr, XOffset + 34 + Loop * FretOffset, YOffset + 20);
+        cairo_move_to(cr, XOffset + 34 + Loop * FretOffset, YOffset + YOffSetInc);
         cairo_line_to(cr, XOffset + 34 + Loop * FretOffset, YOffset + Fheight);
         cairo_stroke(cr);
 
         cairo_set_source_rgb(cr, .95, .75, .75);
         sprintf(StrBuf, "%d", Loop + myChord.Position);
-        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + Fheight + 20);
+        cairo_move_to(cr, XOffset + 30 + Loop * FretOffset, YOffset + Fheight + YOffSetInc);
         cairo_set_font_size(cr, ChordFontSize);
         cairo_show_text(cr, StrBuf);
         cairo_stroke(cr);
@@ -1154,7 +1157,6 @@ gboolean draw_fretboard_background(GtkWidget *widget, GdkEventExpose *event) {
             cairo_stroke(cr);
         }
     }
-
 
     /* ******************************
     ***  Draw Staff   ****

@@ -340,9 +340,10 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
                                GTK_ADJUSTMENT(VolumeAdjustment));
     //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
-    //     gtk_widget_set_vexpand (VolumeSpin, TRUE);
+    gtk_widget_set_vexpand (VolumeSpin, TRUE);
+    gtk_widget_set_size_request(VolumeSpin, 60, 200);
 
-    gtk_widget_set_margin_bottom(VolumeSpin, 15);
+    gtk_widget_set_margin_bottom(VolumeSpin, 10);
     gtk_range_set_range(GTK_RANGE(VolumeSpin), 0, 100);
     gtk_range_set_inverted(GTK_RANGE(VolumeSpin), TRUE);
 
@@ -351,7 +352,7 @@ int LivePlayerInit(GtkWidget *MainWindow, GtkWidget *window) {
     gtk_scale_set_draw_value((GtkScale *)VolumeSpin, TRUE);
     gtk_scale_set_has_origin((GtkScale *)VolumeSpin, TRUE);
     gtk_scale_set_digits((GtkScale *)VolumeSpin, TRUE);
-    gtk_widget_set_margin_top(VolumeSpin, 20);
+    gtk_widget_set_margin_top(VolumeSpin, 10);
 
     //  gtk_widget_set_margin_right(VolumeSpin, 20);
     //  gtk_widget_set_margin_left(VolumeSpin, 20);

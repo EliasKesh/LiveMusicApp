@@ -123,16 +123,19 @@ pw-link "jack-volume:output_2" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-
 pw-link "jack-volume:output_3" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:playback_FR"
 pw-link "jack-volume:output_4" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:playback_FR"
 
+# Mplayer to MP3 input.
+pw-link "MPlayer:output_FR" "jack-volume:input_2"
+pw-link "MPlayer:output_FL" "jack-volume:input_2"
+pw-link -d "MPlayer:output_FR" "alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FR"
+pw-link -d "MPlayer:output_FL" "alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FL"
 
 pw-link -d alsa_input.pci-0000_00_1b.0.analog-stereo:capture_FL gx_head_amp:in_0
 pw-link -d alsa_input.pci-0000_00_1b.0.analog-stereo:capture_FR alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FR
 pw-link -d alsa_input.pci-0000_00_1b.0.analog-stereo:capture_FL alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FL
 pw-link -d alsa_input.pci-0000_00_1b.0.analog-stereo:capture_FR alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FL
 
-
-
-pw-link gx_head_fx:out_0 sooperlooper:common_in_1
-pw-link gx_head_fx:out_1 sooperlooper:common_in_1
+pw-link "gx_head_fx:out_0" "sooperlooper:common_in_1"
+pw-link "gx_head_fx:out_1" "sooperlooper:common_in_1"
 
 
 pw-link "jack-volume:output_1"   "alsa_output.usb-Logitech_G935_Gaming_Headset-00.iec958-stereo:playback_FR"
@@ -149,9 +152,6 @@ pw-link "alsa_input.usb-IK_Multimedia_iRig_HD_2-00.mono-fallback:capture_MONO" "
 pw-link "alsa_input.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:capture_FL" "gx_head_amp:in_0"
 pw-link "alsa_input.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:capture_FR" "gx_head_amp:in_0"
 
-
-
-
 # Guitarix out
 pw-link "gx_head_fx:out_0" "jack-volume:input_1"
 pw-link "gx_head_fx:out_1" "jack-volume:input_1"
@@ -162,7 +162,6 @@ pw-link "qsynth:right" "jack-volume:input_2"
 
 
 pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in_1"
-
 
 # USB-C
 pw-link "Google Chrome:output_FL" "alsa_output.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo:playback_FL"

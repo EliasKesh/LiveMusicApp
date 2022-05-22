@@ -123,9 +123,8 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
   <object class="GtkWindow" id="window1">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="halign">center</property>
-    <property name="valign">start</property>
     <property name="hexpand">False</property>
+    <property name="vexpand">False</property>
     <property name="title" translatable="yes">LiveMusic</property>
     <property name="default-height">800</property>
     <property name="has-resize-grip">True</property>
@@ -134,7 +133,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="valign">start</property>
         <child>
           <object class="GtkVBox" id="vbox5">
             <property name="width-request">56</property>
@@ -349,7 +347,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="double-buffered">False</property>
-            <property name="valign">start</property>
             <property name="tab-pos">left</property>
             <property name="show-tabs">False</property>
             <property name="enable-popup">True</property>
@@ -357,7 +354,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkTable" id="table1">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="valign">start</property>
                 <property name="n-columns">2</property>
                 <child>
                   <object class="GtkVBox" id="vbox3">
@@ -2537,6 +2533,15 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                         <child>
                           <placeholder/>
                         </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -2816,7 +2821,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkAspectFrame" id="PlayerFrame">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="valign">start</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <property name="xalign">0.10000000149011612</property>
@@ -2851,12 +2855,13 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkAspectFrame" id="ChordFrame">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="valign">start</property>
+                <property name="hexpand">False</property>
+                <property name="vexpand">False</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <property name="xalign">0.10000000149011612</property>
                 <property name="yalign">0.10000000149011612</property>
-                <property name="ratio">1.25</property>
+                <property name="ratio">1.5</property>
                 <property name="obey-child">False</property>
                 <child>
                   <placeholder/>
@@ -2873,6 +2878,8 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="double-buffered">False</property>
+                <property name="hexpand">False</property>
+                <property name="vexpand">False</property>
                 <property name="xpad">3</property>
                 <property name="label" translatable="yes">Chord</property>
                 <property name="justify">center</property>
@@ -2886,7 +2893,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               <object class="GtkFrame" id="frame2">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="valign">start</property>
                 <property name="label-xalign">0</property>
                 <property name="shadow-type">none</property>
                 <child>
@@ -3682,9 +3688,6 @@ See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Pu
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child type="tab">
               <placeholder/>
             </child>
           </object>

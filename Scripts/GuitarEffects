@@ -1236,7 +1236,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="2.1.5"
+Version="2.1.6"
 
 
 PipeActive=`ps aux | grep pipewire | wc -l`
