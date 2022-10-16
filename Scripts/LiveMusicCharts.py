@@ -538,7 +538,7 @@ def GenerateIndex(Base, List, Reference):
 width: 100%; height: 100%;}\
 \n body {\n")
     theFile.write("background-image: url(../background.png);\n\
-background-repeat: no-repeat;\n\
+background-repeat: repeat-y;\n\
 background-size: 100%;\n\
 color: powderblue;\n\
 background-color: #000000;\n\
@@ -867,7 +867,7 @@ parser.add_argument("-z", action='store_true', help="Force Create")
 args = parser.parse_args()
 
 # updated by the version script do not change.
-Version = "2.1.6"
+Version = "2.1.8"
 
 logger = logging.getLogger(__name__)
 

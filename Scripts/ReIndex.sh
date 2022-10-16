@@ -15,6 +15,11 @@
 rm ~/MP3Errors.txt
 
 set -x 
+cd /home/MySongs/GregChambers
+LiveMusicCharts.py . -a
+
+cd /home/MySongs/Charts
+LiveMusicCharts.py . -a
 
 cd /home/MySongs/Solo
 LiveMusicCharts.py . -a
@@ -25,10 +30,10 @@ LiveMusicCharts.py . -a
 cd /home/MySongs/NewScores
 LiveMusicCharts.py . -a
 
-cd /home/MySongs/Charts
+cd /home/MySongs/Alternates
 LiveMusicCharts.py . -a
 
-cd /home/MySongs/Alternates
+cd /home/MySongs/TOC
 LiveMusicCharts.py . -a
 
 echo "*** MP3 Files with Errors ***"

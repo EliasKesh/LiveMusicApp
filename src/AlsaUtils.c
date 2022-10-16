@@ -1182,6 +1182,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
 
         case 34:
+            // Pre Tune
+            if (DataValue == 0)
+                OpenSetListSong(CurrentSetListSong - 1);
             printd(LogMidi, "2 Solo\n");
             break;
 
@@ -1222,6 +1225,9 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 35:
+            // Next Song
+            if (DataValue == 0)
+                OpenSetListSong(CurrentSetListSong + 1);
             printd(LogMidi, "Solo 4\n");
             break;
 

@@ -345,6 +345,7 @@ int main(int argc, char *argv[]) {
     gtk_window_set_title(GTK_WINDOW(theMainWindow), "LiveMusicApp_1");
 
 #if 1
+    // desktop-file-install livemusicapp.desktop
     GdkPixbuf *pixbuf;
     pixbuf = gdk_pixbuf_new_from_file(Icon_FILE, &err);
 
@@ -362,7 +363,7 @@ int main(int argc, char *argv[]) {
     BButtonX = (int)((float) ButtonSize * 1.1);
     BButtonY = (int)((float) ButtonSize * 0.7);
     MButtonX = (int)((float) ButtonSize * 0.9);
-    MButtonY = (int)((float) ButtonSize * 0.4);
+    MButtonY = (int)((float) ButtonSize * 0.5);
 
     MainButtonOnImage = gdk_pixbuf_new_from_file_at_scale(
                             GetResourceDir("MainSwitchOn.png", FileLocConfig), MButtonX, MButtonY,

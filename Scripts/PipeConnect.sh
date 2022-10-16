@@ -12,6 +12,10 @@
 #
 #
 #---------------------------------------------------------------------#
+# pw-metadata -n settings 0 clock.force-rate 48000
+# pw-metadata -n settings 0 clock.force-quantum 64
+
+#systemctl --user stop pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
 
 OutputDeviceL="alsa_output.usb-Logitech_G935_Gaming_Headset-00.iec958-stereo:playback_FL"
 OutputDeviceR="alsa_output.usb-Logitech_G935_Gaming_Headset-00.iec958-stereo:playback_FR"
@@ -44,6 +48,9 @@ pw-link "Google Chrome:output_FL"   "alsa_output.pci-0000_00_1f.3-platform-skl_h
 
 pw-link "Google Chrome:output_FR"   "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:monitor_FR"
 
+pw-link "Google Chrome:output_FL"   "alsa_output.pci-0000_00_1f.3.analog-stereo:playback_FL"
+
+pw-link "Google Chrome:output_FR"   "alsa_output.pci-0000_00_1f.3.analog-stereo:playback_FR"
 
 # ----------- zoom 
 
@@ -70,8 +77,6 @@ pw-link "alsa_output.usb-Logitech_G935_Gaming_Headset-00.iec958-stereo:monitor_F
 pw-link "alsa_output.usb-Logitech_G935_Gaming_Headset-00.iec958-stereo:monitor_FR" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:playback_FR"
 
 
-
-set -x
 # -----------  Guitar Effects
 pw-link "jack-volume:output_1"   "${OutputGuitarL}"
 pw-link "jack-volume:output_2"   "${OutputGuitarL}"
@@ -91,7 +96,6 @@ pw-link "jack-volume:output_2"   "${OutputGuitarRawR}"
 pw-link "jack-volume:output_3"   "${OutputGuitarRawR}"
 pw-link "jack-volume:output_4"   "${OutputGuitarRawR}"
 
-
 # iRig
 pw-link "jack-volume:output_1" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analog-stereo:playback_FL"
 pw-link "jack-volume:output_2" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analog-stereo:playback_FL"
@@ -101,7 +105,6 @@ pw-link "jack-volume:output_1" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analo
 pw-link "jack-volume:output_2" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analog-stereo:playback_FR"
 pw-link "jack-volume:output_3" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analog-stereo:playback_FR"
 pw-link "jack-volume:output_4" "alsa_output.usb-IK_Multimedia_iRig_HD_2-00.analog-stereo:playback_FR"
-
 
 
 pw-link "jack-volume:output_1" "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo:playback_FL"
@@ -122,6 +125,39 @@ pw-link "jack-volume:output_1" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-
 pw-link "jack-volume:output_2" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:playback_FR"
 pw-link "jack-volume:output_3" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:playback_FR"
 pw-link "jack-volume:output_4" "alsa_output.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:playback_FR"
+
+
+pw-link "jack-volume:output_1" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FL"
+pw-link "jack-volume:output_2" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FL"
+pw-link "jack-volume:output_3" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FL"
+pw-link "jack-volume:output_4" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FL"
+pw-link "jack-volume:output_1" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FR"
+pw-link "jack-volume:output_2" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FR"
+pw-link "jack-volume:output_3" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FR"
+pw-link "jack-volume:output_4" "alsa_output.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:playback_FR"
+
+
+
+pw-link "jack-volume:output_1" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FL"
+pw-link "jack-volume:output_2" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FL"
+pw-link "jack-volume:output_3" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FL"
+pw-link "jack-volume:output_4" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FL"
+pw-link "jack-volume:output_1" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FR"
+pw-link "jack-volume:output_2" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FR"
+pw-link "jack-volume:output_3" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FR"
+pw-link "jack-volume:output_4" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_FR"
+
+pw-link "jack-volume:output_1" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RL"
+pw-link "jack-volume:output_2" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RL"
+pw-link "jack-volume:output_3" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RL"
+pw-link "jack-volume:output_4" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RL"
+pw-link "jack-volume:output_1" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RR"
+pw-link "jack-volume:output_2" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RR"
+pw-link "jack-volume:output_3" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RR"
+pw-link "jack-volume:output_4" "alsa_output.usb-ZOOM_Corporation_U-24-00.analog-surround-40:playback_RR"
+
+
+
 
 # Mplayer to MP3 input.
 pw-link "MPlayer:output_FR" "jack-volume:input_2"
@@ -147,10 +183,20 @@ pw-link "jack-volume:output_4"   "alsa_output.usb-Logitech_G935_Gaming_Headset-0
 pw-link "${InputGuitarL}" "gx_head_amp:in_0"
 pw-link "${InputGuitarR}" "gx_head_amp:in_0"
 pw-link "gx_head_amp:out_0" "gx_head_fx:in_0" 
+
 pw-link "alsa_input.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.mono-fallback:capture_MONO" "gx_head_amp:in_0"
 pw-link "alsa_input.usb-IK_Multimedia_iRig_HD_2-00.mono-fallback:capture_MONO" "gx_head_amp:in_0"
+
 pw-link "alsa_input.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:capture_FL" "gx_head_amp:in_0"
 pw-link "alsa_input.usb-NUX_NUX_USB_Audio_2.0-00.analog-stereo:capture_FR" "gx_head_amp:in_0"
+pw-link "alsa_input.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:capture_FR" "gx_head_amp:in_0"
+pw-link "alsa_input.usb-PreSonus_AudioBox_Go_UGBA21410845-00.analog-stereo:capture_FL" "gx_head_amp:in_0"
+
+
+pw-link "alsa_input.usb-ZOOM_Corporation_U-24-00.analog-stereo:capture_FL" "gx_head_amp:in_0"
+pw-link "alsa_input.usb-ZOOM_Corporation_U-24-00.analog-stereo:capture_FR" "gx_head_amp:in_0"
+
+
 
 # Guitarix out
 pw-link "gx_head_fx:out_0" "jack-volume:input_1"

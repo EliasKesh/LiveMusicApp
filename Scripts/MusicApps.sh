@@ -15,7 +15,7 @@
 echo "MusicApp -> ${1}  ${2} ${3}"
 
 PipeActive=`ps aux | grep pipewire | wc -l`
-if [ $PipeActive > 1 ];  then
+if [[ $PipeActive > 1 ]];  then
 echo "Pipe found"
 PipeStart="pw-jack " 
 else 
@@ -104,6 +104,7 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
     echo "Muse Score ${1} ${2} ${PipeStart}"
+#    musescore "${2}" &>/dev/null &
     /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
     exit 0
 fi

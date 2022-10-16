@@ -125,7 +125,7 @@ void CreatePatchPopupMenu(void) {
         menuitem = gtk_menu_item_new_with_label(gMyInfo.MyPatchInfo[Loop].Name);
         gtk_menu_shell_append(GTK_MENU_SHELL(PatchPopupMenu), menuitem);
         g_signal_connect(menuitem, "activate",
-                         (GCallback) Patch_Popup_CB, Loop);
+                         (GCallback) Patch_Popup_CB, (void *)Loop);
     }
 }
 

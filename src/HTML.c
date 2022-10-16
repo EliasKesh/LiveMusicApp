@@ -903,8 +903,10 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
     // Let's check if the MusicApp.sh can handle this.
     sprintf(string, "MusicApps.sh %s \'%s\' \'%s\' ", ext + 1, &theURI[7], theURI);
+
     SysRet = system(string);
     printd(LogInfo, "*** systemcall %d %s\n", SysRet, string);
+    WriteToHistory(theURI);
 
     /*
      * This tells webkit we are dealing with it.
@@ -1033,7 +1035,7 @@ void OpenSetListSong(int SongNumber) {
                 //              dirname(SetListFileName);
                 dirname(Copy);
                 printd(LogHTML, "After  %s\n", Copy);
-                strcat(Copy, "/");
+                strcat(Copy, "/.");
                 strcat(Copy, tokenizer);
                 printd(LogHTML, "Final  %s\n", Copy);
 #if 1

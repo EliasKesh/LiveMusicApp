@@ -103,6 +103,46 @@ function FindDevice {
         JPeriod=3
     fi
     
+    # If we have the Zoom 
+    Device="U-24"
+    echo $DeviceList | grep "${Device}"
+    if [ "$?" -eq 0 ]; then
+        echo "We have " $Device >> $LogFile
+        #   AudioSampleRate=48000
+        # JBuffer=256
+        # JPeriod=2
+        AudioSampleRate=96000
+        #AudioSampleRate=48000
+        JBuffer=128
+        JPeriod=4
+        
+        AudioDevice="$Device"
+        AudioInDevice="U-24"
+        AudioOutDevice="U-24"
+        MainInputPort=2
+        QJackProfile="U-24"
+    fi
+
+    # If we have the Presonus 
+    Device="AudioBox Go"
+    echo $DeviceList | grep "${Device}"
+    if [ "$?" -eq 0 ]; then
+        echo "We have " $Device >> $LogFile
+        #   AudioSampleRate=48000
+        # JBuffer=256
+        # JPeriod=2
+        AudioSampleRate=96000
+        #AudioSampleRate=48000
+        JBuffer=128
+        JPeriod=4
+        
+        AudioDevice="$Device"
+        AudioInDevice="AudioBox Go"
+        AudioOutDevice="AudioBox Go"
+        MainInputPort=2
+        QJackProfile="AudioBox_Go"
+    fi
+    
     # ART Tube Pre and Alesis MultiMix
     Device="USB Audio CODEC"
     echo $DeviceList | grep "${Device}"  >/dev/null
@@ -232,6 +272,7 @@ function FindDevice {
         QJackProfile="Scarlett"
     fi
     
+    
     # If we have the iRig 2
     Device="iRig HD 2"
     echo $DeviceList | grep "${Device}"
@@ -357,13 +398,14 @@ function FindDevice {
     AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
     export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
     echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
-    
+
     #   Patchage takes a while to start so kick it off early.
     # Run the patch bay
     echo "***************** Starting Patch Bay"
     # patchage  > /dev/null 2>&1 &
     # catia > $LogFile 2>&1 &
     ${PatchBay} > $LogFile 2>&1 &
+
 }
 
 #-------------------------------------------#
@@ -407,9 +449,9 @@ function SetDefinitions {
 function StartJack {
     
     if [[ $UsePipeWire == "Yes" ]]; then
+        echo "Not Starting Jack"
         return
     fi
-
 
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
@@ -446,7 +488,6 @@ function StartJack {
         sleep 5
         
     else
-        
         nice -18 jackd \
         -R \
         -P89 \
@@ -478,8 +519,7 @@ function StartJack {
         echo "****************"
         
     fi
-    
-    
+
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
         Delay 1
@@ -762,10 +802,10 @@ function SetUpApplications {
         # Launch the Soundfont player.
         echo "Starting qsynth "$PipeStart   >> $LogFile
         echo "Starting qsynth "$PipeStart
-        nice -15 `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+        nice -15 $PipeStart `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
 
-    if [ `hostname` == "livemusic" ]; then
+    if [ `hostname` == "LiveMusic" ]; then
         ButtonSize=88
     else
         ButtonSize=140
@@ -778,14 +818,14 @@ function SetUpApplications {
         echo "Starting Midi Router"
         echo "Pipewire option "$PipeOption" ButtonSize "$ButtonSizes
         echo "Button "$ButtonLayout" AudioOut "$AudioOutDevice
-        nice -15 `GTK_THEME=LiveMusicTheme LiveMusicApp \
-        -e -v $PipeOption \
+        nice -15 $PipeStart `GTK_THEME=LiveMusicTheme LiveMusicApp \
+        -v -d 0x400 $PipeOption \
         -l $ButtonLayout \
         -f $ButtonSize \
         -j "${AudioOutDevice}"` \
         >> $LogFile 2>&1 &
     fi
-    
+
     # This is the Guitar effects processor
     if test "${GuitarEffects}" = "true"; then
         echo "Starting Guitar Effects"  >> $LogFile
@@ -798,7 +838,6 @@ function SetUpApplications {
         # Set the first Desktop to use.
        $PipeStart slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
     fi
-    
     if test "${InternetJamStart}" = "true"; then
         # Internet
         $InternetJam -l /home/MySongs/Prefs/sonobus_elias.sonobus &
@@ -907,7 +946,7 @@ function SetPlacement {
         fi
         
         SetPlacement1920
-    elif [ `hostname` == "livemusic" ]; then
+    elif [ `hostname` == "LiveMusic" ]; then
         echo "Music"
         AnalogDesktop=0
         LiveMusicAppDesktop=1
@@ -923,7 +962,7 @@ function SetPlacement {
         echo "Default PC"
         AnalogDesktop=0
         LiveMusicAppDesktop=1
-        PatchageDesktop=3
+        PatchageDesktop=7
         PlayerDesktop=2
         LooperDesktop=$AnalogDesktop
         MidiDesktop=$AnalogDesktop
@@ -987,8 +1026,6 @@ function SetPlacement {
 #
 #-------------------------------------------#
 function SetPlacement1920 {
-    set -x
-    
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
 
@@ -1051,7 +1088,6 @@ function SetPlacement1920 {
 #
 #-------------------------------------------#
 function SetPlacement1600 {
-    set -x
     
     echo "1600 Placement Offset "$XOffset
     NewOffset=`expr $XOffset + 0`
@@ -1192,6 +1228,8 @@ KillAll guitarix
     xset s on
     xset +dpms
     powerprofilesctl set balanced
+#    systemctl --user restart pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
+
     exit 0
 }
 
@@ -1236,28 +1274,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="2.1.6"
-
-
-PipeActive=`ps aux | grep pipewire | wc -l`
-
-if [ $PipeActive > 1 ];  then
-echo "Pipe found"
-UsePipeWire="Yes"
-else 
-echo "Pipe Not found"
-UsePipeWire="No"
-fi
-
-
-if [[ $UsePipeWire == "Yes" ]]; then
-PipeStart="pw-jack " 
-PipeOption=" -w " 
-else
-PipeStart="" 
-PipeOption="" 
-#PIPEWIRE_LATENCY=128/48000
-fi
+Version="2.1.8"
 
 # systemctl --user restart pipewire pipewire-pulse wireplumber
 
@@ -1275,7 +1292,7 @@ echo `date` >> $LogFile
 echo $PATH >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdefgijkhrpmnovlswt" OPT; do
+while getopts "abcdefgijkhrpmnovlswtx" OPT; do
     #    echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1298,7 +1315,8 @@ while getopts "abcdefgijkhrpmnovlswt" OPT; do
         s - Stop everything
         t - Tab Editor
         v - version
-            w - Working Scoring"
+        w - Working Scoring
+        x - Kill Pipewire"
             exit 0
         ;;
         v)
@@ -1422,6 +1440,13 @@ while getopts "abcdefgijkhrpmnovlswt" OPT; do
             echo "PDF"
             MusicViewer=true
         ;;
+       s)
+            StopEverything
+            exit 0
+        ;;
+        o)
+            Group=$OPTARG
+        ;;
         w)
             echo "PDF"
             Rosegarden=true
@@ -1429,14 +1454,13 @@ while getopts "abcdefgijkhrpmnovlswt" OPT; do
             GuitarEffects=false
             MusicViewer=false
         ;;
-        s)
-            StopEverything
-            exit 0
+        x)
+            echo "Kill Pipewire"
+            systemctl --user stop pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
+            PatchBay="catia"
+#            sleep 1
         ;;
-        o)
-            Group=$OPTARG
-        ;;
-        ?)
+         ?)
             # getopts issues an error message
             echo $USAGE >&2
             exit 1
@@ -1471,6 +1495,29 @@ done
 date  > $LogFile
 export IAM=`whoami`
 
+
+PipeActive=`ps aux | grep pipewire | wc -l`
+echo $PipeActive
+if [[ $PipeActive > 1 ]];  then
+echo "Pipe found"
+UsePipeWire="Yes"
+PipeStart="pw-jack " 
+PipeOption=" -w " 
+PatchBay="qpwgraph"
+PatchBayName="qpwgraph"
+else 
+echo "Pipe Not found"
+UsePipeWire="No"
+PipeStart="" 
+PipeOption="-e" 
+PatchBay="catia"
+PatchBayName="catia"
+#PIPEWIRE_LATENCY=128/48000
+fi
+
+
+echo "Pipewire "$PipeStart
+
 # cpupower frequency-info
 
 # Try and find what device we should use.
@@ -1498,7 +1545,6 @@ SetDefinitions
 # Start up Jack
 echo "Start Jack"
 StartJack
-
 
 # If at first you don't succeed ....
 if [ `ps -ew | grep -c jackd` == 0 ] ; then
@@ -1529,6 +1575,22 @@ if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
     $PipeStart  jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
 fi
 
+#pactl load-module module-null-sink sink_name=virtmic \
+    sink_properties=device.description=jack-volume:input_2
+#pactl set-default-sink virtmic
+#pw-cli create-node adapter '{ factory.name=jack-volume:input_3 node.name=J3Sink media.class=Audio/Sink object.linger=true audio.position=[FL] }'
+#pactl load-module module-null-source media.class=Audio/Source/Virtual sink_name=J3Sink channel_map=front-left,front-right
+
+
+pw-link -o | grep J3Sink
+if [ $? != 0 ]; then
+    pactl load-module module-null-sink object.linger=1 media.class=Audio/Sink sink_name=J3Sink channel_map=front-left
+fi
+
+# Create a virtual device for mplayer
+pactl set-default-sink J3Sink
+pw-link J3Sink:monitor_FL jack-volume:input_3
+
 # In case the OSC port didn't close.
 NetSt=`netstat -np | grep -i Live`
 OSCPID=`echo $NetSt awk -F '[ /]'  '{ print $8}'`
@@ -1536,15 +1598,7 @@ kill $OSCPID
 
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
-Delay 3
-
-# -e to enable hardware interfaces as well.
-# a2jmidid -e > $LogFile 2>&1 &
-
-a2jmidi_bridge "GuitBridge" &
-#       j2amidi_bridge "MambaBridge" &
-#    a2jmidid -u &
-# a2jmidi_bridge "MuseBridge" &
+$PipeStart  a2jmidi_bridge "GuitBridge" &
 
 SetUpApplications
 Delay 1 
