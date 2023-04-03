@@ -22,8 +22,19 @@ find $BaseDir -iname \*html\#\* -exec rm {} \;
 # find ./ -name \*.conv -print0 | xargs -0 rename 's/.conv$//'
 # find ./ -iname \*.pdf.jpg -exec rm {} \;
 
-#find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
-# find ./ -iname \*.gp? -exec mscore3 {} -o {}".mscz" \;
+# find . -regextype posix-extended -regex '.*\.(gp.?)$'
+# find . -regextype posix-extended -regex '.*\.(gp|gpx)$'
+# libreoffice --headless --convert-to pdf *.rtf
+# find ./ -iname \*wma -exec ffmpeg -i {} {}.mp3 \;
+# find ./ -iname \*mp4 -exec ffmpeg -i {} {}.mp3 \;
+# find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
+# find ./ -iname \*.gp? -exec /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage {} -S EliasTab -o {}".mscz" \;
+
+# append Prefix
+# for file in *; do mv "$file" "F24$file"; done;
+
+# Convert to MScore
+# find /home/Music/Learn  -iname \*mp3 -iname \*backing\* -exec ln -s {} /home/Music/BackingTracks/CourseBacking/ \;
 
 # rename -v -f 's/Holdsworth-//g;' *
 
@@ -48,6 +59,22 @@ do
     LiveMusicCharts.py . -ig
 done
 
+for dir in $(find /home/Music/Learn/MuseLearn -depth -type d )
+do
+    cd $dir
+    # check for .mscbackup
+    echo "Level "$Level"  "$dir
+    LiveMusicCharts.py . -ig
+done
+
+for dir in $(find /home/Music/Learn/Transcriptions -depth -type d )
+do
+    cd $dir
+    # check for .mscbackup
+    echo "Level "$Level"  "$dir
+    LiveMusicCharts.py . -ig
+done
+
 for dir in $(find /home/Music/BackingTracks -depth -type d )
 do
     cd $dir
@@ -55,6 +82,8 @@ do
     echo "Level "$Level"  "$dir
     LiveMusicCharts.py . -ig
 done
+
+
 
 # Generate the Directory listings.
 cd /home/Music/BackingTracks

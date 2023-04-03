@@ -56,7 +56,7 @@ include file.
 #include <sys/stat.h>
 #include "GenPrefs.h"
 
-
+// https://docs.gtk.org/gtk4/migrating-3to4.html
 #define GLADE_FILE "LiveMusicApp.glade"
 #define Icon_FILE GetResourceDir("LiveIcon.png",FileLocConfig)
 #define UsingImageButtons
@@ -161,7 +161,11 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data);
 
 int InitJackTransport(void);
 int CloseJackTransport(void);
+#ifdef GTK_4
+gboolean my_keypress_function(GtkWidget *widget, GdkEvent *event, gpointer data);
+#else
 gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer data);
+#endif
 void CheckForStartupDirs(void);
 void parse_cmdline(int argc, char *argv[]);
 
@@ -215,7 +219,7 @@ int main(int argc, char *argv[]) {
     /*-----------------------*/
     int BButtonX, BButtonY, MButtonX, MButtonY;
     int Loop;
-    GdkScreen *myScreen;
+//    GdkScreen *myScreen;
     WeAreRunning = FALSE;
 
     /*
@@ -271,9 +275,12 @@ int main(int argc, char *argv[]) {
 
     /* initialize the GTK+ library */
     parse_cmdline(argc, argv);
+#ifdef GTK_4
+    gtk_init();
+#else
     gtk_init(&argc, &argv);
-
-    myScreen = gdk_screen_get_default();
+#endif
+    // myScreen = gdk_screen_get_default();
     //    printd(LogInfo, "Screen Size %d %d\n", gdk_screen_get_width(myScreen), gdk_screen_get_height(myScreen));
 
     //    gtk_window_get_default_size (theMainWindow, &WinWidth,&WinHeight);
@@ -304,7 +311,6 @@ int main(int argc, char *argv[]) {
     this helps me remember.
     */
     InitHistoryFile();
-
 
     /*
      create an instance of the GladeXML object and build widgets within
@@ -536,9 +542,13 @@ int main(int argc, char *argv[]) {
     */
     CreatePatchPopupMenu();
 
+#ifdef GTK_4
+    gtk_widget_add_events(
+        theMainWindow, 1024);
+#else
     gtk_widget_add_events(
         theMainWindow, GDK_KEY_PRESS_MASK);
-
+#endif
     g_signal_connect(
         G_OBJECT(theMainWindow),
         "key_press_event",
@@ -555,10 +565,11 @@ int main(int argc, char *argv[]) {
     * Show the main window and let the show begin.
     */
     gtk_widget_show_all(theMainWindow);
-    MyOSCJackVol(127, 10);
-    MyOSCJackVol(127, 0);
-    MyOSCJackVol(127, 1);
-    MyOSCJackVol(127, 2);
+//    MyOSCJackVol(127, 10);
+    MyOSCJackVol(127, typeOSCVolGuitarL);
+    MyOSCJackVol(127, typeOSCVolGuitarR);
+    MyOSCJackVol(127, typeOSCVolMidi);
+    MyOSCJackVol(127, typeOSCVolMP3);
 
     /*
     * And they're off.
@@ -885,6 +896,12 @@ int GTKIdel_cb(gpointer data) {
         gMyInfo.SliderUpdate = 0;
     }
 
+    /* Set the player Tempo.
+    */
+    if (gMyInfo.Tempo != gMyInfo.LoopTempo)
+        SetLoopTempo(gMyInfo.Tempo);
+
+
     /* Update the player UI and remmote mplayer.
     */
     PlayerPoll(TRUE);
@@ -1045,54 +1062,65 @@ void CheckForStartupDirs(void) {
 *
 * Description: Get keyboard events.
 *---------------------------------------------*/
+#ifdef GTK_4
+gboolean my_keypress_function(GtkWidget *widget, GdkEvent *event, gpointer data) {
+int MyEvent = !keyval(event);
+int MyState = !state(event);
+#else
 gboolean my_keypress_function(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+int MyEvent = event->keyval;
+int MyState = event->state;
+#endif
+
+
+
 
     printd(LogDebug, "Event %x %x\n",
-           event->keyval,
-           event->state);
+            MyEvent,
+           MyState);
 
     if (DisableTextInput) {
         printd(LogDebug, "Key Disabled\n");
         return (FALSE);
     }
 
-    if (event->keyval >= 0x31 &&
-        event->keyval <= 0x39 &&
-        event->state == 4) {
+    if (MyEvent >= 0x31 &&
+        MyEvent <= 0x39 &&
+        MyState == 4) {
         printd(LogDebug, "Patch\n");
-        LayoutSwitchPatch(event->keyval - 0x31, true);
+        LayoutSwitchPatch(MyEvent - 0x31, true);
         return (TRUE);
     }
 
-    switch (event->keyval) {
+    switch (MyEvent) {
 
     case GDK_KEY_q:
-        if (event->state == 4) {
+        if (MyState == 4) {
             printd(LogDebug, "Found quit\n");
             gtk_window_close(GTK_WINDOW(theMainWindow));
         }
 
     case GDK_KEY_l:
-        if (event->state == 4) {
+        if (MyState == 4) {
             printd(LogDebug, "GDK_KEY_l\n");
             plLoopToggle();
         }
 
-    //  if (event->keyval == GDK_KEY_p && event->state == 0) {
+    //  if ( MyEvent == GDK_KEY_p && MyState == 0) {
     case GDK_KEY_space:
-        if (event->state == 4) {
+        if (MyState == 4) {
             printd(LogDebug, "GDK_KEY_space\n");
             plPausePlay();
         }
 
     case GDK_KEY_a:
-        if (event->state == 4) {
+        if (MyState == 4) {
             printd(LogDebug, "GDK_KEY_a\n");
             plSetA();
         }
 
     case GDK_KEY_b:
-        if (event->state == 4) {
+        if (MyState == 4) {
             printd(LogDebug, "GDK_KEY_b\n");
             plSetB();
         }
@@ -1501,10 +1529,17 @@ void on_window1_destroy(GtkWidget *widget, gpointer user_data) {
 void on_Tempo_Button(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 
     // Put Dialog here.
+#ifdef GTK_4    
+    if (!state(event) & GDK_CONTROL_MASK) {
+        printd(LogInfo, "CTRL and Tempo\n");
+        //      gMyInfo.Tempo = 132;
+    }
+#else
     if (event->button.state & GDK_CONTROL_MASK) {
         printd(LogInfo, "CTRL and Tempo\n");
         //      gMyInfo.Tempo = 132;
     }
+#endif
 
     if (gMyInfo.MetronomeOn) {
         gtk_image_set_from_pixbuf(GTK_IMAGE(TempoDraw.Image),
@@ -1565,7 +1600,6 @@ void ClearMainButtons(void) {
  *
  *---------------------------------------------*/
 void UpdateStatus(char *String) {
-    GtkStyle *hold;
     char DisString[MaxStatusHold * (MaxUpdateLength + 20)];
     //  char DisString[1500];
     int Loop;
@@ -1629,14 +1663,21 @@ gboolean click_handler(GtkWidget *widget,
                        gpointer user_data) {
     int Loop;
     GdkEvent *theEvent;
+    int MyState;
 
     theEvent = gtk_get_current_event();
-    printd(LogInfo, "Event %x %x\n", theEvent->button.state, GDK_CONTROL_MASK);
+
+#ifdef GTK_4
+    MyState = !state(theEvent);
+#else
+    MyState = theEvent->button.state;
+#endif
+    printd(LogInfo, "Event %x %x\n", MyState, GDK_CONTROL_MASK);
 
     Loop = (intptr_t) user_data;
     CurrentPreset = Loop;
 
-    if (theEvent->button.state & GDK_CONTROL_MASK) {
+    if (MyState & GDK_CONTROL_MASK) {
         printd(LogInfo, "We have Control Down\n");
         ShowPatchListSelect(GTK_WINDOW(widget), Loop);
     }
@@ -1825,7 +1866,8 @@ void VScale1_Changed(GtkAdjustment *adj) {
     //  gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol(NewValue, 0);
+        MyOSCJackVol(NewValue, typeOSCVolGuitarL);
+        MyOSCJackVol(NewValue, typeOSCVolGuitarR);
     }
     else
         SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1861,7 +1903,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
     LogValue = (int)(pow(NewValue, 0.6) * 6.35);
 
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol(NewValue, 1);
+        MyOSCJackVol(NewValue, typeOSCVolMidi);
     }
     else
         SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1893,7 +1935,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
     LogValue = (int)(pow(NewValue, 0.6) * 6.35);
 
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol(LogValue * 1.27, 0xff);
+        MyOSCJackVol(LogValue * 1.27, typeOSCVolMaster);
     }
     else
         SendMidi(SND_SEQ_EVENT_CONTROLLER,
@@ -1925,7 +1967,8 @@ void VScale4_Changed(GtkAdjustment *adj) {
     //  gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment4);
 
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol(NewValue, 0);
+        MyOSCJackVol(NewValue, typeOSCVolGuitarL);
+        MyOSCJackVol(NewValue, typeOSCVolGuitarR);
 
     }
     else {
@@ -2025,7 +2068,7 @@ void SetUpMainButtons(PatchInfo *myPatchInfo) {
     GtkWidget *myChild;
     tPatchIndex Loop;
     tPatchIndex PatchIndex;
-    GdkColor color;
+//    GdkColor color;
     char String[PatchNameSize];
     int StringLen;
 
@@ -2274,7 +2317,7 @@ int GuitarMidiPreset(char Wait) {
     SwitchToTab(0);
 
     // MyOSCJackVol(NewValue);
-    MyOSCJackMute(1, 0xff);
+    MyOSCJackMute(1, typeOSCVolMaster);
     WaitingforMidi = 1;
 
     /* If we are wait for a specific release queue.
@@ -2467,7 +2510,8 @@ int SetExpressionControl(int Controller, int Value) {
         gMyInfo.SliderGUIUpdate = GuiUpdateCount;
         gMyInfo.SliderGUIValue = LogValue;
         gMyInfo.AnalogVolume = LogValue;
-        MyOSCJackVol(LogValue, 0);
+        MyOSCJackVol(LogValue, typeOSCVolGuitarL);
+        MyOSCJackVol(LogValue, typeOSCVolGuitarR);
         break;
 
     case ecMidiVolume:
@@ -2477,7 +2521,7 @@ int SetExpressionControl(int Controller, int Value) {
         gMyInfo.SliderGUIUpdate = GuiUpdateCount;
         gMyInfo.SliderGUIValue = Value;
         //      SetVolume2(Value);
-        MyOSCJackVol(LogValue, 1);
+        MyOSCJackVol(LogValue, typeOSCVolMidi);
         break;
 
     case ecMasterVolume:
@@ -2487,7 +2531,7 @@ int SetExpressionControl(int Controller, int Value) {
         gMyInfo.SliderGUIValue = LogValue;
         gMyInfo.SliderGUIUpdate = GuiUpdateCount;
         //      SetVolume3(Value/1.27);
-        MyOSCJackVol(LogValue, 0xff);
+        MyOSCJackVol(LogValue, typeOSCVolMaster);
         break;
 
     case ecTempChange:
@@ -2500,7 +2544,7 @@ int SetExpressionControl(int Controller, int Value) {
         // MPS volume
         ReturnVal = gMyInfo.SetMP3PlayVolBool;
         gMyInfo.SetMP3PlayVolBool = LogValue;
-        MyOSCJackVol(LogValue, 2);
+        MyOSCJackVol(LogValue, typeOSCVolMP3);
         break;
 
     case ecExpress6:
@@ -2524,7 +2568,7 @@ int SetExpressionControl(int Controller, int Value) {
 
     case ecLooperVolume:
         //      ReturnVal = gMyInfo.MidiThresholdLevel;
-        MyOSCJackVol(Value, 3);
+        MyOSCJackVol(Value, typeOSCVolLooper);
         break;
 
 
@@ -2752,12 +2796,12 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
         break;
 
     case GDK_s:
-        if (event->state & GDK_SHIFT_MASK) {
+        if (MyState & GDK_SHIFT_MASK) {
             printd(LogInfo, "key pressed: %s\n", "shift + s");
 
         }
         else
-            if (event->state & GDK_CONTROL_MASK) {
+            if (MyState & GDK_CONTROL_MASK) {
                 printd(LogInfo, "key pressed: %s\n", "ctrl + s");
 
             }
@@ -2768,12 +2812,12 @@ gint button_press_notify_cb(GtkWidget *entries, GdkEventKey *event,
         break;
 
     case GDK_m:
-        if (event->state & GDK_SHIFT_MASK) {
+        if (MyState & GDK_SHIFT_MASK) {
             printd(LogInfo, "key pressed: %s\n", "shift + m");
 
         }
         else
-            if (event->state & GDK_CONTROL_MASK) {
+            if (MyState & GDK_CONTROL_MASK) {
                 printd(LogInfo, "key pressed: %s\n", "ctrl + m");
 
             }

@@ -43,6 +43,13 @@
 /*
  * Place Global prototypes here.
  */
+// #define GTK_4
+
+
+#ifdef GTK_4
+#define GTK_CONTAINER(x) (x)
+#endif
+
 
 /* Debugging definitions.
 */

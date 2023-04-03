@@ -361,6 +361,10 @@ cairo_surface_t *TrebleClef;
 cairo_t *cr;
 cairo_surface_t *CSurface;
 
+#ifdef GTK_4
+#define GdkEventExpose GdkEventType
+#endif
+
 /*
  * Local Prototypes
  */
@@ -716,7 +720,9 @@ int InitChorder(GtkWidget *MainWindow, GtkWidget *window) {
 
     printd(LogDebug, "InitChorder\n");
 
+#ifndef GTK_4
     gtk_frame_set_shadow_type(GTK_FRAME(window), GTK_SHADOW_IN);
+#endif
     MyFretArea = gtk_drawing_area_new();
     CSurface = cairo_image_surface_create_from_png(GetResourceDir("DarkRedWood.png", FileLocConfig));
     printd(LogInfo, "FretOffset 1\n");

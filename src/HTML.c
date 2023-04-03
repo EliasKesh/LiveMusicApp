@@ -497,6 +497,14 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
     struct timeval Time1;
     long long elapsedTime;
     int     ReturnVal;
+#ifdef GTK_4
+int MyButton = !button(event);
+int MyState = !state(event);
+#else
+int MyButton = event->button.button;
+int MyState = event->button.state;
+#endif
+
 
     ReturnVal = clock_gettime(CLOCK_REALTIME, &Time1);
 
@@ -538,8 +546,8 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event, gpointer user_d
     /* If it's a ctrl click or
     a right lick then assign the value.
     */
-    if ((event->button.state & GDK_CONTROL_MASK) ||
-        (event->button.button == 3)) {
+    if ((MyState & GDK_CONTROL_MASK) ||
+        (MyButton == 3)) {
         gMyInfo.Tempo = CurTapTempo;
         g_idle_add(GTKIdel_cb, theMainWindow);
         return (CurTapTempo);
@@ -571,10 +579,18 @@ gboolean on_patch_clicked(GtkWidget *widget,
     tPatchIndex Preset;
     int CPatch;
     GdkEvent *theEvent;
-
+#ifdef GTK_4
+int MyState = !state(event);
+    /* Event status for CTRL key.
+    */
+    theEvent = gtk_event_controller_get_current_event(widget);
+#else
+int MyState = event->button.state;
     /* Event status for CTRL key.
     */
     theEvent = gtk_get_current_event();
+#endif
+
 
     /* Preset Number.
     */
@@ -591,7 +607,7 @@ gboolean on_patch_clicked(GtkWidget *widget,
 
     /* Here is where we handle the CTRL Click to assign.
     */
-    if (theEvent->button.state & GDK_CONTROL_MASK) {
+    if (MyState & GDK_CONTROL_MASK) {
         printd(LogHTML, "We have Control Down\n");
         /* FINISH, need to make the assignment in Patch_Popup_CB
         */
@@ -776,6 +792,7 @@ void PageLoaded(WebKitWebView  *web_view,
 
     /* Keep a record
     */
+    printd(LogHTML, "Pageloaded Title %s \n", webkit_web_view_get_title(web_view));
     WriteToHistory(MyCurrentURI);
     //  Pointer = strstr(MyCurrentURI, ".html");
 
@@ -796,7 +813,7 @@ void PageLoaded(WebKitWebView  *web_view,
     }
 
     else
-        // if (strstr(MyCurrentURI, ".mp3") || 
+        // if (strstr(MyCurrentURI, ".mp3") ||
         //     strstr(MyCurrentURI, ".wma ") ||
         //     strstr(MyCurrentURI, ".wav")) {
 
@@ -831,8 +848,8 @@ void PageLoaded(WebKitWebView  *web_view,
  * FALSE means that webkit has to handle it.
  *
  *-----------------------------------------------*/
-gboolean NavigationPolicy(WebKitWebView * web_view,
-                          WebKitPolicyDecision    * decision,
+gboolean NavigationPolicy(WebKitWebView *web_view,
+                          WebKitPolicyDecision    *decision,
                           WebKitPolicyDecisionType decision_type,
                           gpointer user_data) {
     char *theOrgURI;
@@ -851,23 +868,39 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     // }
 
     printd(LogHTML, "NavigationPolicy\n");
+    if (decision == NULL || web_view == NULL) {
+        printd(LogHTML, "*** decision Null\n");
+        return TRUE;
+    }
+
 
     WebKitResponsePolicyDecision *responseDecision =
+//    WebKitNavigationPolicyDecision *responseDecision =
         WEBKIT_RESPONSE_POLICY_DECISION(decision);
     WebKitWebResource *mainResource =
         webkit_web_view_get_main_resource(web_view);
     WebKitURIRequest *request =
         webkit_response_policy_decision_get_request(responseDecision);
+ 
+    if (request == NULL) {
+        printd(LogHTML, "*** request Null\n");
+        return TRUE;
+    }
+
     char *requestURI =
         (char *)webkit_uri_request_get_uri(request);
 
-
-    printd(LogHTML, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
+    printd(LogHTML, "*** requestURI web_view %s \n", 
+        webkit_web_view_get_uri(web_view));
 
     if (requestURI == NULL) {
-        printd(LogHTML, "*** URI Null");
+        printd(LogHTML, "*** URI Null\n");
         return TRUE;
     }
+
+    // GET LINK NAME !!!!!
+
+    printd(LogHTML, "*** requestURI %s %s\n", requestURI, webkit_web_resource_get_uri(mainResource));
 
     //   webkit_policy_decision_download(decision);
     //   return TRUE;
@@ -894,6 +927,12 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
     /* If it's a web page we want to display,
     Let the WebKit handle it.
     */
+    if (strstr(theURI, ".rtf") || (ext == NULL)) {
+        printd(LogHTML, "*** theURI is rtf");
+        //       return (FALSE);
+        return (TRUE);
+    }
+
     if (strstr(theURI, ".html") || (ext == NULL)) {
         printd(LogHTML, "*** theURI is html");
         //       return (FALSE);
@@ -906,6 +945,10 @@ gboolean NavigationPolicy(WebKitWebView * web_view,
 
     SysRet = system(string);
     printd(LogInfo, "*** systemcall %d %s\n", SysRet, string);
+    printd(LogHTML, "NavigationPolicy Title %s \n", webkit_web_view_get_title(web_view));
+ //   printd(LogHTML, "NavigationPolicy Title %s \n", webkit_hit_test_result_get_link_title());
+
+
     WriteToHistory(theURI);
 
     /*
@@ -1106,6 +1149,7 @@ void InitHTML(GtkBuilder * gxml) {
     /* Load the buttons and set the callbacks for them.
      */
     CurrentSetListSong = 0;
+    printd(LogHTML, "InitHTML\n");
 
     for (Loop = 0; Loop < MaxPresetButtons - 1; Loop++) {
         sprintf(Buffer, "Patch%d", Loop + 1);
@@ -1128,8 +1172,11 @@ void InitHTML(GtkBuilder * gxml) {
                          Loop);
     }
 
+
     ChartGTKView = GTK_WIDGET(
                        gtk_builder_get_object(gxml, "scrolledwindow1"));
+
+    printd(LogHTML, "ChartGTKView %x\n", ChartGTKView);
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ChartGTKView),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -1137,7 +1184,12 @@ void InitHTML(GtkBuilder * gxml) {
     /* Create a new webkit view to display our data.
      */
     web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
+#ifdef GTK_4
+    gtk_box_pack_start(GTK_CONTAINER(ChartGTKView), GTK_WIDGET(web_view));
+#else
     gtk_container_add(GTK_CONTAINER(ChartGTKView), GTK_WIDGET(web_view));
+#endif
+    printd(LogHTML, "web_view %x\n", web_view);
 
     EventBox = GTK_WIDGET(
                    gtk_builder_get_object((GtkBuilder *) gxml, "BackButton"));
@@ -1202,24 +1254,27 @@ void InitHTML(GtkBuilder * gxml) {
                      G_CALLBACK(Play_click_handler), &PlayPauseButton);
 
     /* Register a callback that gets invoked each time that a page is finished downloading */
-
     g_signal_connect(web_view, "load-changed", G_CALLBACK(PageLoaded), NULL);
     g_signal_connect(web_view, "decide-policy",
-                     G_CALLBACK(NavigationPolicy), NULL);
-
+                     G_CALLBACK(NavigationPolicy), web_view);
+    // Hover in case we use it,
+    g_signal_connect(G_OBJECT(web_view),
+                     "hovering-over-link",
+                     G_CALLBACK(HoverLink_cb),
+                     web_view);
+    
     strncpy(FileName, "file://", 7);
     strncpy(&FileName[7], gMyInfo.BasePath, sizeof(FileName) - 7);
     printd(LogHTML, "Path %s %s\n", gMyInfo.BasePath, FileName);
-#if 1
-    //    webkit_web_view_load_uri(web_view, "http:///www.google.com");
-    //    webkit_web_view_load_uri(web_view, "file:///home/MySongs/MainIndex.html");
     webkit_web_view_load_uri(web_view, FileName);
-#else
-    webkit_web_view_load_html(web_view, FileName, "file:///");
-#endif
 
     WebKitSettings *settings = webkit_settings_new();
+    printd(LogHTML, "settings %x\n", settings);
+
     g_object_set(G_OBJECT(settings), "enable-page-cache", FALSE, NULL);
+    webkit_settings_set_enable_hyperlink_auditing(
+        settings,TRUE);
+    webkit_settings_get_enable_tabs_to_links(settings);
 
 #if 0
     if (ScreenSize == 0) {
@@ -1257,10 +1312,7 @@ void InitHTML(GtkBuilder * gxml) {
                                 WebKitUserStyleLevel level,
                                 const gchar * const * allow_list,
                                 const gchar * const * block_list);
-#endif
 
-
-#if 0
     webkit_settings_set_enable_accelerated_2d_canvas(G_OBJECT(settings), TRUE);
     webkit_settings_set_draw_compositing_indicators(G_OBJECT(settings), FALSE);
     g_object_set(settings,
@@ -1279,10 +1331,7 @@ void InitHTML(GtkBuilder * gxml) {
     g_signal_connect(G_OBJECT(web_view),
                      "context-menu", G_CALLBACK(on_RightMenu_clicked), NULL);
 
-    // g_signal_connect((web_view),
-    //                  "hovering-over-link",
-    //                  G_CALLBACK(HoverLink_cb),
-    //                  web_view);
+
 
     // if (ButtonSize < 121) {
     //     webkit_web_view_set_zoom_level(web_view, 0.75);
@@ -1293,18 +1342,14 @@ void InitHTML(GtkBuilder * gxml) {
     gtk_widget_show_all(ChartGTKView);
 }
 
-
 void
 HoverLink_cb(WebKitWebView *web_view,
              gchar         *title,
              gchar         *uri,
              gpointer       user_data) {
 
-
-    printf("In Hover\n");
-
+    printd(LogHTML, "Hover %s %s\n", title, uri);
 }
-
 
 /*----------------------------------------------
  * Function: on_RightMenu_clicked

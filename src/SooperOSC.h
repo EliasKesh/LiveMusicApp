@@ -74,4 +74,8 @@ enum {
 enum { typeSyncInternal = -3, typeSyncmidi = -2, typeSyncjack = -1, typeSyncnone = 0 };
 
 
+enum { typeOSCVolGuitarL = 0, typeOSCVolMidi = 1, typeOSCVolMP3 = 2, typeOSCVolLooper = 3, typeOSCVolGuitarR = 4,
+	typeOSCVolMaster = 0xff};
+
+
 #endif

@@ -103,7 +103,7 @@ function FindDevice {
         JPeriod=3
     fi
     
-    # If we have the Zoom 
+    # If we have the Zoom
     Device="U-24"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
@@ -122,8 +122,8 @@ function FindDevice {
         MainInputPort=2
         QJackProfile="U-24"
     fi
-
-    # If we have the Presonus 
+    
+    # If we have the Presonus
     Device="AudioBox Go"
     echo $DeviceList | grep "${Device}"
     if [ "$?" -eq 0 ]; then
@@ -279,7 +279,7 @@ function FindDevice {
     if [ "$?" -eq 0 ]; then
         echo "We have " $Device >> $LogFile
         AudioSampleRate=48000
-#        AudioSampleRate=96000
+        #        AudioSampleRate=96000
         JBuffer=128
         JPeriod=3
         # AudioSampleRate=192000
@@ -398,14 +398,14 @@ function FindDevice {
     AudioOutHW=`arecord -l | grep -m 1 "${AudioOutDevice}" | awk '{ print $2}' | cut -d":" -f1`
     export RecordFileName=/home/Music/Rehearsals/`date +"%Y%m%d"`
     echo "Audio Number is: " ${AudioInHW}" " ${AudioOutHW}  >> $LogFile
-
+    
     #   Patchage takes a while to start so kick it off early.
     # Run the patch bay
     echo "***************** Starting Patch Bay"
     # patchage  > /dev/null 2>&1 &
     # catia > $LogFile 2>&1 &
-    ${PatchBay} > $LogFile 2>&1 &
-
+    ${PatchBay} /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
+    
 }
 
 #-------------------------------------------#
@@ -452,7 +452,7 @@ function StartJack {
         echo "Not Starting Jack"
         return
     fi
-
+    
     # See if Jackd is already running
     if [ `ps -ew|grep -c jackd` != 0 ] ; then
         #        ps -ef | grep jackd | grep -v grep | awk '{print $2}' | xargs kill -9
@@ -519,7 +519,7 @@ function StartJack {
         echo "****************"
         
     fi
-
+    
     if [ `ps -ew | grep -c jackd` == 0 ] ; then
         echo "Sleeping for jackd"  >> $LogFile
         Delay 1
@@ -560,28 +560,28 @@ function SetUpConnections {
     #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
     
     # Turn on the Headphone output
-#    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
+    #    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
     
     # Turn on the Master output
-#    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
+    #    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
     
     # Set the input mode to be a line level signal not a mic.
-#    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
+    #    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
     
- #   amixer sset "Mic Boost" 0
+    #   amixer sset "Mic Boost" 0
     #   amixer sset "Capture" 70
- #   amixer cset name='Capture Switch' 2
+    #   amixer cset name='Capture Switch' 2
     
     # Max out the USB Device.
-#    amixer -c 1 sset 'PCM' 128
+    #    amixer -c 1 sset 'PCM' 128
     
     amixer -c 0 sset 'Speaker' mute
     amixer -c 1 sset 'Speaker' mute
     amixer -c 0 sset 'Speaker' 0
     amixer -c 1 sset 'Speaker' 0
-
-    amixer sset 'Master' 65535
     
+    #    amixer sset 'Master' 65535
+    #    amixer sset 'Master' 65%
     # ********************************
     # **** Definitions
     # ********************************
@@ -589,6 +589,7 @@ function SetUpConnections {
     MainOut2="jack-volume:input_2"
     MainOut3="jack-volume:input_3"
     MainOut4="jack-volume:input_4"
+    MainOut4="jack-volume:input_5"
     
     PedalBoardName="EliasPedal3"
     KeyBoardMidi="Uno"
@@ -599,15 +600,16 @@ function SetUpConnections {
     # ********************************
     aconnect "TriplePlay Connect":"0" "LiveMidi":2
     aconnect "Fishman TriplePlay":"0" "LiveMidi":2
-
+    
     # for Keyboard
     aconnect "USB Uno MIDI Interface":"0" "LiveMidi":2
-
+    
     # Pedal Versions
     aconnect "EliasPedal3":"0" "LiveMusic":"0"
     aconnect "EliasGuitar":"0" "LiveMusic":"0"
     aconnect "EliasMidi":"0" "LiveMusic":"0"
     aconnect "LPD8":"0" "LiveDAW":"1"
+    aconnect "XTONE":"0" "LiveMusic":"0"
     
     # Midi
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
@@ -615,9 +617,9 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
     # Drum Looper
     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
-
+    
     # Temp control for sooper
-#    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
+    #    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
     
     # TO Pedalboard
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
@@ -629,8 +631,8 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
     aconnect "LiveMusic Output":"6" "NMSVE":"0"
     aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
-
-
+    
+    
     aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
     aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
@@ -644,12 +646,12 @@ function SetUpConnections {
     aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
     aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
     aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
-    aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"   
-    aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"   
-    aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"   
-    aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"   
-    aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"   
-
+    aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
+    aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
+    aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
+    aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
+    aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
+    
     # ********************************
     # **** Jack audio and midi connections
     # ********************************
@@ -669,6 +671,7 @@ function SetUpConnections {
     jack_connect jack-volume:output_4 system:playback_1
     jack_connect jack-volume:output_4 system:playback_2
     
+    # pw-jack jack_connect "J3Sink Audio/Sink sink:playback_FL"  "clementine:out_pipeline-2-jackaudiosink_1"
     
     # Guitar in goes to effects Rack
     
@@ -692,7 +695,7 @@ function SetUpConnections {
     
     echo "Guitarix Audio to Jack Volume"
     jack_connect gx_head_fx:out_0 $MainOut1
-    jack_connect gx_head_fx:out_1 $MainOut1
+    jack_connect gx_head_fx:out_1 $MainOut5
     jack_disconnect gx_head_fx:out_1 system:playback_1
     jack_disconnect gx_head_fx:out_0 system:playback_2
     
@@ -727,8 +730,8 @@ function SetUpConnections {
     jack_connect Hydrogen:out_L $MainOut2
     jack_connect Hydrogen:out_R $MainOut2
     
-    jack_connect strawberry:out_jackaudiosink-1_1 $MainOut3
-    jack_connect strawberry:out_jackaudiosink-1_1 $MainOut3
+    jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
+    jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
     
     jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
     jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
@@ -753,12 +756,12 @@ function SetUpConnections {
     aconnect "MusE":0 "FLUID Synth":0
     jack_connect "MusE:Out 1-0" "system:playback_1"
     jack_connect "MusE:Out 1-1" "system:playback_1"
-
-
+    
+    
     if [[ $UsePipeWire == "Yes" ]]; then
         PipeConnect.sh
     fi
-
+    
 }
 
 #-------------------------------------------#
@@ -780,11 +783,11 @@ function FindUSB {
                 else
                     echo "1" > /sys/bus/usb/devices/$f/power/state
                 fi
-
+                
                 echo "$MyDevice" | grep -i audio
                 if [ $? == 0 ]; then
                     echo "$MyDevice"
-
+                    
                 fi
             fi
         fi
@@ -800,18 +803,18 @@ function SetUpApplications {
     
     if test "${SoundSynth}" = "true"; then
         # Launch the Soundfont player.
-        echo "Starting qsynth "$PipeStart   >> $LogFile
-        echo "Starting qsynth "$PipeStart
+        echo "Starting PipeStart "$PipeStart   >> $LogFile
+        echo "Starting PipeStart "$PipeStart
         nice -15 $PipeStart `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
-
+    
     if [ `hostname` == "LiveMusic" ]; then
         ButtonSize=88
     else
         ButtonSize=140
     fi
-
-
+    
+    
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
@@ -825,7 +828,7 @@ function SetUpApplications {
         -j "${AudioOutDevice}"` \
         >> $LogFile 2>&1 &
     fi
-
+    
     # This is the Guitar effects processor
     if test "${GuitarEffects}" = "true"; then
         echo "Starting Guitar Effects"  >> $LogFile
@@ -834,10 +837,22 @@ function SetUpApplications {
         Delay 2
     fi
     
+    if test "${RunPlugins}" = "true"; then
+        echo "Plugins Effects"  >> $LogFile
+
+//        nice -18 $PipeStart pw-jack Manifold &
+
+        QT_SCREEN_SCALE_FACTORS=1.25 \
+        nice -18 $PipeStart \
+        carla-jack-multi /home/MySongs/Prefs/EliasCarla.carxp &
+        Delay 2
+    fi
+    
     if test "${Looper}" = "true"; then
         # Set the first Desktop to use.
-       $PipeStart slgui -L /home/elias/MySongs/Looper/EliasLooper.slsess -P=9951 >> $LogFile &
+        nice -18 $PipeStart slgui -L /home/MySongs/Looper/LooperSync1.slsess -P=9951 >> $LogFile &
     fi
+
     if test "${InternetJamStart}" = "true"; then
         # Internet
         $InternetJam -l /home/MySongs/Prefs/sonobus_elias.sonobus &
@@ -845,24 +860,27 @@ function SetUpApplications {
     
     if test "${Ardour}" = "true"; then
         # We are going to record
-         $PipeStart ardour /home/Music/Rehearsals/`date +"%Y%m%d"` &
+        $PipeStart ardour /home/Music/Rehearsals/`date +"%Y%m%d"` &
     fi
     
     if test "${MP3Player}" = "true"; then
         # Set the first Desktop to use.
-       QT_STYLE_OVERRIDE=QtCurve  $PipeStart strawberry &
+        #       QT_STYLE_OVERRIDE=QtCurve  $PipeStart clementine &
+        echo "Starting clementine "$PipeStart
+        
+        $PipeStart clementine &
     fi
     
     if test "${MusePlayer}" = "true"; then
         # Set the first Desktop to use.
         MusicApps.sh MidPlay >> $LogFile 2>&1 &
- #       QT_STYLE_OVERRIDE=QtCurve muse &
+        #       QT_STFslguiYLE_OVERRIDE=QtCurve muse &
     fi
     
     if test "${MuseScore}" = "true"; then
         # Set the first Desktop to use.
         MusicApps.sh Score >> $LogFile 2>&1 &
-#        QT_STYLE_OVERRIDE=QtCurve musescore3 &
+        #        QT_STYLE_OVERRIDE=QtCurve musescore3 &
     fi
     
     # External viewer, not used anymore
@@ -875,9 +893,11 @@ function SetUpApplications {
         fi
     fi
     
+    
+    
     # Are we practicing ? then run the sequence
     if test "${Rosegarden}" = "true"; then
-         $PipeStart rosegarden &
+        $PipeStart rosegarden &
         Delay 2
     fi
     
@@ -921,8 +941,9 @@ function SetPlacement {
     ExtraMonitor="$?"
     
     # On home PC spread it out
-    if [ `hostname` == "Keshie" ] || 
-       [ `hostname` == "KeshP15" ]; then
+    if [ `hostname` == "Keshie" ] ||
+    [ `hostname` == "KeshT16" ] ||
+    [ `hostname` == "KeshP15" ]; then
         echo "Keshie"
         AnalogDesktop=5
         LiveMusicAppDesktop=5
@@ -1028,13 +1049,13 @@ function SetPlacement {
 function SetPlacement1920 {
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
-
+    
     if [ "$ExtraMonitor" -eq "1" ]; then
-
+        
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
- #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
+        #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
         wmctrl -r ${EffectsProcessorWM} -e 0,10,0,700,1350
-
+        
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
         wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
         
@@ -1046,9 +1067,9 @@ function SetPlacement1920 {
     else
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
         wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1350
-
+        
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-    #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
+        #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
         wmctrl -F -r LiveMusicApp_1 -e 0,100,0,2300,1350
         
         wmctrl -r SooperLooper -t $LooperDesktop
@@ -1058,9 +1079,9 @@ function SetPlacement1920 {
         wmctrl -r qsynth -t $MidiDesktop
     fi
     
-    #       wmctrl -r strawberry -e 0,$NewOffset,350,1000,700
-    wmctrl -r strawberry -e 0,$XOffset,$YOffset,1920,1000
-    wmctrl -r strawberry -t $PlayerDesktop
+    #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
+    wmctrl -r clementine -e 0,$XOffset,$YOffset,1920,1000
+    wmctrl -r clementine -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -t $PlayerDesktop
@@ -1107,8 +1128,8 @@ function SetPlacement1600 {
     wmctrl -r qsynth -t $MidiDesktop
     
     NewOffset=`expr $XOffset + 0`
-    wmctrl -r strawberry -e 0,$NewOffset,350,1000,700
-    wmctrl -r strawberry -t $PlayerDesktop
+    wmctrl -r clementine -e 0,$NewOffset,350,1000,700
+    wmctrl -r clementine -t $PlayerDesktop
     
     NewOffset=`expr $XOffset + 1000`
     wmctrl -r TuxGuitar -e 0,$NewOffset,250,900,800
@@ -1142,8 +1163,8 @@ function SetPlacement1200 {
     wmctrl -r qsynth -e 0,640,0,1600,400
     wmctrl -r qsynth -t $MidiDesktop
     
-    wmctrl -r strawberry -e 1,0,150,1000,600
-    wmctrl -r strawberry -t $PlayerDesktop
+    wmctrl -r clementine -e 1,0,150,1000,600
+    wmctrl -r clementine -t $PlayerDesktop
     
     wmctrl -r TuxGuitar -e 0,366,250,1000,500
     wmctrl -r TuxGuitar -t $PlayerDesktop
@@ -1154,19 +1175,28 @@ function SetPlacement1200 {
 
 function StopEverything {
     echo "Closing down Effects"
-
+    
     killall KeepLiveMusicRunning.sh
-KillAll guitarix
-KillAll guitarix
-KillAll guitarix
+    killall KeepLiveMusicRunning.sh
+    
+    # of you kill guitarix it doesn't save state.
+    wmctrl -c guitarix
+    wmctrl -c SooperLooper
+    wmctrl -c LiveMusicApp_1
+    wmctrl -c qsynth
+    wmctrl -c clementine
+    wmctrl -c qpwgraph
+    
     wmctrl -c ${EffectsProcessorWM}
     wmctrl -c LiveMusicApp_1
     wmctrl -c Patchage
     wmctrl -c SooperLooper
     wmctrl -c qsynth
-    wmctrl -c strawberry
+    wmctrl -c clementine
     wmctrl -c QjackCtl
-
+    
+    sleep 1
+    KillAll guitarix
     killall patchage
     killall -I ${EffectsProcessorName}
     killall qsynth
@@ -1180,7 +1210,7 @@ KillAll guitarix
     killall rosegarden
     killall hydrogen
     killall qsynth
-    killall strawberry
+    killall clementine
     killall okular
     killall livedings
     killall jack-volume
@@ -1228,8 +1258,10 @@ KillAll guitarix
     xset s on
     xset +dpms
     powerprofilesctl set balanced
-#    systemctl --user restart pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
-
+    DefaultAudio.sh
+    
+    #    systemctl --user restart pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
+    
     exit 0
 }
 
@@ -1252,6 +1284,7 @@ PatchBay="qpwgraph"
 PatchBayName="qpwgraph"
 InternetJam="sonobus"
 
+RunPlugins=true
 MidiController=true
 Rosegarden=false
 Hydrogen=false
@@ -1274,7 +1307,7 @@ OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
 SoundSynth=true
-Version="2.1.8"
+Version="2.2.2"
 
 # systemctl --user restart pipewire pipewire-pulse wireplumber
 
@@ -1316,7 +1349,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
         t - Tab Editor
         v - version
         w - Working Scoring
-        x - Kill Pipewire"
+            x - Kill Pipewire"
             exit 0
         ;;
         v)
@@ -1347,9 +1380,9 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             # twice exit.
             LogFile=~/.config/LiveMusicApp/LogGuitar.txt
             
-#	    echo $PATH >> $LogFile
-#  		exit 0
- 	    pid=`pgrep guitarix`
+            #       echo $PATH >> $LogFile
+            #       exit 0
+            pid=`pgrep guitarix`
             if [ -z $pid ]
             then
                 echo "GuitarEffects Auto 1"
@@ -1440,7 +1473,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             echo "PDF"
             MusicViewer=true
         ;;
-       s)
+        s)
             StopEverything
             exit 0
         ;;
@@ -1458,9 +1491,9 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             echo "Kill Pipewire"
             systemctl --user stop pipewire pipewire-pulse wireplumber pipewire.socket pipewire-pulse.socket
             PatchBay="catia"
-#            sleep 1
+            #            sleep 1
         ;;
-         ?)
+        ?)
             # getopts issues an error message
             echo $USAGE >&2
             exit 1
@@ -1497,26 +1530,24 @@ export IAM=`whoami`
 
 
 PipeActive=`ps aux | grep pipewire | wc -l`
-echo $PipeActive
 if [[ $PipeActive > 1 ]];  then
-echo "Pipe found"
-UsePipeWire="Yes"
-PipeStart="pw-jack " 
-PipeOption=" -w " 
-PatchBay="qpwgraph"
-PatchBayName="qpwgraph"
-else 
-echo "Pipe Not found"
-UsePipeWire="No"
-PipeStart="" 
-PipeOption="-e" 
-PatchBay="catia"
-PatchBayName="catia"
-#PIPEWIRE_LATENCY=128/48000
+    echo "Pipe found"
+    UsePipeWire="Yes"
+    PipeStart="pw-jack "
+    PipeOption=" -w "
+    PatchBay="qpwgraph"
+    PatchBayName="qpwgraph"
+else
+    echo "Pipe Not found"
+    UsePipeWire="No"
+    PipeStart=""
+    PipeOption="-e"
+    PatchBay="catia"
+    PatchBayName="catia"
+    #PIPEWIRE_LATENCY=128/48000
 fi
 
-
-echo "Pipewire "$PipeStart
+echo "Pipewire "$PipeStart" Active "$PipeActive
 
 # cpupower frequency-info
 
@@ -1557,7 +1588,7 @@ if [[ $UsePipeWire == "No" ]]; then
         --text=" Can\'t Start Jack"
         exit 1
     fi
-
+    
     # If jackd is still not running then exit.
     if [ `ps -ew|grep -c jackd` == 0 ] ; then
         echo "Exiting, could not launch Sound System"  >> $LogFile
@@ -1568,7 +1599,7 @@ fi
 if [ `ps -ew | grep -c jack-volume` == 0 ] ; then
     # Jack can be a bit slow to come up.
     echo " About to Start Jack-Volume"
-    $PipeStart  nice -18 jack-volume -p 9952 -n 4  >> $LogFile 2>&1 &
+    nice -18  $PipeStart jack-volume -p 9952 -n 5  >> $LogFile 2>&1 &
 fi
 
 if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
@@ -1576,19 +1607,18 @@ if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
 fi
 
 #pactl load-module module-null-sink sink_name=virtmic \
-    sink_properties=device.description=jack-volume:input_2
+sink_properties=device.description=jack-volume:input_2
 #pactl set-default-sink virtmic
 #pw-cli create-node adapter '{ factory.name=jack-volume:input_3 node.name=J3Sink media.class=Audio/Sink object.linger=true audio.position=[FL] }'
 #pactl load-module module-null-source media.class=Audio/Source/Virtual sink_name=J3Sink channel_map=front-left,front-right
 
 
-pw-link -o | grep J3Sink
-if [ $? != 0 ]; then
-    pactl load-module module-null-sink object.linger=1 media.class=Audio/Sink sink_name=J3Sink channel_map=front-left
-fi
+#pw-link -o | grep J3Sink
+#if [ $? != 0 ]; then
+#    pactl load-module module-null-sink object.linger=1 media.class=Audio/Sink sink_name=J3Sink channel_map=front-left
+#fi
 
 # Create a virtual device for mplayer
-pactl set-default-sink J3Sink
 pw-link J3Sink:monitor_FL jack-volume:input_3
 
 # In case the OSC port didn't close.
@@ -1600,12 +1630,17 @@ echo "***************** Starting SetUpApplications"
 # Set up the other applications.
 $PipeStart  a2jmidi_bridge "GuitBridge" &
 
+pactl set-default-sink J3Sink
+
 SetUpApplications
-Delay 1 
+DefaultAudio.sh
+
+Delay 1
 
 echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections
+DefaultAudio.sh
 
 # Put apps in the right place/desktop
 echo "***************** Starting SetPlacement"
@@ -1619,7 +1654,6 @@ SetUpConnections
 echo "***************** Starting SetPlacement"
 # Put apps in the right place/desktop
 SetPlacement
-
 exit 0
 
 # Check for file size on this:
@@ -1635,4 +1669,9 @@ exit 0
 # Pipewire
 # pw-metadata -n settings 0 clock.force-quantum 128
 # PIPEWIRE_LATENCY="128/48000" pw-jack reaper
+# pw-metadata -n settings 0 clock.force-rate 48000
+# pw-metadata -n settings 0 clock.force-quantum 64
+# pw-metadata -n settings 0 clock.rate <value>
+# pw-metadata -n settings 0 clock.force-rate <samplerate>
+# pw-top
 

@@ -64,7 +64,7 @@ ${PipeStart} muse "${2}" &
 fi
 
 if [ "${1}" == "Score" ] ; then
-    ${PipeStart} mscore "${2}" &
+    ${PipeStart} mscore3 "${2}" &
     exit 0
 fi
 
@@ -103,27 +103,55 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "gp5" ] ||
 [ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
-    echo "Muse Score ${1} ${2} ${PipeStart}"
-#    musescore "${2}" &>/dev/null &
-    /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
+    echo "Muse Score ${1} ${2} nice -15 ${PipeStart}"
+     nice -15 ${PipeStart} mscore3 "${2}" &>/dev/null &
+#    /usr/src/LiveMusicBuilds/MuseScore-4.0.0-x86_64.appimage "${2}" &>/dev/null &
+    # /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
+# Convert from pdf to sheet music
+# magick convert scan_fullcolour1.png -colorspace gray grayscale_page_1.png
+# magick convert scan_fullcolour2.png -colorspace gray grayscale_page-2.png
+# magick grayscale_page_* grayscale.pdf
+
+# upload grayscale.pdf to https://musescore.com/import
     exit 0
 fi
 
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme" nice -15 ${PipeStart} guitarix --log-terminal &
+    GTK_THEME="LiveMusicTheme"  nice -20 ${PipeStart}  guitarix --log-terminal &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme" nice -15 \
-    ${PipeStart} guitarix --log-terminal &
-    # /AppImages/guitarix-0.39-x86_64.AppImage \
+    GTK_THEME="LiveMusicTheme" nice -20 ${PipeStart} \
+     guitarix --log-terminal &
+
+    # flatpak run org.guitarix.Guitarix
+#    rsync -avrx .config/guitarix  .var/app/org.guitarix.Guitarix/config/
+    # /usr/src/AppImageApps/AppImages/guitarix-0.39-x86_64.AppImage \
     # -p 7000 &
    
 #    guitarix \
 #    /AppImages/guitarix-0.39-x86_64.AppImage \
+
+# QT_SCREEN_SCALE_FACTORS=1.25 pw-jack carla-rack /home/MySongs/Prefs/CarGuitar.carxp
+# carla-single possibly.
+
+# pw-jack carla-single win64 vst2 /home/elias/.vst/ValhallaDelay_x64.dll First 0001
+
+# /home/elias/.wine/drive_c/Program Files/Common Files/VST3/Acon Digital
+# pw-jack carla-single win64 vst3 ./Multiply.vst3
+
+# /home/elias/.wine/drive_c/Program Files/Common Files/VST3
+# pw-jack carla-single win64 vst3 ./ValhallaUberMod.vst3
+
+# PIPEWIRE_LOG_SYSTEMD=false PIPEWIRE_DEBUG=5 carla-jack-multi
+# WIREPLUMBER_DEBUG=D
+# ps -eo pid,ppid,ni,comm
+
+# LV2 plugins 
+# https://www.youtube.com/watch?v=51eHCA4oCEI&list=PLkuRaNsK2AJ0D8uhRIjftgmqVW0yvDfMx
 
     exit 0
 fi

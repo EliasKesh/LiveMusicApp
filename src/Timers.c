@@ -190,7 +190,8 @@ void SetTempo(unsigned int NewTempo) {
         return;
     }
 
-    SetLoopTempo(NewTempo);
+//    SetLoopTempo(NewTempo);
+
     /* Set the jack transport for timers.
     */
     com_tempo(NewTempo);

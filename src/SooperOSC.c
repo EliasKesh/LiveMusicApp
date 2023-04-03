@@ -457,24 +457,28 @@ void MyOSCJackVol(int Volume, int channel) {
     printd(LogDebug, "MyOSCJackVol: %x %f\n", channel, VolumeFloat);
 
     switch (channel) {
-    case 0xff:
+    case typeOSCVolMaster:
         lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/master", "f", VolumeFloat);
         break;
 
-    case 0:
+    case typeOSCVolGuitarL:
         lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/0", "f", VolumeFloat);
         break;
 
-    case 1:
+    case typeOSCVolMidi:
         lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/1", "f", VolumeFloat);
         break;
 
-    case 2:
+    case typeOSCVolMP3:
         lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/2", "f", VolumeFloat);
         break;
 
-    case 3:
+    case typeOSCVolLooper:
         lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/3", "f", VolumeFloat);
+        break;
+
+    case typeOSCVolGuitarR:
+        lo_send(JackVoladdr, "/net/mhcloud/volume/jack-volume/4", "f", VolumeFloat);
         break;
     }
 }

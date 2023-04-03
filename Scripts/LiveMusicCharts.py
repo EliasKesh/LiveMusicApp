@@ -496,6 +496,11 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        # if (filename.endswith("rtf")):
+        #     logger.info ("rtf sHREFIndex %s %d", filename, sHREFIndex)
+        #     sHREFFile[sHREFIndex] = filename
+        #     sHREFIndex = sHREFIndex + 1
+
         # if (filename == "index_dir.html"):
         #     logger.info ("index_dir.html sHREFIndex %s %d", filename, sHREFIndex)
         #     sHREFFile[sHREFIndex] = filename
@@ -867,7 +872,7 @@ parser.add_argument("-z", action='store_true', help="Force Create")
 args = parser.parse_args()
 
 # updated by the version script do not change.
-Version = "2.1.8"
+Version = "2.2.2"
 
 logger = logging.getLogger(__name__)
 

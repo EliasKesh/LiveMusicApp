@@ -65,7 +65,7 @@ struct track {
     struct event *current_event;    /* used while loading and playing */
 };
 
-static snd_seq_t *seq;
+snd_seq_t *APlayseq;
 //static int client;
 // static int port_count;
 static snd_seq_addr_t LoopPort;
@@ -91,16 +91,16 @@ int InitMidiLooper(void) {
     snd_seq_port_info_t *pinfo;
     int err;
 
-    seq = gMyInfo.SeqPort[DRLoop];
+    APlayseq = gMyInfo.SeqPort[DRLoop];
 
-    printd(LogDebug, "open sequencer %x\n", seq);
+    printd(LogDebug, "open sequencer %x\n", APlayseq);
 
-    LoopPort.client = snd_seq_client_id(seq);
+    LoopPort.client = snd_seq_client_id(APlayseq);
     LoopPort.port = DRLoop;
-    //  snd_seq_parse_address(seq, &LoopPort, "129:0");
+    //  snd_seq_parse_address(APlayseq, &LoopPort, "129:0");
     printd(LogDebug, "LoopPort %d %d\n", LoopPort.client, LoopPort.port);
 
-    queue = snd_seq_alloc_queue(seq);
+    queue = snd_seq_alloc_queue(APlayseq);
 
     MidiLooping = false;
     alsa_loop_init();
@@ -137,9 +137,9 @@ void StopMidiLoop(void) {
     printd(LogDebug, "Stop\n");
 
     MidiLooping = false;
-    snd_seq_drain_output(seq);
-    snd_seq_reset_pool_output(seq);
-    snd_seq_drop_output_buffer(seq);
+    snd_seq_drain_output(APlayseq);
+    snd_seq_reset_pool_output(APlayseq);
+    snd_seq_drop_output_buffer(APlayseq);
     // Fix this, need a context switch
     //  poll();
     sleep(2);
@@ -192,7 +192,9 @@ void StartMidiLoop(char *filename) {
 void SetLoopStartSync(void) {
     snd_seq_event_t ev;
 
-    snd_seq_start_queue(seq, queue, &ev);
+    snd_seq_ev_clear(&ev);
+
+    snd_seq_start_queue(APlayseq, queue, &ev);
     //  snd_seq_ev_set_queue_pos_tick(ev, queue, 0);
 
 }
@@ -203,22 +205,27 @@ void SetLoopStartSync(void) {
 * Description: Adjust the playback speed
 *---------------------------------------------*/
 void SetLoopTempo(int NewTempo) {
+snd_seq_event_t LoopTempoEvent;
 
     if (!MidiLooping) {
         return;
     }
 
+    /* memory alignment error without this.
+    */
+//    memset(&LoopTempoEvent, 0, sizeof (snd_seq_event_t));
+    snd_seq_ev_clear(&LoopTempoEvent);
+    gMyInfo.LoopTempo = NewTempo;
     MyTempo = NewTempo;
-    snd_seq_event_t ev;
     int err;
-    printd(LogDebug, "SetLoopTempo %d\n", NewTempo);
+    printd(LogDebug, "SetLoopTempo %x %d\n",APlayseq, NewTempo);
 
-    ev.type = SND_SEQ_EVENT_TEMPO;
-    ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
-    ev.data.queue.queue = queue;
-    ev.data.queue.param.value = TempoAdjustment / NewTempo;
+    LoopTempoEvent.type = SND_SEQ_EVENT_TEMPO;
+    LoopTempoEvent.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
+    LoopTempoEvent.data.queue.queue = queue;
+    LoopTempoEvent.data.queue.param.value = TempoAdjustment / NewTempo;
     /* this blocks when the output pool has been filled */
-    err = snd_seq_event_output_direct(seq, &ev);
+    err = snd_seq_event_output_direct(APlayseq, &LoopTempoEvent);
 
 }
 
@@ -233,7 +240,7 @@ int MyAlsaLoopClose(void) {
 
     printd(LogDebug, "MyAlsaLoopClose\n");
 
-    snd_seq_close(seq);
+    snd_seq_close(APlayseq);
     sleep(1);
 
     /* Cancel the thread. Don't know better way.
@@ -257,7 +264,7 @@ static void init_seq(void) {
     int err;
 
     /* open sequencer */
-    seq = gMyInfo.SeqPort[DRLoop];
+    APlayseq = gMyInfo.SeqPort[DRLoop];
 
     printd(LogDebug, "open sequencer %d\n", err);
 
@@ -652,7 +659,7 @@ invalid_format:
 
 #if 1
     printd(LogDebug, "snd_seq_set_queue_tempo\n");
-    err = snd_seq_set_queue_tempo(seq, queue, queue_tempo);
+    err = snd_seq_set_queue_tempo(APlayseq, queue, queue_tempo);
 
     //  printd(LogDebug, "ejk read_smf %d\n", queue_tempo);
     if (err < 0) {
@@ -780,19 +787,19 @@ static void handle_big_sysex(snd_seq_event_t *ev) {
 
     event_size = snd_seq_event_length(ev);
 
-    if (event_size + 1 > snd_seq_get_output_buffer_size(seq)) {
-        err = snd_seq_drain_output(seq);
+    if (event_size + 1 > snd_seq_get_output_buffer_size(APlayseq)) {
+        err = snd_seq_drain_output(APlayseq);
         printd(LogDebug, "drain output%d\n", err);
-        err = snd_seq_set_output_buffer_size(seq, event_size + 1);
+        err = snd_seq_set_output_buffer_size(APlayseq, event_size + 1);
         printd(LogDebug, "set output buffer size%d\n", err);
     }
 
     while (length > MIDI_BYTES_PER_SEC) {
-        err = snd_seq_event_output(seq, ev);
+        err = snd_seq_event_output(APlayseq, ev);
         printd(LogDebug, "output event %d\n", err);
-        err = snd_seq_drain_output(seq);
+        err = snd_seq_drain_output(APlayseq);
         printd(LogDebug, "drain output %d\n", err);
-        err = snd_seq_sync_output_queue(seq);
+        err = snd_seq_sync_output_queue(APlayseq);
         printd(LogDebug, "sync output %d\n", err);
 
         if (sleep(1)) {
@@ -846,7 +853,7 @@ static void play_midi(void) {
         ev.source.port = DRLoop;
         ev.flags = SND_SEQ_TIME_STAMP_TICK;
 
-        err = snd_seq_start_queue(seq, queue, NULL);
+        err = snd_seq_start_queue(APlayseq, queue, NULL);
         //      printd(LogDebug, "start queue%d\n", err);
         /* The queue won't be started until the START_QUEUE event is
          * actually drained to the kernel, which is exactly what we want. */
@@ -938,9 +945,9 @@ static void play_midi(void) {
             //          err = snd_seq_event_output_buffer(seq, &ev);
             //          err = snd_seq_event_output_direct(seq, &ev);
 
-            snd_seq_nonblock(seq, 1);
+            snd_seq_nonblock(APlayseq, 1);
 
-            err = snd_seq_event_output(seq, &ev);
+            err = snd_seq_event_output(APlayseq, &ev);
             //          printd(LogDebug, "output event%d\n", err);
         }
 
@@ -952,14 +959,14 @@ static void play_midi(void) {
         //      ev.dest.client = SND_SEQ_CLIENT_SYSTEM;
         ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
         ev.data.queue.queue = queue;
-        err = snd_seq_event_output(seq, &ev);
+        err = snd_seq_event_output(APlayseq, &ev);
         printd(LogDebug, "output event error %d %x\n",
-               err, seq);
+               err, APlayseq);
 #endif
 
         /* make sure that the sequencer sees all our events */
         do {
-            err = snd_seq_drain_output(seq);
+            err = snd_seq_drain_output(APlayseq);
             printd(LogDebug, "drain output %d\n", err
                   );
             gLooperWaitForSync = true;
@@ -979,7 +986,7 @@ static void play_midi(void) {
 #if 0
 
         do {
-            err = snd_seq_event_output_pending(seq);
+            err = snd_seq_event_output_pending(APlayseq);
             printd(LogDebug, "Pending output %d\n", err
                   );
             gLooperWaitForSync = true;
@@ -988,7 +995,7 @@ static void play_midi(void) {
 
 #endif
 
-        err = snd_seq_sync_output_queue(seq);
+        err = snd_seq_sync_output_queue(APlayseq);
         gLooperWaitForSync = true;
         printd(LogDebug, "After Sync %d %d\n", MidiLooping, err);
     } // end of while.

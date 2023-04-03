@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([LiveMusicApp], [2.1.8],
+AC_INIT([LiveMusicApp], [2.2.2],
 		[elias@kesh.com])
 
 AM_INIT_AUTOMAKE
@@ -35,11 +35,15 @@ AC_CHECK_LIB([rt], [main])
 AC_CHECK_LIB([xmltok], [main])
 AC_CHECK_LIB([pthread], [main])
 
-# PKG_CHECK_MODULES(GTK4, [gtk4])
+#PKG_CHECK_MODULES(GTK4, [gtk4])
+#PKG_CHECK_MODULES(WEBKIT2GTK, [webkit2gtk-5.0])
+
 PKG_CHECK_MODULES(GTK3, [gtk+-3.0])
+PKG_CHECK_MODULES(WEBKIT2GTK, [webkit2gtk-4.0])
+
+
 PKG_CHECK_MODULES(ALSA, [alsa])
 PKG_CHECK_MODULES(GLADEUI, [gladeui-2.0])
-PKG_CHECK_MODULES(WEBKIT2GTK, [webkit2gtk-4.0])
 PKG_CHECK_MODULES(JACK, [jack])
 PKG_CHECK_MODULES(LIBLO, [liblo])
 
