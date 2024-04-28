@@ -1122,7 +1122,7 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
 */
 
             OSCCommand(OSCRecLoop, 2); 
-            printd(LogMidi, "1 Knob %d\n", DataValue);
+            printd(LogMidi, "OSCRecLoop %d\n", DataValue);
             break;
 
         case 32:
@@ -1142,7 +1142,6 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
                 MyOSCJackMute(0, 0);
                 SetDAWLed(ControlValue, 0);
             }
-
             break;
 
         case 64:
@@ -1166,20 +1165,6 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         case 33:
-            printd(LogMidi, "Metronome\n");
-            if (DataValue == 0) {
-                SetMetronomeStatus(!gMyInfo.MetronomeOn);
-            }
-            if (gMyInfo.MetronomeOn) {
-                SetDAWLed(ControlValue, 1);
-            }
-            else {
-                SetDAWLed(ControlValue, 0);
-            }
-
-            break;
-
-        case 49:
             printd(LogMidi, "Midi Pass\n");
             if (DataValue == 0) {
                 gMyInfo.MidiPassThru = 1;
@@ -1189,6 +1174,21 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             }
 
             ToggleMidi(ControlValue);
+            break;
+
+        case 49:
+            printd(LogMidi, "Metronome %d\n",DataValue);
+//            if (DataValue == 0) {
+                SetMetronomeStatus(!gMyInfo.MetronomeOn);
+//            }
+
+            if (gMyInfo.MetronomeOn) {
+                SetDAWLed(ControlValue, 1);
+            }
+            else {
+                SetDAWLed(ControlValue, 0);
+            }
+
             break;
 
         case 65:
@@ -1249,14 +1249,14 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
 
         case 19:
             printd(LogMidi, "4 Knob %d\n", DataValue);
-            printd(LogMidi, "Select Loop Volume %d\n", DataValue);
+// Empty
             break;
 
         case 35:
             // Next Song
             if (DataValue == 0)
                 OpenSetListSong(CurrentSetListSong + 1);
-            printd(LogMidi, "Solo 4\n");
+            printd(LogMidi, "SetList+ 4\n");
             break;
 
         case 51:
@@ -1303,7 +1303,7 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         case 68:
-            printd(LogMidi, "Record 5\n");
+            printd(LogMidi, "PatchUpdate 5\n");
             gMyInfo.PatchUpdate = 5;
 
             break;
@@ -1388,6 +1388,7 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             }
             break;
         case 54:
+// Empty
             if (DataValue == 0) {
                 SetDAWLed(ControlValue, 1);
             }

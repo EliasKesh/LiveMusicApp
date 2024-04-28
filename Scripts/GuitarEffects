@@ -404,7 +404,7 @@ function FindDevice {
     echo "***************** Starting Patch Bay"
     # patchage  > /dev/null 2>&1 &
     # catia > $LogFile 2>&1 &
-    ${PatchBay} /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
+    ${PatchBay} --activated /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
     
 }
 
@@ -488,6 +488,7 @@ function StartJack {
         sleep 5
         
     else
+
         nice -18 jackd \
         -R \
         -P89 \
@@ -619,7 +620,7 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
     
     # Temp control for sooper
-    #    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
+    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
     
     # TO Pedalboard
     aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
@@ -651,7 +652,7 @@ function SetUpConnections {
     aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
     aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
     aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
-    
+
     # ********************************
     # **** Jack audio and midi connections
     # ********************************
@@ -660,16 +661,27 @@ function SetUpConnections {
     
     # Midi Sound generato
     MidiSoundOut=`jack_lsp -c |  grep "FLUID" | tail -1`
+ 
     
+    # Muse Connection
+    aconnect "Fishman TriplePlay":0  MusE:0
+    aconnect "MusE":0 "FLUID Synth":0
+    ${PipeStart} jack_connect "MusE:Out 1-0" "system:playback_1"
+    ${PipeStart} jack_connect "MusE:Out 1-1" "system:playback_1"
+    
+
+    
+    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_8) DRLoop" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
+
     # Connect Jack_Volume to Main
-    jack_connect jack-volume:output_1 system:playback_1
-    jack_connect jack-volume:output_1 system:playback_2
-    jack_connect jack-volume:output_2 system:playback_1
-    jack_connect jack-volume:output_2 system:playback_2
-    jack_connect jack-volume:output_3 system:playback_1
-    jack_connect jack-volume:output_3 system:playback_2
-    jack_connect jack-volume:output_4 system:playback_1
-    jack_connect jack-volume:output_4 system:playback_2
+    ${PipeStart} jack_connect jack-volume:output_1 system:playback_1
+    ${PipeStart} jack_connect jack-volume:output_1 system:playback_2
+    ${PipeStart} jack_connect jack-volume:output_2 system:playback_1
+    ${PipeStart} jack_connect jack-volume:output_2 system:playback_2
+    ${PipeStart} jack_connect jack-volume:output_3 system:playback_1
+    ${PipeStart} jack_connect jack-volume:output_3 system:playback_2
+    ${PipeStart} jack_connect jack-volume:output_4 system:playback_1
+    ${PipeStart} jack_connect jack-volume:output_4 system:playback_2
     
     # pw-jack jack_connect "J3Sink Audio/Sink sink:playback_FL"  "clementine:out_pipeline-2-jackaudiosink_1"
     
@@ -679,25 +691,25 @@ function SetUpConnections {
         
         echo "jack_connect system:capture_1 gx_head_amp:in_1"
         #    jack_connect system:capture_1 gx_head_amp:in_0
-        jack_connect system:capture_2 gx_head_amp:in_0
-        jack_connect system:capture_1 system:playback_1
-        jack_connect system:capture_1 system:playback_2
-        jack_disconnect system:capture_2 system:playback_2
-        jack_disconnect system:capture_2 system:playback_1
+        ${PipeStart} jack_connect system:capture_2 gx_head_amp:in_0
+        ${PipeStart} jack_connect system:capture_1 system:playback_1
+        ${PipeStart} jack_connect system:capture_1 system:playback_2
+        ${PipeStart} jack_disconnect system:capture_2 system:playback_2
+        ${PipeStart} jack_disconnect system:capture_2 system:playback_1
     else
-        jack_connect system:capture_1 gx_head_amp:in_0
-        jack_connect system:capture_2 system:playback_1
-        jack_connect system:capture_2 system:playback_2
-        jack_disconnect system:capture_1 system:playback_2
-        jack_disconnect system:capture_1 system:playback_1
+        ${PipeStart} jack_connect system:capture_1 gx_head_amp:in_0
+        ${PipeStart} jack_connect system:capture_2 system:playback_1
+        ${PipeStart} jack_connect system:capture_2 system:playback_2
+        ${PipeStart} jack_disconnect system:capture_1 system:playback_2
+        ${PipeStart} jack_disconnect system:capture_1 system:playback_1
         
     fi
     
     echo "Guitarix Audio to Jack Volume"
-    jack_connect gx_head_fx:out_0 $MainOut1
-    jack_connect gx_head_fx:out_1 $MainOut5
-    jack_disconnect gx_head_fx:out_1 system:playback_1
-    jack_disconnect gx_head_fx:out_0 system:playback_2
+    ${PipeStart} jack_connect gx_head_fx:out_0 $MainOut1
+    ${PipeStart} jack_connect gx_head_fx:out_1 $MainOut5
+    ${PipeStart} jack_disconnect gx_head_fx:out_1 system:playback_1
+    ${PipeStart} jack_disconnect gx_head_fx:out_0 system:playback_2
     
     #    jack_connect gx_head_fx:out_0 loud_comp_mono:in
     #    jack_connect gx_head_fx:out_1 loud_comp_mono:in
@@ -705,38 +717,40 @@ function SetUpConnections {
     
     
     # Connect Guitarix out to looper in
-    jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
+    ${PipeStart} jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
     #   jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
     
     # Connect the Looper to the main outputs
-    jack_connect sooperlooper:common_out_1 $MainOut4
-    jack_connect sooperlooper:common_out_1 $MainOut4
-    jack_connect sooperlooper:common_out_2 $MainOut4
-    jack_connect sooperlooper:common_out_2 $MainOut4
+    ${PipeStart} jack_connect sooperlooper:common_out_1 $MainOut4
+    ${PipeStart} jack_connect sooperlooper:common_out_1 $MainOut4
+    ${PipeStart} jack_connect sooperlooper:common_out_2 $MainOut4
+    ${PipeStart} jack_connect sooperlooper:common_out_2 $MainOut4
     
     # Soundfont player get connected to the Main playback device.
-    jack_connect qsynth:left jack-volume:input_2
-    jack_connect qsynth:right jack-volume:input_2
-    jack_disconnect qsynth:left system:playback_1
-    jack_disconnect qsynth:right system:playback_2
+    ${PipeStart} jack_connect qsynth:left jack-volume:input_2
+    ${PipeStart} jack_connect qsynth:right jack-volume:input_2
+    ${PipeStart} jack_disconnect qsynth:left system:playback_1
+    ${PipeStart} jack_disconnect qsynth:right system:playback_2
     
     # Connect qsynth to the Looper.
-    jack_connect qsynth:left sooperlooper:common_in_1
-    jack_connect qsynth:left sooperlooper:common_in_2
+    ${PipeStart} jack_connect qsynth:left sooperlooper:common_in_1
+    ${PipeStart} jack_connect qsynth:left sooperlooper:common_in_2
     
     # Drum Machine
-    jack_connect Hydrogen:out_L sooperlooper:common_in_1
-    jack_connect Hydrogen:out_R sooperlooper:common_in_2
-    jack_connect Hydrogen:out_L $MainOut2
-    jack_connect Hydrogen:out_R $MainOut2
+    ${PipeStart} jack_connect Hydrogen:out_L sooperlooper:common_in_1
+    ${PipeStart} jack_connect Hydrogen:out_R sooperlooper:common_in_2
+    ${PipeStart} jack_connect Hydrogen:out_L $MainOut2
+    ${PipeStart} jack_connect Hydrogen:out_R $MainOut2
     
-    jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
-    jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
+    ${PipeStart} jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
+    ${PipeStart} jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
     
-    jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
-    jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
+    ${PipeStart} jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
+    ${PipeStart} jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
     aconnect "LiveMusic Output":1 GuitBridge:0
-    jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
+#    ${PipeStart} jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
+
+    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix"  gx_head_amp:midi_in_1
     
     #    aconnect "TriplePlay Connect":0 MuseBridge:0
     #    aconnect "Fishman TriplePlay":0  MuseBridge:0
@@ -750,18 +764,7 @@ function SetUpConnections {
     #   jack_connect "Mamba:out" "a2j:FLUID Synth (qsynth) (playback): Synth input port (qsynth:0)"    # jack_connect "Mamba:out" "MambaBridge:playback"
     # aconnect MambaBridge:capture "FLUID Synth":0
     
-    
-    # Muse Connection
-    aconnect "Fishman TriplePlay":0  MusE:0
-    aconnect "MusE":0 "FLUID Synth":0
-    jack_connect "MusE:Out 1-0" "system:playback_1"
-    jack_connect "MusE:Out 1-1" "system:playback_1"
-    
-    
-    if [[ $UsePipeWire == "Yes" ]]; then
-        PipeConnect.sh
-    fi
-    
+
 }
 
 #-------------------------------------------#
@@ -808,13 +811,15 @@ function SetUpApplications {
         nice -15 $PipeStart `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
+    ButtonSize=140
     if [ `hostname` == "LiveMusic" ]; then
         ButtonSize=88
-    else
-        ButtonSize=140
     fi
     
-    
+    if [ `hostname` == "KeshT16" ]; then
+        ButtonSize=100
+    fi
+      
     # Midi Router
     if test "${MidiController}" = "true"; then
         echo "Starting Midi Router"  >> $LogFile
@@ -834,25 +839,25 @@ function SetUpApplications {
         echo "Starting Guitar Effects"  >> $LogFile
         MusicApps.sh EffectsProcessorApp >> $LogFile 2>&1 &
         #   rakarrack -b $EffectsDir/EliasBankNew.rkrb -l $EffectsDir/Elias1.rkr &
+    fi
+
+    if test "${VSTGuitarEffects}" = "true"; then
+        echo "Starting Guitar Effects"  >> $LogFile
+        QT_SCREEN_SCALE_FACTORS=1.4 nice -18 $PipeStart carla-jack-multi /home/MySongs/CarlaConfig/Guitarix_Jazz_Rack.carxp &
         Delay 2
     fi
     
     if test "${RunPlugins}" = "true"; then
         echo "Plugins Effects"  >> $LogFile
 
-//        nice -18 $PipeStart pw-jack Manifold &
+#        nice -18 $PipeStart Manifold &
 
-        QT_SCREEN_SCALE_FACTORS=1.25 \
-        nice -18 $PipeStart \
-        carla-jack-multi /home/MySongs/Prefs/EliasCarla.carxp &
+#        QT_SCREEN_SCALE_FACTORS=1.25 \ nice -18 $PipeStart \ carla-jack-multi /home/MySongs/CarlaConfig/EliasCarla.carxp &
+# carla-jack-patchbayplugin
+# carla-patchbay
         Delay 2
     fi
     
-    if test "${Looper}" = "true"; then
-        # Set the first Desktop to use.
-        nice -18 $PipeStart slgui -L /home/MySongs/Looper/LooperSync1.slsess -P=9951 >> $LogFile &
-    fi
-
     if test "${InternetJamStart}" = "true"; then
         # Internet
         $InternetJam -l /home/MySongs/Prefs/sonobus_elias.sonobus &
@@ -912,8 +917,16 @@ function SetUpApplications {
     
     # mamba /home/Music/MidiFiles/MidiLoops/funk4.mid &
     
+    ss --kill state listening src :9951
     Delay 2
-    
+    if test "${Looper}" = "true"; then
+        # Set the first Desktop to use.
+        MusicApps.sh "Looper" >> $LogFile 2>&1 &
+
+        # GDK_SCALE=2 GDK_DPI_SCALE=0.8 nice -18 $PipeStart slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951  --never-timeout >> $LogFile &
+
+    fi
+    Delay 1   
     
     # This script check for a failed app
     # and will relaunch it
@@ -929,7 +942,8 @@ function SetUpApplications {
 #
 #-------------------------------------------#
 function SetPlacement {
-    
+    set -x
+    YOffset=0
     MaxOffSet=1368
     ExtID=`xinput list | grep -Po 'Atmel.*id=\K[0-9]+'`
     xinput map-to-output $ExtID LVDS1
@@ -951,6 +965,7 @@ function SetPlacement {
         MidiDesktop=$AnalogDesktop
         PatchageDesktop=7
         PlayerDesktop=7
+        CarlaDesktop=5
         DrumDesktop=7
         YOffset=1080
         YOffset=900
@@ -966,7 +981,6 @@ function SetPlacement {
             ExMonitor=1
         fi
         
-        SetPlacement1920
     elif [ `hostname` == "LiveMusic" ]; then
         echo "Music"
         AnalogDesktop=0
@@ -977,7 +991,7 @@ function SetPlacement {
         PlayerDesktop=2
         DrumDesktop=3
         YOffset=0
-        
+        CarlaDesktop=5
         SetPlacement1200
     else
         echo "Default PC"
@@ -988,7 +1002,8 @@ function SetPlacement {
         LooperDesktop=$AnalogDesktop
         MidiDesktop=$AnalogDesktop
         DrumDesktop=3
-        SetPlacement1920
+         CarlaDesktop=5
+       SetPlacement1920
     fi
     
     if test "${OneScreeOnly}" = "true"; then
@@ -1047,17 +1062,22 @@ function SetPlacement {
 #
 #-------------------------------------------#
 function SetPlacement1920 {
+    set -x
+
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
-    
     if [ "$ExtraMonitor" -eq "1" ]; then
         
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
         #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
-        wmctrl -r ${EffectsProcessorWM} -e 0,10,0,700,1350
+        wmctrl -r ${EffectsProcessorWM} -e 0,90,0,800,1050
         
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
+        
+        wmctrl -r LiveMusicApp_1 -e 0,150,0,2200,1000
+
+#      wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
+        wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,586,420,1000,450
@@ -1096,6 +1116,8 @@ function SetPlacement1920 {
     wmctrl -r ${PatchBayName} -t $PatchageDesktop
     wmctrl -r ${PatchBayName} -e 0,0,0,1200,850
     
+    wmctrl -r "Carla " -t $CarlaDesktop
+
     wmctrl -r QjackCtl -e 0,640,80,600,125
     wmctrl -r "Graph — QjackCtl" -e 0,0,940,1800,1000
     wmctrl -r QjackCtl -t $MidiDesktop
@@ -1230,7 +1252,7 @@ function StopEverything {
     killall tuxguitar
     killall aqualung
     killall mididings
-    killall a2jmidid
+    killall a2jmidi_bridge
     killall gedit
     killall $InternetJam
     
@@ -1238,7 +1260,7 @@ function StopEverything {
     killall -I ${EffectsProcessorName}
     killall ${PatchBay}
     KillAll catia
-    killall a2jmidid
+    killall a2jmidi_bridge
     killall guitarix
     #    FAHClient --send-unpause "LiveMusicApp_Done"
     
@@ -1276,7 +1298,9 @@ function StopEverything {
 echo "Line "$1
 # Set Default values
 GuitarEffects=true
-EffectsProcessorName="Guitarix"
+VSTGuitarEffects=false
+EffectsProcessorName=""
+#EffectsProcessorName="Guitarix"
 EffectsProcessorApp="guitarixOld"
 EffectsProcessorWM="Guitarix: gx_head"
 # PatchBay="carla"
@@ -1297,7 +1321,8 @@ MusicViewer=false
 WeAreDebugging=false
 KillJackOnExit=true
 #LogFile=~/.config/LiveMusicApp/LogGuitar.txt
-LogFile=/dev/tty
+LogFile=/dev/stdout
+# 2>&1 | tee outfile
 # JackFile=LogJack
 TabPlayer=false
 XOffset=0
@@ -1325,7 +1350,7 @@ echo `date` >> $LogFile
 echo $PATH >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdefgijkhrpmnovlswtx" OPT; do
+while getopts "abcdefgijkhrpmnovlqswtx" OPT; do
     #    echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1344,12 +1369,13 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
         n - Muse Player
         o - Muse Score
         p - PFD viewer
+        q - Guitar Sound Test
         r - Rosegarden
         s - Stop everything
         t - Tab Editor
         v - version
         w - Working Scoring
-            x - Kill Pipewire"
+        x - Kill Pipewire"
             exit 0
         ;;
         v)
@@ -1396,6 +1422,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
                 MP3Player=true
                 MidiController=true
                 GuitarEffects=true
+                VSTGuitarEffects=false
                 BackroundChecker=true
                 SoundSynth=true
                 Looper=true
@@ -1410,6 +1437,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             Rosegarden=false
             MidiController=true
             GuitarEffects=false
+            VSTGuitarEffects=false
             MusicViewer=false
             OneScreeOnly=true
             TabPlayer=false
@@ -1437,6 +1465,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             MP3Player=false
             MidiController=true
             GuitarEffects=true
+            VSTGuitarEffects=false
             SoundSynth=true
             Looper=true
         ;;
@@ -1473,6 +1502,19 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             echo "PDF"
             MusicViewer=true
         ;;
+        q)
+
+            MP3Player=true
+            MidiController=true
+            GuitarEffects=true
+            VSTGuitarEffects=false
+            BackroundChecker=true
+            SoundSynth=true
+            Looper=true
+
+            $PipeStart muse /home/Music/GuitarSoundTest/GuitarSoundTest.med &
+        ;;
+
         s)
             StopEverything
             exit 0
@@ -1485,6 +1527,7 @@ while getopts "abcdefgijkhrpmnovlswtx" OPT; do
             Rosegarden=true
             MidiController=false
             GuitarEffects=false
+            VSTGuitarEffects=false
             MusicViewer=false
         ;;
         x)
@@ -1533,7 +1576,7 @@ PipeActive=`ps aux | grep pipewire | wc -l`
 if [[ $PipeActive > 1 ]];  then
     echo "Pipe found"
     UsePipeWire="Yes"
-    PipeStart="pw-jack "
+    PipeStart="pw-jack -s 96000"
     PipeOption=" -w "
     PatchBay="qpwgraph"
     PatchBayName="qpwgraph"
@@ -1598,13 +1641,16 @@ fi
 
 if [ `ps -ew | grep -c jack-volume` == 0 ] ; then
     # Jack can be a bit slow to come up.
-    echo " About to Start Jack-Volume"
+    echo " About to Start Jack-Volume "$PipeStart
     nice -18  $PipeStart jack-volume -p 9952 -n 5  >> $LogFile 2>&1 &
 fi
 
+sleep 4
 if [ `ps -ew | grep -c jack-plumbing` == 0 ] ; then
     $PipeStart  jack-plumbing /home/MySongs/Prefs/jack-plumbing >> $LogFile 2>&1 &
 fi
+
+lsof -i -P -n | grep -e 9951 -e 9952
 
 #pactl load-module module-null-sink sink_name=virtmic \
 sink_properties=device.description=jack-volume:input_2
@@ -1628,7 +1674,7 @@ kill $OSCPID
 
 echo "***************** Starting SetUpApplications"
 # Set up the other applications.
-$PipeStart  a2jmidi_bridge "GuitBridge" &
+# $PipeStart  a2jmidi_bridge "GuitBridge" &
 
 pactl set-default-sink J3Sink
 
@@ -1639,7 +1685,13 @@ Delay 1
 
 echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
+
 SetUpConnections
+# ejk Check this
+if [[ $UsePipeWire == "Yes" ]]; then
+    PipeConnect.sh
+    return
+fi
 DefaultAudio.sh
 
 # Put apps in the right place/desktop
@@ -1654,6 +1706,8 @@ SetUpConnections
 echo "***************** Starting SetPlacement"
 # Put apps in the right place/desktop
 SetPlacement
+lsof -i -P -n | grep -e 9951 -e 9952
+
 exit 0
 
 # Check for file size on this:
@@ -1674,4 +1728,6 @@ exit 0
 # pw-metadata -n settings 0 clock.rate <value>
 # pw-metadata -n settings 0 clock.force-rate <samplerate>
 # pw-top
+# pw-jack -p 512 -s 44100
+
 

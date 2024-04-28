@@ -15,7 +15,7 @@
 rm ~/MP3Errors.txt
 
 set -x 
-cd /home/MySongs/GregChambers
+cd /home/MySongs/LaidBack
 LiveMusicCharts.py . -a
 
 cd /home/MySongs/Charts
@@ -35,6 +35,22 @@ LiveMusicCharts.py . -a
 
 cd /home/MySongs/TOC
 LiveMusicCharts.py . -a
+
+cd /home/MySongs/GregChambers
+LiveMusicCharts.py . -a
+
+cd /home/MySongs/Reference
+LiveMusicCharts.py . -ig
+
+for dir in $(find /home/MySongs/Reference -depth -type d )
+do
+    cd $dir
+    # check for .mscbackup
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
+    LiveMusicCharts.py . -ig
+done
+
 
 echo "*** MP3 Files with Errors ***"
 cat ~/MP3Errors.txt

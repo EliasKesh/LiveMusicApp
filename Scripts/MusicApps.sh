@@ -17,7 +17,7 @@ echo "MusicApp -> ${1}  ${2} ${3}"
 PipeActive=`ps aux | grep pipewire | wc -l`
 if [[ $PipeActive > 1 ]];  then
 echo "Pipe found"
-PipeStart="pw-jack " 
+PipeStart="pw-jack -s 96000" 
 else 
 echo "Pipe Not found"
 PipeStart=" " 
@@ -104,7 +104,7 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "gp6" ] ||
 [ "${1}" == "ptb" ] ; then
     echo "Muse Score ${1} ${2} nice -15 ${PipeStart}"
-     nice -15 ${PipeStart} mscore3 "${2}" &>/dev/null &
+     QT_SCREEN_SCALE_FACTORS=1.4 nice -15 ${PipeStart} mscore "${2}" &>/dev/null &
 #    /usr/src/LiveMusicBuilds/MuseScore-4.0.0-x86_64.appimage "${2}" &>/dev/null &
     # /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage "${2}" &>/dev/null &
 # Convert from pdf to sheet music
@@ -116,16 +116,31 @@ if [ "${1}" == "gp3" ] ||
     exit 0
 fi
 
+if [ "${1}" == "Looper" ] ; then
+    echo "Running Looper"
+        ss --kill state listening src :9951
+
+        GDK_SCALE=2 GDK_DPI_SCALE=0.8 nice -18 ${PipeStart} slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951 &
+        # --never-timeout &
+
+    exit 0
+fi
+
 if [ "${1}" == "guitarix" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme"  nice -20 ${PipeStart}  guitarix --log-terminal &
+    GDK_DPI_SCALE=1.5 \
+    GTK_THEME="LiveMusicTheme"  \
+    nice -20 ${PipeStart}  \
+    guitarix --log-terminal 2>&1 >/dev/null &
     exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ] ; then
     echo "Running guitarix"
-    GTK_THEME="LiveMusicTheme" nice -20 ${PipeStart} \
-     guitarix --log-terminal &
+    GDK_DPI_SCALE=1.5 \
+    GTK_THEME="LiveMusicTheme" \
+    nice -20 ${PipeStart} \
+    guitarix --log-terminal  2>&1 >/dev/null &
 
     # flatpak run org.guitarix.Guitarix
 #    rsync -avrx .config/guitarix  .var/app/org.guitarix.Guitarix/config/
@@ -158,6 +173,7 @@ fi
 
 if [ "${1}" == "guitarixNew" ] ; then
     echo "Running guitarix"
+    GDK_DPI_SCALE=1.5 \
     GTK_THEME="LiveMusicApp"  \
     GDK_BACKEND=x11 nice -15 \
     ${PipeStart} guitarix \

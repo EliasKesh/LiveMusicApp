@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #------------------------------------------------
 #
 #	File: 	LiveMusicCharts
@@ -548,12 +548,24 @@ background-size: 100%;\n\
 color: powderblue;\n\
 background-color: #000000;\n\
 height: 100%; }\n\
+a:link {\n\
+  color: #f9c020;\n\
+  background-color: transparent;\n\
+  text-decoration: none;\n\
+}\n\
+\n\
+a:visited {\n\
+  color: #f95320;\n\
+  background-color: transparent;\n\
+  text-decoration: none;\n\
+}\n\
+\n\
 </style>\n\
 </head>\n")
     theFile.write("<title>" + IndexName + "_Index</title>\n")
-    theFile.write("<p style=\"line-height:135%\">\n<body>\n\n")
+    theFile.write("<p style=\"line-height:175%\">\n<body>\n\n")
     theFile.write(
-        "<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt>")
+        "<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt><big><big>")
 
     #    logger.debug ("\n\n")
     logger.info("in GenerateIndex " + Base + "/" + IndexName + ".html")
@@ -671,8 +683,8 @@ def CreateNewHTML(fname, dirname, Files):
 #    ClearVariables()
 #    LoadVariables(Files)
     sGlobalNotes = "<code><pre>\n\
-<font color=#ff8002>Chords:  </font>\n\
-<font color=#88ffff>Structure:  </font>\n\
+<font color=#f9c020>Chords:  </font>\n\
+<font color=#f95320>Structure:  </font>\n\
 </pre></code>"
 
     sPresets[1] = 'Str_Pre'
@@ -775,7 +787,7 @@ indexTextStart = """<!DOCTYPE html>
     <ul>
         <li>
             <a href='../index_dir.html'>../</a>
-        </li>
+        </li><big><big>
 """
 indexTextEnd = """
     </ul>
@@ -795,7 +807,7 @@ def index_folder(folderPath):
   
     indexText = indexTextStart.format(folderPath=root)
     indexText += "<html>\n<head>\n<style type=\"text/css\">\n"
-    indexText += "body { \nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%;}"
+    indexText += "body { \nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%;line-height : 200%}"
     indexText += "</style>\n</head>\n"
 
 

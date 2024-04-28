@@ -47,7 +47,8 @@ for dir in $(find /home/Music/Learn/Courses -depth -type d )
 do
     cd $dir
     # check for .mscbackup
-    echo "Level "$Level"  "$dir
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
 done
 
@@ -55,7 +56,8 @@ for dir in $(find /home/Music/Learn/Reading -depth -type d )
 do
     cd $dir
     # check for .mscbackup
-    echo "Level "$Level"  "$dir
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
 done
 
@@ -63,7 +65,8 @@ for dir in $(find /home/Music/Learn/MuseLearn -depth -type d )
 do
     cd $dir
     # check for .mscbackup
-    echo "Level "$Level"  "$dir
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
 done
 
@@ -71,7 +74,8 @@ for dir in $(find /home/Music/Learn/Transcriptions -depth -type d )
 do
     cd $dir
     # check for .mscbackup
-    echo "Level "$Level"  "$dir
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
 done
 
@@ -79,7 +83,8 @@ for dir in $(find /home/Music/BackingTracks -depth -type d )
 do
     cd $dir
     # check for .mscbackup
-    echo "Level "$Level"  "$dir
+    echo "Dir  "$dir
+    # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
 done
 

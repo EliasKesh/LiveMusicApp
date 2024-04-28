@@ -86,7 +86,7 @@ typedef struct {
 //  C   C#   D   D#   E   F   F#   G   G#   A   A#   B   C
 //    1    2   3    4   5   6    7    8   9   10   11  12
 // Chords and Scales
-//                              1   2   3   4   5   6   7   8   9   10  11  12  13  14
+// 1   2   3   4   5   6   7   8   9   10  11  12  13  14
 char chMajor[] =
 { 0, SN, 4, SN, 7, SN, 11, EOfscl };
 char chMinor[] =
@@ -279,6 +279,77 @@ thePreChord pchMin7[] = {
     { -1, -1, -1, -1 }
 };
 
+thePreChord pchA1Min7[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 2, 1, 3, -2 },
+    { 3, 3, 7, -1 },
+    { 4, 4, 3, 0 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchA1Min9[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 2, 1, 3, -2 },
+    { 3, 4, 7, 0 },
+    { 4, 3, 3, -1 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchSKMaj7[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 3, 3, 7, 1 },
+    { 4, 4, 3, 1 },
+    { 5, 1, 5, -1 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchSKMin7[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 3, 3, 7, 0 },
+    { 4, 4, 3, 0 },
+    { 5, 1, 5, -1 },
+    { -1, -1, -1, -1 }};
+
+thePreChord pchDim7[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 2, 4, 5, 1 },
+    { 3, 1, 6, -1 },
+    { 4, 3, 3, 0 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchAug7[] = {
+    /* String  Finger Interval Fret */
+    { 1, 4, 1, 1 },
+    { 2, 3, 3, 0 },
+    { 3, 2, 5, -1 },
+    { 4, 1, 7, -2 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchSKDom6[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 3, 1, 7, -1 },
+    { 4, 4, 3, 1 },
+    { 5, 1, 5, -1 },
+    { -1, -1, -1, -1 }
+};
+
+thePreChord pchSKMin6[] = {
+    /* String  Finger Interval Fret */
+    { 1, 2, 1, 0 },
+    { 3, 1, 7, -1 },
+    { 4, 3, 3, 0 },
+    { 5, 1, 5, -1 },
+    { -1, -1, -1, -1 }
+};
+
 thePreChord pchMaj7O[] = {
     /* String  Finger Interval Fret */
     { 1, 1, 1, 0 },
@@ -304,13 +375,22 @@ thePreChord pchMaj6[] = {
 };
 
 PreChordMenu myPreChordMenu[] = {
-    { pchMaj, "Maj" },
-    { pchMin, "Min" },
-    { pchMaj7, "Maj7"},
-    { pchMin7, "Min7" },
-    { pchMaj7O, "Maj7 Open" },
-    { pchMin7O, "Min7 Open"},
-    { pchMaj6, "Min6"},
+    { pchMaj,       "Maj"       },
+    { pchMaj7,      "Maj7"      },
+    { pchSKMaj7,    "SK_Maj7"   },
+    { pchMin,       "Min"       },
+    { pchMin7,      "Min7"      },
+    { pchA1Min7,    "A1Min7"    },
+    { pchMaj6,      "Min6"      },
+    { pchSKMin6,    "SK_Min6"   },
+    { pchA1Min9,    "Min9"      },
+    { pchSKMin7,    "SK_Min7"   },
+    { pchSKDom6,    "SK_Dom6"   },
+    { pchAug7,      "Aug7"      },
+    { pchDim7,      "Dim7"      },
+    { pchMaj7O,     "Maj7 Open" },
+    { pchMin7O,     "Min7 Open" },
+
     { NULL, "" }
 };
 

@@ -7,7 +7,7 @@
 |
 |   Written By:     Elias Keshishoglou on Wed Sep 20 16:37:34 PDT 2017
 |
-|   Copyright ©:   2017 Elias Keshishoglou all rights reserved.
+|   Copyright Â©:   2017 Elias Keshishoglou all rights reserved.
 |
 |   This program is free software; you can redistribute it and/or
 |   modify it under the terms of the GNU General Public License
@@ -532,6 +532,18 @@ void MyOSCJackMute(int Mute, int channel) {
 
 
 #if 0
+https://sonosaurus.com/sooperlooper/doc_osc.html
+
+"oscsend localhost 9951 /save_session sss "/home/MySongs/GuitarSound/GuitarSound.slsess" //localhost:9952/ osc.udp://localhost:9952/"
+
+"oscsend localhost 9951 /sl/0/save_loop sssss  "/home/MySongs/GuitarSound/GuitarSound0.wav" IEEE float WAV //localhost:9952/ osc.udp://localhost:9952/"
+
+"oscsend localhost 9951 /sl/1/save_loop sssss  "/home/MySongs/GuitarSound/GuitarSound1.wav" IEEE float WAV //localhost:9952/ osc.udp://localhost:9952/"
+
+
+oscsend localhost 9951 /sl/0/save_loop sssss  "/home/MySongs/GuitarSound/GuitarSound0.wav" IEEE float WAV //localhost:9952/ osc.udp://localhost:9952/
+
+
 
 "oscsend localhost 9951 /sl/-2/set sf tap_tempo"
 "oscsend localhost 9951 /sl/0/hit s "pause""
@@ -545,63 +557,58 @@ oscsend localhost 9951 / load_session sss "/home/elias/MySongs/Looper/LooperSync
 oscsend localhost 9951 / set si "sync_source" - 2
 sync_source  :: -3 = internal,  -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)
 
-                                     oscsend localhost 9951 / sl / -1 / set si "quantize"
+oscsend localhost 9951 / sl / -1 / set si "quantize"
 
-                                     oscsend localhost 9951 / sl / 0 / set si "sync" 1
-
-
+oscsend localhost 9951 / sl / 0 / set si "sync" 1
 
 
+oscsend localhost 9952 / net / mhcloud / volume / jack - volume / 0  f 1.0
+
+oscsend localhost 9952 / net / mhcloud / volume / jack - volume / master f  1.0
+
+load_session s
+
+klick - o 9954  - T - L 120
+oscsend localhost 9954 / klick / simple / set_tempo f 90
 
 
-
-                                     oscsend localhost 9952 / net / mhcloud / volume / jack - volume / 0  f 1.0
-
-                                     oscsend localhost 9952 / net / mhcloud / volume / jack - volume / master f  1.0
-
-                                     load_session s
-
-                                     klick - o 9954  - T - L 120
-                                     oscsend localhost 9954 / klick / simple / set_tempo f 90
+http://essej.net/sooperlooper/docs.html
+http://essej.net/sooperlooper/doc_osc.html
 
 
-                                     http://essej.net/sooperlooper/docs.html
-                                     http://essej.net/sooperlooper/doc_osc.html
+oscsend localhost 9951 / sl / 0 / hit s "pause"  osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+oscdump  9953
+oscsend localhost 9951 / load_session sss "/home/elias/Dropbox/LiveEffects/Looper/LooperSync.slsess"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 / ping ss osc.udp: //localhost:9952 osc.udp://localhost:9952/
+oscsend localhost 9951 / set sf "tempo"  100 osc.udp: //localhost:9952 osc.udp://localhost:9952/
+
+oscsend localhost 9951 / loop_add  if  "1"  20 osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+
+oscsend localhost 9951 / sl / 1 / load_loop s "/home/elias/Dropbox/LiveEffects/Guitarix/guitarix/pluginpresets/loops/tape1.wav"  osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 / sl / 1 / load_loop sss / home / elias / Dropbox / LiveEffects / Guitarix / guitarix / pluginpresets / loops / tape1.wav osc.udp: //localhost:9952/ osc.udp://localhost:9952
+
+oscsend localhost 9951 / get sss "sync_source"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+oscsend localhost 9951 / set si "sync_source" - 1
+oscsend localhost 9951 / sl / 1 / get sss "cycle_len"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
 
 
-                                     oscsend localhost 9951 / sl / 0 / hit s "pause"  osc.udp: //localhost:9952/ osc.udp://localhost:9952/
-                                     oscdump  9953
-                                     oscsend localhost 9951 / load_session sss "/home/elias/Dropbox/LiveEffects/Looper/LooperSync.slsess"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
-                                     oscsend localhost 9951 / ping ss osc.udp: //localhost:9952 osc.udp://localhost:9952/
-                                     oscsend localhost 9951 / set sf "tempo"  100 osc.udp: //localhost:9952 osc.udp://localhost:9952/
+The 8th / cycle parameter defines how many 8th notes as defined by the current tempo (there are 2 eighths per beat) are in a cycle of a current loop, or a potential loop. As described below, the cycle length is useful as a quantization boundary, as well as an eighth - note itself.
+oscsend localhost 9951 / set sf "eighth_per_cycle" 10
+oscsend localhost 9951 / sl / -1 / set sf "overdub_quantized" 0
+oscsend localhost 9951 / sl / -1 / set sf "replace_quantized" 0
+oscsend localhost 9951 / sl / -1 / set sf "round" 1
+oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
+oscsend localhost 9951 / set sf "smart_eighths" 0
 
-                                     oscsend localhost 9951 / loop_add  if  "1"  20 osc.udp: //localhost:9952/ osc.udp://localhost:9952/
+If the sync option is checked for a particular loop, operations will be quantized to the selected boundary. This includes Record, Multiply, Replace, Substitute, Insert, Reverse, Trigger, and Once. Note that Overdub is never quantized. When a command is performed, the actual operation wont start / stop until the precise moment of the next sync boundary arrives. For instance, when the sync source is a loop, and the quantize parameter is Cycle, a Record operation will start and stop on an exact cycle boundary of the source loop. More interesting polyrhythms are possible when using 8ths as the quantize parameter, for example.
+oscsend localhost 9951 / sl / -1 / set sf sync 1
+oscsend localhost 9951 / sl / -1 / set sf playback_sync 1
 
-                                     oscsend localhost 9951 / sl / 1 / load_loop s "/home/elias/Dropbox/LiveEffects/Guitarix/guitarix/pluginpresets/loops/tape1.wav"  osc.udp: //localhost:9952/ osc.udp://localhost:9952/
-                                     oscsend localhost 9951 / sl / 1 / load_loop sss / home / elias / Dropbox / LiveEffects / Guitarix / guitarix / pluginpresets / loops / tape1.wav osc.udp: //localhost:9952/ osc.udp://localhost:9952
-
-                                     oscsend localhost 9951 / get sss "sync_source"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
-                                     oscsend localhost 9951 / set si "sync_source" - 1
-                                     oscsend localhost 9951 / sl / 1 / get sss "cycle_len"   osc.udp: //localhost:9952/ osc.udp://localhost:9952/
-
-
-                                     The 8th / cycle parameter defines how many 8th notes as defined by the current tempo (there are 2 eighths per beat) are in a cycle of a current loop, or a potential loop. As described below, the cycle length is useful as a quantization boundary, as well as an eighth - note itself.
-                                         oscsend localhost 9951 / set sf "eighth_per_cycle" 10
-                                         oscsend localhost 9951 / sl / -1 / set sf "overdub_quantized" 0
-                                         oscsend localhost 9951 / sl / -1 / set sf "replace_quantized" 0
-                                         oscsend localhost 9951 / sl / -1 / set sf "round" 1
-                                         oscsend localhost 9951 / sl / -1 / set sf "relative_sync" 1
-                                         oscsend localhost 9951 / set sf "smart_eighths" 0
-
-                                         If the sync option is checked for a particular loop, operations will be quantized to the selected boundary. This includes Record, Multiply, Replace, Substitute, Insert, Reverse, Trigger, and Once. Note that Overdub is never quantized. When a command is performed, the actual operation wont start / stop until the precise moment of the next sync boundary arrives. For instance, when the sync source is a loop, and the quantize parameter is Cycle, a Record operation will start and stop on an exact cycle boundary of the source loop. More interesting polyrhythms are possible when using 8ths as the quantize parameter, for example.
-                                             oscsend localhost 9951 / sl / -1 / set sf sync 1
-                                             oscsend localhost 9951 / sl / -1 / set sf playback_sync 1
-
-                                             The quantize parameter defines when operations sync to in reference to the sync source. The available choices are Off, Cycle, 8th, and Loop. Note that no sync will ever occur if this value is set to Off. When the sync source is another loop, the choices are all valid.
-                                                 oscsend localhost 9951 / sl / -1 / set si quantize 1
-                                                 oscsend localhost 9951 / sl / -1 / set si mute_quantized 1
-                                                 oscsend localhost 9951 / sl / -1 / hit s mute
-                                                 oscsend localhost 9951 / sl / -1 / hit s trigger
+The quantize parameter defines when operations sync to in reference to the sync source. The available choices are Off, Cycle, 8th, and Loop. Note that no sync will ever occur if this value is set to Off. When the sync source is another loop, the choices are all valid.
+oscsend localhost 9951 / sl / -1 / set si quantize 1
+oscsend localhost 9951 / sl / -1 / set si mute_quantized 1
+oscsend localhost 9951 / sl / -1 / hit s mute
+oscsend localhost 9951 / sl / -1 / hit s trigger
 
 
 #endif

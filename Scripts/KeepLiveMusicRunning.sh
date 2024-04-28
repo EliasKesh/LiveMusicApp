@@ -42,15 +42,17 @@ theDATE=$(date +"%d%H%M%S")
 echo "Launching Guitarix"
 #	cd /home/Dropbox/LiveEffects
     MusicApps.sh EffectsProcessorApp &
-	sleep 6
-	GuitarEffects -c
-	GuitarEffects -b
+	# sleep 6
+	# GuitarEffects -c
+	# GuitarEffects -b
 fi
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 #    jack_connect Clementine:out_jackaudiosink-1_1 jack-volume:playback_1
 
-sleep 5
+sleep 6
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity
+
+# GuitarEffects -c
 
 #jack_disconnect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"
 #jack_connect "a2j:LiveMusic Output [129] (capture): [1] GuitarEffects" "gx_head_amp:midi_in_1"

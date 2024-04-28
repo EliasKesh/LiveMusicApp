@@ -13,6 +13,9 @@
 #
 #------------------------------------------------#
 rm temp.csv temp1.csv TotalData1.csv TotalData2.csv TotalData.csv
+
+find ./ -iname \*.csv -exec sed -i "s/^ *//" {} \;
+
 for i in `ls -v *.csv` ; do
 
 echo $i
