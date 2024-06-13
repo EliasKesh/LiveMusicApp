@@ -303,9 +303,13 @@ def ParseFile(fname, dirname):
         if (contentRes > 0):
             PreNumber = theLine[contentRes + 6]
             contentRes = theLine.find("content=")
-            logger.debug ("contentRes %s %s", PreNumber, theLine[contentRes + 8:-1].replace("\"", ""))
-            sPresets[int(PreNumber)] = theLine[contentRes + 8:-2].replace(
-                "\"", "")
+            if (contentRes > 0):
+                logger.debug ("contentRes %s %s",PreNumber, theLine[contentRes + 8:-1].replace("\"", ""))
+                try:
+                    sPresets[int(PreNumber)] = theLine[contentRes + 8:-2].replace(
+                        "\"", "")
+                except:
+                    print("************ ERROR: ",contentRes )
 
         # Look for embedded Preset
         contentRes = theLine.find("SongMark")

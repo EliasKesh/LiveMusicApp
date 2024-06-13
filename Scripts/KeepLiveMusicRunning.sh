@@ -25,9 +25,9 @@ theDATE=$(date +"%d%H%M%S")
 echo "Launching LiveMusic"
 #	cd /home/Dropbox/LiveEffects
 	if [[ $3 == "Yes" ]]; then
- 		nice -15 `GTK_THEME=LiveMusicTheme $1 -w -e -v 1 -l 1` >> $LogFile 2>&1 &
+ 		nice -15 `GDK_DPI_SCALE=1.4 GTK_THEME=LiveMusicTheme $1 -w -e -v 1 -l 1 -f 100` >> $LogFile 2>&1 &
  	else
- 		nice -15 `GTK_THEME=LiveMusicTheme $1 -e -v 1 -l 1` >> $LogFile 2>&1 &
+ 		nice -15 `GDK_DPI_SCALE=1.4 GTK_THEME=LiveMusicTheme $1 -e -v 1 -l 1 -f 140` >> $LogFile 2>&1 &
  	fi
 
 	sleep 3

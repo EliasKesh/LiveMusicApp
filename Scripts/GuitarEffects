@@ -576,6 +576,8 @@ function SetUpConnections {
     # Max out the USB Device.
     #    amixer -c 1 sset 'PCM' 128
     
+    return
+
     amixer -c 0 sset 'Speaker' mute
     amixer -c 1 sset 'Speaker' mute
     amixer -c 0 sset 'Speaker' 0
@@ -611,7 +613,7 @@ function SetUpConnections {
     aconnect "EliasMidi":"0" "LiveMusic":"0"
     aconnect "LPD8":"0" "LiveDAW":"1"
     aconnect "XTONE":"0" "LiveMusic":"0"
-    
+
     # Midi
     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
     # Metronome
@@ -751,7 +753,8 @@ function SetUpConnections {
 #    ${PipeStart} jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
 
     ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix"  gx_head_amp:midi_in_1
-    
+    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" Carla:events-in
+     
     #    aconnect "TriplePlay Connect":0 MuseBridge:0
     #    aconnect "Fishman TriplePlay":0  MuseBridge:0
     #    jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
@@ -811,7 +814,7 @@ function SetUpApplications {
         nice -15 $PipeStart `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
     fi
     
-    ButtonSize=140
+    ButtonSize=115
     if [ `hostname` == "LiveMusic" ]; then
         ButtonSize=88
     fi
@@ -826,7 +829,9 @@ function SetUpApplications {
         echo "Starting Midi Router"
         echo "Pipewire option "$PipeOption" ButtonSize "$ButtonSizes
         echo "Button "$ButtonLayout" AudioOut "$AudioOutDevice
-        nice -15 $PipeStart `GTK_THEME=LiveMusicTheme LiveMusicApp \
+        `GDK_DPI_SCALE=1.0 GTK_THEME=LiveMusicTheme \
+        nice -15 $PipeStart \
+        LiveMusicApp \
         -v -d 0x400 $PipeOption \
         -l $ButtonLayout \
         -f $ButtonSize \
@@ -843,8 +848,9 @@ function SetUpApplications {
 
     if test "${VSTGuitarEffects}" = "true"; then
         echo "Starting Guitar Effects"  >> $LogFile
-        QT_SCREEN_SCALE_FACTORS=1.4 nice -18 $PipeStart carla-jack-multi /home/MySongs/CarlaConfig/Guitarix_Jazz_Rack.carxp &
+        QT_SCREEN_SCALE_FACTORS=1.75 nice -18 $PipeStart carla-jack-multi /home/MySongs/CarlaConfig/Guitarix_Jazz_Rack.carxp --cnprefix "LveMus" &
         Delay 2
+        CarlaSwitcher.py &  
     fi
     
     if test "${RunPlugins}" = "true"; then
@@ -951,21 +957,22 @@ function SetPlacement {
     #   ExtID=`xinput list | grep -Po 'ILITEK.*id=\K[0-9]+'`
     #   xinput map-to-output $ExtID HDMI1
     
-    xrandr | grep "HDMI1 connected"
-    ExtraMonitor="$?"
+    ExtraMonitor=`xrandr | grep " connected" | wc -l`
     
     # On home PC spread it out
     if [ `hostname` == "Keshie" ] ||
     [ `hostname` == "KeshT16" ] ||
+    [ `hostname` == "KeshG3.1" ] ||
+    [ `hostname` == "KeshG3.2" ] ||
     [ `hostname` == "KeshP15" ]; then
         echo "Keshie"
-        AnalogDesktop=5
-        LiveMusicAppDesktop=5
-        LooperDesktop=$LiveMusicAppDesktop
+        AnalogDesktop=4
+        LiveMusicAppDesktop=1
+        CarlaDesktop=5
+        LooperDesktop=1
         MidiDesktop=$AnalogDesktop
         PatchageDesktop=7
         PlayerDesktop=7
-        CarlaDesktop=5
         DrumDesktop=7
         YOffset=1080
         YOffset=900
@@ -980,7 +987,8 @@ function SetPlacement {
             echo "External Monitor Found"
             ExMonitor=1
         fi
-        
+        SetPlacement1920
+
     elif [ `hostname` == "LiveMusic" ]; then
         echo "Music"
         AnalogDesktop=0
@@ -1066,7 +1074,7 @@ function SetPlacement1920 {
 
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
-    if [ "$ExtraMonitor" -eq "1" ]; then
+    if [ "$ExMonitor" -eq "1" ]; then
         
         wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
         #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
@@ -1079,8 +1087,13 @@ function SetPlacement1920 {
 #      wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
+
+        
+        wmctrl -r Carla -t $CarlaDesktop
+        wmctrl -r Carla -e 0,60,0,1400,1200
+
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,586,420,1000,450
+        wmctrl -r SooperLooper -e 0,4385,0,1000,1100
         
         wmctrl -r qsynth -e 0,640,80,1600,400
         wmctrl -r qsynth -t $MidiDesktop
@@ -1142,6 +1155,9 @@ function SetPlacement1600 {
     
     wmctrl -r Patchage -e 0,80,10,1200,700
     wmctrl -r Patchage -t $PatchageDesktop
+    
+    wmctrl -r qpwgraph -e 0,80,10,1200,700
+    wmctrl -r qpwgraph -t $PatchageDesktop
     
     wmctrl -r SooperLooper -e 0,`expr $NewOffset + 900`,475,1000,575
     wmctrl -r SooperLooper -t $LooperDesktop
@@ -1350,7 +1366,7 @@ echo `date` >> $LogFile
 echo $PATH >> $LogFile
 echo "--------------------------------------------" >> $LogFile
 # Parse command line options.
-while getopts "abcdefgijkhrpmnovlqswtx" OPT; do
+while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
     #    echo "hello "$OPT
     case "$OPT" in
         h)
@@ -1373,6 +1389,7 @@ while getopts "abcdefgijkhrpmnovlqswtx" OPT; do
         r - Rosegarden
         s - Stop everything
         t - Tab Editor
+        u - Carla Test
         v - version
         w - Working Scoring
         x - Kill Pipewire"
@@ -1408,7 +1425,7 @@ while getopts "abcdefgijkhrpmnovlqswtx" OPT; do
             
             #       echo $PATH >> $LogFile
             #       exit 0
-            pid=`pgrep guitarix`
+            pid=`pgrep LiveMusicApp`
             if [ -z $pid ]
             then
                 echo "GuitarEffects Auto 1"
@@ -1489,6 +1506,20 @@ while getopts "abcdefgijkhrpmnovlqswtx" OPT; do
         r)
             echo "Rosegarden"
             Rosegarden=true
+        ;;
+        u)
+            echo "Debugging"
+            WeAreDebugging=true
+            BackroundChecker=false
+            MP3Player=false
+            MidiController=true
+            GuitarEffects=false
+            VSTGuitarEffects=true
+            SoundSynth=true
+            Looper=true
+            EffectsProcessorWM="Carla"
+            set -x
+
         ;;
         t)
             echo "Tab Player"
@@ -1685,20 +1716,20 @@ Delay 1
 
 echo "***************** Starting SetUpConnections"
 # Set up the mixer levels and the interconnection between devices.
-
-SetUpConnections
-# ejk Check this
-if [[ $UsePipeWire == "Yes" ]]; then
-    PipeConnect.sh
-    return
-fi
-DefaultAudio.sh
-
 # Put apps in the right place/desktop
 echo "***************** Starting SetPlacement"
 SetPlacement
 
 sleep 8
+
+
+SetUpConnections
+# ejk Check this
+if [[ $UsePipeWire == "Yes" ]]; then
+    PipeConnect.sh 
+fi
+DefaultAudio.sh
+
 
 # Set up the mixer levels and the interconnection between devices.
 SetUpConnections

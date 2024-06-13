@@ -543,6 +543,11 @@ https://sonosaurus.com/sooperlooper/doc_osc.html
 
 oscsend localhost 9951 /sl/0/save_loop sssss  "/home/MySongs/GuitarSound/GuitarSound0.wav" IEEE float WAV //localhost:9952/ osc.udp://localhost:9952/
 
+oscsend localhost 22752 /Carla/2/set_volume f 1.5
+oscsend localhost 22752 /Carla/2/set_active i 1
+oscsend localhost 22752 /Carla/2/set_drywet f 0.9
+oscsend localhost 22752 /Carla/2/set_parameter_value if 2 10.0
+oscsend localhost 22752 /Carla/3/set_program i 2
 
 
 "oscsend localhost 9951 /sl/-2/set sf tap_tempo"
@@ -610,5 +615,6 @@ oscsend localhost 9951 / sl / -1 / set si mute_quantized 1
 oscsend localhost 9951 / sl / -1 / hit s mute
 oscsend localhost 9951 / sl / -1 / hit s trigger
 
+sc.udp://KeshG3.2:22752/Carla
 
 #endif

@@ -353,103 +353,31 @@ pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in
 # pw-link "Google Chrome:output_FR" "alsa_output.platform-snd_aloop.0.analog-stereo:playback_FR"
 
 
+# For Carla Single Rack
+pw-link $InLinkR "${CarlPre}audio-in1"
+pw-link $InLinkL "${CarlPre}audio-in2"
+pw-link "${CarlPre}audio-out1" "jack-volume:input_1"
+pw-link "${CarlPre}audio-out2" "jack-volume:input_5"
+
 # Serial or parallel connection with Carla
-CarlaRackL="gx_head_fx:out_0"
-CarlaRackR="gx_head_fx:out_1"
-CarlaRackL=$InLinkL
-CarlaRackR=$InLinkR
+# CarlaRackL="gx_head_fx:out_0"
+# CarlaRackR="gx_head_fx:out_1"
+# CarlaRackL=$InLinkL
+# CarlaRackR=$InLinkR
+
 
 echo "*** MHarmonizerMB"
-#pw-link "${InputGuitarR}" "Manifold:input_1"
-#pw-link "${InputGuitarR}" "Manifold:input_2"
-pw-link "${CarlaRackL}" "Carla:MHarmonizerMB:input_1"
-pw-link "${CarlaRackR}" "Carla:MHarmonizerMB:input_2"
-pw-link "${CarlaRackL}" "Carla:MHarmonizerMB:input_3"
-pw-link "${CarlaRackR}" "Carla:MHarmonizerMB:input_4"
-
-pw-link "Carla:MHarmonizerMB:output_1" "jack-volume:input_1"
-pw-link "Carla:MHarmonizerMB:output_2" "jack-volume:input_5"
-pw-link "Carla:MHarmonizerMB:output_3" "jack-volume:input_1"
-pw-link "Carla:MHarmonizerMB:output_4" "jack-volume:input_5"
-
-echo "*** MUltraMaximizer"
-#pw-link "${InputGuitarR}" "Manifold:input_1"
-#pw-link "${InputGuitarR}" "Manifold:input_2"
-pw-link "${CarlaRackL}" "Carla:MUltraMaximizer:input_1"
-pw-link "${CarlaRackR}" "Carla:MUltraMaximizer:input_2"
-pw-link "${CarlaRackL}" "Carla:MUltraMaximizer:input_3"
-pw-link "${CarlaRackR}" "Carla:MUltraMaximizer:input_4"
-pw-link "${CarlaRackL}" "Carla:MUltraMaximizer:input_5"
-pw-link "${CarlaRackR}" "Carla:MUltraMaximizer:input_6"
-pw-link "${CarlaRackL}" "Carla:MUltraMaximizer:input_7"
-pw-link "${CarlaRackR}" "Carla:MUltraMaximizer:input_8"
-
-pw-link "Carla:MUltraMaximizer:output_1" "jack-volume:input_1"
-pw-link "Carla:MUltraMaximizer:output_2" "jack-volume:input_5"
-pw-link "Carla:MUltraMaximizer:output_3" "jack-volume:input_1"
-pw-link "Carla:MUltraMaximizer:output_4" "jack-volume:input_5"
-pw-link "Carla:MUltraMaximizer:output_5" "jack-volume:input_1"
-pw-link "Carla:MUltraMaximizer:output_6" "jack-volume:input_5"
-pw-link "Carla:MUltraMaximizer:output_7" "jack-volume:input_1"
-pw-link "Carla:MUltraMaximizer:output_8" "jack-volume:input_5"
-
-echo "*** kHs Chorus"
-pw-link "${CarlaRackL}" "Carla:kHs Chorus:input_1"
-pw-link "${CarlaRackR}" "Carla:kHs Chorus:input_2"
-
-pw-link "Carla:kHs Chorus:output_1" "jack-volume:input_1"
-pw-link "Carla:kHs Chorus:output_2" "jack-volume:input_5"
-
-echo "*** Wider"
-pw-link "${CarlaRackL}" "Carla:Wider:input_1"
-pw-link "${CarlaRackR}" "Carla:Wider:input_2"
-
-pw-link "Carla:Wider:output_1" "jack-volume:input_1"
-pw-link "Carla:Wider:output_2" "jack-volume:input_5"
-
-echo "*** Double"
-pw-link "${CarlaRackL}" "Carla:Doublelay:input_1"
-pw-link "${CarlaRackR}" "Carla:Doublelay:input_2"
-
-pw-link "Carla:Doublelay:output_1" "jack-volume:input_1"
-pw-link "Carla:Doublelay:output_2" "jack-volume:input_5"
 
 
-echo "*** Manifold"
-#pw-link "${InputGuitarR}" "Manifold:input_1"
-#pw-link "${InputGuitarR}" "Manifold:input_2"
-pw-link "${CarlaRackL}" "Carla:Manifold:input_1"
-pw-link "${CarlaRackR}" "Carla:Manifold:input_2"
 
-pw-link "Carla:Manifold:output_1" "jack-volume:input_1"
-pw-link "Carla:Manifold:output_2" "jack-volume:input_5"
+pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
 
-echo "*** ValhallaUberMod"
-#pw-link "${InputGuitarR}" "ValhallaUberMod:input_1"
-#pw-link "${InputGuitarR}" "ValhallaUberMod:input_2"
-pw-link "${CarlaRackL}" "Carla:ValhallaUberMod:input_1"
-pw-link "${CarlaRackR}" "Carla:ValhallaUberMod:input_2"
-pw-link "Carla:ValhallaUberMod:output_1" "jack-volume:input_1"
-pw-link "Carla:ValhallaUberMod:output_2" "jack-volume:input_5"
 
-echo "*** Digital Multiply"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_1"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_2"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_3"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_4"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_5"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_6"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_7"
-pw-link "${InputGuitarR}" "Acon Digital Multiply:input_8"
 
-pw-link "Acon Digital Multiply:output_1" "jack-volume:input_1"
-pw-link "Acon Digital Multiply:output_2" "jack-volume:input_5"
-pw-link "Acon Digital Multiply:output_3" "jack-volume:input_1"
-pw-link "Acon Digital Multiply:output_4" "jack-volume:input_5"
-pw-link "Acon Digital Multiply:output_5" "jack-volume:input_1"
-pw-link "Acon Digital Multiply:output_6" "jack-volume:input_5"
-pw-link "Acon Digital Multiply:output_7" "jack-volume:input_1"
-pw-link "Acon Digital Multiply:output_8" "jack-volume:input_5"
+
+
+
+
 
 pw-link -d "Firefox:output_FL" "Plasma PA:input_FL"
 pw-link -d "Firefox:output_FR" "Plasma PA:input_FR"
@@ -465,8 +393,8 @@ pw-link -d "Plasma PA:input_FL" "alsa_input.usb-Logitech_G935_Gaming_Headset-00.
 pw-link -d "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:monitor_AUX0" "Plasma PA:input_FL"
 
 pw-link -d "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:monitor_AUX1" "Plasma PA:input_FR"
-
-pw-link -d "alsa_output.usb-V_NO_NO_NONE_USB_MIC-E01-00.iec958-stereo:monitor_FL" "Plasma PA:input_FL"
+InputGuitarL
+pw-link -d "alsa_output.usb-V_NO_NO_NONE_USB_MIC-E01-00.iec958-stereo:moniInputGuitarLtor_FL" "Plasma PA:input_FL"
 
 pw-link -d "alsa_output.usb-V_NO_NO_NONE_USB_MIC-E01-00.iec958-stereo:monitor_FR" "Plasma PA:input_FR"
 
@@ -491,3 +419,133 @@ pw-link -d "J3Sink:monitor_FL" "Plasma PA:input_FL"
 echo "Delete 1 "${OutLinkL}" 2 "${G935PlayL}
 pw-link -d "${OutLinkL}" "${G935PlayL}"
 pw-link -d "${OutLinkL}" "${G935PlayR}"
+
+set -x
+CarlPre="LveMus.0/"
+pw-link "${CarlaRackL}" "${CarlPre}abGate:Input"
+pw-link "${CarlaRackR}" "${CarlPre}abGate:Input_2"
+
+pw-link "${InputGuitarL}" "${CarlPre}abGate:Input"
+pw-link "${InputGuitarR}" "${CarlPre}abGate:Input_2"
+
+
+pw-link "${CarlPre}abGate:Output"  "${CarlPre}Calf Mono Compressor:In L"
+pw-link "${CarlPre}abGate:Output"  "${CarlPre}Calf Mono Compressor:In L"
+pw-link "${CarlPre}abGate:Output_2"  "${CarlPre}Calf Mono Compressor:In L"
+
+pw-link "${CarlPre}Calf Mono Compressor:Out L" "${CarlPre}LSP Graphic Equalizer x16 Mono:Input"
+
+pw-link "${CarlPre}LSP Graphic Equalizer x16 Mono:Output" "${CarlPre}GxMultiBandDistortion:In"
+pw-link "${CarlPre}LSP Graphic Equalizer x16 Mono:Output" "${CarlPre}GxMultiBandDistortion:In_2"
+
+pw-link "${CarlPre}GxMultiBandDistortion:Out" "${CarlPre}GxWahwah:In"
+pw-link "${CarlPre}GxMultiBandDistortion:Out_2" "${CarlPre}GxWahwah:In_2"
+
+pw-link "${CarlPre}GxWahwah:Out" "${CarlPre}TAP Chorus.Flanger:Input_L"
+pw-link "${CarlPre}GxWahwah:Out_2" "${CarlPre}TAP Chorus.Flanger:Input_R"
+
+pw-link "${CarlPre}TAP Chorus.Flanger:Output_L" "${CarlPre}GxZita_rev1-Stereo:In"
+pw-link "${CarlPre}TAP Chorus.Flanger:Output_R" "${CarlPre}GxZita_rev1-Stereo:In1"
+
+pw-link "${CarlPre}GxZita_rev1-Stereo:Out" "${CarlPre}StereoFX:input_1"
+pw-link "${CarlPre}GxZita_rev1-Stereo:Out1" "${CarlPre}StereoFX:input_2"
+
+
+pw-link "${CarlPre}StereoFX:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}StereoFX:output_2" "jack-volume:input_5"
+
+
+exit
+echo "************************************"
+
+#pw-link "${InputGuitarR}" "Manifold:input_1"
+#pw-link "${InputGuitarR}" "Manifold:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}MHarmonizerMB:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}MHarmonizerMB:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}MHarmonizerMB:input_3"
+pw-link "${CarlaRackR}" "${CarlPre}MHarmonizerMB:input_4"
+
+pw-link "${CarlPre}MHarmonizerMB:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}MHarmonizerMB:output_2" "jack-volume:input_5"
+pw-link "${CarlPre}MHarmonizerMB:output_3" "jack-volume:input_1"
+pw-link "${CarlPre}MHarmonizerMB:output_4" "jack-volume:input_5"
+
+echo "*** MUltraMaximizer"
+#pw-link "${InputGuitarR}" "Manifold:input_1"
+#pw-link "${InputGuitarR}" "Manifold:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}MUltraMaximizer:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}MUltraMaximizer:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}MUltraMaximizer:input_3"
+pw-link "${CarlaRackR}" "${CarlPre}MUltraMaximizer:input_4"
+pw-link "${CarlaRackL}" "${CarlPre}MUltraMaximizer:input_5"
+pw-link "${CarlaRackR}" "${CarlPre}MUltraMaximizer:input_6"
+pw-link "${CarlaRackL}" "${CarlPre}MUltraMaximizer:input_7"
+pw-link "${CarlaRackR}" "${CarlPre}MUltraMaximizer:input_8"
+
+pw-link "${CarlPre}MUltraMaximizer:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}MUltraMaximizer:output_2" "jack-volume:input_5"
+pw-link "${CarlPre}MUltraMaximizer:output_3" "jack-volume:input_1"
+pw-link "${CarlPre}MUltraMaximizer:output_4" "jack-volume:input_5"
+pw-link "${CarlPre}MUltraMaximizer:output_5" "jack-volume:input_1"
+pw-link "${CarlPre}MUltraMaximizer:output_6" "jack-volume:input_5"
+pw-link "${CarlPre}MUltraMaximizer:output_7" "jack-volume:input_1"
+pw-link "${CarlPre}MUltraMaximizer:output_8" "jack-volume:input_5"
+
+echo "*** kHs Chorus"
+pw-link "${CarlaRackL}" "${CarlPre}kHs Chorus:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}kHs Chorus:input_2"
+
+pw-link "${CarlPre}kHs Chorus:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}kHs Chorus:output_2" "jack-volume:input_5"
+
+echo "*** Wider"
+pw-link "${CarlaRackL}" "${CarlPre}Wider:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}Wider:input_2"
+
+pw-link "${CarlPre}Wider:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}Wider:output_2" "jack-volume:input_5"
+
+echo "*** Double"
+pw-link "${CarlaRackL}" "${CarlPre}Doublelay:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}Doublelay:input_2"
+
+pw-link "${CarlPre}Doublelay:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}Doublelay:output_2" "jack-volume:input_5"
+
+
+echo "*** Manifold"
+#pw-link "${InputGuitarR}" "Manifold:input_1"
+#pw-link "${InputGuitarR}" "Manifold:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}Manifold:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}Manifold:input_2"
+
+pw-link "${CarlPre}Manifold:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}Manifold:output_2" "jack-volume:input_5"
+
+echo "*** ValhallaUberMod"
+#pw-link "${InputGuitarR}" "ValhallaUberMod:input_1"
+#pw-link "${InputGuitarR}" "ValhallaUberMod:input_2"
+pw-link "${CarlaRackL}" "${CarlPre}ValhallaUberMod:input_1"
+pw-link "${CarlaRackR}" "${CarlPre}ValhallaUberMod:input_2"
+pw-link "${CarlPre}ValhallaUberMod:output_1" "jack-volume:input_1"
+pw-link "${CarlPre}ValhallaUberMod:output_2" "jack-volume:input_5"
+
+echo "*** Digital Multiply"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_1"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_2"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_3"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_4"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_5"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_6"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_7"
+pw-link "${InputGuitarR}" "Acon Digital Multiply:input_8"
+
+pw-link "Acon Digital Multiply:output_1" "jack-volume:input_1"
+pw-link "Acon Digital Multiply:output_2" "jack-volume:input_5"
+pw-link "Acon Digital Multiply:output_3" "jack-volume:input_1"
+pw-link "Acon Digital Multiply:output_4" "jack-volume:input_5"
+pw-link "Acon Digital Multiply:output_5" "jack-volume:input_1"
+pw-link "Acon Digital Multiply:output_6" "jack-volume:input_5"
+pw-link "Acon Digital Multiply:output_7" "jack-volume:input_1"
+pw-link "Acon Digital Multiply:output_8" "jack-volume:input_5"
+

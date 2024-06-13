@@ -16,7 +16,7 @@
 # ReIndex.sh
 set -x
 
-BaseDir=/home/Music/Learn
+BaseDir=/home/Music/Learn/Courses
 cd $BaseDir
 
 cd /home/Music/EliasOriginals
@@ -100,6 +100,14 @@ cd $CurDir/lb_fingerpickingmasterclass
 LiveMusicCharts.py . -vcfirpg
 cd $CurDir/JM_21stCen_JFC
 LiveMusicCharts.py . -vcfirpg
+cd $CurDir/mm_fusionlicks_boxset1/mm_20fusionlicks
+LiveMusicCharts.py . -vcfirpg
+cd $CurDir/mm_fusionlicks_boxset1/mm_20fusionlicks2_deluxe
+LiveMusicCharts.py . -vcfirpg
+cd $CurDir/mm_fusionlicks_boxset1/mm_20sunnystylefusionlicks
+LiveMusicCharts.py . -vcfirpg
+cd $CurDir/mm_fusionlicks_boxset1
+LiveMusicCharts.py . -vficzl 2
 cd $CurDir
 LiveMusicCharts.py . -vficzl 2
 

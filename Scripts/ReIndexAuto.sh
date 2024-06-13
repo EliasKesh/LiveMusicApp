@@ -28,7 +28,7 @@ find $BaseDir -iname \*html\#\* -exec rm {} \;
 # find ./ -iname \*wma -exec ffmpeg -i {} {}.mp3 \;
 # find ./ -iname \*mp4 -exec ffmpeg -i {} {}.mp3 \;
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
-# find ./ -iname \*.gp? -exec /usr/src/LiveMusicBuilds/MuseScore-3.6.2.548021370-x86_64.AppImage {} -S EliasTab -o {}".mscz" \;
+# find ./ -iname \*.gp? -exec mscore -f {} -S EliasTab -o {}".mscz" \;
 
 # append Prefix
 # for file in *; do mv "$file" "F24$file"; done;
@@ -46,7 +46,6 @@ find $BaseDir -iname \*html\#\* -exec rm {} \;
 for dir in $(find /home/Music/Learn/Courses -depth -type d )
 do
     cd $dir
-    # check for .mscbackup
     echo "Dir  "$dir
     # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
@@ -55,7 +54,6 @@ done
 for dir in $(find /home/Music/Learn/Reading -depth -type d )
 do
     cd $dir
-    # check for .mscbackup
     echo "Dir  "$dir
     # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
@@ -64,7 +62,6 @@ done
 for dir in $(find /home/Music/Learn/MuseLearn -depth -type d )
 do
     cd $dir
-    # check for .mscbackup
     echo "Dir  "$dir
     # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
@@ -73,7 +70,6 @@ done
 for dir in $(find /home/Music/Learn/Transcriptions -depth -type d )
 do
     cd $dir
-    # check for .mscbackup
     echo "Dir  "$dir
     # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
@@ -82,7 +78,6 @@ done
 for dir in $(find /home/Music/BackingTracks -depth -type d )
 do
     cd $dir
-    # check for .mscbackup
     echo "Dir  "$dir
     # Create Index Convert GPx to Muse
     LiveMusicCharts.py . -ig
