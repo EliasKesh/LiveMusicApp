@@ -613,6 +613,7 @@ void parse_cmdline (int argc, char *argv[]) {
         int option_index = 0;
         static struct option long_options[] = {
             { "Version", no_argument, 0, 'v' },
+            { "Carla", required_argument, 0, 'c' },
             { "Debug", required_argument, 0, 'd' },
             { "FontSize", required_argument, 0, 'f' },
             { "jack", required_argument, 0, 'j' },
@@ -626,7 +627,7 @@ void parse_cmdline (int argc, char *argv[]) {
         };
 
         // Get the arguments
-        c = getopt_long (argc, argv, "?hievwd:f:j:l:p:",
+        c = getopt_long (argc, argv, "?hievwd:f:j:l:p:c:",
                          long_options, &option_index);
 
         // If no arguments, then break out.
@@ -668,6 +669,11 @@ void parse_cmdline (int argc, char *argv[]) {
             printd (LogInfo, "Layout %d\n", KeyLayout);
             break;
 
+        case 'c':
+            sscanf (optarg, "%x", &CarlaRackNum);
+            printd (LogInfo, "The position of the mixer in the Carla Rack. %d\n", CarlaRackNum);
+            break;
+
         case 'd':
             //          RunLogLevel = atoi(optarg);
             sscanf (optarg, "%x", &RunLogLevel);
@@ -702,6 +708,7 @@ void parse_cmdline (int argc, char *argv[]) {
             printf (" i IncludeFile - Generate include file on exit.\n");
             printf (" p OSCPort Number - Server Port number.\n");
             printf (" w pipewire - Use pipewire for playback \n");
+            printf (" c carla - mixer position in rack \n");
             printf (" d debug - Debug output level hex 0xfff \n");
             printf ("   LogTest 0x01,LogInfo 0x02,LogWarn 0x04,LogAlert 0x08\n");
             printf ("   LogError 0x10,LogDebug 0x20,LogTimer 0x40\n");
@@ -1833,6 +1840,26 @@ void CreateMainButtons (void) {
 }
 
 /*--------------------------------------------
+ * Function:        MidiToDB
+ *
+ * Description:     Convert Linear to Audio.
+ *
+ *---------------------------------------------*/
+float MidiToDB (int Volume) {
+float LogValue;
+//    VolumeFloat = ((float)Volume / 127);
+//    VolumeFloat = Log(128/(Volume + 1)) * (-10);
+//    VolumeFloat=(exp((float)Volume/128)*74 - 74)/128;
+//    VolumeFloat=(exp((float)Volume/32)*2.5-2.5);
+//    VolumeFloat=(exp((float)Volume/42)*6.5-6.5);
+
+//    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
+//    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
+    LogValue=(exp((float)Volume/60)*17 - 17);
+return(LogValue);
+}
+
+/*--------------------------------------------
  * Function:        SetScale4Label
  *
  * Description:     Volume 4 Label
@@ -1860,7 +1887,7 @@ void VScale1_Changed (GtkAdjustment *adj) {
 
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-    NewValue = gtk_adjustment_get_value (Adjustment1);
+    NewValue = gtk_adjustment_get_value (Adjustment1) * 1.27;
     printd (LogDebug, "Vscale 1 %d\n", NewValue);
     ThisPatchNum = gMyInfo.HardSlider[0];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
@@ -1875,10 +1902,9 @@ void VScale1_Changed (GtkAdjustment *adj) {
                   ThisPatch->OutPort,
                   ThisPatch->Channel,
                   ThisPatch->Patch,
-                  (char) NewValue * 1.27);
+                  (char) NewValue);
 
     printd (LogDebug, "Vscale 1 End %d\n", NewValue);
-
 }
 
 /*--------------------------------------------
@@ -1895,13 +1921,13 @@ void VScale2_Changed (GtkAdjustment *adj) {
 
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-    NewValue = gtk_adjustment_get_value (Adjustment2);
-    printd (LogInfo, "Vscale 2 %d\n", NewValue);
+    NewValue = gtk_adjustment_get_value (Adjustment2) * 1.27;
     ThisPatchNum = gMyInfo.HardSlider[1];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
     gMyInfo.MidiVolume = (char) gtk_adjustment_get_value (Adjustment2) * 1.25;
 
-    LogValue = (int) (pow (NewValue, 0.6) * 6.35);
+    LogValue=MidiToDB(NewValue);
+    printd (LogInfo, "Vscale 2 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
         MyOSCJackVol (NewValue, typeOSCVolMidi);
@@ -1928,22 +1954,22 @@ void VScale3_Changed (GtkAdjustment *adj) {
 
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-    NewValue = gtk_adjustment_get_value (Adjustment3);
-    printd (LogInfo, "Vscale 3 %d\n", NewValue);
+    NewValue = gtk_adjustment_get_value (Adjustment3) * 1.27;
     ThisPatchNum = gMyInfo.HardSlider[2];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
-
-    LogValue = (int) (pow (NewValue, 0.6) * 6.35);
+    
+    LogValue=MidiToDB(NewValue);
+    printd (LogInfo, "Vscale 3 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol (LogValue * 1.27, typeOSCVolMaster);
+        MyOSCJackVol (LogValue, typeOSCVolMaster);
     }
     else
         SendMidi (SND_SEQ_EVENT_CONTROLLER,
                   ThisPatch->OutPort,
                   ThisPatch->Channel,
                   ThisPatch->Patch,
-                  (char) LogValue * 1.27);
+                  (char) LogValue);
 }
 
 /*--------------------------------------------
@@ -1959,7 +1985,7 @@ void VScale4_Changed (GtkAdjustment *adj) {
 
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
-    NewValue = gtk_adjustment_get_value (Adjustment4);
+    NewValue = gtk_adjustment_get_value (Adjustment4) * 1.27;
     ThisPatchNum = gMyInfo.ExpreP1Slider;
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
     printd (LogInfo, "Vscale 4 %d P=%d\n",
@@ -1970,14 +1996,13 @@ void VScale4_Changed (GtkAdjustment *adj) {
     if (ThisPatch->OutPort == InternalPort) {
         MyOSCJackVol (NewValue, typeOSCVolGuitarL);
         MyOSCJackVol (NewValue, typeOSCVolGuitarR);
-
     }
     else {
         SendMidi (SND_SEQ_EVENT_CONTROLLER,
                   ThisPatch->OutPort,
                   ThisPatch->Channel,
                   ThisPatch->Patch,
-                  (char) NewValue * 1.27);
+                  (char) NewValue);
     }
 }
 
@@ -1991,7 +2016,7 @@ int SetVolume1 (int Value) {
     gtk_adjustment_set_value (Adjustment1, Value);
     printd (LogDebug, "Slider 1\n");
 
-    if (Value > 100) {
+    if (Value > 98) {
         Value = 100;
     }
 
@@ -2010,7 +2035,7 @@ int SetVolume2 (int Value) {
     printd (LogDebug, "Slider 2 %x %d\n",
             Adjustment2, Value);
 
-    if (Value > 100) {
+    if (Value > 98) {
         Value = 100;
     }
 
@@ -2029,7 +2054,7 @@ int SetVolume3 (int Value) {
     printd (LogDebug, "Slider 3 %x %d\n",
             Adjustment2, Value);
 
-    if (Value > 100) {
+    if (Value > 98) {
         Value = 100;
     }
 
@@ -2048,7 +2073,7 @@ int SetVolume4 (int Value) {
     printd (LogTest, "SetVol Slider 4 %x %d\n",
             Adjustment2, Value);
 
-    if (Value > 100) {
+    if (Value > 98) {
         Value = 100;
     }
 
@@ -2100,7 +2125,6 @@ void SetUpMainButtons (PatchInfo *myPatchInfo) {
             gtk_label_set_text ( (myChild), String);
         }
     }
-
 #endif
 }
 
@@ -2499,7 +2523,7 @@ int SetExpressionControl (int Controller, int Value) {
             LogValue = 127;
         }
 
-
+//    LogValue=Value;
     printd (LogDebug, "SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
     printf ("SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
 
@@ -2590,26 +2614,17 @@ int SetExpressionControl (int Controller, int Value) {
 
     case ecDistorion:
         SendMidi (SND_SEQ_EVENT_CONTROLLER,
-                  GuitarixPort,
-                  1,
-                  2,
-                  Value);
+                  GuitarixPort, 1, 2, Value);
         break;
 
     case ecChorus:
         SendMidi (SND_SEQ_EVENT_CONTROLLER,
-                  GuitarixPort,
-                  1,
-                  12,
-                  Value);
+                  GuitarixPort, 1, 12, Value);
         break;
 
     case ecWAH:
         SendMidi (SND_SEQ_EVENT_CONTROLLER,
-                  GuitarixPort,
-                  1,
-                  11,
-                  Value);
+                  GuitarixPort, 1, 11, Value);
         break;
     }
 

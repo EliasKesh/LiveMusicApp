@@ -246,6 +246,7 @@ LiveMusicInfo GlobalInfo = {
  "127.0.0.1", /* OSCIPAddress   */
  "9951", /* OSCPortNumLooper   */
  "9952", /* OSCPortNumJackVol   */
+ "22752", /* OSCPortCarls   */
  "9000", /* OSCPortNumHydrogen   */
  8, /* Number of Strings   */
  {9,

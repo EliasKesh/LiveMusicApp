@@ -1581,7 +1581,8 @@ int NewMarker_click_handler (GtkWidget * widget, GdkEvent * event,
     gtk_window_destroy (dialog);
 #else
     gtk_widget_destroy (dialog);
-#endif    return TRUE; /* stop event propagation */
+#endif    
+return TRUE; /* stop event propagation */
 }
 
 /*-----------------------------------------------
@@ -1653,7 +1654,8 @@ int NewMarkerDialog (void) {
     gtk_window_destroy (dialog);
 #else
     gtk_widget_destroy (dialog);
-#endif    return TRUE; /* stop event propagation */
+#endif    
+return TRUE; /* stop event propagation */
 #endif
 
 }

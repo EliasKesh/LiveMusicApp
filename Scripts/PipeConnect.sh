@@ -173,10 +173,15 @@ if [ "$?" -eq 0 ]; then
     AssignInterface
     # ------------- Microphone
     InputGuitarL="${InLinkR}"
+    Scarlett=`pactl list short sinks | grep Scarlett | awk '{print $2}'`
+    pactl set-sink-volume $Scarlett 125%
+
 
     # ------------- Guitar Input
     InputGuitarR="${InLinkL}"
-
+    Scarlett=`pactl list short sources | grep Scarlett | awk '{print $2}' | grep input`
+ #   pactl set-source-volume $Scarlett 125%
+    pamixer --set-volume 125 --allow-boost --source $Scarlett
 fi
 
 Device="Audio_AIR_192"
@@ -190,6 +195,14 @@ if [ "$?" -eq 0 ]; then
 
     # ------------- Guitar Input
     InputGuitarR="${InLinkL}"
+
+    PacID=`pactl list short sinks | grep $Device | awk '{print $2}'`
+    pactl set-sink-volume $PacID 125%
+    PacID=`pactl list short sources | grep $Device | awk '{print $2}' | grep input`
+ #   pactl set-source-volume $Scarlett 125%
+    pamixer --set-volume 125 --allow-boost --source $    PacID=`pactl list short sources | grep $Device | awk '{print $2}' | grep input`
+
+
 
 fi
 
@@ -309,6 +322,9 @@ pw-link "alsa_output.platform-snd_aloop.0.analog-stereo:monitor_FR" "alsa_output
 pw-link "${G935MonL}" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:playback_FL"
 pw-link "${G935MonR}" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:playback_FR"
 
+pw-link  "Carla:LSP Mixer x4 Stereo:Output L" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX0"
+pw-link  "Carla:LSP Mixer x4 Stereo:Output R" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX1"
+
 
 # pw-link "jack-volume:output_1"   "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX0"
 
@@ -319,6 +335,9 @@ pw-link "${G935MonR}" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic
 # ------------- Output Mplayer to MP3 input
 pw-link "MPlayer:output_FR" "jack-volume:input_3"
 pw-link "MPlayer:output_FL" "jack-volume:input_3"
+
+pw-link "MPlayer:output_FR" "Carla:LSP Mixer x4 Stereo:Audio input right 3"
+pw-link "MPlayer:output_FL" "Carla:LSP Mixer x4 Stereo:Audio input left 3"
 
 pw-link -d "MPlayer:output_FR" "alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FR"
 pw-link -d "MPlayer:output_FL" "alsa_output.pci-0000_00_1b.0.analog-stereo:playback_FL"
@@ -336,12 +355,15 @@ pw-link "${MainGuitarOut2}" "sooperlooper:common_in_2"
 pw-link "gx_head_amp:out_0" "gx_head_fx:in_0"
 
 # ------------- Guitarix out
-pw-link "gx_head_fx:out_0" "jack-volume:input_1"
-pw-link "gx_head_fx:out_1" "jack-volume:input_5"
+#pw-link "gx_head_fx:out_0" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
+# pw-link "gx_head_fx:out_1" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
+
+pw-link "gx_head_fx:out_0" "Carla:rkr Shelf Boost:Audio In R"
+pw-link "gx_head_fx:out_1" "Carla:rkr Shelf Boost:Audio In L"
 
 # ------------- Qsynth
-pw-link "qsynth:left"  "jack-volume:input_2"
-pw-link "qsynth:right" "jack-volume:input_2"
+pw-link "qsynth:left"  "Carla:LSP Mixer x4 Stereo:Audio input left 2"
+pw-link "qsynth:right" "Carla:LSP Mixer x4 Stereo:Audio input right 2"
 
 
 pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in_1"
@@ -358,6 +380,10 @@ pw-link $InLinkR "${CarlPre}audio-in1"
 pw-link $InLinkL "${CarlPre}audio-in2"
 pw-link "${CarlPre}audio-out1" "jack-volume:input_1"
 pw-link "${CarlPre}audio-out2" "jack-volume:input_5"
+
+pw-link "${CarlPre}audio-out1" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
+pw-link "${CarlPre}audio-out2" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
+
 
 # Serial or parallel connection with Carla
 # CarlaRackL="gx_head_fx:out_0"
@@ -420,6 +446,7 @@ echo "Delete 1 "${OutLinkL}" 2 "${G935PlayL}
 pw-link -d "${OutLinkL}" "${G935PlayL}"
 pw-link -d "${OutLinkL}" "${G935PlayR}"
 
+
 set -x
 CarlPre="LveMus.0/"
 pw-link "${CarlaRackL}" "${CarlPre}abGate:Input"
@@ -454,6 +481,8 @@ pw-link "${CarlPre}GxZita_rev1-Stereo:Out1" "${CarlPre}StereoFX:input_2"
 pw-link "${CarlPre}StereoFX:output_1" "jack-volume:input_1"
 pw-link "${CarlPre}StereoFX:output_2" "jack-volume:input_5"
 
+pw-link "${CarlPre}StereoFX:output_1" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
+pw-link "${CarlPre}StereoFX:output_2" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
 
 exit
 echo "************************************"
@@ -469,6 +498,13 @@ pw-link "${CarlPre}MHarmonizerMB:output_1" "jack-volume:input_1"
 pw-link "${CarlPre}MHarmonizerMB:output_2" "jack-volume:input_5"
 pw-link "${CarlPre}MHarmonizerMB:output_3" "jack-volume:input_1"
 pw-link "${CarlPre}MHarmonizerMB:output_4" "jack-volume:input_5"
+
+pw-link "${CarlPre}MHarmonizerMB:output_1" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
+pw-link "${CarlPre}MHarmonizerMB:output_2" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
+pw-link "${CarlPre}MHarmonizerMB:output_3" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
+pw-link "${CarlPre}MHarmonizerMB:output_4" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
+
+
 
 echo "*** MUltraMaximizer"
 #pw-link "${InputGuitarR}" "Manifold:input_1"

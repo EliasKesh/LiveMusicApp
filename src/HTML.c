@@ -307,7 +307,9 @@ web_view_javascript_finished(GObject      *object,
     WaitForCallBack = -100;
 
     //  printf("web_view_javascript_finished\n");
-    js_result = webkit_web_view_run_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+//    js_result = webkit_web_view_run_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+    js_result = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+
 
     if (!js_result) {
         //      printf ("Error running javascript: %s", error->message);
@@ -341,7 +343,8 @@ scroll_js_finished_cb(GObject      *object,
     WebKitJavascriptResult *js_result;
     GError *error = NULL;
 
-    js_result = webkit_web_view_run_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+//    js_result = webkit_web_view_run_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+    js_result = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
 
     if (error != NULL) {
         g_print("Error running scroll script: %s", error->message);
@@ -400,11 +403,9 @@ int ScrollCtrl(float Amount) {
         //  sprintf(Script,"window.getSelection().getRangeAt(0).toString()");
         printf("Scroll Control %f %d\n", Amount, ScrollPosition);
         sprintf(Script, "window.scrollTo(%d,%d);", 0, ScrollPosition);
-        webkit_web_view_run_javascript(web_view,
-                                       Script,
-                                       NULL,
-                                       scroll_js_finished_cb,
-                                       NULL);
+        webkit_web_view_run_javascript(web_view, Script, NULL, scroll_js_finished_cb, NULL);
+//        webkit_web_view_evaluate_javascript_finish(web_view, Script, NULL, scroll_js_finished_cb, NULL);
+
     }
     return (0);
 }
@@ -418,10 +419,10 @@ int ScrollCtrl(float Amount) {
 float ScrollGetPosition(void) {
 
     WaitForCallBack = 10000;
-    webkit_web_view_run_javascript(web_view,
-                                   "window.pageYOffset.toString();",
-                                   NULL,
-                                   web_view_javascript_finished, (void *)1);
+    webkit_web_view_run_javascript(web_view, "window.pageYOffset.toString();",
+                                   NULL,  web_view_javascript_finished, (void *)1);
+//    webkit_web_view_evaluate_javascript_finish(web_view, "window.pageYOffset.toString();",
+//                                   NULL,  web_view_javascript_finished, (void *)1);
 
     while (--WaitForCallBack > 0);
 

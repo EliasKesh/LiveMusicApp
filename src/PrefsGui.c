@@ -768,12 +768,12 @@ static GtkWidget *CreatePatchViewModel(void) {
                       GUINT_TO_POINTER(Output_COLUMN));
     g_signal_connect(renderer, "edited", (GCallback) PatchListEdited, view);
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), Output_COLUMN);
+                     G_CALLBACK(text_editing_started), (gpointer)Output_COLUMN);
 
     /* --- Channel_COLUMN --- */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-    col = gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+    col = (gint)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             Channel_COLUMN,
             "Channel", renderer,
             "text", Channel_COLUMN,
@@ -802,7 +802,7 @@ static GtkWidget *CreatePatchViewModel(void) {
     g_signal_connect(renderer, "edited",
                      (GCallback) PatchListEdited, view);
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), Command_COLUMN);
+                     G_CALLBACK(text_editing_started), (gpointer)Command_COLUMN);
 
 #if 1
     /* --- Patch_COLUMN --- */
@@ -823,7 +823,7 @@ static GtkWidget *CreatePatchViewModel(void) {
                       GUINT_TO_POINTER(Chain_COLUMN));
     g_signal_connect(renderer, "edited", (GCallback) PatchListEdited, view);
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), Chain_COLUMN);
+                     G_CALLBACK(text_editing_started), (gpointer)Chain_COLUMN);
 
 
 #else
@@ -1012,7 +1012,7 @@ static GtkWidget *CreateStringViewModel(void) {
     g_signal_connect(renderer, "edited",
                      (GCallback) StringListEdited, view);
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), StringColumn2);
+                     G_CALLBACK(text_editing_started), (gpointer)StringColumn2);
 
     // This is the large main patch list.
     model = CreateStringModel();
@@ -1143,7 +1143,7 @@ static GtkWidget *CreatePortsViewModel(void) {
     g_object_set_data(G_OBJECT(renderer), "column",
                       GUINT_TO_POINTER(StringColumn2));
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), StringColumn2);
+                     G_CALLBACK(text_editing_started), (gpointer)StringColumn2);
 
 
     // This is the large main patch list.
@@ -1280,7 +1280,7 @@ static GtkWidget *CreateLayoutsViewModel(void) {
     g_object_set_data(G_OBJECT(renderer), "column",
                       GUINT_TO_POINTER(StringColumn2));
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), StringColumn2);
+                     G_CALLBACK(text_editing_started), (gpointer)StringColumn2);
 
 
     // This is the large main patch list.
@@ -1391,7 +1391,7 @@ static GtkWidget *CreateApplicationViewModel(void) {
     g_object_set_data(G_OBJECT(renderer), "column",
                       GUINT_TO_POINTER(StringColumn2));
     g_signal_connect(G_OBJECT(renderer), "editing-started",
-                     G_CALLBACK(text_editing_started), StringColumn2);
+                     G_CALLBACK(text_editing_started), (gpointer)StringColumn2);
 
 
     // This is the large main patch list.

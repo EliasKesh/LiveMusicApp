@@ -280,6 +280,7 @@ void PrintDataStructure(LiveMusicInfo * myInfo, char *PrefsRef) {
         fprintf(PrefsFile, " \"%s\", /* OSCIPAddress   */\n", myInfo->OSCIPAddress);
         fprintf(PrefsFile, " \"%s\", /* OSCPortNumLooper   */\n", myInfo->OSCPortNumLooper);
         fprintf(PrefsFile, " \"%s\", /* OSCPortNumJackVol   */\n", myInfo->OSCPortNumJackVol);
+        fprintf(PrefsFile, " \"%s\", /* OSCPortNumCarla   */\n", myInfo->OSCPortNumCarla);
         fprintf(PrefsFile, " \"%s\", /* OSCPortNumHydrogen   */\n", myInfo->OSCPortNumHydrogen);
 
         fprintf(PrefsFile, " %d, /* Number of Strings   */\n {", myInfo->NumberOfStrings);
@@ -462,6 +463,9 @@ void WritePrefs(void) {
 
     sprintf(buff, "%s", gMyInfo.OSCPortNumJackVol);
     xmlNewChild(root_node, NULL, BAD_CAST "OSCPortNumJackVol", BAD_CAST buff);
+
+    sprintf(buff, "%s", gMyInfo.OSCPortNumCarla);
+    xmlNewChild(root_node, NULL, BAD_CAST "OSCPortNumCarla", BAD_CAST buff);
 
     sprintf(buff, "%s", gMyInfo.OSCPortNumHydrogen);
     xmlNewChild(root_node, NULL, BAD_CAST "OSCPortNumHydrogen", BAD_CAST buff);
@@ -726,6 +730,11 @@ int XMLParseFileElement(int Level, xmlNode *theNode) {
             strncpy(gMyInfo.OSCPortNumJackVol, value, sizeof(gMyInfo.OSCPortNumJackVol));
         }
 
+        if (!strcmp(Element, "OSCPortNumCarla")) {
+            printd(LogDebug, "*** OSCPortNumCarla %s\n", theNode->children->content);
+            strncpy(gMyInfo.OSCPortNumCarla, value, sizeof(gMyInfo.OSCPortNumCarla));
+        }
+        
         if (!strcmp(Element, "OSCPortNumHydrogen")) {
             printd(LogDebug, "*** OSCPortNumHydrogen %s\n", theNode->children->content);
             strncpy(gMyInfo.OSCPortNumHydrogen, value, sizeof(gMyInfo.OSCPortNumHydrogen));

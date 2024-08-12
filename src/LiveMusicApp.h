@@ -285,6 +285,7 @@ typedef struct {
     char        OSCIPAddress[20];
     char        OSCPortNumLooper[6];
     char        OSCPortNumJackVol[6];
+    char        OSCPortNumCarla[6];
     char        OSCPortNumHydrogen[6];
     char        NumberOfStrings;
     char        BaseStringName[TotalMaxStrings];
@@ -651,6 +652,7 @@ EXTERN char     WeAreRunning;
 EXTERN volatile char    gLooperWaitForSync;
 // The button size my change based on the screen size.
 EXTERN int ButtonSize;
+EXTERN int CarlaRackNum;
 
 #define MaxSongMarks    200
 #define SongSectionMax  30
@@ -701,5 +703,6 @@ void LEDControl(char Beat, char State);
 void UpdateStatus(char *String);
 void jack_poll(void);
 void SetMetronomeStatus(char State);
+float MidiToDB (int Volume);
 
 #endif
