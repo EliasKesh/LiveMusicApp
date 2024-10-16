@@ -313,7 +313,7 @@ function SetUpApplications {
     if test "${VSTGuitarEffects}" = "true"; then
         echo "Starting Guitar Effects" | tee $LogFile
     
-        MusicApps.sh CarlaTest >> $LogFile 2>&1 &
+        MusicApps.sh CarlaGuitar >> $LogFile 2>&1 &
 
       #  QT_SCREEN_SCALE_FACTORS=1.75 nice -18 $PipeStart carla-jack-multi --cnprefix "LveMus" /home/MySongs/CarlaConfig/NewCarlaTest1.carxp &
         
@@ -385,7 +385,8 @@ function SetUpApplications {
         MusicApps.sh "Looper" >> $LogFile 2>&1 &
     fi
 
-    ${PatchBay} --activated /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
+#    ${PatchBay} --activated /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
+    raysession --start-session /home/MySongs/Prefs/RaySessionLiveMusic &
 #    ${PatchBay} > $LogFile 2>&1 &
     Delay 1   
     
@@ -424,7 +425,7 @@ function SetPlacement {
         LiveMusicAppDesktop=2
         CarlaDesktop=2
         LooperDesktop=2
-        MidiDesktop=$AnalogDesktop
+        MidiDesktop=3
         PatchageDesktop=7
         PlayerDesktop=7
         DrumDesktop=7
@@ -500,17 +501,17 @@ function SetPlacement1920 {
         
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
         
-        wmctrl -r LiveMusicApp_1 -e 0,150,0,2200,1000
+        wmctrl -r LiveMusicApp_1 -e 0,90,0,2200,1000
 
 #      wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
         wmctrl -r Carla -t $CarlaDesktop
-        wmctrl -r Carla -e 0,2304,400,1300,1300
-
+        wmctrl -r Carla -e 0,2415,410,1200,1800
+    
         
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,3650,0,1000,650
+        wmctrl -r SooperLooper -e 0,3650,1000,1000,650
         
         wmctrl -r qsynth -e 0,640,80,1600,400
         wmctrl -r qsynth -t $MidiDesktop
@@ -520,7 +521,7 @@ function SetPlacement1920 {
         
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
         #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
-        wmctrl -F -r LiveMusicApp_1 -e 0,100,0,2300,1350
+        wmctrl -F -r LiveMusicApp_1 -e 0,90,0,2300,1350
         
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,1350,420,1100,400
@@ -529,9 +530,7 @@ function SetPlacement1920 {
         wmctrl -r qsynth -t $MidiDesktop
 
         wmctrl -r Carla -t $CarlaDesktop
-        wmctrl -r Carla -e 0,60,0,1400,1200
-
-
+        wmctrl -r Carla -e 0,60,0,1900,1200
     fi
     
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
@@ -664,17 +663,20 @@ set -x
 
 echo "Line "$1  | tee $LogFile
 # Set Default values
-GuitarEffects=true
-VSTGuitarEffects=false
-EffectsProcessorName=""
+GuitarEffects=false
+VSTGuitarEffects=true
+EffectsProcessorName="Carla"
 #EffectsProcessorName="Guitarix"
-EffectsProcessorApp="guitarixOld"
+EffectsProcessorApp="CarlaGuitar"
 EffectsProcessorWM="Guitarix: gx_head"
+
+EffectsProcessorWM="Carla"
 # PatchBay="carla"
 PatchBay="qpwgraph"
 PatchBayName="qpwgraph"
 # PatchBay="raysession"
-# PatchBayName="raysession"
+PatchBay="raysession"
+PatchBayName="raysession"
 InternetJam="sonobus"
 
 RunPlugins=true
@@ -1012,13 +1014,12 @@ echo "***************** Starting SetUpApplications"  | tee $LogFile
 SetUpApplications
 echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
+SetUpConnections
 
-Delay 6
-SetUpConnections
 Delay 10
+SetPlacement
 SetUpConnections
-Delay 12
-SetUpConnections
+
 exit #### EJK
 
 # ejk Check this
@@ -1070,3 +1071,11 @@ Volume
 ImpulseResponse
 Freeverb
 Loudness
+
+
+exit
+
+
+/usr/src/Music/Impro-Visor10.2/impro-visor
+
+

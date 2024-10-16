@@ -15,15 +15,30 @@
 # set -x
 
 
-PreFix="LveMus.0"
-PreFix="Carla"
+#PreFix="LveMus.0"
+PreFix="Carla.0"
+PreFixMix="Carla.0/"
+
+#---------------------------------------------------------------------#
+#*** ClearRack
+#---------------------------------------------------------------------#
+function ClearRack {
+IDList=`pw-link --id -l | grep $PreFix | awk '{print $1}'`
+// IDList=`pw-link --id -o | grep $PreFix | awk '{print $1}'`
+
+for theID in $IDList
+do
+    echo "Link "$theID
+    pw-link -d $theID
+    sleep 0.08
+done
+}
 
 
 #---------------------------------------------------------------------#
 #*** AlsaSet
 #---------------------------------------------------------------------#
 function AlsaSet {
-set -x
 
 MySinks=`aplay -l | grep "card 0:" | head -n 1`
 if [ "$?" -eq 0 ]; then
@@ -252,10 +267,8 @@ fi
 }
 
 function DoLink {
-set -x
 #    echo "DoLink ${1}"----"${2}" 
     pw-link "${1}" "${2}" 
-set +x
 }
 
 function OldRack {
@@ -263,9 +276,8 @@ function OldRack {
 
 # -------------------------------------------------------------------
 # Main Guitarix effect chain 
-FindEffects gx_head_amp
-ChainNextLeft "${MainInputL}"
-ChainNextLeft "${MainInputR}"
+
+
 
 # Guitarix Head to Effects
 FindEffects gx_head_fx
@@ -279,10 +291,10 @@ FindEffects "${PreFix}:the infamous lush life:Audio In"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
 # Boost Preamp to Carla Mixer
-FindEffects "${PreFix}:LSP Mixer x4 Stereo:Output"
+FindEffects "${PreFixMix}LSP Mixer x4 Stereo:Output"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-# Carla Mixer to output
+# Carla Mixer to output Device
 DoLink "${EffectOutL}" "${MainOutputL}"
 DoLink "${EffectOutR}" "${MainOutputR}"
 # Main Guitarix effect chain 
@@ -292,7 +304,7 @@ DoLink "${EffectOutR}" "${MainOutputR}"
 # -------------------------------------------------------------------
 # Carla Internal Post Rack 
 FindEffects "${PreFix}:rkr Shelf Boost"
-FindEffects "${PreFix}:LSP Mixer x4 Stereo:Audio input"
+FindEffects "${PreFixMix}LSP Mixer x4 Stereo:Audio input"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 # Carla Internal Rack 
 # -------------------------------------------------------------------
@@ -304,47 +316,86 @@ ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 function NewRack {
 
 # -------------------------------------------------------------------
-# Main Guitarix effect chain 
-FindEffects GT10QM
+# Main Carla effect chain 
+FindEffects "GxTuner"
 ChainNextLeft "${MainInputL}"
 ChainNextLeft "${MainInputR}"
+ChainNextRight "${MainInputL}"
+ChainNextRight "${MainInputR}"
 
-FindEffects GxCompressor
+
+FindEffects "Gate Stereo"
+ChainNextLeft "${MainInputL}"
+ChainNextLeft "${MainInputR}"
+ChainNextRight "${MainInputL}"
+ChainNextRight "${MainInputR}"
+
+# FindEffects "GxCompressor"
+# FindEffects "LSP Compressor Stereo"
+FindEffects "x42-comp - Dynamic Compressor Stereo"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-FindEffects GxAmplifier-Stereo
+FindEffects "GxAmplifier-Stereo"
+ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+
+LastEffectOutR="${EffectOutR}"
+LastEffectOutL="${EffectOutL}"
+
+
+# FindEffects "GxDelay-Stereo"
+FindEffects "MDA DubDelay"
+ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+FindEffects "rkr Flanger.Chorus"
+ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+DoLink "${EffectOutL}" "${MixerInput1L}" 
+DoLink "${EffectOutR}" "${MixerInput1R}" 
+
+EffectOutR="${LastEffectOutR}"
+EffectOutL="${LastEffectOutL}"
+
+
+FindEffects "GxZita_rev1-Stereo"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
 FindEffects "rkr MuTroMojo"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-FindEffects GxChorus-Stereo
+FindEffects "GxChorus-Stereo"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
 FindEffects "rkr WahWah"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-FindEffects GxZita_rev1-Stereo
+#FindEffects "the infamous lush life"
+#ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+FindEffects "PurestSquish"
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+set -x
+#FindEffects "LSP Profiler Stereo"
+#ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-FindEffects "the infamous lush life"
-ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+# FindEffects "rkr Flanger.Chorus"
+# ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-FindEffects PurestSquish
-ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-DoLink "${EffectOutL}" "${MixerOut1L}"
-DoLink "${EffectOutR}" "${MixerOut1R}"
+# To Carla Mixer
+echo "Last Effect to Mixer 1 input"
+DoLink "${EffectOutL}" "${MixerInput1L}"
+DoLink "${EffectOutR}" "${MixerInput1R}"
+LastEffectOutR="${EffectOutR}"
+LastEffectOutL="${EffectOutL}"
+echo $LastEffectOutR
+echo $LastEffectOutL
 
-# Carla Mixer to output
-# Boost Preamp to Carla Mixer
+# Carla Mixer to output device
 FindEffects "LSP Mixer x4 Stereo"
 DoLink "${EffectOutL}" "${MainOutputL}"
 DoLink "${EffectOutR}" "${MainOutputR}"
-# Main Guitarix effect chain 
-
 }
-
 
 #---------------------------------------------------------------------#
 #*** Main
@@ -391,33 +442,50 @@ if [ $InterfaceFound -ne 0 ]; then
     MainOutputR=$OutLinkR
 fi
 
-MixerOut1R="${PreFix}:LSP Mixer x4 Stereo:Audio input right 1"
-MixerOut1L="${PreFix}:LSP Mixer x4 Stereo:Audio input left 1"
-MixerOut2R="${PreFix}:LSP Mixer x4 Stereo:Audio input right 2"
-MixerOut2L="${PreFix}:LSP Mixer x4 Stereo:Audio input left 2"
-MixerOut3L="${PreFix}:LSP Mixer x4 Stereo:Audio input left 3"
-MixerOut3R="${PreFix}:LSP Mixer x4 Stereo:Audio input right 3"
-MixerOut4L="${PreFix}:LSP Mixer x4 Stereo:Audio input left 4"
-MixerOut4R="${PreFix}:LSP Mixer x4 Stereo:Audio input right 4"
+MixerInput1R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 1"
+MixerInput1L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 1"
+MixerInput2R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 2"
+MixerInput2L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 2"
+MixerInput3L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 3"
+MixerInput3R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 3"
+MixerInput4L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 4"
+MixerInput4R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 4"
 
+
+# Clear all connections to Carla Rack
+# ClearRack
+
+# Create new connections
 NewRack
 
 # -------------------------------------------------------------------
 # Sound font to mixer 
 FindEffects "qsynth"
-DoLink  "qsynth:left" "${MixerOut3L}"
-DoLink  "qsynth:right" "${MixerOut3L}"
+DoLink  "qsynth:left" "${MixerInput3L}"
+DoLink  "qsynth:right" "${MixerInput3L}"
 # Sound font to mixer
 # -------------------------------------------------------------------
 
 
 # -------------------------------------------------------------------
 # Looper Connection 
-FindEffects gx_head_fx
+# FindEffects gx_head_fx
 FindEffects "sooperlooper"
+DoLink "${LastEffectOutL}" "${EffectInL}" 
+DoLink "${LastEffectOutR}" "${EffectInR}" 
+
+#ChainNextLeft "${MainInputL}"
+#ChainNextLeft "${MainInputR}"
+#ChainNextRight "${MainInputL}"
+#ChainNextRight "${MainInputR}"
+
+# Looper output
 ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-DoLink "${EffectOutL}" "${MixerOut4L}"
-DoLink "${EffectOutR}" "${MixerOut4R}"
+DoLink "${EffectOutL}" "${MixerInput4L}"
+DoLink "${EffectOutR}" "${MixerInput4R}"
+
+
+
 # Looper Connection
 # -------------------------------------------------------------------
 
@@ -516,10 +584,21 @@ aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
 aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
 aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
 aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
-
 # Midi Connections
 # -------------------------------------------------------------------
 
+# Set the Volumes at the Alsa level
+AlsaSet
+
+exit
+
+
+
+pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
+pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
+
+pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0"  "Plasma PA:input_FL"
+pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1"  "Plasma PA:input_FR"
 
 
 # -------------------------------------------------------------------
@@ -596,15 +675,6 @@ oscsend localhost 22752 /Carla/1/set_parameter_value if 42 0
 oscsend localhost 22752 /Carla/1/set_parameter_value if 43 3
 # Jack Mixer values
 # -------------------------------------------------------------------
-
-
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
-
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0"  "Plasma PA:input_FL"
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1"  "Plasma PA:input_FR"
-
-AlsaSet
 
 
 

@@ -1120,13 +1120,13 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 
 DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
 */
-
+            /* XXXXXX  Empty   */
             OSCCommand(OSCRecLoop, 2); 
             printd(LogMidi, "OSCRecLoop %d\n", DataValue);
             break;
 
         case 32:
-            printd(LogMidi, "1 Solo\n");
+            printd(LogMidi, "Layout Increment\n");
             if (DataValue == 0) {
                 gMyInfo.IncrementSwitch = TRUE;
             }
@@ -1207,8 +1207,9 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         case 18:
+            /* XXXXXX  Empty   */
             printd(LogMidi, "2 Knob %d\n", DataValue);
-// Empty
+
             break;
 
         case 34:
@@ -1248,8 +1249,8 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         case 19:
+            /* XXXXXX  Empty   */
             printd(LogMidi, "4 Knob %d\n", DataValue);
-// Empty
             break;
 
         case 35:
@@ -1279,17 +1280,16 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         // -----------  Slot 5 Chorus
-
+        /* XXXXXX  Empty   */
         case 4:
-// Empty
             break;
 
+        /* XXXXXX  Empty   */
         case 20:
-// Empty
             break;
 
         case 36:
-
+        /* XXXXXX  Empty   */
             if (DataValue == 0) {
                 SetDAWLed(ControlValue, 1);
             }
@@ -1298,8 +1298,8 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             }
             break;
 
+        /* XXXXXX  Empty   */
         case 52:
-// Empty
             break;
 
         case 68:
@@ -1372,23 +1372,24 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
         // -----------  Slot 7
 
         case 6:
+
             printd(LogMidi, "Pedal  %d\n", DataValue);
             SetExpressionControl(ecPedalControl, DataValue);
             break;
 
         case 22:
+            /* XXXXXX  Empty   */
             printd(LogMidi, "7 knob %d\n", DataValue);
-// Empty
             break;
 
         case 38:
-            printd(LogMidi, "Solo 7\n");
+            printd(LogMidi, "Tab Patch\n");
             if (DataValue == 0) {
                 gMyInfo.TabSwitch = tabpagePatch;
             }
             break;
         case 54:
-// Empty
+        /* XXXXXX  Empty   */
             if (DataValue == 0) {
                 SetDAWLed(ControlValue, 1);
             }
@@ -1416,7 +1417,7 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
             break;
 
         case 39:
-            printd(LogMidi, "Solo 7\n");
+            printd(LogMidi, "Chart Page 7\n");
             if (DataValue == 0) {
                 gMyInfo.TabSwitch = tabpageChart;
             }
@@ -1433,8 +1434,8 @@ DoPatch(&gMyInfo.MyPatchInfo[FindString(fsPatchNames, "TrigCountIn")]);
                 MyOSCJackMute(0, 0xff);
                 SetDAWLed(ControlValue, 0);
             }
-        case 71:
-// Empty
+         /* XXXXXX  Empty   */
+       case 71:
             break;
 
         // -----------  Track

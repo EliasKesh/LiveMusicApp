@@ -61,9 +61,20 @@ Clementine:out_autoaudiosink-109-actual-sink-jackaudio_1
 (disconnect "MPlayer*:out_R" "system:playback_.*")
 (connect "MPlayer*:out_L" "jack-volume:input_3")
 (connect "MPlayer*:out_R" "jack-volume:input_3")
+(connect "MPlayer*:out_L" "Carla/LSP Mixer x4 Stereo:Audio input left 3")
+(connect "MPlayer*:out_R" "Carla/LSP Mixer x4 Stereo:Audio input right 3")
+(connect "MPlayer*:out_L" "Carla/LSP Mixer x4 Stereo:Audio input left 3")
+(connect "MPlayer*:out_R" "Carla/LSP Mixer x4 Stereo:Audio input right 3")
 
 # Connect OBS recorder
 (connect "jack-volume:output_1" "JackRecord:in_1")
 (connect "jack-volume:output_1" "JackRecord:in_2")
+
+# JJazzLab
+(disconnect "PipeWire ALSA [java]/ALSA Playback [java]:output_FL" "system:playback_.*")
+(disconnect "PipeWire ALSA [java]/ALSA Playback [java]:output_FR" "system:playback_.*")
+
+(connect "PipeWire ALSA [java]/ALSA Playback [java]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
+(connect "PipeWire ALSA [java]/ALSA Playback [java]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
 
 

@@ -18,7 +18,14 @@ cd $BaseDir
 find $BaseDir -iname \*.mscbackup -exec rm {} -rf \;
 find $BaseDir -iname \*html\#\* -exec rm {} \;
 
+# Change Muse extension
+
+
+# alias current_keyboard_layout_chart=$'gkbd-keyboard-display -l $(localectl status | awk \'/X11 Layout/ {print $3}\')$\'\t\'$(localectl status | awk \'/X11 Variant/ {print $3}\')'
+
+# 
 # Rename pdf Files back to pdf
+
 # find ./ -name \*.conv -print0 | xargs -0 rename 's/.conv$//'
 # find ./ -iname \*.pdf.jpg -exec rm {} \;
 
@@ -27,7 +34,9 @@ find $BaseDir -iname \*html\#\* -exec rm {} \;
 # libreoffice --headless --convert-to pdf *.rtf
 # find ./ -iname \*wma -exec ffmpeg -i {} {}.mp3 \;
 # find ./ -iname \*mp4 -exec ffmpeg -i {} {}.mp3 \;
-# find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
+
+# find ./ -iname \*mp3 -exec mp3gain {} \;
+# find . -name "*.gp5.mscz" -exec rename -f  's/\.gp5.mscz$/.mscz/' '{}' +
 # find ./ -iname \*.gp? -exec mscore -f {} -S EliasTab -o {}".mscz" \;
 
 # append Prefix

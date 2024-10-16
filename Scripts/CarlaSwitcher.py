@@ -23,15 +23,16 @@ from enum import auto, Enum     # for enum34, or the stdlib version
 
 class Effect(Enum):
         ABGate = 0
-        Comp = auto()
+        Compressor = auto()
         PreAmp = auto()
         Distortion = PreAmp
         Mojo = auto()
         Chorus = auto()
         Wah = auto()
         Reverb = auto()
-        Stereo = auto()
-        Lush = auto()
+#        Stereo = auto()
+#        Lush = auto()
+        Squish = auto()
         Mixer = auto()
  
 # GT10QM
@@ -50,7 +51,7 @@ class Effect(Enum):
 
 # for testing.
 # oscdump 1234
-
+# Chttps://github.com/brummer10/SpecMatch.git
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
@@ -76,32 +77,96 @@ def fallback(path, args, types, src):
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
-def Distortion(level):
+def DistortionControl(level):
 
     # 0.0 to 1.0
+    InitLevel=level
     EffectString = "/Carla/%d/set_volume" % (Effect.Distortion.value)
-    liblo.send(target, EffectString, (0.5-(level/2)) )
-    print(EffectString)
+    Value=rescaleMidi(InitLevel, 0.80, 0.20)
+#                        print(EffectString," Vol ",Value)
+    liblo.send(target, EffectString, Value )
+#    print("DistortionValue ", Value)
 
     # Dist 0 - 100
+    Value=rescaleMidi(InitLevel, 0.0, 100.0)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
-    liblo.send(target, EffectString, 2, (level*100.0))
-    print(EffectString)
+    liblo.send(target, EffectString, 2, (Value))
+#    print("DistortionDist ", Value)
 
     # Drive 0 - 1
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
-    liblo.send(target, EffectString, 3, (level*1.0))
-    print(EffectString)
+    liblo.send(target, EffectString, 3, (Value))
+#    print("DistortionDrive ", Value)
+
+#--------------------------------------------------------------
+# --- 
+#--------------------------------------------------------------
+def WahControl(level):
+
+    # 0.0 to 1.0
+    InitLevel=level
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+    liblo.send(target, EffectString, Value)
+    print("WahControl ", Value)
+
+def ChorusControl(level):
+    InitLevel=level
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    liblo.send(target, EffectString, Value)
+
+def GateControl(level):
+    InitLevel=level
+    EffectString = "/Carla/%d/set_drywet" % (Effect.ABGate.value)
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    liblo.send(target, EffectString, Value)
+
+    Value=rescaleMidi(InitLevel,-0, 2000)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
+    liblo.send(target, EffectString, 8, (Value))
+
+    # Threshold
+    # Value=rescaleMidi(InitLevel,-46 , 4)
+    # EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
+    # liblo.send(target, EffectString, 1, (Value))
+
+    # # Hold
+    # Value=rescaleMidi(InitLevel, 0, 3000)
+    # EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
+    # liblo.send(target, EffectString, 3, (Value))
+
+    # # Rati0
+    # Value=rescaleMidi(InitLevel, 1, 100)
+    # EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
+    # liblo.send(target, EffectString, 3, (Value))
+
+def CompressorControl(level):
+    InitLevel=level
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor.value)
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    liblo.send(target, EffectString, Value)
 
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
 def ResetToDefault():
-    Distortion(0)
+    DistortionControl(0)
+    WahControl(0)
+    ChorusControl(15)
+#    GateControl(100)
+#    CompressorControl(100)
     EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
     liblo.send(target, EffectString, 0.0)
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
-    liblo.send(target, EffectString, 0.15)
+    print(EffectString)
+
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Mojo.value)
+    print(EffectString)
+    EffectString = "/Carla/%d/set_drywet" % (3)
+    liblo.send(target, EffectString, 0.0)
+    print(EffectString)
+
 
 #--------------------------------------------------------------
 # --- 
@@ -153,60 +218,43 @@ def main():
     msg = mido.Message('program_change', program=45, channel=1)
     port.send(msg)
 
-    print(Effect.ABGate.value, Effect.Comp.value, Effect.PreAmp.value, Effect.Distortion.value)
+    # Print the effects list.
+    print(Effect.ABGate.value, Effect.Compressor.value, Effect.PreAmp.value, Effect.Distortion.value)
     print(Effect.Mojo.value, Effect.Wah.value, Effect.Chorus.value, Effect.Reverb.value)
-    print(Effect.Stereo.value, Effect.Lush.value, Effect.Mixer.value)
+    print(Effect.Mixer.value)
 
-#    Distortion = Effect.PreAmp.value
-    
-    print(Effect.Distortion)
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Comp.value)
-    print(EffectString)
-
-
-# oscsend localhost 22752 /Carla/2/set_drywet f 0.9
-# oscsend localhost 22752 /Carla/3/set_parameter_value if 1 0.75
-# oscsend localhost 22752 /Carla/5/set_program  i 2
-
-
-    liblo.send(target, "/Carla/3/set_drywet", 1.0 )
-    liblo.send(target, "/Carla/3/set_program", 5 )
+#    liblo.send(target, "/Carla/3/set_drywet", 1.0 )
+#    liblo.send(target, "/Carla/3/set_program", 5 )
      
-    exit
+#    exit
+#    ResetToDefault()
+
 
     with mido.open_input('SwitchIn', virtual=True, client_name='LvSwitch') as inport:
 
         for msg in inport:
             print(msg)
 #            print(msg.type)
-            InitValue=0.0
-#            liblo.send(target, "/Carla/1/set_drywet", InitValue)
-#            liblo.send(target, "/Carla/2/set_drywet", InitValue)
-            liblo.send(target, "/Carla/3/set_drywet", InitValue)
-            liblo.send(target, "/Carla/4/set_drywet", InitValue)
-            liblo.send(target, "/Carla/5/set_drywet", InitValue)
- #           liblo.send(target, "/Carla/6/set_drywet", InitValue)
- #           liblo.send(target, "/Carla/7/set_drywet", InitValue)
- #           liblo.send(target, "/Carla/8/set_drywet", InitValue)
- #           liblo.send(target, "/Carla/9/set_drywet", InitValue)
+
             if (msg.type == "program_change"):
 #                print(msg.program)
+                ResetToDefault()
+
                 match msg.program:
                     case 0:
                         print("Jazz")
-                        EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
-                        liblo.send(target, EffectString, 1.0)
-                        Distortion(0)
+                        ChorusControl(127)
+                        DistortionControl(0)
 
                     case 1:
                         print("Straight")
-                        EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
-                        liblo.send(target, EffectString, 0.15)
-                        Distortion(0)
+                        ChorusControl(25)
+                        DistortionControl(0)
 
                     case 2:
                         print("Blues")
-                        Distortion(0.75)
+                        DistortionControl(75)
+                        ChorusControl(25)
 
                     case 3:
                         print("Acoustic")
@@ -216,6 +264,9 @@ def main():
 
                     case 5:
                         print("Funky")
+                        EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+                        Value=rescaleMidi(InitLevel, 0.0, 1.0)
+                        liblo.send(target, EffectString, 1.0)
 
                     case 6:
                         print("FlangeD_Pre")
@@ -245,40 +296,41 @@ def main():
 
             if (msg.type == "control_change"):
 #                print(msg.value)
+                InitLevel=msg.value
                 match msg.control:
                     case 2:     
                         print("Distortion")
+                        DistortionControl(InitLevel)
+
                         # oscsend localhost 22752 /Carla/3/set_parameter_value if 3 90.0
-                        EffectString = "/Carla/%d/set_volume" % (Effect.Distortion.value)
+                        # EffectString = "/Carla/%d/set_volume" % (Effect.Distortion.value)
 
-                        Value=rescaleMidi(msg.value, 0.75, 0.25)
+                        # Value=rescaleMidi(InitLevel, 0.75, 0.25)
 #                        print(EffectString," Vol ",Value)
-                        liblo.send(target, EffectString, Value )
+                        # liblo.send(target, EffectString, Value )
 
-                        # Dist 0 - 100
-                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
-                        Value=rescaleMidi(msg.value, 0.0, 90)
-                        liblo.send(target, EffectString, 2, Value)
+                        # # Dist 0 - 100
+                        # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
+                        # Value=rescaleMidi(InitLevel, 0.0, 90)
+                        # liblo.send(target, EffectString, 2, Value)
 #                        print(EffectString)
 
                         # Drive 0 - 1
-                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
-                        Value=rescaleMidi(msg.value, 0.0, 1.0)
-                        liblo.send(target, EffectString, 3, Value)
+                        # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
+                        # Value=rescaleMidi(InitLevel, 0.0, 1.0)
+                        # liblo.send(target, EffectString, 3, Value)
 #                        print(EffectString)
 
                     case 7:     
                         print("Volume")
 
                     case 11:     
-                        print("Wah ",Effect.Wah.value,  msg.value/127)
-                        EffectString = "/Carla/%d/set_parameter_value " % (Effect.Wah.value)
-                        print(EffectString)
-#                        liblo.send(target, EffectString,  0, msg.value/127 )
-                        Value=rescaleMidi(msg.value, 0.0, 1.0)
-                        msg= liblo.Message('/Carla/%d/set_parameter_value' % (Effect.Wah.value), 0, Value)
-                        liblo.send(target,msg)
+                        print("Wah ",Effect.Wah.value,  InitLevel)
+                        WahControl(InitLevel)
 
+                    case 12:     
+                        print("Corus ",Effect.Chorus.value,  InitLevel)
+                        ChorusControl(InitLevel)
 
                     case _:
                         print("Found Nothing")

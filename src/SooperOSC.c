@@ -194,9 +194,8 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
     int index = argv[0]->i;
     float val = argv[2]->f;
 
-    printd(LogDebug, "ctrl_handler %s %s %s %s\n", path, types, data, user_data);
-
-    printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
+//    printd(LogDebug, "ctrl_handler %s %s %s %s\n", path, types, data, user_data);
+//    printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
     gMyInfo.LoopPosition = val;
 
     /* Check to see if we should send the

@@ -1801,7 +1801,8 @@ int StartPlayer (void) {
         OutputString = "pulse";
     }
     else {
-        OutputString = "jack:port=input_3:name=MPlayer";
+//        OutputString = "jack:port=input_3:name=MPlayer";
+        OutputString = "jack";
     }
 
 #if 1

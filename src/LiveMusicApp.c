@@ -2524,10 +2524,11 @@ int SetExpressionControl (int Controller, int Value) {
         }
 
 //    LogValue=Value;
-    printd (LogDebug, "SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
-    printf ("SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
+    printd (LogInfo, "SetExpressionControl %d %d %d\n", Controller, Value, LogValue);
 
     switch (Controller) {
+
+    // Guitar volume, currently goes to mixed
     case ecGuitarVolume:
         // Guitar Volume
         ReturnVal = gMyInfo.AnalogVolume;
@@ -2539,6 +2540,7 @@ int SetExpressionControl (int Controller, int Value) {
         MyOSCJackVol (LogValue, typeOSCVolGuitarR);
         break;
 
+    // Master midi volume, both metronome and instrument
     case ecMidiVolume:
         // Midi Volume
         ReturnVal = gMyInfo.MidiVolume;
@@ -2549,6 +2551,7 @@ int SetExpressionControl (int Controller, int Value) {
         MyOSCJackVol (LogValue, typeOSCVolMidi);
         break;
 
+    // everything volume, currently goes to mixed
     case ecMasterVolume:
         // Master Volume (OSC)
         ReturnVal = gMyInfo.V3Volume;
@@ -2559,12 +2562,14 @@ int SetExpressionControl (int Controller, int Value) {
         MyOSCJackVol (LogValue, typeOSCVolMaster);
         break;
 
+    // Change the tempo for metronome and looper sync
     case ecTempChange:
         // Tempo
         ReturnVal = gMyInfo.Tempo;
-        gMyInfo.Tempo = Value + MinTempoValue;
+        gMyInfo.Tempo = Value + (MinTempoValue/1.2);
         break;
 
+    // Move the slider on the player page when changing volume.
     case ecMP3Volume:
         // MPS volume
         ReturnVal = gMyInfo.SetMP3PlayVolBool;
@@ -2572,11 +2577,13 @@ int SetExpressionControl (int Controller, int Value) {
         MyOSCJackVol (LogValue, typeOSCVolMP3);
         break;
 
+    // Unused
     case ecExpress6:
         ReturnVal = gMyInfo.V6Volume;
         gMyInfo.V6Volume = Value;
         break;
 
+    // The input pedal controls whatever is set by the software.
     case ecPedalControl:
         // Pedal Volume
         ReturnVal = gMyInfo.V4Volume;
@@ -2586,11 +2593,13 @@ int SetExpressionControl (int Controller, int Value) {
         //      SetVolume4(Value);
         break;
 
+    // Midi cut off to avoid ghost notes.
     case ecMidiThreshold:
         ReturnVal = gMyInfo.MidiThresholdLevel;
         gMyInfo.MidiThresholdLevel = Value;
         break;
 
+    // Looper volume 
     case ecLooperVolume:
         //      ReturnVal = gMyInfo.MidiThresholdLevel;
         MyOSCJackVol (Value, typeOSCVolLooper);

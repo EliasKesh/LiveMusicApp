@@ -141,6 +141,9 @@ def WriteFile(fname, dirname):
         elif (FileRef.find("pdf") > 0):
             theFile.write("[<a style=\"color:gold\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("sng") > 0):
+            theFile.write("[<a style=\"color:plum\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
         elif (FileRef.find("desktop") > 0):
             theFile.write("[<a style=\"color:green\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
@@ -456,6 +459,11 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        if (filename.endswith("sng")):
+            logger.debug ("snd %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
         # Launch File manager of other applications.
         if (filename.endswith("desktop")):
             logger.debug ("desktop %s %d", filename, sHREFIndex)
@@ -516,6 +524,13 @@ def LoadVariables(Files):
 #            sHREFFile[sHREFIndex] = filename
 #            sHREFIndex = sHREFIndex + 1
 
+def IsThereSng(Dir):
+    import os
+    for file in os.listdir(Dir):
+        if file.endswith(".sng"):
+            return True
+    return False
+
 
 # Create the main index html page
 # ------------------------------------------
@@ -535,7 +550,7 @@ def GenerateIndex(Base, List, Reference):
     global SongMark
 
     MaxNameLength = 18
-    Padding = "_____________________________________"
+    Padding =    "_____________________________________"
 
     IndexName = os.path.basename(os.getcwd())
 
@@ -598,6 +613,12 @@ a:visited {\n\
 
         PadLev = (MaxNameLength + 1) - int(Length)
         PadString = Padding[1:PadLev]
+        if (IsThereSng(DirName)):
+            # Add s for sng file present
+            PadString = PadString + 's'
+        else:
+            PadString = PadString + ' '
+
         # HERE ADD Section Index
         IndexLetter = FileName[0:1]
         CurrentIndex = IndexLetter
@@ -726,10 +747,12 @@ def ExtractPDF(Files, dirname):
             try:
                 with (Image(filename=f, resolution=200)) as source:
                     for i, image in enumerate(source.sequence):
-                        #                   newfilename = f[:-9] + "_" + str(i + 1).zfill(3) + '.pdf.jpg'
-                        # -4 is to remove the .pdf
                         newfilename = f[:-4] + "_" + str(i +
                                       1).zfill(3) + '.pdf.jpg'
+                        newfilename=os.path.splitext(theFile)[0]+ str(i +
+                                      1).zfill(3)+'.jpg'
+                        print("NewPdf ",newfilename)
+
                         Image(image).save(filename=newfilename)
                         logger.info("PDF to %s", newfilename)
             except:
@@ -737,8 +760,8 @@ def ExtractPDF(Files, dirname):
                 print("pdf error ", theFile)
                 return
 
-            if (os.path.exists(f)):
-                os.rename(f, f + ".conv")
+#            if (os.path.exists(f)):
+#                os.rename(f, f + ".conv")
 
 def isFullPdf(f):
     logger.info("isFullPdf " + f)

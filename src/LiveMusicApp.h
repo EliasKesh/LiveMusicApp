@@ -192,7 +192,7 @@ typedef struct {
 
 // Total number of patches per layout
 #define MaxLayoutPatches 81
-#define MinTempoValue 50
+#define MinTempoValue 60
 #define MaxTempoValue 200
 
 typedef struct {

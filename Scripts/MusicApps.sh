@@ -18,7 +18,8 @@ PipeActive=`ps aux | grep pipewire | wc -l`
 if [[ $PipeActive > 1 ]];  then
 echo "Pipe found"
 PipeStart="pw-jack -s 96000" 
-PipeOption=" -w "
+# PipeOption=" -w "
+PipeOption=" "
 else 
 echo "Pipe Not found"
 PipeStart=" " 
@@ -37,7 +38,7 @@ if [ "${1}" == "LiveMusicApp" ] ; then
     GDK_DPI_SCALE=1.0 \
     GTK_THEME=LiveMusicTheme \
     nice -15 $PipeStart \
-    LiveMusicApp  -c 9 \
+    LiveMusicApp -c 8 \
     -v -d 0x0220 $PipeOption \
     -f $ButtonSize &
 fi 
@@ -52,19 +53,27 @@ if [ "${1}" == "EffectsProcessorApp" ] ; then
 fi
 
 if [ "${1}" == "CarlaPost" ] ; then
-    QT_SCREEN_SCALE_FACTORS=2.0 nice -18 $PipeStart carla-jack-single /home/MySongs/CarlaConfig/CarlaMixer.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 $PipeStart carla-jack-single /home/MySongs/CarlaConfig/CarlaMixer.carxp &
     exit 0
 fi
 
 
-if [ "${1}" == "CarlaTest" ] ; then
-    QT_SCREEN_SCALE_FACTORS=2.0 nice -18 $PipeStart carla-jack-single --cnprefix "LveMus" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+if [ "${1}" == "CarlaGuitar" ] ; then
+#    QT_SCREEN_SCALE_FACTORS=2.0 nice -18 $PipeStart carla-jack-multi --cnprefix "LveMus" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+# --cnprefix "LveMus" 
+    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 $PipeStart carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
     exit 0
 fi
 
 
 if [ "${1}" == "html" ] ; then
     gedit "${2}" &
+    exit 0
+fi
+
+
+if [ "${1}" == "sng" ] ; then
+    pw-jack jjazzlab "${2}" &
     exit 0
 fi
 
@@ -147,7 +156,7 @@ if [ "${1}" == "gp3" ] ||
 [ "${1}" == "ptb" ] ; then
     echo "Muse Score ${1} ${2} nice -15 ${PipeStart}"
 
-     QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS=1.4 nice -15 ${PipeStart} /usr/bin/mscore "${2}" &>/dev/null &
+     QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS="1.5;1.5;1.5" nice -15 ${PipeStart} /usr/bin/mscore "${2}" &>/dev/null &
 
 #     QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS=1.4 nice -15 ${PipeStart} /usr/src/Music/LiveMusicBuilds/MuseScore-Studio-4.3.2.241630832-x86_64.appimage "${2}" &>/dev/null &
 #    /usr/src/LiveMusicBuilds/MuseScore-4.0.0-x86_64.appimage "${2}" &>/dev/null &
@@ -165,7 +174,7 @@ if [ "${1}" == "Looper" ] ; then
     echo "Running Looper"
         ss --kill state listening src :9951
         sleep 1
-        GDK_SCALE=1 GDK_DPI_SCALE=0.8 nice -18 ${PipeStart} slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951  --never-timeout &
+        GDK_DPI_SCALE=0.8 nice -18 ${PipeStart} slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951  --never-timeout &
         # --never-timeout &
 
     exit 0
