@@ -44,6 +44,7 @@
  * Place Global prototypes here.
  */
 // #define GTK_4
+// PKG_CHECK_MODULES(GTK4, [gtk4]) in configure.ac
 
 
 #ifdef GTK_4
@@ -194,6 +195,8 @@ typedef struct {
 #define MaxLayoutPatches 81
 #define MinTempoValue 60
 #define MaxTempoValue 200
+
+// This structure holds the information for patches for each specific layout
 
 typedef struct {
     char Name[PatchNameSize];

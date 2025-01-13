@@ -134,7 +134,7 @@ void SetTempo(unsigned int NewTempo) {
      * This gives us TimerTicksPerQuater ticks per quarter.
      */
     gMyInfo.TempoReload = (60000 / (NewTempo * TimerTicksPerQuater));
-    printd(LogInfo, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
+    printd(LogTimer, "New Tempo %d Val  %d\n", NewTempo, gMyInfo.TempoReload);
 
     /* Start the new timer.
      */
@@ -281,7 +281,7 @@ void SetTempo(unsigned int NewTempo) {
     struct itimerspec in;
 
 
-    printd(LogDebug, "SetTempo  %d ****\n", NewTempo);
+    printd(LogTimer, "SetTempo  %d ****\n", NewTempo);
 
     /* If the tempo is not reasonable.
     */

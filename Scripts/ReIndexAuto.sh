@@ -12,6 +12,19 @@
 #
 #
 #---------------------------------------------------------------------#
+# sudo pip3 install PyPDF2
+# sudo pip3 install wand
+#
+# sudo pip3 install PyQt5
+# sudo pip3 install qtpy
+# sudo pip3 install setuptools
+# sudo pip3 install cython
+# sudo pip3 install mido
+# build pyliblo
+# sudo pip3 install python-rtmidi
+
+
+
 BaseDir=/home/Music/Learn
 cd $BaseDir
 

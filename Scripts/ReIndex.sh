@@ -24,6 +24,9 @@ LiveMusicCharts.py . -a
 cd /home/MySongs/Solo
 LiveMusicCharts.py . -a
 
+cd /home/MySongs/FrutaLoka
+LiveMusicCharts.py . -a
+
 cd /home/MySongs/OtherTunes
 LiveMusicCharts.py . -a
 
@@ -42,6 +45,9 @@ LiveMusicCharts.py . -a
 cd /home/MySongs/Reference
 LiveMusicCharts.py . -ig
 
+# cd /home/MySongs/Practice
+# LiveMusicCharts.py . -ig
+
 for dir in $(find /home/MySongs/Reference -depth -type d )
 do
     cd $dir
@@ -54,6 +60,8 @@ done
 
 echo "*** MP3 Files with Errors ***"
 cat ~/MP3Errors.txt
+
+find /home/MySongs/ -iname \*a.Test\* -exec rm {} \;
 
 cd /home/
 chown elias: MySongs  -R

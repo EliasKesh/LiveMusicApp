@@ -93,12 +93,12 @@ int InitMidiLooper(void) {
 
     APlayseq = gMyInfo.SeqPort[DRLoop];
 
-    printd(LogDebug, "open sequencer %x\n", APlayseq);
+    printd(LogMidi, "open sequencer %x\n", APlayseq);
 
     LoopPort.client = snd_seq_client_id(APlayseq);
     LoopPort.port = DRLoop;
     //  snd_seq_parse_address(APlayseq, &LoopPort, "129:0");
-    printd(LogDebug, "LoopPort %d %d\n", LoopPort.client, LoopPort.port);
+    printd(LogMidi, "LoopPort %d %d\n", LoopPort.client, LoopPort.port);
 
     queue = snd_seq_alloc_queue(APlayseq);
 
@@ -134,7 +134,7 @@ bool ToggleMidiLoop(void) {
 *------------------------------------------------*/
 void StopMidiLoop(void) {
 
-    printd(LogDebug, "Stop\n");
+    printd(LogMidi, "Stop\n");
 
     MidiLooping = false;
     snd_seq_drain_output(APlayseq);
@@ -154,6 +154,8 @@ void StopMidiLoop(void) {
 * Description: Pass midi file and open.
 *---------------------------------------------*/
 void LoadMidiLoop(char *filename) {
+
+    printd(LogMidi, "LoadMidiFile %s\n",filename);
 
     if (filename != NULL) {
         strcpy(file_name, filename);
@@ -178,7 +180,7 @@ void StartMidiLoop(char *filename) {
         strcpy(file_name, filename);
     }
 
-    printd(LogDebug, "Start File [%s]\n", file_name);
+    printd(LogMidi, "Start File [%s]\n", file_name);
     gLooperWaitForSync = true;
     MidiLooping = true;
 }
@@ -218,7 +220,7 @@ snd_seq_event_t LoopTempoEvent;
     gMyInfo.LoopTempo = NewTempo;
     MyTempo = NewTempo;
     int err;
-    printd(LogDebug, "SetLoopTempo %x %d\n",APlayseq, NewTempo);
+    printd(LogMidi, "SetLoopTempo %x %d\n",APlayseq, NewTempo);
 
     LoopTempoEvent.type = SND_SEQ_EVENT_TEMPO;
     LoopTempoEvent.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
@@ -238,7 +240,7 @@ snd_seq_event_t LoopTempoEvent;
 int MyAlsaLoopClose(void) {
     int ret;
 
-    printd(LogDebug, "MyAlsaLoopClose\n");
+    printd(LogMidi, "MyAlsaLoopClose\n");
 
     snd_seq_close(APlayseq);
     sleep(1);
@@ -266,11 +268,11 @@ static void init_seq(void) {
     /* open sequencer */
     APlayseq = gMyInfo.SeqPort[DRLoop];
 
-    printd(LogDebug, "open sequencer %d\n", err);
+    printd(LogMidi, "open sequencer %d\n", err);
 
     /* find out who we actually are */
     //  client = snd_seq_client_id(seq);
-    //  printd(LogDebug, "get client id %d\n", client);
+    //  printd(LogMidi, "get client id %d\n", client);
 }
 
 static int read_byte(void) {
@@ -528,7 +530,7 @@ static int read_track(struct track *track, int track_end) {
                         event->data.tempo = read_byte() << 16;
                         event->data.tempo |= read_byte() << 8;
                         event->data.tempo |= read_byte();
-                        printd(LogDebug, "ejk Tempo %d\n", event->data.tempo);
+                        printd(LogMidi, "ejk Tempo %d\n", event->data.tempo);
                         skip(len - 3);
                     }
 
@@ -601,14 +603,14 @@ invalid_format:
         goto invalid_format;
     }
 
-    printd(LogDebug, "ejk read_smf %d\n",
+    printd(LogMidi, "ejk read_smf %d\n",
            time_division);
     /* interpret and set tempo */
     snd_seq_queue_tempo_alloca(&queue_tempo);
     smpte_timing = !!(time_division & 0x8000);
 
     if (!smpte_timing) {
-        printd(LogDebug, "Loop !smpte_timing %d\n");
+        printd(LogMidi, "Loop !smpte_timing %d\n");
 
         /* time_division is ticks per quarter */
         //      snd_seq_queue_tempo_set_tempo(queue_tempo, 500000); /* default: 120 bpm */
@@ -619,7 +621,7 @@ invalid_format:
 
     }
     else {
-        printd(LogDebug, "Loop smpte_timing %d\n");
+        printd(LogMidi, "Loop smpte_timing %d\n");
 
         /* upper byte is negative frames per second */
         i = 0x80 - ((time_division >> 8) & 0x7f);
@@ -627,7 +629,7 @@ invalid_format:
         time_division &= 0xff;
         /* now pretend that we have quarter-note based timing */
         time_division = gMyInfo.Tempo;
-        printd(LogDebug, "ejk Tempo Case %d %d\n", i, time_division);
+        printd(LogMidi, "ejk Tempo Case %d %d\n", i, time_division);
 
         switch (i) {
         case 24:
@@ -658,10 +660,10 @@ invalid_format:
     }
 
 #if 1
-    printd(LogDebug, "snd_seq_set_queue_tempo\n");
+    printd(LogMidi, "snd_seq_set_queue_tempo\n");
     err = snd_seq_set_queue_tempo(APlayseq, queue, queue_tempo);
 
-    //  printd(LogDebug, "ejk read_smf %d\n", queue_tempo);
+    //  printd(LogMidi, "ejk read_smf %d\n", queue_tempo);
     if (err < 0) {
         errormsg("Cannot set queue tempo (%u/%i)",
                  snd_seq_queue_tempo_get_tempo(queue_tempo),
@@ -789,21 +791,21 @@ static void handle_big_sysex(snd_seq_event_t *ev) {
 
     if (event_size + 1 > snd_seq_get_output_buffer_size(APlayseq)) {
         err = snd_seq_drain_output(APlayseq);
-        printd(LogDebug, "drain output%d\n", err);
+        printd(LogMidi, "drain output%d\n", err);
         err = snd_seq_set_output_buffer_size(APlayseq, event_size + 1);
-        printd(LogDebug, "set output buffer size%d\n", err);
+        printd(LogMidi, "set output buffer size%d\n", err);
     }
 
     while (length > MIDI_BYTES_PER_SEC) {
         err = snd_seq_event_output(APlayseq, ev);
-        printd(LogDebug, "output event %d\n", err);
+        printd(LogMidi, "output event %d\n", err);
         err = snd_seq_drain_output(APlayseq);
-        printd(LogDebug, "drain output %d\n", err);
+        printd(LogMidi, "drain output %d\n", err);
         err = snd_seq_sync_output_queue(APlayseq);
-        printd(LogDebug, "sync output %d\n", err);
+        printd(LogMidi, "sync output %d\n", err);
 
         if (sleep(1)) {
-            printd(LogDebug, "aborted");
+            printd(LogMidi, "aborted");
         }
 
         ev->data.ext.ptr += MIDI_BYTES_PER_SEC;
@@ -823,7 +825,7 @@ static void play_midi(void) {
     snd_seq_event_t ev;
     int i, max_tick, err;
 
-    printd(LogDebug, "play_midi\n");
+    printd(LogMidi, "play_midi\n");
 
     /* calculate length of the entire file */
     max_tick = -1;
@@ -835,12 +837,12 @@ static void play_midi(void) {
     }
 
     MyTempo = gMyInfo.Tempo;
-    printd(LogDebug, "MidiLooping Tempo=%d\n", MyTempo);
+    printd(LogMidi, "MidiLooping Tempo=%d\n", MyTempo);
 
 
     // Here is where we loop.
     while (MidiLooping) {
-        printd(LogDebug, "ejk Starting loop\n");
+        printd(LogMidi, "ejk Starting loop\n");
 
         /* initialize current position in each track */
         for (i = 0; i < num_tracks; ++i) {
@@ -854,7 +856,7 @@ static void play_midi(void) {
         ev.flags = SND_SEQ_TIME_STAMP_TICK;
 
         err = snd_seq_start_queue(APlayseq, queue, NULL);
-        //      printd(LogDebug, "start queue%d\n", err);
+        //      printd(LogMidi, "start queue%d\n", err);
         /* The queue won't be started until the START_QUEUE event is
          * actually drained to the kernel, which is exactly what we want. */
 
@@ -934,11 +936,11 @@ static void play_midi(void) {
                 ev.data.queue.queue = queue;
                 event->data.tempo = TempoAdjustment / MyTempo;
                 ev.data.queue.param.value = event->data.tempo;
-                printd(LogDebug, "ejk SND_SEQ_EVENT_TEMPO %d %d\n", event->data.tempo, MyTempo);
+                printd(LogMidi, "ejk SND_SEQ_EVENT_TEMPO %d %d\n", event->data.tempo, MyTempo);
                 break;
 
             default:
-                printd(LogDebug, "Invalid event type %d!", ev.type);
+                printd(LogMidi, "Invalid event type %d!", ev.type);
             }
 
             /* this blocks when the output pool has been filled */
@@ -948,7 +950,7 @@ static void play_midi(void) {
             snd_seq_nonblock(APlayseq, 1);
 
             err = snd_seq_event_output(APlayseq, &ev);
-            //          printd(LogDebug, "output event%d\n", err);
+            //          printd(LogMidi, "output event%d\n", err);
         }
 
 #if 1
@@ -960,14 +962,14 @@ static void play_midi(void) {
         ev.dest.port = SND_SEQ_PORT_SYSTEM_TIMER;
         ev.data.queue.queue = queue;
         err = snd_seq_event_output(APlayseq, &ev);
-        printd(LogDebug, "output event error %d %x\n",
+        printd(LogMidi, "output event error %d %x\n",
                err, APlayseq);
 #endif
 
         /* make sure that the sequencer sees all our events */
         do {
             err = snd_seq_drain_output(APlayseq);
-            printd(LogDebug, "drain output %d\n", err
+            printd(LogMidi, "drain output %d\n", err
                   );
             gLooperWaitForSync = true;
         }
@@ -987,7 +989,7 @@ static void play_midi(void) {
 
         do {
             err = snd_seq_event_output_pending(APlayseq);
-            printd(LogDebug, "Pending output %d\n", err
+            printd(LogMidi, "Pending output %d\n", err
                   );
             gLooperWaitForSync = true;
         }
@@ -997,13 +999,13 @@ static void play_midi(void) {
 
         err = snd_seq_sync_output_queue(APlayseq);
         gLooperWaitForSync = true;
-        printd(LogDebug, "After Sync %d %d\n", MidiLooping, err);
+        printd(LogMidi, "After Sync %d %d\n", MidiLooping, err);
     } // end of while.
 
     /* give the last notes time to die away */
     //  if (end_delay > 0)
     //      sleep(end_delay);
-    printd(LogDebug, "Leaving play_midi\n");
+    printd(LogMidi, "Leaving play_midi\n");
 }
 
 /*-----------------------------------------------
@@ -1015,16 +1017,16 @@ static void play_midi(void) {
 static int play_file(void) {
     int ok;
 
-    printd(LogDebug, "Play_file [%s]\n", file_name);
+    printd(LogMidi, "Play_file [%s]\n", file_name);
 
     file = fopen(file_name, "rb");
 
     if (!file) {
-        printd(LogDebug, "Cannot open [%s] - %s\n", file_name, strerror(errno));
+        printd(LogMidi, "Cannot open [%s] - %s\n", file_name, strerror(errno));
         return (true);
     }
 
-    printd(LogDebug, "Play_File name %s\n", file_name);
+    printd(LogMidi, "Play_File name %s\n", file_name);
     file_offset = 0;
     ok = 0;
 
@@ -1047,13 +1049,13 @@ static int play_file(void) {
         fclose(file);
     }
 
-    printd(LogDebug, "About to Call Play Midi\n");
+    printd(LogMidi, "About to Call Play Midi\n");
 
     if (ok) {
         play_midi();
     }
 
-    printd(LogDebug, "After call to Play Midi\n");
+    printd(LogMidi, "After call to Play Midi\n");
 
     cleanup_file_data();
     return (false);
@@ -1071,7 +1073,7 @@ int alsa_loop_init(void) {
     pthread_attr_t tattr;
     struct sched_param param;
 
-    printd(LogDebug, "alsa_loop_init\n");
+    printd(LogMidi, "alsa_loop_init\n");
 
     /* initialized with default attributes */
     ret = pthread_attr_init(&tattr);
@@ -1095,20 +1097,20 @@ int alsa_loop_init(void) {
 
 void *alsa_Loop_thread(void * context_ptr) {
 
-    //    printd ( LogDebug, "alsa_Loop_thread\n" );
+    //    printd ( LogMidi, "alsa_Loop_thread\n" );
 
     while (1) {
-        //        printd ( LogDebug, "alsa_Loop_thread\n" );
+        //        printd ( LogMidi, "alsa_Loop_thread\n" );
 
         if (MidiLooping) {
-            printd(LogDebug, "alsa_Loop_thread before play\n");
+            printd(LogMidi, "alsa_Loop_thread before play\n");
 
             if (play_file()) {
                 MidiLooping = false;
-                printd(LogDebug, "play error\n");
+                printd(LogMidi, "play error\n");
             }
 
-            printd(LogDebug, "alsa_Loop_thread after play\n");
+            printd(LogMidi, "alsa_Loop_thread after play\n");
         }
         usleep(0.25);
     }
@@ -1126,11 +1128,11 @@ static void errormsg(const char *msg, ...) {
 
 #if 0
 /* prints an error message to stderr, and dies */
-static void printd(LogDebug, const char *msg, ...) {
+static void printd(LogMidi, const char *msg, ...) {
     va_list ap;
 
     va_start(ap, msg);
-    vfprintd(LogDebug, stderr, msg, ap);
+    vfprintd(LogMidi, stderr, msg, ap);
     va_end(ap);
     fputc('\n', stderr);
     exit(EXIT_FAILURE);
@@ -1139,14 +1141,14 @@ static void printd(LogDebug, const char *msg, ...) {
 /* memory allocation error handling */
 static void check_mem(void *p) {
     if (!p) {
-        printd(LogDebug, "Out of memory");
+        printd(LogMidi, "Out of memory");
     }
 }
 
 /* error handling for ALSA functions */
 static void check_snd(const char *operation, int err) {
     if (err < 0) {
-        printd(LogDebug, "Cannot %s - %s", operation, snd_strerror(err));
+        printd(LogMidi, "Cannot %s - %s", operation, snd_strerror(err));
     }
 }
 #endif

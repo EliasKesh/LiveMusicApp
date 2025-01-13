@@ -386,7 +386,7 @@ function SetUpApplications {
     fi
 
 #    ${PatchBay} --activated /home/MySongs/Prefs/PatchbayElias.qpwgraph > $LogFile 2>&1 &
-    raysession --start-session /home/MySongs/Prefs/RaySessionLiveMusic &
+#    raysession --start-session /home/MySongs/Prefs/RaySessionLiveMusic &
 #    ${PatchBay} > $LogFile 2>&1 &
     Delay 1   
     
@@ -425,7 +425,7 @@ function SetPlacement {
         LiveMusicAppDesktop=2
         CarlaDesktop=2
         LooperDesktop=2
-        MidiDesktop=3
+        MidiDesktop=32415
         PatchageDesktop=7
         PlayerDesktop=7
         DrumDesktop=7
@@ -440,6 +440,7 @@ function SetPlacement {
             echo "External Monitor Found"
             ExMonitor=1
         fi
+        
         SetPlacement1920
 
     elif [ `hostname` == "LiveMusic" ]; then
@@ -494,64 +495,39 @@ function SetPlacement1920 {
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     if [ "$ExMonitor" -eq "1" ]; then
-        
-        wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-        #       wmctrl -r ${EffectsProcessorWM} -e 0,600,0,700,860
-        wmctrl -r ${EffectsProcessorWM} -e 0,3650,700,800,1050
-        
-        wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        
-        wmctrl -r LiveMusicApp_1 -e 0,90,0,2200,1000
+        echo "SetPlacement1920 ExMonitor 1 "
 
-#      wmctrl -F -r LiveMusicApp_1 -e 0,200,0,2250,1300
+        wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
+        wmctrl -r LiveMusicApp_1 -e 0,64,1512,2200,1150
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
-        wmctrl -r Carla -t $CarlaDesktop
-        wmctrl -r Carla -e 0,2415,410,1200,1800
-    
-        
+        wmctrl -r ${EffectsProcessorWM} -t $CarlaDesktop
+        wmctrl -r ${EffectsProcessorWM} -e 0,1600,0,2200,1450
+
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,3650,1000,1000,650
+        wmctrl -r SooperLooper -e 0,3650,0,1000,850
         
         wmctrl -r qsynth -e 0,640,80,1600,400
         wmctrl -r qsynth -t $MidiDesktop
     else
-        wmctrl -r ${EffectsProcessorWM} -t $AnalogDesktop
-        wmctrl -r ${EffectsProcessorWM} -e 0,0,0,700,1350
-        
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
         #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
         wmctrl -F -r LiveMusicApp_1 -e 0,90,0,2300,1350
         
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,1350,420,1100,400
+        wmctrl -r SooperLooper -e 0,3650,0,1100,400
         
         wmctrl -r qsynth -e 0,1450,80,1400,400
         wmctrl -r qsynth -t $MidiDesktop
 
-        wmctrl -r Carla -t $CarlaDesktop
-        wmctrl -r Carla -e 0,60,0,1900,1200
+        wmctrl -r ${EffectsProcessorWM} -t $CarlaDesktop
+        wmctrl -r ${EffectsProcessorWM} -e 0,60,0,1900,1200
     fi
     
     #       wmctrl -r clementine -e 0,$NewOffset,350,1000,700
     wmctrl -r clementine -e 0,$XOffset,0,1920,1000
     wmctrl -r clementine -t $PlayerDesktop
     
-    NewOffset=`expr $XOffset + 1000`
-    wmctrl -r TuxGuitar -t $PlayerDesktop
-    wmctrl -r TuxGuitar -e 0,0,0,1920,1000
-    
-    wmctrl -r Hydrogen -t $DrumDesktop
-    wmctrl -r Hydrogen -e 0,0,0,1600,900
-    
-    wmctrl -r Patchage -t $PatchageDesktop
-    wmctrl -r Patchage -e 0,0,0,1700,1000
-    
-    wmctrl -r ${PatchBayName} -t $PatchageDesktop
-    wmctrl -r ${PatchBayName} -e 0,0,0,1200,850
-    
-    wmctrl -r "Carla " -t $CarlaDesktop
-
     wmctrl -r QjackCtl -e 0,640,80,600,125
     wmctrl -r "Graph — QjackCtl" -e 0,0,940,1800,1000
     wmctrl -r QjackCtl -t $MidiDesktop
@@ -587,6 +563,7 @@ function StopEverything {
     
     sleep 1
     KillAll CarlaSwitcher.py
+    KillAll raysession
     KillAll guitarix
     killall patchage
     killall -I ${EffectsProcessorName}
@@ -613,7 +590,8 @@ function StopEverything {
     killall a2jmidid
     killall $InternetJam
     KillAll CarlaSwitcher.py
-    
+    KillAll raysession
+
     killall kmidimon
     killall kdialog
     killall konqueror
@@ -626,12 +604,15 @@ function StopEverything {
     killall gedit
     killall $InternetJam
     KillAll CarlaSwitcher.py
-        
+    KillAll raysession
+    rm /home/elias/JJazzLab -rf
     killall -I ${EffectsProcessorName}
     killall ${PatchBay}
     KillAll catia
     killall a2jmidi_bridge
     killall guitarix
+    KillAll raysession
+
     #    FAHClient --send-unpause "LiveMusicApp_Done"
     
     #    if test "${KillJackOnExit}" = "true"; then
@@ -668,12 +649,11 @@ VSTGuitarEffects=true
 EffectsProcessorName="Carla"
 #EffectsProcessorName="Guitarix"
 EffectsProcessorApp="CarlaGuitar"
-EffectsProcessorWM="Guitarix: gx_head"
-
+# EffectsProcessorWM="Guitarix: gx_head"
 EffectsProcessorWM="Carla"
 # PatchBay="carla"
-PatchBay="qpwgraph"
-PatchBayName="qpwgraph"
+# PatchBay="qpwgraph"
+# PatchBayName="qpwgraph"
 # PatchBay="raysession"
 PatchBay="raysession"
 PatchBayName="raysession"
@@ -784,12 +764,12 @@ while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
             pid=`pgrep LiveMusicApp`
             if [ -z $pid ]
             then
-                MP3Player=true
-                MidiController=true
-                GuitarEffects=true
-                VSTGuitarEffects=false
+                # MP3Player=true
+                # MidiController=true
+                # GuitarEffects=true
+                # VSTGuitarEffects=false
                 BackroundChecker=true
-                SoundSynth=true
+#                SoundSynth=true
                 Looper=true
                 #                Hydrogen=true
             else
@@ -863,7 +843,7 @@ while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
             VSTGuitarEffects=true
             SoundSynth=true
             Looper=true
-            EffectsProcessorWM="Carla"
+            EffectsProcessorWM="Carla -"
             set -x
 
         ;;

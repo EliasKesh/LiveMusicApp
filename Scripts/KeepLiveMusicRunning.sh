@@ -54,12 +54,14 @@ fi
 # 	# GuitarEffects -b
 # fi
 
-
 sleep 10
 qdbus org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity
 pw-link -d "alsa_playback.java:output_FL" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.analog-stereo:playback_FL"
 pw-link -d "alsa_playback.java:output_FR" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.analog-stereo:playback_FR"
 pw-link "alsa_playback.java:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2"
 pw-link "alsa_playback.java:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2"
+
+# pw-link "alsa_playback.java:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2"
+# pw-link "alsa_playback.java:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2"
 
 done

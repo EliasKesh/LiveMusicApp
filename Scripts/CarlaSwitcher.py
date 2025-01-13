@@ -1,4 +1,4 @@
-#!/home/ebin/python3
+#!/usr/bin/python3
 #--------------------------------------------------------------
 #
 #	File: 	CarlaSwitcher
@@ -14,40 +14,30 @@
 #-------------------------------------------------------------#
 # pip3 install python-rtmidi --user
 
+# Import required libraries for MIDI and OSC communication
+import liblo          # OSC communication library
+import mido           # MIDI I/O library
+import sys           # System functions
+import math          # Mathematical operations
 
-import liblo
-import mido
-import sys
-
-from enum import auto, Enum     # for enum34, or the stdlib version
-
+# Define Effect enum class for mapping effects to their rack positions
+from enum import auto, Enum
 class Effect(Enum):
-        ABGate = 0
-        Compressor = auto()
-        PreAmp = auto()
-        Distortion = PreAmp
-        Mojo = auto()
-        Chorus = auto()
-        Wah = auto()
-        Reverb = auto()
-#        Stereo = auto()
-#        Lush = auto()
-        Squish = auto()
-        Mixer = auto()
- 
-# GT10QM
-# GxCompressor
-# GxAmplifier-Stereo-X
-# rkrMuTroMojo
-# GxChorus-Stereo
-# rkrWahWah
-# GxZita_rev1-Stereo
-# theinfamouslushlife
-# PurestSquish
-# LSPMixerx4Stereo
-# PreAmps
-# LSPProfilerStereo
-# MultivoiceChorus
+        ABGate = 0          # Noise gate effect
+        Compressor2 = auto() # Dynamic range compressor
+        Compressor3 = auto() # Additional compressor
+        PreAmp = auto()      # Amplifier preamp simulation
+        Distortion = PreAmp  # Alias for PreAmp
+        Mojo = auto()        # Tone shaping effect
+        Wah = Mojo          # Alias for Mojo (Wah effect)
+        Chorus = auto()      # Modulation effect
+        Reverb = auto()      # Reverb effect
+        Squish = auto()      # Compression effect
+        Mixer = auto()       # Audio mixer
+        Tuner = auto()       # Guitar tuner
+        GxDelay = auto()     # Delay effect
+        DubDelay = auto()    # Additional delay
+        FlangeChorus = auto() # Combined flanger/chorus
 
 # for testing.
 # oscdump 1234
@@ -55,7 +45,9 @@ class Effect(Enum):
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
+# OSC callback functions
 def foo_bar_callback(path, args):
+    # Handle basic OSC messages with integer and float arguments
     i, f = args
     print( "received message '%s' with arguments '%d' and '%f'" % (path, i, f))
 
@@ -63,6 +55,7 @@ def foo_bar_callback(path, args):
 # --- 
 #--------------------------------------------------------------
 def foo_baz_callback(path, args, types, src, data):
+    # Handle OSC messages containing blob data
     print( "received message '%s'" % path)
     print( "blob contains %d bytes, user data was '%s'" % (len(args[0]), data))
 
@@ -70,6 +63,7 @@ def foo_baz_callback(path, args, types, src, data):
 # --- 
 #--------------------------------------------------------------
 def fallback(path, args, types, src):
+    # Default handler for unrecognized OSC messages
     print( "got unknown message '%s' from '%s'" % (path, src.url))
     for a, t in zip(args, types):
         print( "argument of type '%s': %s" % (t, a))
@@ -77,27 +71,34 @@ def fallback(path, args, types, src):
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
+# Effect control functions
 def DistortionControl(level):
-
-    # 0.0 to 1.0
+    # Control distortion parameters based on input level (0-127)
     InitLevel=level
+    
+    # Set distortion volume
     EffectString = "/Carla/%d/set_volume" % (Effect.Distortion.value)
-    Value=rescaleMidi(InitLevel, 0.80, 0.20)
-#                        print(EffectString," Vol ",Value)
+    Value=(0.7 * rescaleMidiL(InitLevel, 1.0, 0.00)) + 0.2
     liblo.send(target, EffectString, Value )
-#    print("DistortionValue ", Value)
 
-    # Dist 0 - 100
+    # Set distortion amount (0-100)
     Value=rescaleMidi(InitLevel, 0.0, 100.0)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
     liblo.send(target, EffectString, 2, (Value))
-#    print("DistortionDist ", Value)
 
-    # Drive 0 - 1
+    # Set drive level (0-1)
     Value=rescaleMidi(InitLevel, 0.0, 1.0)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion.value)
     liblo.send(target, EffectString, 3, (Value))
-#    print("DistortionDrive ", Value)
+
+    # Set bass level (0.6-0.85)
+    Value=rescaleMidi(InitLevel, 0.6, 0.85)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 5, (Value))
+
+#  Parameter Value 0 Master Out
+#  Parameter Value 1 Pregain
+
 
 #--------------------------------------------------------------
 # --- 
@@ -115,6 +116,11 @@ def ChorusControl(level):
     InitLevel=level
     EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
     Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    liblo.send(target, EffectString, Value)
+
+    InitLevel=level
+    EffectString = "/Carla/%d/set_drywet" % (Effect.FlangeChorus.value)
+    Value=rescaleMidi(InitLevel, 0.25, 0.80)
     liblo.send(target, EffectString, Value)
 
 def GateControl(level):
@@ -144,41 +150,128 @@ def GateControl(level):
 
 def CompressorControl(level):
     InitLevel=level
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor.value)
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor2.value)
     Value=rescaleMidi(InitLevel, 0.0, 1.0)
-    liblo.send(target, EffectString, Value)
+    liblo.send(target, EffectString, 0)
+
+    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    liblo.send(target, EffectString, 23, 55.0)
+    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    liblo.send(target, EffectString, 25, 170.0)
+    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    liblo.send(target, EffectString, 27, 608.0)
+    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    liblo.send(target, EffectString, 29, 1976.0)
+
+    CRatioLevel = 60.0
+    KneeLevel = 0.75
+    ThresLevel= 0.5
+    BaseFreq=36
+    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    liblo.send(target, EffectString, (BaseFreq+6), 0.04211)        # Preamp     
+    liblo.send(target, EffectString, (BaseFreq+15), ThresLevel)     # Attack Thress
+    liblo.send(target, EffectString, (BaseFreq+20), CRatioLevel)     # Ratio
+    liblo.send(target, EffectString, (BaseFreq+21), KneeLevel)     # Knee
+    liblo.send(target, EffectString, (BaseFreq+24), 1.02)          # Makeup Gain
+
+    BaseFreq=64
+    liblo.send(target, EffectString, (BaseFreq+6), 1.165)          # Preamp
+    liblo.send(target, EffectString, (BaseFreq+15), ThresLevel)     # Attack Thress
+    liblo.send(target, EffectString, (BaseFreq+20), CRatioLevel)     # Ratio
+    liblo.send(target, EffectString, (BaseFreq+21), KneeLevel)     # Knee
+    liblo.send(target, EffectString, (BaseFreq+24), 0.35)          # Makeup Gain
+
+    BaseFreq=92
+    liblo.send(target, EffectString, (BaseFreq+6), 0.244)          # Preamp
+    liblo.send(target, EffectString, (BaseFreq+15), ThresLevel)     # Attack Thress
+    liblo.send(target, EffectString, (BaseFreq+20), CRatioLevel)     # Ratio
+    liblo.send(target, EffectString, (BaseFreq+21), KneeLevel)     # Knee
+    liblo.send(target, EffectString, (BaseFreq+24), 0.23)          # Makeup Gain
+
+    BaseFreq=120
+    liblo.send(target, EffectString, (BaseFreq+6), 0.24)           # Preamp
+    liblo.send(target, EffectString, (BaseFreq+15), ThresLevel)     # Attack Thress
+    liblo.send(target, EffectString, (BaseFreq+20), CRatioLevel)     # Ratio
+    liblo.send(target, EffectString, (BaseFreq+21), KneeLevel)     # Knee
+    liblo.send(target, EffectString, (BaseFreq+24), 0.42)          # Makeup Gain
+
+    BaseFreq=148
+    liblo.send(target, EffectString, (BaseFreq+6), 0.04)           # Preamp
+    liblo.send(target, EffectString, (BaseFreq+15), ThresLevel)     # Attack Thress
+    liblo.send(target, EffectString, (BaseFreq+20), CRatioLevel)     # Ratio
+    liblo.send(target, EffectString, (BaseFreq+21), KneeLevel)     # Knee
+    liblo.send(target, EffectString, (BaseFreq+24), 1.9)           # Makeup Gain
+
+    # Make zero
+#    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Compressor2.value)
+#    liblo.send(target, EffectString, 62, (Value))
 
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
 def ResetToDefault():
+    # Reset all effects to their default values
     DistortionControl(0)
     WahControl(0)
     ChorusControl(15)
-#    GateControl(100)
-#    CompressorControl(100)
+    
+    # Reset wah effect
     EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
     liblo.send(target, EffectString, 0.0)
     print(EffectString)
 
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Mojo.value)
-    print(EffectString)
-    EffectString = "/Carla/%d/set_drywet" % (3)
-    liblo.send(target, EffectString, 0.0)
-    print(EffectString)
+    # Set default EQ values
+    # Bass
+    Value=rescale(0.6, 0.0, 1.0, 0.0, 1.0)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 5, (Value))
+
+    # Mid
+    Value=rescale(0.47, 0.0, 1.0, 0.0, 1.0)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 4, (Value))
+
+    # Treble
+    Value=rescale(0.47, 0.0, 1.0, 0.0, 1.0)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 6, (Value))
+
+    # Set amp characteristics
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 9, 10.0)  # pre 12aux7 FeedPush Pullback
+    liblo.send(target, EffectString, 11, 18.0)  # Mesa Style
+
+#    EffectString = "/Carla/%d/set_drywet" % (Effect.Mojo.value)
+#    print(EffectString)
+#    EffectString = "/Carla/%d/set_drywet" % (3)
+#    liblo.send(target, EffectString, 0.0)
+#    print(EffectString)
 
 
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
+# Utility functions for value scaling
 def rescale(val, in_min, in_max, out_min, out_max):
+    # Linear scaling function
     return out_min + (val - in_min) * ((out_max - out_min) / (in_max - in_min))
 
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
 def rescaleMidi(val, out_min, out_max):
+    # Scale MIDI value (0-127) to target range
     return out_min + (val) * ((out_max - out_min) / (127))
+
+#--------------------------------------------------------------
+# --- 
+#--------------------------------------------------------------
+def rescaleMidiL(val, out_min, out_max):
+    # Scale MIDI value with logarithmic curve
+    NormValue = rescaleMidi(val, out_min, out_max)
+    LogValue = NormValue / (1 + (1 - NormValue) * 2)
+    print("Norm ", NormValue, "Log ",LogValue)
+    return (LogValue)
 
 #--------------------------------------------------------------
 # --- 
@@ -187,6 +280,7 @@ def main():
     global target
     global server
 
+    # Initialize OSC communication
     try:
         target = liblo.Address(22752)
     except (liblo.AddressError, err):
@@ -194,12 +288,14 @@ def main():
         sys.exit()
 
 #    liblo.send(target, "/foo/message1", 123, 456.789, "test")
+    # Setup OSC server
     try:
         server = liblo.Server(1234)
     except (liblo.ServerError, err):
         print(str(err))
         sys.exit()
 
+    # Register OSC message handlers
     # register method taking an int and a float
     server.add_method("/foo/bar", 'if', foo_bar_callback)
 
@@ -213,13 +309,14 @@ def main():
 #    while True:
 #        server.recv(100)
 
+    # Setup virtual MIDI port
     port = mido.open_output('SwitchOut', virtual=True, client_name='LvSwitch')
     msg = mido.Message('note_on', note=45, velocity=90, channel=1)
     msg = mido.Message('program_change', program=45, channel=1)
     port.send(msg)
 
     # Print the effects list.
-    print(Effect.ABGate.value, Effect.Compressor.value, Effect.PreAmp.value, Effect.Distortion.value)
+    print(Effect.ABGate.value, Effect.Compressor2.value, Effect.PreAmp.value, Effect.Distortion.value)
     print(Effect.Mojo.value, Effect.Wah.value, Effect.Chorus.value, Effect.Reverb.value)
     print(Effect.Mixer.value)
 
@@ -229,13 +326,14 @@ def main():
 #    exit
 #    ResetToDefault()
 
-
+    # Main program loop - handle MIDI input
     with mido.open_input('SwitchIn', virtual=True, client_name='LvSwitch') as inport:
 
         for msg in inport:
             print(msg)
 #            print(msg.type)
 
+            # Handle program changes (preset switches)
             if (msg.type == "program_change"):
 #                print(msg.program)
                 ResetToDefault()
@@ -253,11 +351,27 @@ def main():
 
                     case 2:
                         print("Blues")
-                        DistortionControl(75)
+                        DistortionControl(82)
                         ChorusControl(25)
 
                     case 3:
                         print("Acoustic")
+                        # Bass 0 - 1
+                        Value=rescale(0.75, 0.0, 1.0, 0.0, 1.0)
+                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+                        liblo.send(target, EffectString, 5, (Value))
+                        print(EffectString, Value)
+
+                        # Mid 0 - 1
+                        Value=rescale(0.0, 0.0, 1.0, 0.0, 1.0)
+                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+                        liblo.send(target, EffectString, 4, (Value))
+
+                        # Treble 0 - 1
+                        Value=rescale(1.0, 0.0, 1.0, 0.0, 1.0)
+                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+                        liblo.send(target, EffectString, 6, (Value))
+
 
                     case 4:
                         print("Juicy")
@@ -265,14 +379,15 @@ def main():
                     case 5:
                         print("Funky")
                         EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
-                        Value=rescaleMidi(InitLevel, 0.0, 1.0)
-                        liblo.send(target, EffectString, 1.0)
+                        Value=rescale(1.0, 0.0, 1.0, 0.0, 1.0)
+                        liblo.send(target, EffectString, (Value) )
 
                     case 6:
                         print("FlangeD_Pre")
 
                     case 7:
                         print("Clean")
+                        CompressorControl(1) # Testing
 
                     case 8:
                         print("AutoWah")
@@ -290,10 +405,13 @@ def main():
 
                     case 12:
                         print("ThickDist")
+                        DistortionControl(96)
+                        ChorusControl(60)
 
                     case _:
                         print("Found Nothing")
 
+            # Handle control changes (continuous controllers)
             if (msg.type == "control_change"):
 #                print(msg.value)
                 InitLevel=msg.value
@@ -373,5 +491,8 @@ if __name__ == '__main__':
 # liblo.send(target, EffectString, 2, (msg.value * 0.9))
 # EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
 # liblo.send(target, EffectString, 1.0)
+
+# oscsend localhost 22752 /Carla/1/set_parameter_value if 43 3
+
 
 

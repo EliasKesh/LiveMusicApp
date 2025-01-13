@@ -519,26 +519,34 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
     gtk_box_prepend (GTK_BOX (SpeedBox), SpeedInBox);
 
     theFrame = gtk_frame_new ("Start Position");
-    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+    GtkWidget *label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_window_set_child (GTK_CONTAINER (theFrame), PositionStartBox);
 
 //    gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
     gtk_box_append (GTK_BOX (PositionBox), theFrame);
 
     theFrame = gtk_frame_new ("Length");
-    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_window_set_child (GTK_CONTAINER (theFrame), PositionEndBox);
 //    gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
     gtk_box_append (GTK_BOX (PositionBox), theFrame);
 
     theFrame = gtk_frame_new ("Speed");
-    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_window_set_child (GTK_CONTAINER (theFrame), SpeedBox);
 //    gtk_frame_set_shadow_type(GTK_FRAME(theFrame), GTK_SHADOW_ETCHED_OUT);
     gtk_box_append (GTK_BOX (PositionBox), theFrame);
 
     VolumeFrame = gtk_frame_new ("Volume");
-    gtk_frame_set_label_align ( (GtkFrame *) VolumeFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) VolumeFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_window_set_child (GTK_CONTAINER (VolumeFrame), VolumeSpin);
 //    gtk_frame_set_shadow_type(GTK_FRAME(VolumeFrame), GTK_SHADOW_ETCHED_OUT);
 //    gtk_box_pack_start(GTK_BOX(PositionBox), VolumeFrame, TRUE, FALSE,  5);
@@ -546,7 +554,9 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
 //    gtk_widget_set_size_request(VolumeFrame, 400, 25);
 
     PlayerFrame = gtk_frame_new ("Player Control");
-    gtk_frame_set_label_align ( (GtkFrame *) PlayerFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) PlayerFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_window_set_child (GTK_CONTAINER (PlayerFrame), PlayControlBox);
     gtk_box_append (GTK_BOX (PlayControlBox), SetBPlay);
     gtk_box_append (GTK_BOX (PlayControlBox), ResetBox);
@@ -555,7 +565,10 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
     gtk_box_append (GTK_BOX (PlayControlBox), NextSegBox);
 
     SavedFrame = gtk_frame_new ("Saved Loops");
-    gtk_frame_set_label_align ( (GtkFrame *) SavedFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) SavedFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
+
 //    gtk_frame_set_shadow_type(GTK_FRAME(SavedFrame), GTK_SHADOW_ETCHED_OUT);
     gtk_window_set_child (GTK_CONTAINER (SavedFrame), SaveLoopBox);
     gtk_box_append (GTK_BOX (SaveLoopBox), SaveFixed);
@@ -650,7 +663,10 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
     theFrame = gtk_frame_new ("Song Position");
 
 #ifdef GTK_4
-    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+//    gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5);
+    label = gtk_frame_get_label_widget(GTK_FRAME(theFrame));
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
+
 #else
     gtk_frame_set_label_align ( (GtkFrame *) theFrame, 0.5, 0.5);
 #endif
@@ -1798,12 +1814,16 @@ int StartPlayer (void) {
     printd (LogPlayer, "StartPlayer:After Kill\n");
 
     if (UsePipewire == 1) {
-        OutputString = "pulse";
+//        OutputString = "pulse";
+        OutputString = "jack:name=MPlayer";
     }
     else {
+        OutputString = "jack:name=MPlayer";
 //        OutputString = "jack:port=input_3:name=MPlayer";
-        OutputString = "jack";
+//        OutputString = "jack";
     }
+
+    OutputString = "jack:name=MPlayer";
 
 #if 1
     if (OutPipe) {

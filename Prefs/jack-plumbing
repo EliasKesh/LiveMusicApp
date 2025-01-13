@@ -1,7 +1,7 @@
 # ejk file.
 
-Jamulus:input left
-Jamulus:input right
+# Jamulus:input left
+# Jamulus:input right
 
 #(disconnect "Jamulus:input left" "system:capture_1")
 #(disconnect "Jamulus:input right" "system:capture_2")
@@ -12,55 +12,37 @@ Jamulus:input right
 #(connect "gx_head_fx:out_1" "Jamulus:input right")
 
 # (connect "Clementine:out_autoaudiosink-(.*)_2" "jack-volume:input_4")
-(disconnect 
-"Clementine:out_autoaudiosink-(.*)" "system:playback_(.*)")
+(disconnect "Clementine:out_autoaudiosink-(.*)" "system:playback_(.*)")
 (disconnect "Clementine:out_autoaudiosink-.*" "system:playback_.*")
-Clementine:out_autoaudiosink-109-actual-sink-jackaudio_1
-(connect "Clementine:out_autoaudiosink-(.*)_1" "jack-volume:input_4")
-(connect "Clementine:out_jackaudiosink-(.*)_1" "jack-volume:input_4")
 
-(connect "Clementine:out_autoaudiosink-(.*)_1" "SonoBus:in_1")
-(connect "Clementine:out_autoaudiosink-(.*)_1" "SonoBus:in_2")
-(connect "Clementine:out_jackaudiosink-(.*)_1" "SonoBus:in_1")
-(connect "Clementine:out_jackaudiosink-(.*)_2" "SonoBus:in_2")
+# (connect "Clementine:out_autoaudiosink-(.*)_1" "jack-volume:input_4")
+# (connect "Clementine:out_jackaudiosink-(.*)_1" "jack-volume:input_4")
 
+# (connect "Clementine:out_autoaudiosink-(.*)_1" "SonoBus:in_1")
+# (connect "Clementine:out_autoaudiosink-(.*)_1" "SonoBus:in_2")
+# (connect "Clementine:out_jackaudiosink-(.*)_1" "SonoBus:in_1")
+# (connect "Clementine:out_jackaudiosink-(.*)_2" "SonoBus:in_2")
 
-# Connect Vol All V to Play 1
-(connect "jack-volume:output_1" "system:playback_1")
-(connect "jack-volume:output_2" "system:playback_1")
-(connect "jack-volume:output_3" "system:playback_1")
+# (disconnect "sooperlooper:common_out_1" "(.*)")
+# (disconnect "sooperlooper:common_out_2" "(.*)")
 
-# Connect Vol All V to Play 2
-(connect "jack-volume:output_1" "system:playback_2")
-(connect "jack-volume:output_2" "system:playback_2")
-(connect "jack-volume:output_3" "system:playback_2")
+# (connect "sooperlooper:common_out_1" "jack-volume:input_4")
+# (connect "sooperlooper:common_out_2" "jack-volume:input_4")
 
-(disconnect "sooperlooper:common_out_1" "(.*)")
-(disconnect "sooperlooper:common_out_2" "(.*)")
-
-(connect "sooperlooper:common_out_1" "jack-volume:input_4")
-(connect "sooperlooper:common_out_2" "jack-volume:input_4")
-
-(connect "qsynth:left" "jack-volume:input_2")
-(connect "qsynth:right" "jack-volume:input_2")
+# (connect "qsynth:left" "jack-volume:input_2")
+# (connect "qsynth:right" "jack-volume:input_2")
 
 (connect "qsynth:left" "sooperlooper:common_in_1")
 (connect "qsynth:right" "sooperlooper:common_in_1")
 
+(connect "qsynth:left" "Carla/LSP Mixer x4 Stereo:Audio input left 2")
+(connect "qsynth:right" "Carla/LSP Mixer x4 Stereo:Audio input right 2")
 
-
-(disconnect "Hydrogen:out_L" "(.*)")
-(disconnect "Hydrogen:out_R" "(.*)")
-(connect "Hydrogen:out_L" "sooperlooper:common_in_1")
-(connect "Hydrogen:out_R" "sooperlooper:common_in_1")
-
-(connect "Hydrogen:out_L" "jack-volume:input_4")
-(connect "Hydrogen:out_R" "jack-volume:input_4")
 
 (disconnect "MPlayer*:out_L" "system:playback_.*")
 (disconnect "MPlayer*:out_R" "system:playback_.*")
-(connect "MPlayer*:out_L" "jack-volume:input_3")
-(connect "MPlayer*:out_R" "jack-volume:input_3")
+# (connect "MPlayer*:out_L" "jack-volume:input_3")
+# (connect "MPlayer*:out_R" "jack-volume:input_3")
 (connect "MPlayer*:out_L" "Carla/LSP Mixer x4 Stereo:Audio input left 3")
 (connect "MPlayer*:out_R" "Carla/LSP Mixer x4 Stereo:Audio input right 3")
 (connect "MPlayer*:out_L" "Carla/LSP Mixer x4 Stereo:Audio input left 3")
@@ -77,4 +59,9 @@ Clementine:out_autoaudiosink-109-actual-sink-jackaudio_1
 (connect "PipeWire ALSA [java]/ALSA Playback [java]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
 (connect "PipeWire ALSA [java]/ALSA Playback [java]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
 
+# Mscore
+(connect "ALSA plug-in [mscore]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
+(connect "ALSA plug-in [mscore]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
 
+(connect "ALSA plug-in [mscore]-360:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
+(connect "ALSA plug-in [mscore]-360:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")

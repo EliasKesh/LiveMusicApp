@@ -368,6 +368,8 @@ pw-link "qsynth:right" "Carla:LSP Mixer x4 Stereo:Audio input right 2"
 
 pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in_1"
 
+pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 6-0" "qsynth:midi_00"
+
 # USB-C
 # pw-link "Google Chrome:output_FL" "alsa_output.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo:playback_FL"
 # pw-link "Google Chrome:output_FR" "alsa_output.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo:playback_FR"

@@ -31,7 +31,7 @@ echo "<html><big><big>" > "${TheOutputIndHTMLFile}"
 
 # Get links from setlist
 TheSetList=`lynx -listonly -nonumbers -dump  "${SetListFile}"`
-
+echo "Set Lists "$(TheSetList)
 # Walk thru all of the links in the SetList
 for f in $TheSetList
 do
@@ -41,6 +41,7 @@ do
     RealPath=`echo $RealPath1 | sed 's/^.\{7\}//g'`
     
     ChartName=$(basename $BaseName .html)
+    echo "Set Lists "$(ChartName)
     # TheText=`w3m -dump $RealPath"/"$BaseName`
     # Get the text from the html files.
     TheText=`lynx -dump $RealPath"/"$BaseName`
