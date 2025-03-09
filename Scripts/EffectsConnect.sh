@@ -70,7 +70,7 @@ function AlsaSet {
     # ----Card ------------------------------
     # Set volume levels for various audio cards
     CardNum=$(aplay -l | grep G935 | awk -F'[\t: ]' '{print $2}')
-    # amixer -c $CardNum set  'PCM',0 50
+    amixer -c $CardNum set 'PCM',0 50
     amixer -c $CardNum set 'Mic',0 65
 
     # ----Card ------------------------------
@@ -363,26 +363,42 @@ function SetOutput {
 
 function NewRack {
     set -x
+    FindEffects "sooperlooper"
+    LoopIn1="${EffectInL}"
+    LoopIn2="${EffectInR}"
+
+
     # -------------------------------------------------------------------
     # Main Carla effect chain
-    FindEffects "Gate Stereo"
+    FindEffects "SC Gate Stereo"
 
-
- #   FindEffects "Multiband Compressor"
-    FindEffects "LSP Multiband Compressor Stereo x8 (2)"
+    FindEffects "SC MB Compressor Stereo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-#    FindEffects "LSP Multiband Compressor Stereo x8 (3)"
-#    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+    FindEffects "Parametric Equalizer x8 Stereo"
+    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     FindEffects "GxAmplifier-Stereo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+    FindEffects "GuitarConditioner"
+    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+    FindEffects "rkr Valve"
+#    FindEffects "rkr Distorsion"
+#    FindEffects "GxTubeScreamer"
+    # FindEffects "TooB Tone Stack"
+    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+    # FindEffects "Neural Amp Modeler"
+    # ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     FindEffects "rkr MuTroMojo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     # Test
     # exit
+    # Sooper Looper
 
     LastEffectOutR="${EffectOutR}"
     LastEffectOutL="${EffectOutL}"
@@ -396,6 +412,8 @@ function NewRack {
 
     DoLink "${EffectOutL}" "${MixerInput1L}"
     DoLink "${EffectOutR}" "${MixerInput1R}"
+    DoLink "${EffectOutL}" "${LoopIn1}"
+    DoLink "${EffectOutL}" "${LoopIn2}"
 
     EffectOutR="${LastEffectOutR}"
     EffectOutL="${LastEffectOutL}"
@@ -430,6 +448,10 @@ function NewRack {
     echo $LastEffectOutR
     # This script echoes the value of the variable LastEffectOutL.
     echo $LastEffectOutL
+    
+    # Sooper Looper
+    DoLink "${LastEffectOutL}" "${LoopIn1}"
+    DoLink "${LastEffectOutR}" "${LoopIn2}"
 
 }
 
@@ -508,8 +530,10 @@ MixerInput3R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 3"
 MixerInput4L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 4"
 MixerInput4R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 4"
 
-Device="G935"
-CheckInterface "$Device" 50 100
+# Device="G935"
+CheckInterface "$Device" 30 100
+Device="Focusrite_Scarlett"
+CheckInterface "$Device" 100 100
 
 if [ $InterfaceFound -ne 0 ]; then
     MainOutputL=$OutLinkL
@@ -543,9 +567,11 @@ DoLink "qsynth:right" "${MixerInput2R}"
 # -------------------------------------------------------------------
 # Looper Connection
 # FindEffects gx_head_fx
-FindEffects "sooperlooper"
-DoLink "${LastEffectOutL}" "${EffectInL}"
-DoLink "${LastEffectOutR}" "${EffectInR}"
+# FindEffects "sooperlooper"
+# LoopIn1="${EffectInL}"
+# LoopIn2="${EffectInR}"
+# DoLink "${LastEffectOutL}" "${EffectInL}"
+# DoLink "${LastEffectOutR}" "${EffectInR}"
 
 #ChainNextLeft "${MainInputL}"
 #ChainNextLeft "${MainInputR}"
@@ -661,7 +687,7 @@ aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
 # -------------------------------------------------------------------
 
 # Set the Volumes at the Alsa level
-AlsaSet
+/home/ebin/AlsaSet.sh
 
 exit
 

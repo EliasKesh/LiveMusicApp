@@ -49,6 +49,7 @@
 
 #ifdef GTK_4
 #define GTK_CONTAINER(x) (x)
+#define GdkColor GdkRGBA 
 #endif
 
 

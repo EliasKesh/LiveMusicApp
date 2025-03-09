@@ -329,7 +329,7 @@ void MyOSCPoll(char DownBeat)
 {
     char NewCommand[100];
 
-    if (SLOSCaddr == NULL)
+    if (SLOSCaddr == NULL || osc_server == 0)
     {
         return;
     }

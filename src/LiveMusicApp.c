@@ -59,8 +59,8 @@ include file.
 
 
 // https://docs.gtk.org/gtk4/migrating-3to4.html
-#define GLADE_FILE "LiveMusicApp.glade"
-#define Icon_FILE GetResourceDir("LiveIcon.png", FileLocConfig)
+#define GLADE_FILE "LiveMusicApp.glade"  // GUI layout file
+#define Icon_FILE GetResourceDir("LiveIcon.png", FileLocConfig)  // App icon
 #define UsingImageButtons
 
 /* Max number of history messages.
@@ -77,22 +77,22 @@ include file.
  */
 
 // The Status Display about what patch was selected.
-GtkWidget *MainStatus;
-GtkWidget *PlayerCurWid;
-guint MainStatusid;
+GtkWidget *MainStatus;  // Status bar widget
+GtkWidget *PlayerCurWid;  // Current player widget
+guint MainStatusid;  // Status message ID
 
 // The structure to hold the custom buttons.
-theImageButtons LayoutButton;
-theImageButtons MainButtons[Max_Main_Buttons];
-theImageButtons TabButtons[tabpageMAX];
+theImageButtons LayoutButton;  // Layout selection button
+theImageButtons MainButtons[Max_Main_Buttons];  // Main patch buttons
+theImageButtons TabButtons[tabpageMAX];  // Tab navigation buttons
 
 // The Scale widgets.
-GtkWidget *VScale1, *VScale2, *VScale3, *VScale4;
-GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3, *Adjustment4;
+GtkWidget *VScale1, *VScale2, *VScale3, *VScale4;  // Volume sliders
+GtkAdjustment *Adjustment1, *Adjustment2, *Adjustment3, *Adjustment4;  // Slider adjustments
 
 // Images we use for the custom buttons.
-GdkPixbuf *NoteBButtonOnImage;
-GdkPixbuf *NoteBButtonOffImage;
+GdkPixbuf *NoteBButtonOnImage;  // Button pressed state
+GdkPixbuf *NoteBButtonOffImage;  // Button released state
 
 // The Area we display the tempo
 GtkWidget *TempoChild;
@@ -110,8 +110,8 @@ int RunLogLevel;
 
 /* Array to hold the recent status messages.
  */
-char HoldStatus[MaxStatusHold][MaxUpdateLength];
-int HoldStatusIndex;
+char HoldStatus[MaxStatusHold][MaxUpdateLength];  // Status message history
+int HoldStatusIndex;  // Current status message index
 
 /* Boolean, send internal metronome to midi.
  */
@@ -120,20 +120,20 @@ int MainButtonCountOn;
 /* Open a history file, I forget what I did
 at rehearsal.
 */
-FILE *FileHistory;
-char ResourceFileName[250];
-FILE *LogFile;
-char OSCPortNumber[MaxStringPortName];
+FILE *FileHistory;  // History log file
+char ResourceFileName[250];  // Resource file path
+FILE *LogFile;  // Application log file
+char OSCPortNumber[MaxStringPortName];  // OSC communication port
 
 /* Update the Tabs in GTK context.
  */
 
 #define MuteCountDelay 8;
-char RemoveMuteCount;
-char *homedir;
-int VolumeControllerNum;
+char RemoveMuteCount;  // Counter for unmuting
+char *homedir;  // User home directory
+int VolumeControllerNum;  // Active volume controller
 
-gint WinWidth, WinHeight;
+gint WinWidth, WinHeight;  // Main window dimensions
 
 /*
  * Place Local prototypes here
@@ -1800,9 +1800,9 @@ void CreateMainButtons(void) {
                                     "CTRL-Click to set button.");
 
         g_signal_connect(G_OBJECT(EventBox), "button-press-event",
-                         G_CALLBACK(click_handler), Loop);
+                         G_CALLBACK(click_handler), (gpointer)Loop);
         g_signal_connect(G_OBJECT(EventBox), "button-release-event",
-                         G_CALLBACK(release_handler), (void *)Loop);
+                         G_CALLBACK(release_handler), (gpointer)Loop);
     }
 
 #endif

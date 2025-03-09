@@ -1530,7 +1530,7 @@ static Window Select_Window(Display *dpy) { /*{{{*/
 
     if (XGetGeometry(dpy, target_win, &root, &dummyi, &dummyi, &dummy, &dummy,
                      &dummy, &dummy) && target_win != root) {
-        target_win = XmuClientWindow(dpy, target_win);
+// ejk link problem        target_win = XmuClientWindow(dpy, target_win);
     }
 
     return (target_win);

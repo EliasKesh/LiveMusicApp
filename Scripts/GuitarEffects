@@ -319,7 +319,7 @@ function SetUpApplications {
         
 #        /home/MySongs/CarlaConfig/Guitarix_Jazz_Rack.carxp  &
         Delay 2
-        CarlaSwitcher.py &  
+        CarlaPresets.py &  
     fi
     
     if test "${RunPlugins}" = "true"; then
@@ -501,8 +501,10 @@ function SetPlacement1920 {
         wmctrl -r LiveMusicApp_1 -e 0,64,1512,2200,1150
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
-        wmctrl -r ${EffectsProcessorWM} -t $CarlaDesktop
-        wmctrl -r ${EffectsProcessorWM} -e 0,1600,0,2200,1450
+#        wmctrl -r '${EffectsProcessorWM}' -t $CarlaDesktop
+#        wmctrl -r '${EffectsProcessorWM}' -e 0,1600,0,2200,1450
+        wmctrl -r 'Carla - ' -t $CarlaDesktop
+        wmctrl -r 'Carla - ' -e 0,1600,0,2200,1600
 
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,3650,0,1000,850
@@ -553,7 +555,7 @@ function StopEverything {
     wmctrl -c clementine
     wmctrl -c qpwgraph
     
-    wmctrl -c ${EffectsProcessorWM}
+    wmctrl -c ${EffectsProcessorName}
     wmctrl -c LiveMusicApp_1
     wmctrl -c Patchage
     wmctrl -c SooperLooper
@@ -562,7 +564,7 @@ function StopEverything {
     wmctrl -c QjackCtl
     
     sleep 1
-    KillAll CarlaSwitcher.py
+    KillAll CarlaPresets.py
     KillAll raysession
     KillAll guitarix
     killall patchage
@@ -589,7 +591,7 @@ function StopEverything {
     killall smplayer
     killall a2jmidid
     killall $InternetJam
-    KillAll CarlaSwitcher.py
+    KillAll CarlaPresets.py
     KillAll raysession
 
     killall kmidimon
@@ -603,7 +605,7 @@ function StopEverything {
     killall a2jmidi_bridge
     killall gedit
     killall $InternetJam
-    KillAll CarlaSwitcher.py
+    KillAll CarlaPresets.py
     KillAll raysession
     rm /home/elias/JJazzLab -rf
     killall -I ${EffectsProcessorName}
@@ -646,11 +648,11 @@ echo "Line "$1  | tee $LogFile
 # Set Default values
 GuitarEffects=false
 VSTGuitarEffects=true
-EffectsProcessorName="Carla"
+EffectsProcessorName="Carla-"
 #EffectsProcessorName="Guitarix"
 EffectsProcessorApp="CarlaGuitar"
 # EffectsProcessorWM="Guitarix: gx_head"
-EffectsProcessorWM="Carla"
+EffectsProcessorWM="Carla - "
 # PatchBay="carla"
 # PatchBay="qpwgraph"
 # PatchBayName="qpwgraph"
@@ -914,6 +916,15 @@ qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false
 # FAHClient --send-pause "LiveMusicApp_Running"
 # Remove the switches we parsed above.
 shift `expr $OPTIND - 1`
+
+if [[ "$VIRTUAL_ENV" != "" ]]
+then
+    source /usr/src/Python/Musicvenv/bin/activate
+else
+    INVENV=0
+fi
+
+# source /usr/src/Music/LiveMusicPython/bin/activate
 
 # Access additional arguments as usual through
 # variables $@, $*, $1, $2, etc. or using this loop:

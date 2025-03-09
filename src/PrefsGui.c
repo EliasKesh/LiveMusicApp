@@ -773,7 +773,7 @@ static GtkWidget *CreatePatchViewModel(void) {
     /* --- Channel_COLUMN --- */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer, "editable", TRUE, NULL);
-    col = (gint)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+    col = (GtkTreeViewColumn *)gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
             Channel_COLUMN,
             "Channel", renderer,
             "text", Channel_COLUMN,

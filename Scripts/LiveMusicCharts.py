@@ -899,7 +899,7 @@ parser.add_argument("-a", action='store_true', help="All Options")
 parser.add_argument("-c", action='store_true', help="Create HTML from folder")
 parser.add_argument("-d", action='store_true', help="Debugging print")
 parser.add_argument("-f", action='store_true', help="Fix additional meta Data")
-parser.add_argument("-g", action='store_true', help="Gp? to mscz")
+parser.add_argument("-g", action='store_true', help="Gp?, ptb to mscz")
 parser.add_argument("-i", action='store_true', help="Create index.html")
 parser.add_argument("-l", type=int, help="Directory Level")
 parser.add_argument("-n", action='store_true', help="Version Number")
@@ -997,7 +997,7 @@ if (ConvertGP):
         for filename in Files:
             #        Check for an html file "ptb",
             if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5",
-                                   "gp6", "gp7", "gpx",  ".xml"))):
+                                   "gp6", "gp7", "gpx", "ptb", ".xml"))):
                 #           logger.debug ("Guitar Pro %s", filename)
                 MuseFileName = os.path.splitext(filename)[0]
                 MuseFileName = Root + "/" + MuseFileName + ".mscz"
@@ -1005,9 +1005,9 @@ if (ConvertGP):
                 logger.debug ("Guitar New Pro ", MuseFileName)
                 #            Command="ConvertGPtoMScore.sh "+filename+" "+MuseFileName
                 if (not os.path.exists(MuseFileName)):
-#                    print("MuseName Doesn't ",MuseFileName)
+                    print("MuseName Doesn't ",MuseFileName)
                     #              logger.debug ("File Does not exist")
-                    Command = "mscore -a alsa -S EliasTab1.mss " + Root + "/" + filename + " -o " + MuseFileName + " > /dev/null 2>&1 "
+                    Command = "mscore -S EliasTab1.mss -f " + Root + "/" + filename + " -o " + MuseFileName + " > /dev/null 2>&1 "
                     logger.debug(Command)
                     os.system(Command)
 #                    print(Command)
@@ -1017,12 +1017,12 @@ if (ConvertGP):
                     # os.system(Command)
 
                     Command = "mscore -a alsa -S EliasTab1.mss " + MuseFileName + " -o " + MuseFileName + ".musicxml"  + " > /dev/null 2>&1 "
-                    logger.info(Command)
+#                    logger.info(Command)
 #                    print(Command)
 #                    os.system(Command)
 
                     Command = "ChordsFromXML.py " + MuseFileName + ".musicxml > " + Root + "/Chords.txt"  + " > /dev/null 2>&1 "
-                    logger.info(Command)
+#                    logger.info(Command)
 #                    print(Command)
 #                    os.system(Command)
                 else:

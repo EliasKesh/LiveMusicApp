@@ -37,8 +37,8 @@ if [ "${1}" == "LiveMusicApp" ]; then
 
     GDK_DPI_SCALE=1.0 \
         GTK_THEME=LiveMusicTheme \
-        nice -15 $PipeStart \
-        LiveMusicApp -c 8 \
+        nice -15 ${PipeStart} \
+        LiveMusicApp -c 9 \
         -v -d 0x0220 $PipeOption \
         -f $ButtonSize &
 fi
@@ -53,18 +53,19 @@ if [ "${1}" == "EffectsProcessorApp" ]; then
 fi
 
 if [ "${1}" == "CarlaPost" ]; then
-    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 $PipeStart carla-jack-single /home/MySongs/CarlaConfig/CarlaMixer.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 ${PipeStart} carla-jack-single /home/MySongs/CarlaConfig/CarlaMixer.carxp &
     exit 0
 fi
 
 if [ "${1}" == "CarlaGuitar" ]; then
-    #    QT_SCREEN_SCALE_FACTORS=2.0 nice -18 $PipeStart carla-jack-multi --cnprefix "LveMus" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    #    QT_SCREEN_SCALE_FACTORS=2.0 nice -18 ${PipeStart} carla-jack-multi --cnprefix "LveMus" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
     # --cnprefix "LveMus"
     cp /home/MySongs/CarlaConfig/NewGuitarix.carxp /home/MySongs/CarlaConfig/NewGuitarix1.carxp
+    # Remove the auto connection 
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
     export PIPEWIRE_AUTOCONNECT=false
-    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 $PipeStart carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 ${PipeStart} carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
     exit 0
 fi
 

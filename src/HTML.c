@@ -37,8 +37,13 @@ USA.
 
 #include <gtk/gtk.h>
 #define WebKit2 1
-#include <webkit2/webkit2.h>
+
 #include "LiveMusicApp.h"
+#ifdef GTK_4
+#include <webkit/webkit.h>
+#else
+#include <webkit2/webkit2.h>
+#endif
 #include "MyWidgets.h"
 #include "APlayMidi.h"
 
@@ -290,6 +295,7 @@ void on_Forward_clicked(GtkButton *button, gpointer user_data) {
     webkit_web_view_go_forward(web_view);
 }
 
+#ifndef GTK_4
 /*----------------------------------------------
  * Function:        web_view_javascript_finished
  *
@@ -331,7 +337,7 @@ static void web_view_javascript_finished(GObject *object, GAsyncResult *result,
             JavaScrollPosition = atoi(str_value);
             //          printf("Java Scroll %s %d\n", str_value,
             //          JavaScrollPosition);
-        }
+ }
     }
 
     webkit_javascript_result_unref(js_result);
@@ -354,6 +360,7 @@ static void scroll_js_finished_cb(GObject *object, GAsyncResult *result,
         return;
     }
 }
+#endif
 
 /*----------------------------------------------
  * Function:        ScrollCtrl
@@ -421,7 +428,10 @@ int ScrollCtrl(float Amount) {
  *-----------------------------------------------*/
 float ScrollGetPosition(void) {
 
+#ifndef GTK_4
+
     WaitForCallBack = 10000;
+
     webkit_web_view_run_javascript(web_view, "window.pageYOffset.toString();",
                                    NULL, web_view_javascript_finished,
                                    (void *)1);
@@ -436,6 +446,7 @@ float ScrollGetPosition(void) {
     //  printf("Scroll J %d-> S %d  Wait %d\n",
     //         JavaScrollPosition, ScrollPosition, WaitForCallBack);
     return (JavaScrollPosition);
+#endif
 }
 
 /*----------------------------------------------
@@ -1165,10 +1176,10 @@ void InitHTML(GtkBuilder *gxml) {
             "CTRL-Click to set. This will get saved in the song file.");
 
         g_signal_connect(G_OBJECT(EventBox), "button-press-event",
-                         G_CALLBACK(on_patch_clicked), Loop);
+                         G_CALLBACK(on_patch_clicked), (gpointer)Loop);
 
         g_signal_connect(G_OBJECT(EventBox), "button-release-event",
-                         G_CALLBACK(on_patch__release_handler), Loop);
+                         G_CALLBACK(on_patch__release_handler), (gpointer)Loop);
     }
 
     ChartGTKView = GTK_WIDGET(gtk_builder_get_object(gxml, "scrolledwindow1"));

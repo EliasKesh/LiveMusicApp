@@ -9,7 +9,7 @@
 /* Define to 1 if <alloca.h> works. */
 #undef HAVE_ALLOCA_H
 
-/* Define to 1 if you have the `bzero' function. */
+/* Define to 1 if you have the 'bzero' function. */
 #undef HAVE_BZERO
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -18,56 +18,56 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
-/* Define to 1 if you have the `fork' function. */
+/* Define to 1 if you have the 'fork' function. */
 #undef HAVE_FORK
 
-/* Define to 1 if you have the `gettimeofday' function. */
+/* Define to 1 if you have the 'gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `m' library (-lm). */
+/* Define to 1 if you have the 'm' library (-lm). */
 #undef HAVE_LIBM
 
-/* Define to 1 if you have the `pthread' library (-lpthread). */
+/* Define to 1 if you have the 'pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
-/* Define to 1 if you have the `rt' library (-lrt). */
+/* Define to 1 if you have the 'rt' library (-lrt). */
 #undef HAVE_LIBRT
 
-/* Define to 1 if you have the `X11' library (-lX11). */
+/* Define to 1 if you have the 'X11' library (-lX11). */
 #undef HAVE_LIBX11
 
-/* Define to 1 if you have the `xmltok' library (-lxmltok). */
+/* Define to 1 if you have the 'xmltok' library (-lxmltok). */
 #undef HAVE_LIBXMLTOK
 
-/* Define to 1 if you have the `Xmu' library (-lXmu). */
+/* Define to 1 if you have the 'Xmu' library (-lXmu). */
 #undef HAVE_LIBXMU
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
+/* Define to 1 if your system has a GNU libc compatible 'malloc' function, and
    to 0 otherwise. */
 #undef HAVE_MALLOC
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
-/* Define to 1 if you have the `memset' function. */
+/* Define to 1 if you have the 'memset' function. */
 #undef HAVE_MEMSET
 
-/* Define to 1 if you have the `mkfifo' function. */
+/* Define to 1 if you have the 'mkfifo' function. */
 #undef HAVE_MKFIFO
 
-/* Define to 1 if you have the `pow' function. */
+/* Define to 1 if you have the 'pow' function. */
 #undef HAVE_POW
 
-/* Define to 1 if you have the `realpath' function. */
+/* Define to 1 if you have the 'realpath' function. */
 #undef HAVE_REALPATH
 
-/* Define to 1 if you have the `setlocale' function. */
+/* Define to 1 if you have the 'setlocale' function. */
 #undef HAVE_SETLOCALE
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -79,10 +79,10 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define to 1 if you have the `strchr' function. */
+/* Define to 1 if you have the 'strchr' function. */
 #undef HAVE_STRCHR
 
-/* Define to 1 if you have the `strerror' function. */
+/* Define to 1 if you have the 'strerror' function. */
 #undef HAVE_STRERROR
 
 /* Define to 1 if you have the <strings.h> header file. */
@@ -91,10 +91,10 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strrchr' function. */
+/* Define to 1 if you have the 'strrchr' function. */
 #undef HAVE_STRRCHR
 
-/* Define to 1 if you have the `strstr' function. */
+/* Define to 1 if you have the 'strstr' function. */
 #undef HAVE_STRSTR
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
@@ -115,19 +115,19 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `vfork' function. */
+/* Define to 1 if you have the 'vfork' function. */
 #undef HAVE_VFORK
 
 /* Define to 1 if you have the <vfork.h> header file. */
 #undef HAVE_VFORK_H
 
-/* Define to 1 if `fork' works. */
+/* Define to 1 if 'fork' works. */
 #undef HAVE_WORKING_FORK
 
-/* Define to 1 if `vfork' works. */
+/* Define to 1 if 'vfork' works. */
 #undef HAVE_WORKING_VFORK
 
-/* Define to 1 if the system has the type `_Bool'. */
+/* Define to 1 if the system has the type '_Bool'. */
 #undef HAVE__BOOL
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
@@ -162,7 +162,7 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
@@ -191,8 +191,8 @@
 # define __restrict__
 #endif
 
-/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* Define as 'unsigned int' if <stddef.h> doesn't define. */
 #undef size_t
 
-/* Define as `fork' if `vfork' does not work. */
+/* Define as 'fork' if 'vfork' does not work. */
 #undef vfork
