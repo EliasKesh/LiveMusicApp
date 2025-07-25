@@ -146,16 +146,24 @@ fi
 
 # https://ftp.osuosl.org/pub/musescore-nightlies/linux/4x/nightly/?C=M;O=D
 
-echo "About to check gp5"
-
 if [ "${1}" == "gp3" ] ||
-    [ "${1}" == "mscz" ] ||
     [ "${1}" == "gp" ] ||
     [ "${1}" == "gpx" ] ||
     [ "${1}" == "gp4" ] ||
     [ "${1}" == "gp5" ] ||
-    [ "${1}" == "gp6" ] ||
+    [ "${1}" == "gp7" ] ||
+    [ "${1}" == "pt2" ] ||
     [ "${1}" == "ptb" ]; then
+
+QT_STYLE_OVERRIDE=kvantum ${PipeStart} powertabeditor "${2}"
+
+    exit 0
+fi
+
+
+echo "About to check gp5"
+
+if [ "${1}" == "mscz" ]; then
     echo "Muse Score ${1} ${2} nice -15 ${PipeStart}"
 
     QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS="1.5;1.5;1.5" nice -15 ${PipeStart} /usr/bin/mscore "${2}" &>/dev/null &
@@ -233,3 +241,7 @@ if [ "${1}" == "Reindex" ]; then
 fi
 
 exit 1
+
+# QT_STYLE_OVERRIDE=Fusion
+# GTK_THEME=Breeze ./powertabeditor 
+# QT_STYLE_OVERRIDE=kvantum powertabeditor

@@ -60,8 +60,11 @@
 (connect "PipeWire ALSA [java]/ALSA Playback [java]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
 
 # Mscore
-(connect "ALSA plug-in [mscore]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
-(connect "ALSA plug-in [mscore]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
+(connect "ALSA plug-in [mscore*]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
+(connect "ALSA plug-in [mscore*]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
 
 (connect "ALSA plug-in [mscore]-360:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
 (connect "ALSA plug-in [mscore]-360:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")
+
+(connect  "ALSA plug-in [mscore4portablenightly]:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2")
+(connect  "ALSA plug-in [mscore4portablenightly]:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2")

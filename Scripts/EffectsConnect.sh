@@ -12,7 +12,7 @@
 #
 #
 #---------------------------------------------------------------------#
-# set -x
+set -x
 
 # Set prefix for identifying Carla plugins and mixer devices
 PreFix="Carla.0"
@@ -71,6 +71,11 @@ function AlsaSet {
     # Set volume levels for various audio cards
     CardNum=$(aplay -l | grep G935 | awk -F'[\t: ]' '{print $2}')
     amixer -c $CardNum set 'PCM',0 50
+    amixer -c $CardNum set 'Mic',0 65
+
+    # ----Card ------------------------------
+    CardNum=$(aplay -l | grep Arctis | awk -F'[\t: ]' '{print $2}')
+    amixer -c $CardNum set 'PCM',0 `100`
     amixer -c $CardNum set 'Mic',0 65
 
     # ----Card ------------------------------
@@ -337,13 +342,20 @@ function SetInput {
     echo "*** SetInput"
     echo "${MainInputL}" "${MainInputR}"
 
-    FindEffects "GxTuner"
+#    FindEffects "GxTuner"
+    FindEffects "x42 Instrument Tuner"   
     ChainNextLeft "${MainInputL}"
     ChainNextLeft "${MainInputR}"
     ChainNextRight "${MainInputL}"
     ChainNextRight "${MainInputR}"
 
-    FindEffects "Gate Stereo"
+    FindEffects "MIDI Guitar 2"   
+    ChainNextLeft "${MainInputL}"
+    ChainNextLeft "${MainInputR}"
+    ChainNextRight "${MainInputL}"
+    ChainNextRight "${MainInputR}"
+
+    FindEffects "LSP Gate"
     ChainNextLeft "${MainInputL}"
     ChainNextLeft "${MainInputR}"
     ChainNextRight "${MainInputL}"
@@ -366,28 +378,34 @@ function NewRack {
     FindEffects "sooperlooper"
     LoopIn1="${EffectInL}"
     LoopIn2="${EffectInR}"
+    LoopOut1="${EffectOutL}"
+    LoopOut2="${EffectOutR}"
 
+    DoLink "qsynth:left" "${ChainOutNextL}"
+    DoLink "qsynth:right" "${ChainOutNextR}"
 
     # -------------------------------------------------------------------
     # Main Carla effect chain
-    FindEffects "SC Gate Stereo"
+    FindEffects "LSP Gate Mono"
 
-    FindEffects "SC MB Compressor Stereo"
+    FindEffects "LSP Multiband Compressor"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "Parametric Equalizer x8 Stereo"
+    FindEffects "LSP Graphic Equalizer x16"
+ #   FindEffects "Parametric Equalizer x8 Stereo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "GxAmplifier-Stereo"
+    FindEffects "GxAmplifier"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "GuitarConditioner"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+#    FindEffects "GuitarConditioner"
+#    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "rkr Valve"
+#    FindEffects "MDA Bandisto"
+#    FindEffects "rkr Valve"
 #    FindEffects "rkr Distorsion"
-#    FindEffects "GxTubeScreamer"
-    # FindEffects "TooB Tone Stack"
+    FindEffects "GxTubeScreamer"
+    # FindEffects "TooB Tone Stack""
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     # FindEffects "Neural Amp Modeler"
@@ -396,32 +414,29 @@ function NewRack {
     FindEffects "rkr MuTroMojo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    # Test
-    # exit
-    # Sooper Looper
-
     LastEffectOutR="${EffectOutR}"
     LastEffectOutL="${EffectOutL}"
 
     # FindEffects "GxDelay-Stereo"
-    FindEffects "MDA DubDelay"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+#    FindEffects "MDA DubDelay"
+#    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "rkr Flanger.Chorus"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+#   FindEffects "rkr Flanger.Chorus"
+ #   ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    DoLink "${EffectOutL}" "${MixerInput1L}"
-    DoLink "${EffectOutR}" "${MixerInput1R}"
-    DoLink "${EffectOutL}" "${LoopIn1}"
-    DoLink "${EffectOutL}" "${LoopIn2}"
+#    DoLink "${EffectOutL}" "${MixerInput1L}"
+#    DoLink "${EffectOutR}" "${MixerInput1R}"
+#    DoLink "${EffectOutL}" "${LoopIn1}"
+#    DoLink "${EffectOutL}" "${LoopIn2}"
 
-    EffectOutR="${LastEffectOutR}"
-    EffectOutL="${LastEffectOutL}"
+ #   EffectOutR="${LastEffectOutR}"
+ #   EffectOutL="${LastEffectOutL}"
 
     FindEffects "GxZita_rev1-Stereo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "GxChorus-Stereo"
+ #   FindEffects "GxChorus-Stereo"
+    FindEffects "LSP Chorus Stereo"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     #vFindEffects "rkr WahWah"
@@ -452,6 +467,8 @@ function NewRack {
     # Sooper Looper
     DoLink "${LastEffectOutL}" "${LoopIn1}"
     DoLink "${LastEffectOutR}" "${LoopIn2}"
+    DoLink "${LoopOut1}" "${MixerInput3L}"
+    DoLink "${LoopOut2}" "${MixerInput3R}"
 
 }
 
@@ -464,6 +481,8 @@ function NewRack {
 
 # Clear the Plasma connections
 ClearPlasma
+# Set the Volumes at the Alsa level
+#/home/ebin/AlsaSet.sh
 
 # Get current audio device lists
 export DeviceList="$(pw-link -o)"
@@ -516,9 +535,16 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
+Device="SteelSeries"
+CheckInterface "$Device" 125 120
+MainInputL=$InLinkL
+MainInputR=$InLinkR
+MainOutputL=$OutLinkL
+MainOutputR=$OutLinkR
+SetInput
 
 # ejk
-# exit 
+
 
 # Set up mixer inputs
 MixerInput1R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 1"
@@ -531,14 +557,16 @@ MixerInput4L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 4"
 MixerInput4R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 4"
 
 # Device="G935"
-CheckInterface "$Device" 30 100
 Device="Focusrite_Scarlett"
 CheckInterface "$Device" 100 100
+Device="SteelSeries"
+CheckInterface "$Device" 115 30
 
 if [ $InterfaceFound -ne 0 ]; then
     MainOutputL=$OutLinkL
     MainOutputR=$OutLinkR
 fi
+
 SetOutput
 
 Device="Positive_Grid_Spark_2"
@@ -558,9 +586,12 @@ NewRack
 
 # -------------------------------------------------------------------
 # Sound font to mixer
-FindEffects "qsynth"
+#FindEffects "qsynth"
+echo "qsynth:left  "${MixerInput2L}
 DoLink "qsynth:left" "${MixerInput2L}"
 DoLink "qsynth:right" "${MixerInput2R}"
+
+
 # Sound font to mixer
 # -------------------------------------------------------------------
 
@@ -583,9 +614,6 @@ ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 DoLink "${EffectOutL}" "${MixerInput4L}"
 DoLink "${EffectOutR}" "${MixerInput4R}"
 
-pw-link "Midi-Bridge:Midi Through:(capture_0) Midi Through Port-0" "qsynth:midi_00"
-
-pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 6-0" "qsynth:midi_00"
 
 # Looper Connection
 # -------------------------------------------------------------------
@@ -685,9 +713,15 @@ aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
 aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
 # Midi Connections
 # -------------------------------------------------------------------
+pw-link "Midi-Bridge:Midi Through:(capture_0) Midi Through Port-0" "qsynth:midi_00"
+pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 7-0" "qsynth:midi_00"
+pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 7-1" "qsynth:midi_00"
+pw-link "Midi-Bridge:LiveMusic Output:(capture_5) Click" "qsynth:midi_00"
+pw-link "Midi-Bridge:LiveMusic Output:(capture_0) Fluid" "qsynth:midi_00"
 
-# Set the Volumes at the Alsa level
-/home/ebin/AlsaSet.sh
+pw-link "Carla.0/MIDI Guitar 2:event-out" "qsynth:midi_00"
+
+
 
 exit
 

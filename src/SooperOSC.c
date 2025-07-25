@@ -331,6 +331,8 @@ void MyOSCPoll(char DownBeat)
 
     if (SLOSCaddr == NULL || osc_server == 0)
     {
+        printd(LogError, "Can't open osc_server %x \n",osc_server);
+
         return;
     }
 

@@ -13,6 +13,7 @@
 # formatting: yapf LiveMusicCharts.py >LiveMusicCharts1.py
 #------------------------------------------------#
 import os
+import re
 import argparse
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
@@ -127,8 +128,7 @@ def WriteFile(fname, dirname):
             FileName = FileName[0:30]
 
         if (FileRef.find("mp3") > 0):
-            theFile.write("[<a style=\"color:red\" href=\"" + FileRef + "\">" +
-                          FileName + "</a>]\n")
+            theFile.write("[<a style=\"color:red\" href=\"" + FileRef + "\">" + FileName + "</a>]\n")
         elif (FileRef.find("tg") > 0):
             theFile.write("[<a style=\"color:blue\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
@@ -136,6 +136,30 @@ def WriteFile(fname, dirname):
             theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mscz") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("pt2") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("ptb") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp2") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp3") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp4") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp5") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp6") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp7") > 0):
             theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("pdf") > 0):
@@ -162,6 +186,7 @@ def WriteFile(fname, dirname):
     theFile.write(ModString)
     #  theFile.write("\n</code></LiveMusic>\n")
     theFile.write("</LiveMusic>\n")
+
 
     # Add the link for the charts
     for x in range(0, sSrcIndex):
@@ -439,6 +464,31 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        if (filename.endswith("pt2")):
+            logger.debug ("Midi %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        if (filename.endswith("gp")):
+            logger.debug ("gp %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        if (filename.endswith("gp2")):
+            logger.debug ("gp2 %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        if (filename.endswith("gp3")):
+            logger.debug ("gp3 %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
+        if (filename.endswith("gp4")):
+            logger.debug ("gp4 %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
         if (filename.endswith("mid")):
             logger.debug ("Midi %s", filename)
             sHREFFile[sHREFIndex] = filename
@@ -599,6 +649,8 @@ a:visited {\n\
     PadString = Padding[1:PadLev]
     theFile.write("[<a style=\"color:cyan\" href=\"index_dir.html\">Directory View" + PadString + "</a>] ")
 
+#    WriteString=[]
+#    Count = 0
     for x in List:
         FileName = os.path.basename(x)
         DirName = os.path.basename(os.path.dirname(x))
@@ -629,6 +681,8 @@ a:visited {\n\
                 theFile.write(
                     "<a style=\"color:red\" href=\"#TOP\">TOP</a><br>")
 
+        logger.debug (" ???? " + FileNoExt)
+
 #        theFile.write("[<a href=./"+DirName+"/"+FileName+">"+FileNoExt+PadString+"</a>]\n")
         theFile.write("[<a href=" + x + ">" + FileNoExt + PadString +
                       "</a>]\n")
@@ -652,6 +706,33 @@ a:visited {\n\
             theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mscz") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("pt2") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("ptb") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp2") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp3") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp4") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp5") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp6") > 0):
+            theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("gp7") > 0):
             theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("pdf") > 0):
@@ -837,7 +918,6 @@ def index_folder(folderPath):
     indexText += "body { \nbackground-image: url(../background.png);padding-right: 20px;\nheight: 100%;line-height : 200%}"
     indexText += "</style>\n</head>\n"
 
-
     for file in files:
         #Avoiding index.html files
         if file != 'index_dir.html' and file != "background.png":
@@ -996,8 +1076,7 @@ if (ConvertGP):
         ClearVariables()
         for filename in Files:
             #        Check for an html file "ptb",
-            if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5",
-                                   "gp6", "gp7", "gpx", "ptb", ".xml"))):
+            if (filename.endswith(("gp", "gp1", "gp2", "gp3", "gp4", "gp5","gp6", "gp7", "gpx", "ptb", ".xml"))):
                 #           logger.debug ("Guitar Pro %s", filename)
                 MuseFileName = os.path.splitext(filename)[0]
                 MuseFileName = Root + "/" + MuseFileName + ".mscz"
@@ -1005,7 +1084,7 @@ if (ConvertGP):
                 logger.debug ("Guitar New Pro ", MuseFileName)
                 #            Command="ConvertGPtoMScore.sh "+filename+" "+MuseFileName
                 if (not os.path.exists(MuseFileName)):
-                    print("MuseName Doesn't ",MuseFileName)
+                    print("MuseName Doesn't Exist",MuseFileName)
                     #              logger.debug ("File Does not exist")
                     Command = "mscore -S EliasTab1.mss -f " + Root + "/" + filename + " -o " + MuseFileName + " > /dev/null 2>&1 "
                     logger.debug(Command)
@@ -1040,7 +1119,7 @@ if (not os.path.exists(theFileName) and CreateIndexFile):
     ClearVariables()
     CreateNewHTML(theFileName, os.getcwd(), 0)
 
-# This returns file in one directry
+# This returns file in one directory
 # for Files in os.listdir(BaseDir):
 # This is recursive
 #-------------------------------------------------------
@@ -1118,7 +1197,9 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
 
 # print(MySongList)
 if (CreateIndexFile):
-    MySongList.sort()
+#    MySongList.sort()
+    MySongList = sorted(MySongList, key=lambda x: re.sub(r"\s+", "", x.casefold()))
+
     logger.info("CreateIndexFile ----- List %d",len(MySongList))
     logger.debug(MySongList)
     GenerateIndex(BaseDir, MySongList, ReferenceCreate)
@@ -1154,3 +1235,8 @@ logger.info("Version %s",Version)
 # find ./ -name \*.conv -print0 | xargs -0 rename 's/.conv$//'
 # 
 # 
+    # if (sSrcIndex):
+    #     # ejk added
+    #     print(sSrcFile)
+    #     sSrcFile.sort()
+    #     exit

@@ -425,7 +425,7 @@ function SetPlacement {
         LiveMusicAppDesktop=2
         CarlaDesktop=2
         LooperDesktop=2
-        MidiDesktop=32415
+        MidiDesktop=2
         PatchageDesktop=7
         PlayerDesktop=7
         DrumDesktop=7
@@ -509,7 +509,7 @@ function SetPlacement1920 {
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,3650,0,1000,850
         
-        wmctrl -r qsynth -e 0,640,80,1600,400
+        wmctrl -r qsynth -e 0,3150,2000,400,200
         wmctrl -r qsynth -t $MidiDesktop
     else
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
@@ -517,7 +517,7 @@ function SetPlacement1920 {
         wmctrl -F -r LiveMusicApp_1 -e 0,90,0,2300,1350
         
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,3650,0,1100,400
+        wmctrl -r SooperLooper -e 0,3650,0,400,200
         
         wmctrl -r qsynth -e 0,1450,80,1400,400
         wmctrl -r qsynth -t $MidiDesktop
@@ -1005,7 +1005,7 @@ echo "***************** Starting SetUpApplications"  | tee $LogFile
 SetUpApplications
 echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
-SetUpConnections
+# SetUpConnections
 
 Delay 10
 SetPlacement
