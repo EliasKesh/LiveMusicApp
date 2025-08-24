@@ -477,7 +477,10 @@ void MyOSCJackVol(int Volume, int channel)
 //    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
 //    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
 
-    VolumeFloat = (float)Volume/128;
+    VolumeFloat = ConvertToLogF((float)(Volume)/128);
+//printf("MyOMyOSCJackVolSCCarla:%d %f\n",Volume, VolumeFloat);
+
+//    VolumeFloat = (float)Volume/128;
     if (VolumeFloat > 0.97)
     {
         VolumeFloat = 1.0;
@@ -607,27 +610,28 @@ char OSCString[255];
     if (Carlaaddr != NULL)
     {
         sprintf(OSCString,"/Carla/%d/set_parameter_value",CarlaRackNum);
+        printd(LogDebug, "MyOSCJackMute OSC %s %d\n",OSCString, Mute);
 
         switch (channel)
         {
         case 0xff:
-            lo_send(Carlaaddr, OSCString, "if", 0, Mute);
+            lo_send(Carlaaddr, OSCString, "if", 0, (float)Mute);
             break;
 
         case 0:
-            lo_send(Carlaaddr, OSCString, "if", 11, Mute);
+            lo_send(Carlaaddr, OSCString, "if", 11, (float)Mute);
             break;
 
         case 1:
-            lo_send(Carlaaddr, OSCString, "if", 20, Mute);
+            lo_send(Carlaaddr, OSCString, "if", 20, (float)Mute);
             break;
 
         case 2:
-            lo_send(Carlaaddr, OSCString, "if", 29, Mute);
+            lo_send(Carlaaddr, OSCString, "if", 29, (float)Mute);
             break;
 
         case 3:
-            lo_send(Carlaaddr, OSCString, "if", 38, Mute);
+            lo_send(Carlaaddr, OSCString, "if", 38, (float)Mute);
             break;
         }
     }

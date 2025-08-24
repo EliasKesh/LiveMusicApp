@@ -1896,6 +1896,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
     //  gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
 
+    //NewValue = ConvertToLogInt(NewValue);
     if (ThisPatch->OutPort == InternalPort) {
         MyOSCJackVol(NewValue, typeOSCVolGuitarL);
         MyOSCJackVol(NewValue, typeOSCVolGuitarR);
@@ -1925,7 +1926,8 @@ void VScale2_Changed(GtkAdjustment *adj) {
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
     gMyInfo.MidiVolume = (char)gtk_adjustment_get_value(Adjustment2) * 1.25;
 
-    LogValue = MidiToDB(NewValue);
+    //LogValue = MidiToDB(NewValue);
+    //LogValue = ConvertToLogInt(NewValue);
     printd(LogInfo, "Vscale 2 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
@@ -1953,7 +1955,9 @@ void VScale3_Changed(GtkAdjustment *adj) {
     ThisPatchNum = gMyInfo.HardSlider[2];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-    LogValue = MidiToDB(NewValue);
+    //LogValue = MidiToDB(NewValue);
+    //LogValue = ConvertToLogInt(NewValue);
+
     printd(LogInfo, "Vscale 3 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
@@ -2466,6 +2470,56 @@ int CloseHistoryFile(void) {
     fclose(FileHistory);
 }
 
+/*-----------------------------------------------
+ * Function: ConvertToLog
+ *
+ * Description:  convert linear to Audio
+ *
+ *----------------------------------------------*/
+float ConvertToLogF(float Norm) {
+float LogValue;
+
+    //LogValue = (log10(Norm)/1.8);
+    //LogValue = 255*pow((float)Norm / 255, 4);
+    //LogValue = (int)(24*log2(Norm));
+    //LogValue = (int)(pow(Norm, 0.61) * 7.4) - 10;
+    //LogValue = pow(stop/1, n/(double)(N-1));  
+    LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
+    if (LogValue < 0.0)
+        LogValue = 0.0;
+
+    printd(LogMidi, "ConvertToLogF %f %f \n", Norm, LogValue);
+
+        // Convert to Audio (log)-ish
+    //    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
+    //    LogValue = (int)(24*log2(Value));
+return(LogValue);
+}
+
+int ConvertToLogInt(int Value) {
+float NormValue;
+int ReturnVal;
+
+    /* Check values
+     */
+    if (Value < 3) {
+        Value = 0;
+    } else if (Value > 124) {
+        Value = 127;
+    }
+    
+    NormValue = (float)Value/127;
+
+    ReturnVal = ConvertToLogF(NormValue)*127;
+
+    if (ReturnVal < 3) {
+        ReturnVal = 0;
+    } else if (ReturnVal > 124) {
+        ReturnVal = 127;
+    }    
+return(ReturnVal);
+}
+
 /*--------------------------------------------
  * Function:        SetExpressionControl
  *
@@ -2477,29 +2531,13 @@ int SetExpressionControl(int Controller, int Value) {
     int LogValue = 0;
     float NormValue = 0.0;
 
-    /* Check values
-     */
-    if (Value < 3) {
-        Value = 0;
-    } else if (Value > 124) {
-        Value = 127;
-    }
-
-    // Convert to Audio (log)-ish
-    //    LogValue = (int)(pow(Value, 0.61) * 7.4) - 10;
-    //    LogValue = (int)(24*log2(Value));
 
 
 //    LogValue = (int)(pow(Value, 0.675) * 4.8) - 1;
-    NormValue = (float)Value/127;
-    LogValue = (NormValue / (1 + (1 - NormValue) * 2) * 127);
+//    NormValue = (float)Value/127;
+//    LogValue = (NormValue / (1 + (1 - NormValue) * 2) * 127);
 
-    if (LogValue < 3) {
-        LogValue = 0;
-    } else if (LogValue > 124) {
-        LogValue = 127;
-    }
-
+    LogValue = ConvertToLogInt(Value);
     //    LogValue=Value;
     printd(LogInfo, "SetExpressionControl %d %d %d\n", Controller, Value,
            LogValue);
@@ -2509,6 +2547,7 @@ int SetExpressionControl(int Controller, int Value) {
     // Guitar volume, currently goes to mixed
     case ecGuitarVolume:
         // Guitar Volume
+        LogValue = Value;
         ReturnVal = gMyInfo.AnalogVolume;
         gMyInfo.SliderGUINumber = Slider1;
         gMyInfo.SliderGUIUpdate = GuiUpdateCount;
@@ -2532,6 +2571,7 @@ int SetExpressionControl(int Controller, int Value) {
     // everything volume, currently goes to mixed
     case ecMasterVolume:
         // Master Volume (OSC)
+        LogValue = Value;
         ReturnVal = gMyInfo.V3Volume;
         gMyInfo.SliderGUINumber = Slider3;
         gMyInfo.SliderGUIValue = LogValue;

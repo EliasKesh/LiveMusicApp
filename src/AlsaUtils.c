@@ -1171,25 +1171,34 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
             break;
 
         case 33:
-            printd(LogMidi, "Midi Pass\n");
             if (DataValue == 0) {
-                gMyInfo.MidiPassThru = 1;
-            } else {
-                gMyInfo.MidiPassThru = 0;
+              SetMetronomeStatus(!gMyInfo.MetronomeOn);
             }
-
-            ToggleMidi(ControlValue);
-            break;
-
-        case 49:
-            printd(LogMidi, "Metronome %d\n", DataValue);
-            //            if (DataValue == 0) {
-            SetMetronomeStatus(!gMyInfo.MetronomeOn);
-            //            }
 
             if (gMyInfo.MetronomeOn) {
                 SetDAWLed(ControlValue, 1);
             } else {
+                SetDAWLed(ControlValue, 0);
+            }
+
+            // printd(LogMidi, "Midi Pass\n");
+            // if (DataValue == 0) {
+            //     gMyInfo.MidiPassThru = 1;
+            // } else {
+            //     gMyInfo.MidiPassThru = 0;
+            // }
+
+            // ToggleMidi(ControlValue);
+            // break;
+
+        case 49:
+
+            printd(LogMidi, "Midi Mute\n");
+            if (DataValue == 0) {
+                MyOSCJackMute(1, 1);
+                SetDAWLed(ControlValue, 1);
+            } else {
+                MyOSCJackMute(0, 1);
                 SetDAWLed(ControlValue, 0);
             }
 

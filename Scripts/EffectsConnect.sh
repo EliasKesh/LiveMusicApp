@@ -477,10 +477,14 @@ function NewRack {
 #---------------------------------------------------------------------#
 # Main script execution
 # Clear all connections to Carla Rack
-# ClearRack
+if [ "$1" == "clear" ]; then
+    echo "ClearRack"
+    ClearRack
+    # Clear the Plasma connections
+    ClearPlasma
+fi
 
-# Clear the Plasma connections
-ClearPlasma
+
 # Set the Volumes at the Alsa level
 #/home/ebin/AlsaSet.sh
 
@@ -598,7 +602,6 @@ DoLink "qsynth:right" "${MixerInput2R}"
 # -------------------------------------------------------------------
 # Looper Connection
 # FindEffects gx_head_fx
-# FindEffects "sooperlooper"
 # LoopIn1="${EffectInL}"
 # LoopIn2="${EffectInR}"
 # DoLink "${LastEffectOutL}" "${EffectInL}"
@@ -610,10 +613,9 @@ DoLink "qsynth:right" "${MixerInput2R}"
 #ChainNextRight "${MainInputR}"
 
 # Looper output
-ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-DoLink "${EffectOutL}" "${MixerInput4L}"
-DoLink "${EffectOutR}" "${MixerInput4R}"
-
+#FindEffects "sooperlooper"
+#DoLink "${EffectOutL}" "${MixerInput4L}"
+#DoLink "${EffectOutR}" "${MixerInput4R}"
 
 # Looper Connection
 # -------------------------------------------------------------------
@@ -646,19 +648,34 @@ aconnect "NMSVE":"0" "LiveMusic":"0"
 # DoLink "Midi-Bridge:LiveMusic Output:(capture_0) Fluid"  "Midi-Bridge:KORG INC- nanoKONTROL2 at usb-0000:00:14-0-7-2-4-1-2-1- full speed:(playback_0) nanoKONTROL2 nanoKONTROL2 _ CTR"
 
 # Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
-DoLink "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in_1"
-pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
+# DoLink  "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "gx_head_amp:midi_in_1"
+pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
+# Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
+# "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
 
 # DoLink "Midi-Bridge:LvSwitch:(playback_0) SwitchIn" "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix"
 
 # Midi-Bridge:LiveMusic Output:(capture_2) Looper
-DoLink "Midi-Bridge:LiveMusic Output:(capture_2) Looper" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
+# DoLink ""Midi-Bridge:LiveMusic Output:(capture_2) Looper" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
+DoLink "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
 aconnect "LiveMusic Output":"2" "sooperlooper":"0"
 
+# Midi-Bridge:LiveMusic OutputFluid (capture)
+# Midi-Bridge:LiveMusic OutputGuitarix (capture)
+# Midi-Bridge:LiveMusic OutputLooper (capture)
+# Midi-Bridge:LiveMusic OutputTransport (capture)
+# Midi-Bridge:LiveMusic OutputTempo (capture)
+# Midi-Bridge:LiveMusic OutputClick (capture)
+# Midi-Bridge:LiveMusic OutputPedal (capture)
+# Midi-Bridge:LiveMusic OutputDAWPort (capture)
+# Midi-Bridge:LiveMusic OutputDRLoop (capture)
+# Midi-Bridge:LiveMusic OutputUser2 (capture)
+# Midi-Bridge:LiveMusic OutputUser3 (capture)
+# Midi-Bridge:LiveMusic OutputInternal (capture)
+
+
 # Midi-Bridge:LiveMusic Output:(capture_3) Transport
-
 # Midi-Bridge:LiveMusic Output:(capture_4) Tempo
-
 # Midi-Bridge:LiveMusic Output:(capture_5) Click
 aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
 
@@ -713,11 +730,11 @@ aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
 aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
 # Midi Connections
 # -------------------------------------------------------------------
-pw-link "Midi-Bridge:Midi Through:(capture_0) Midi Through Port-0" "qsynth:midi_00"
-pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 7-0" "qsynth:midi_00"
-pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 7-1" "qsynth:midi_00"
-pw-link "Midi-Bridge:LiveMusic Output:(capture_5) Click" "qsynth:midi_00"
-pw-link "Midi-Bridge:LiveMusic Output:(capture_0) Fluid" "qsynth:midi_00"
+pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "qsynth:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "qsynth:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "qsynth:midi_00"
+pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "qsynth:midi_00"
+pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "qsynth:midi_00"
 
 pw-link "Carla.0/MIDI Guitar 2:event-out" "qsynth:midi_00"
 

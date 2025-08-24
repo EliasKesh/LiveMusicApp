@@ -708,5 +708,7 @@ void UpdateStatus(char *String);
 void jack_poll(void);
 void SetMetronomeStatus(char State);
 float MidiToDB (int Volume);
+float ConvertToLogF(float Norm);
+int ConvertToLogInt(int Value);
 
 #endif

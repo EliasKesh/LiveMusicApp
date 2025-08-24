@@ -43,7 +43,7 @@ class Effect(Enum):
 #        DubDelay = auto()    # Additional delay
 #        FlangeChorus = auto() # Combined flanger/chorus
 
-GuitarMidiVar=0
+GuitarMidiVar=1
 # for testing.
 # oscdump 1234
 # Chttps://github.com/brummer10/SpecMatch.git
@@ -86,19 +86,23 @@ def MidiGuitar(switch):
     if (switch == 0):
         if (GuitarMidiVar == 1):
             theswitch = 2
-        if (GuitarMidiVar == 2):
+        elif (GuitarMidiVar == 2):
             theswitch = 1
+        else:
+            theswitch = 1
+            GuitarMidiVar = 1
+
 
     # Guitar on, Midi Off
     if (theswitch == 1):
         GuitarMidiVar = 1
         print("MidiGuitar 1")
         EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mixer.value)
-        print(EffectString)
         liblo.send(target, EffectString, 11, 0.0)
         EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mixer.value)
-        print(EffectString)
         liblo.send(target, EffectString, 20, 1.0)
+        EffectString = "/Carla/%d/set_active" % (Effect.MidiConvert.value)
+        liblo.send(target, EffectString, 0)
 
     # Guitar off, Midi On
     if (theswitch == 2):
@@ -108,6 +112,17 @@ def MidiGuitar(switch):
         liblo.send(target, EffectString, 11, 1.0)
         EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mixer.value)
         liblo.send(target, EffectString, 20, 0.0)
+        EffectString = "/Carla/%d/set_active" % (Effect.MidiConvert.value)
+        liblo.send(target, EffectString, 1)
+
+    if (theswitch == 3):
+        GuitarMidiVar = 1
+        EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mixer.value)
+        liblo.send(target, EffectString, 11, 0.0)
+        EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mixer.value)
+        liblo.send(target, EffectString, 20, 0.0)
+        EffectString = "/Carla/%d/set_active" % (Effect.MidiConvert.value)
+        liblo.send(target, EffectString, 1)
 
 
 
@@ -118,7 +133,7 @@ def DistortionControl(level):
     # Set Distortion volume
     EffectString = "/Carla/%d/set_volume" % (Effect.Distortion1.value)
 #    Value=(0.7 * rescaleMidiL(InitLevel, 1.0, 0.20)) + 0.2
-    Value=rescale(InitLevel, 128.0, 0.0, 0.40, 1.25)
+    Value=rescale(InitLevel, 128.0, 0.0, 0.22, 1.25)
     liblo.send(target, EffectString, Value )
 
     # Set Distortion amount (0-100)
@@ -149,7 +164,6 @@ def DistortionControl(level):
     Value=rescaleMidi(InitLevel, 0.0, 0.75)
     EffectString = "/Carla/%d/set_drywet" % (Effect.Distortion2.value)
 #    liblo.send(target, EffectString, Value)
-    print("WahControl ", Value)
 
 #  Parameter Value 0 Master Out
 #  Parameter Value 1 Pregain
@@ -365,7 +379,9 @@ def main():
     global target
     global server
     global err
+    global GuitarMidiVar
 
+    GuitarMidiVar = 1
     # Initialize OSC communication
     try:
         target = liblo.Address(22752)
@@ -421,17 +437,18 @@ def main():
     with mido.open_input('SwitchIn', virtual=True, client_name='LvSwitch') as inport:
 
         for msg in inport:
+            print("*********************")
             print(msg)
 #            print(msg.type)
 
             # Handle program changes (preset switches)
             if (msg.type == "program_change"):
 #                print(msg.program)
-                ResetToDefault()
 
                 match msg.program:
                     case 0:
                         print("Jazz")
+                        ResetToDefault()
                         ChorusControl(127)
                         DistortionControl(0)
                         EQControl("Chorus")
@@ -441,18 +458,21 @@ def main():
 
                     case 1:
                         print("Straight")
+                        ResetToDefault()
                         ChorusControl(25)
                         DistortionControl(0)
                         EQControl("Normal")
 
                     case 2:
                         print("Blues")
+                        ResetToDefault()
                         DistortionControl(82)
                         ChorusControl(25)
                         EQControl("Blues")
 
                     case 3:
                         print("Acoustic")
+                        ResetToDefault()
                         
                         # Bass 0 - 1
                         Value=rescale(0.75, 0.0, 1.0, 0.0, 1.0)
@@ -474,9 +494,11 @@ def main():
 
                     case 4:
                         print("Juicy")
+                        ResetToDefault()
 
                     case 5:
                         print("Funky")
+                        ResetToDefault()
                         EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
                         Value=rescale(1.0, 0.0, 1.0, 0.0, 1.0)
                         liblo.send(target, EffectString, (Value) )
@@ -514,7 +536,7 @@ def main():
 
                     case 14:
                         print("GuiarMidi14")
-                        MidiGuitar(2)
+                        MidiGuitar(3)
 
                     case _:
                         print("Found Nothing")

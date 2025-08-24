@@ -65,7 +65,7 @@ if [ "${1}" == "CarlaGuitar" ]; then
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
     export PIPEWIRE_AUTOCONNECT=false
-    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 ${PipeStart} carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.0;1.5;1.5" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
     exit 0
 fi
 
