@@ -1844,54 +1844,54 @@ int StartPlayer (void) {
     if (WeAreLooping) {
         sprintf (PlayerString,
                  //              "-use-filedir-conf=./Prefs/mplayer/
-                 "mplayer -identify \
-                -nocache \
-                -ao %s \
-                -slave \
-                -ss %f \
-                -endpos %f \
-                -volume %3.1f \
-                -speed %0.2f \"%s\" \
-                -hr-mp3-seek \
-                -fixed-vo \
-                -osdlevel 0 \
-                -quiet \
-                -idle \
-                -af scaletempo \
-                -loop 0  \
-                >/tmp/LiveMusicIn 2>/dev/null",
-                 OutputString,
-                 gtk_adjustment_get_value (FineStartAdjustment),
-                 gtk_adjustment_get_value (FineEndAdjustment),
-                 gtk_adjustment_get_value (VolumeAdjustment),
-                 //              gtk_adjustment_get_value(SpeedAdjustment),
-                 CurrentSpeed, CurrentFile);
-        // -fixed-ao hangs
+"mplayer -identify \
+-nocache \
+-slave \
+-ss %f \
+-endpos %f \
+-volume %3.1f \
+-speed %0.2f \"%s\" \
+-hr-mp3-seek \
+-fixed-vo \
+-osdlevel 0 \
+-quiet \
+-idle \
+-af scaletempo \
+-loop 0  \
+>/tmp/LiveMusicIn 2>/dev/null",
+gtk_adjustment_get_value (FineStartAdjustment),
+gtk_adjustment_get_value (FineEndAdjustment),
+gtk_adjustment_get_value (VolumeAdjustment),
+//              gtk_adjustment_get_value(SpeedAdjustment),
+CurrentSpeed, CurrentFile);
+// -fixed-ao hangs
         printd (LogPlayer, "calling  Loop %s\n", PlayerString);
+// -ao %s \
+
     }
     else {
         sprintf (PlayerString,
-                 "mplayer \"%s\" \
-                -identify \
-                -nocache \
-                -ao %s \
-                -slave \
-                -ss %f \
-                -volume %f \
-                -speed %0.2f \
-                -idle \
-                -hr-mp3-seek \
-                -fixed-vo \
-                -quiet \
-                -idle \
-                -af scaletempo \
-                >/tmp/LiveMusicIn 2>/dev/null",
-                 (char *) CurrentFile, OutputString,
-                 CurrentSongPosition,
-                 gtk_adjustment_get_value (VolumeAdjustment),
-                 CurrentSpeed);
+"mplayer \"%s\" \
+-identify \
+-nocache \
+-slave \
+-ss %f \
+-volume %f \
+-speed %0.2f \
+-idle \
+-hr-mp3-seek \
+-fixed-vo \
+-quiet \
+-idle \
+-af scaletempo \
+>/tmp/LiveMusicIn 2>/dev/null",
+(char *) CurrentFile,
+CurrentSongPosition,
+gtk_adjustment_get_value (VolumeAdjustment),
+CurrentSpeed);
         printd (LogPlayer, "calling %s\n", PlayerString);
     }
+// -ao %s \
 
     OutPipe = popen (PlayerString, "w");
     if (!OutPipe) {

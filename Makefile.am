@@ -1,5 +1,6 @@
 bin_PROGRAMS = LiveMusicApp
 ACLOCAL_AMFLAGS = -I m4
+AUTOMAKE_OPTIONS = subdir-objects
 
 LiveMusicApp_SOURCES = src/AlsaUtils.c \
 src/HTML.c \

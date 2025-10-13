@@ -34,6 +34,7 @@ AC_CHECK_LIB([m], [main])
 AC_CHECK_LIB([rt], [main])
 AC_CHECK_LIB([xmltok], [main])
 AC_CHECK_LIB([pthread], [main])
+AC_CHECK_LIB([xml2], [main])
 
 # PKG_CHECK_MODULES(GTK4, [gtk4])
 # PKG_CHECK_MODULES(WEBKIT2GTK, [webkitgtk-6.0])

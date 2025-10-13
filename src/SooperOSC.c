@@ -69,7 +69,7 @@ int OSCCommand(int Command, char Option)
 {
     char NewCommand[100];
 
-    printd(LogDebug, "OSCCommand: %d %d\n", Command, Option);
+    printd(LogOSC, "OSCCommand: %d %d\n", Command, Option);
     if (SLOSCaddr == NULL)
     {
         return (1);
@@ -89,85 +89,85 @@ int OSCCommand(int Command, char Option)
 
     case OSCRec:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCRec %s\n", NewCommand);
+        printd(LogOSC, "OSCRec %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "record");
         gMyInfo.LoopTempo = gMyInfo.Tempo;
         break;
 
     case OSCPause:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCPause %s\n", NewCommand);
+        printd(LogOSC, "OSCPause %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "pause");
         break;
 
     case OSCTrig:
 
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCTrig %s\n", NewCommand);
+        printd(LogOSC, "OSCTrig %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "trigger");
         break;
 
     case OSCUndo:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCUndo %s\n", NewCommand);
+        printd(LogOSC, "OSCUndo %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "undo");
         break;
 
     case OSCAddLoop:
-        printd(LogDebug, "OSC Add\n");
+        printd(LogOSC, "OSC Add\n");
         lo_send(SLOSCaddr, "/loop_add", "if", 1, DefaultLoopLength);
         break;
 
     case OSCMute:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCMute %s\n", NewCommand);
+        printd(LogOSC, "OSCMute %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "mute");
         break;
 
     case OSCStartRecord:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCStartRecord %s\n", NewCommand);
+        printd(LogOSC, "OSCStartRecord %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "record");
         break;
 
     case OSCStopRecord:
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCStopRecord %s\n", NewCommand);
+        printd(LogOSC, "OSCStopRecord %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "record");
         break;
 
     case OSCSyncOn:
         sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
         lo_send(SLOSCaddr, NewCommand, "sf", "sync", 1.0);
-        printd(LogDebug, "Sync On %s\n", NewCommand);
+        printd(LogOSC, "Sync On %s\n", NewCommand);
         break;
 
     case OSCSyncOff:
         sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-        printd(LogDebug, "Sync Off %s\n", NewCommand);
+        printd(LogOSC, "Sync Off %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "sf", "sync", 0.0);
         break;
 
     case OSCSyncSource:
         //      sprintf(NewCommand, "/sl/-1/set", CurrentLoop);
 
-        printd(LogDebug, "OSCSyncSource %d\n", Option);
+        printd(LogOSC, "OSCSyncSource %d\n", Option);
         lo_send(SLOSCaddr, "/set", "si", "sync_source", Option);
         break;
 
     case OSCRecThres:
         sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
-        printd(LogDebug, "Sync Off %s\n", NewCommand);
+        printd(LogOSC, "Sync Off %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "sf", "rec_thresh", (float)Option / 127);
         break;
 
     case OSCRecLoop:
         sprintf(NewCommand, "/sl/%d/set", CurrentLoop);
         lo_send(SLOSCaddr, NewCommand, "si", "sync", 1);
-        printd(LogDebug, "Sync On %s\n", NewCommand);
+        printd(LogOSC, "Sync On %s\n", NewCommand);
 
         sprintf(NewCommand, "/sl/%d/hit", CurrentLoop);
-        printd(LogDebug, "OSCRecLP %s\n", NewCommand);
+        printd(LogOSC, "OSCRecLP %s\n", NewCommand);
         lo_send(SLOSCaddr, NewCommand, "s", "record");
 
         gMyInfo.LoopTempo = gMyInfo.Tempo;
@@ -194,8 +194,8 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
     int index = argv[0]->i;
     float val = argv[2]->f;
 
-//    printd(LogDebug, "ctrl_handler %s %s %s %s\n", path, types, data, user_data);
-//    printd(LogDebug, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
+//    printd(LogOSC, "ctrl_handler %s %s %s %s\n", path, types, data, user_data);
+//    printd(LogOSC, "ctrl_handler %d %s f=%f\n", index, argv[1], val);
     gMyInfo.LoopPosition = val;
 
     /* Check to see if we should send the
@@ -203,7 +203,7 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
     */
     if (val > 0 && (gMyInfo.RecordStopLoop >= 0))
     {
-        printd(LogDebug, "ctrl_handler Stop Loop\n");
+        printd(LogOSC, "ctrl_handler Stop Loop\n");
         gMyInfo.RecordStopLoop = -1;
         OSCCommand(OSCRec, 0);
     }
@@ -224,12 +224,12 @@ static int midi_handler(const char *path, const char *types, lo_arg **argv, int 
     int Value = argv[2]->i;
     int Controller = argv[1]->i;
 
-    printd(LogDebug, "midi_handler1 %s %s\n", path, types);
-    printd(LogDebug, "midi_handler %s %d %d\n", argv[0], Controller, Value);
+    printd(LogOSC, "midi_handler1 %s %s\n", path, types);
+    printd(LogOSC, "midi_handler %s %d %d\n", argv[0], Controller, Value);
 
     if (!strcmp(argv[0], "button"))
     {
-        printd(LogDebug, "buttons %d %d\n", Controller, Value);
+        printd(LogOSC, "buttons %d %d\n", Controller, Value);
         gMyInfo.LayoutCall = TRUE;
         gMyInfo.LayoutCallParam1 = Controller;
         gMyInfo.LayoutCallParam2 = TRUE;
@@ -237,7 +237,7 @@ static int midi_handler(const char *path, const char *types, lo_arg **argv, int 
 
     if (!strcmp(argv[0], "slider"))
     {
-        printd(LogDebug, "Slider %d %d\n", Controller, Value);
+        printd(LogOSC, "Slider %d %d\n", Controller, Value);
         SetExpressionControl(Controller, Value);
     }
 
@@ -263,7 +263,7 @@ void MyOSCInit(char *PortNumber)
 {
     lo_method LoMidi;
 
-    printd(LogDebug, "MyOSCInit: %s  L=%s V=%s H=%s\n",
+    printd(LogOSC, "MyOSCInit: %s  L=%s V=%s H=%s\n",
            gMyInfo.OSCIPAddress,
            gMyInfo.OSCPortNumLooper,
            gMyInfo.OSCPortNumJackVol,
@@ -289,7 +289,7 @@ void MyOSCInit(char *PortNumber)
         gMyInfo.OSCIPAddress,
         gMyInfo.OSCPortNumHydrogen);
 
-    printd(LogDebug, "Init Second OSC \n");
+    printd(LogOSC, "Init Second OSC \n");
     int osc_port;
 
     //   osc_server = lo_server_new("15200", NULL);
@@ -298,7 +298,7 @@ void MyOSCInit(char *PortNumber)
     {
         strcpy(our_url, lo_server_get_url(osc_server));
         osc_port = lo_server_get_port(osc_server);
-        printd(LogDebug, "MyOSCInit Leave %s %d %d\n",
+        printd(LogOSC, "MyOSCInit Leave %s %d %d\n",
                our_url,
                osc_port,
                osc_server);
@@ -368,7 +368,7 @@ void MyOSCTap(char DownBeat)
 void MyOSCClose(void)
 {
 
-    printd(LogDebug, "MyOSCClose: %x\n", osc_server);
+    printd(LogOSC, "MyOSCClose: %x\n", osc_server);
     lo_address_free(SLOSCaddr);
     lo_address_free(JackVoladdr);
     lo_address_free(Carlaaddr);
@@ -388,7 +388,7 @@ void MyOSCSetSync(char Type)
     char NewCommand[100];
 
     // sprintf(NewCommand,"/sl/%d/hit", CurrentLoop);
-    printd(LogDebug, "MyOSCSetSync %d\n", Type);
+    printd(LogOSC, "MyOSCSetSync %d\n", Type);
 
     // Start recording.
     if (Type == 1)
@@ -468,31 +468,29 @@ void MyOSCJackVol(int Volume, int channel)
     float VolumeFloat;
     char OSCString[255];
 
-//    VolumeFloat = ((float)Volume / 127);
-//    VolumeFloat = Log(128/(Volume + 1)) * (-10);
-//    VolumeFloat=(exp((float)Volume/128)*74 - 74)/128;
-//    VolumeFloat=(exp((float)Volume/32)*2.5-2.5);
-//    VolumeFloat=(exp((float)Volume/42)*6.5-6.5);
-
-//    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
-//    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
-
     VolumeFloat = ConvertToLogF((float)(Volume)/128);
-//printf("MyOMyOSCJackVolSCCarla:%d %f\n",Volume, VolumeFloat);
+    printd(LogOSC, "MyOSCJackVol: %x %d %f\n", channel, Volume, VolumeFloat);
 
+    
+    // Bandaid fix
+    if (VolumeFloat == 0) {
+        printf(" *****   MyOSCJackVol BANDAID\n");
+        return;
+    }
+    
 //    VolumeFloat = (float)Volume/128;
-    if (VolumeFloat > 0.97)
+    if (VolumeFloat > 1)
     {
         VolumeFloat = 1.0;
     }
-    if (VolumeFloat < 0.03)
+    if (VolumeFloat < 0.0)
     {
         VolumeFloat = 0;
     }
 
     if (JackVoladdr != NULL)
     {
-        printd(LogDebug, "MyOSCJackVol: %x %d %f\n", channel, Volume, VolumeFloat);
+        printd(LogOSC, "MyOSCJackVol: %x %d %f\n", channel, Volume, VolumeFloat);
 
         switch (channel)
         {
@@ -526,7 +524,7 @@ void MyOSCJackVol(int Volume, int channel)
     if (Carlaaddr != NULL)
     {
         sprintf(OSCString,"/Carla/%d/set_parameter_value",CarlaRackNum);
-        printd(LogDebug, "MyOSCCarla: %s %f\n", OSCString, VolumeFloat);
+        printd(LogOSC, "MyOSCCarla: %s %f\n", OSCString, VolumeFloat);
 
         switch (channel)
         {
@@ -568,13 +566,13 @@ char OSCString[255];
 
     if (Mute == 1)
     {
-        printd(LogDebug, "MyOSCJackMute On\n");
+        printd(LogOSC, "MyOSCJackMute On\n");
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
                  DrumMidiChannel, 04, (int)PedalLED7On);
     }
     else
     {
-        printd(LogDebug, "MyOSCJackMute Off\n");
+        printd(LogOSC, "MyOSCJackMute Off\n");
         SendMidi(SND_SEQ_EVENT_CONTROLLER, PedalPort,
                  DrumMidiChannel, 04, (int)PedalLED7Off);
     }
@@ -610,7 +608,7 @@ char OSCString[255];
     if (Carlaaddr != NULL)
     {
         sprintf(OSCString,"/Carla/%d/set_parameter_value",CarlaRackNum);
-        printd(LogDebug, "MyOSCJackMute OSC %s %d\n",OSCString, Mute);
+        printd(LogOSC, "MyOSCJackMute OSC %s %d\n",OSCString, Mute);
 
         switch (channel)
         {

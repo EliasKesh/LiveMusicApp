@@ -161,9 +161,9 @@ def DistortionControl(level):
     # liblo.send(target, EffectString, 1, Value)
 
     # Tube Distortion2
-    Value=rescaleMidi(InitLevel, 0.0, 0.75)
+    Value=rescaleMidi(InitLevel, 0.0, 1.0)
     EffectString = "/Carla/%d/set_drywet" % (Effect.Distortion2.value)
-#    liblo.send(target, EffectString, Value)
+    liblo.send(target, EffectString, Value)
 
 #  Parameter Value 0 Master Out
 #  Parameter Value 1 Pregain

@@ -413,7 +413,15 @@ function SetPlacement {
     #   xinput map-to-output $ExtID HDMI1
     
     ExtraMonitor=`xrandr | grep " connected" | wc -l`
-    
+    if [ "$ExtraMonitor" -eq "1" ]; then
+        YOffset=0
+        ExMonitor=0
+        echo "External Monitor Not Found"
+    else
+        echo "External Monitor Found"
+        ExMonitor=1
+    fi
+
     # On home PC spread it out
     if [ `hostname` == "Keshie" ] ||
     [ `hostname` == "KeshT16" ] ||
@@ -432,14 +440,6 @@ function SetPlacement {
         YOffset=1080
         YOffset=900
         
-        if [ "$ExtraMonitor" -eq "1" ]; then
-            YOffset=0
-            ExMonitor=0
-            echo "External Monitor Not Found"
-        else
-            echo "External Monitor Found"
-            ExMonitor=1
-        fi
         
         SetPlacement1920
 
@@ -454,6 +454,19 @@ function SetPlacement {
         DrumDesktop=3
         YOffset=0
         CarlaDesktop=5
+    elif [ `hostname` == "KeshZen" ]; then
+        AnalogDesktop=3
+        LiveMusicAppDesktop=$AnalogDesktop
+        LooperDesktop=$AnalogDesktop
+        MidiDesktop=$AnalogDesktop
+        PatchageDesktop=$AnalogDesktop
+        PlayerDesktop=$AnalogDesktop
+        DrumDesktop=$AnalogDesktop
+        YOffset=0
+        CarlaDesktop=$AnalogDesktop
+        ExMonitor=0
+
+        SetPlacement1920
     else
         echo "Default PC"
         AnalogDesktop=0
@@ -492,6 +505,10 @@ function SetPlacement {
 function SetPlacement1920 {
     set -x
 
+    Disp1SizeX=2304
+    Disp1SizeY=1440
+
+
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     if [ "$ExMonitor" -eq "1" ]; then
@@ -511,6 +528,24 @@ function SetPlacement1920 {
         
         wmctrl -r qsynth -e 0,3150,2000,400,200
         wmctrl -r qsynth -t $MidiDesktop
+    elif [ `hostname` == "KeshZen" ]; then
+        echo "SetPlacement1920 Zen"
+        Disp1SizeX=2592
+        Disp1SizeY=1620
+
+        wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
+        wmctrl -r LiveMusicApp_1 -e 0,64,1620,2200,1150
+        wmctrl -r LiveMusicApp_1 -b add,maximized_vert
+        
+        wmctrl -r 'Carla - ' -t $CarlaDesktop
+        wmctrl -r 'Carla - ' -e 0,0,0,2200,1600
+
+        wmctrl -r SooperLooper -t $LooperDesktop
+        wmctrl -r SooperLooper -e 0,1400,0,1000,850
+        
+        wmctrl -r qsynth -e 0,1600,1300,400,200
+        wmctrl -r qsynth -t $MidiDesktop
+
     else
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
         #    wmctrl -F -r LiveMusicApp_1 -e 0,0,$YOffset,1850,1050
@@ -1006,8 +1041,9 @@ SetUpApplications
 echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
 # SetUpConnections
+EffectsConnect.sh clear
 
-Delay 10
+Delay 12
 SetPlacement
 SetUpConnections
 

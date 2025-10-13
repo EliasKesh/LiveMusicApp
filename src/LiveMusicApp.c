@@ -785,7 +785,7 @@ int GTKIdel_cb(gpointer data) {
             break;
 
         case Slider3:
-            printd(LogTest, "GTKIdel_cb Slider3 %d \n", Slider3);
+            printd(LogTest, "GTKIdel_cb Slider3 %d  %d \n", Slider3, gMyInfo.SliderGUIValue);
             SetVolume3(gMyInfo.SliderGUIValue / 1.27);
             break;
 
@@ -1929,6 +1929,7 @@ void VScale2_Changed(GtkAdjustment *adj) {
     //LogValue = MidiToDB(NewValue);
     //LogValue = ConvertToLogInt(NewValue);
     printd(LogInfo, "Vscale 2 %d %d \n", NewValue, LogValue);
+    LogValue=NewValue;
 
     if (ThisPatch->OutPort == InternalPort) {
         MyOSCJackVol(NewValue, typeOSCVolMidi);
@@ -1957,7 +1958,7 @@ void VScale3_Changed(GtkAdjustment *adj) {
 
     //LogValue = MidiToDB(NewValue);
     //LogValue = ConvertToLogInt(NewValue);
-
+    LogValue=NewValue;
     printd(LogInfo, "Vscale 3 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
@@ -2042,7 +2043,7 @@ int SetVolume2(int Value) {
 int SetVolume3(int Value) {
     printd(LogDebug, "Slider 3 %x %d\n", Adjustment2, Value);
 
-    if (Value > 98) {
+    if (Value > 100) {
         Value = 100;
     }
 
@@ -2483,7 +2484,16 @@ float LogValue;
     //LogValue = 255*pow((float)Norm / 255, 4);
     //LogValue = (int)(24*log2(Norm));
     //LogValue = (int)(pow(Norm, 0.61) * 7.4) - 10;
-    //LogValue = pow(stop/1, n/(double)(N-1));  
+    //LogValue = pow(stop/1, n/(double)(N-1)); 
+    //    VolumeFloat = ((float)Volume / 127);
+//    VolumeFloat = Log(128/(Volume + 1)) * (-10);
+//    VolumeFloat=(exp((float)Volume/128)*74 - 74)/128;
+//    VolumeFloat=(exp((float)Volume/32)*2.5-2.5);
+//    VolumeFloat=(exp((float)Volume/42)*6.5-6.5);
+
+//    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
+
+//    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
     LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
     if (LogValue < 0.0)
         LogValue = 0.0;
@@ -2502,7 +2512,7 @@ int ReturnVal;
 
     /* Check values
      */
-    if (Value < 3) {
+    if (Value < 0) {
         Value = 0;
     } else if (Value > 124) {
         Value = 127;
@@ -2512,11 +2522,13 @@ int ReturnVal;
 
     ReturnVal = ConvertToLogF(NormValue)*127;
 
-    if (ReturnVal < 3) {
+    if (ReturnVal < 0) {
         ReturnVal = 0;
     } else if (ReturnVal > 124) {
         ReturnVal = 127;
-    }    
+    }
+    printd(LogMidi, "ConvertToLogInt %d %d\n",Value, ReturnVal);
+
 return(ReturnVal);
 }
 
@@ -2531,14 +2543,12 @@ int SetExpressionControl(int Controller, int Value) {
     int LogValue = 0;
     float NormValue = 0.0;
 
-
-
 //    LogValue = (int)(pow(Value, 0.675) * 4.8) - 1;
 //    NormValue = (float)Value/127;
 //    LogValue = (NormValue / (1 + (1 - NormValue) * 2) * 127);
 
-    LogValue = ConvertToLogInt(Value);
-    //    LogValue=Value;
+//    LogValue = ConvertToLogInt(Value);
+    LogValue=Value;
     printd(LogInfo, "SetExpressionControl %d %d %d\n", Controller, Value,
            LogValue);
 

@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include "Timers.h"
 
+
 #define LiveMusicInputPortName "LiveMusic Input"
 // snd_seq_t *SeqPort1;
 // snd_seq_t *SeqPort2;
@@ -1030,7 +1031,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
     ControlValue = event_ptr->data.control.param;
     DataValue = event_ptr->data.control.value;
 
-    printd(LogMidi, "Event DAW Type %d %d %d %d\n", event_ptr->type,
+    printd(LogMidi, "Event DAW NanoKntrl2 %d %d %d %d\n", event_ptr->type,
            event_ptr->data.control.channel, ControlValue, DataValue);
 
     switch (event_ptr->type) {
@@ -1528,7 +1529,7 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         break;
 
     default:
-        printd(LogMidi, "Event DAW Type %d %d %d %d\n", event_ptr->type,
+        printd(LogMidi, "Event DAW NanoKntrl2_Defatult %d %d %d %d\n", event_ptr->type,
                event_ptr->data.control.channel, ControlValue, DataValue);
         break;
     }
@@ -1549,7 +1550,7 @@ void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
     ControlValue = event_ptr->data.control.param;
     DataValue = event_ptr->data.control.value;
 
-    printd(LogMidi, "Event DAW Type %d %d %d %d\n", event_ptr->type,
+    printd(LogMidi, "Event DAW KeyFADR %d %d %d %d\n", event_ptr->type,
            event_ptr->data.control.channel, event_ptr->data.control.param,
            event_ptr->data.control.value);
 
@@ -1862,7 +1863,7 @@ void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         break;
 
     default:
-        printd(LogMidi, "Event DAW Type %d %d %d %d\n", event_ptr->type,
+        printd(LogMidi, "Event DAW KeyFADR_Default %d %d %d %d\n", event_ptr->type,
                event_ptr->data.control.channel, event_ptr->data.control.param,
                event_ptr->data.control.value);
         break;

@@ -8,7 +8,7 @@
 #
 #	Written By: 	Elias Keshishoglou on Thu Apr 11 08:41:59 PDT 2019
 #
-#	Copyright ©: 	2019 Elias Keshishoglou all rights reserved.
+#	Copyright ï¿½: 	2019 Elias Keshishoglou all rights reserved.
 #
 #
 #---------------------------------------------#
@@ -27,6 +27,7 @@
 #define LogInfo     0x02
 #define LogTest     0x01
 #define MyLogLevel  LogNone
+
 
 
 pid=`pgrep -i LiveMusicApp`
@@ -74,6 +75,10 @@ aconnect  "LiveMusic Output":6 "nanoKONTROL2":"0"
 #aconnect "LiveMusic Output":Pedal KMidimon
 
 exit
+
+
+sendmidi dev "LiveDAW" cc 7 100
+
 
 aconnect -d "Fishman TriplePlay":"0" "LiveMusic Input":"0"
 aconnect -d "USB Uno MIDI Interface":"0" "LiveMusic Input":"0"
