@@ -374,12 +374,19 @@ function SetOutput {
 }
 
 function NewRack {
+ 
+pw-metadata -n settings 0 clock.force-rate 96000
+ 
     set -x
     FindEffects "sooperlooper"
     LoopIn1="${EffectInL}"
     LoopIn2="${EffectInR}"
     LoopOut1="${EffectOutL}"
     LoopOut2="${EffectOutR}"
+
+    
+    pw-link "FluidSynth:output_1" "${MixerInput2L}"
+    pw-link "FluidSynth:output_2" "${MixerInput2R}"
 
     DoLink "qsynth:left" "${ChainOutNextL}"
     DoLink "qsynth:right" "${ChainOutNextR}"
@@ -570,7 +577,6 @@ if [ $InterfaceFound -ne 0 ]; then
     MainOutputL=$OutLinkL
     MainOutputR=$OutLinkR
 fi
-
 SetOutput
 
 Device="Positive_Grid_Spark_2"
@@ -583,6 +589,14 @@ Device="XSONIC_XTONE"
 CheckInterface "$Device" 50 100
 MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
+SetOutput
+
+# Double volume
+FindEffects "BassAmp"
+DoLink "${EffectOutL}" "${MainOutputL}"
+DoLink "${EffectOutR}" "${MainOutputR}"
+MainOutputL="${EffectInL}"
+MainOutputR="${EffectInR}"
 SetOutput
 
 # Create new effects chain connections

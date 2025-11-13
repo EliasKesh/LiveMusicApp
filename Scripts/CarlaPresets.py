@@ -461,14 +461,14 @@ def main():
                         ResetToDefault()
                         ChorusControl(25)
                         DistortionControl(0)
-                        EQControl("Normal")
+                        EQControl("Chorus")
 
                     case 2:
                         print("Blues")
                         ResetToDefault()
                         DistortionControl(82)
                         ChorusControl(25)
-                        EQControl("Blues")
+                        EQControl("Chorus")
 
                     case 3:
                         print("Acoustic")

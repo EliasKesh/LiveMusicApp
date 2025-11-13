@@ -86,7 +86,7 @@ aconnect -d "EliasPedal3":"0" "LiveMusic Input":"0"
 aconnect -d "LPD8":"0" "LiveMusic Input":"0"
 aconnect -d "Reloop KeyFadr MIDI 1":"0" "LiveDAW Input":"0"
 
-aconnect -d "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
+aconnect -d "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0" ==()
 aconnect -d "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
 aconnect -d "LiveMusic Output":"6" "EliasPedal3":"0"
 aconnect -d "LiveMusic Output":"7" "LPD8":"0"

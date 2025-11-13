@@ -129,6 +129,7 @@ char PlayerAsk = 0;
 float CurrentSpeed;
 int PrevMarkerIndex;
 
+
 /*-----------------------------------------------
  * Function:        LivePlayerInit
  *
@@ -1084,6 +1085,12 @@ void PlayerPoll (char How) {
         DontUpDateSlider--;
     }
 
+    // if (DontUpDateSlider == 1)
+    //     DontUpDateSlider=0;
+    //     StartPlayer();
+    //     return;
+
+    
     /*
      * Wait a few timer cycles before restarting MPlayer.
      */
@@ -1171,6 +1178,7 @@ void PlayerPoll (char How) {
              * Get the current position in the playing tune.
              */
             Found = strstr (Current, "ANS_TIME_POSITION");
+            
             if (Found != NULL) {
                 CommandsDone = 0;
                 Found += 18;
@@ -1305,10 +1313,11 @@ void PlayerPoll (char How) {
  *------------------------------------------------*/
 void PositionSlider_Changed (GtkAdjustment * adj) {
     float NewValue;
-
-    LEDControl (dLEDCnt_AllOff, 1);
-
+    
+//    DontUpDateSlider = 20;
+//    plStop();
     NewValue = gtk_adjustment_get_value (PositionAdjustment);
+    plSetPosition(NewValue);    
     printd (LogPlayer, "PositionSlider_Changed %f %f\n",
             NewValue,
             CurrentSongPosition);
@@ -1316,10 +1325,13 @@ void PositionSlider_Changed (GtkAdjustment * adj) {
     /* If we change the current position while stopped.
     */
     CurrentSongPosition = NewValue;
+//    plPlay();
     if (InPlayingState) {
         StartPlayer();
     }
-    //    plSetPosition(NewValue);
+
+    LEDControl (dLEDCnt_AllOff, 1);
+
 }
 
 /*-----------------------------------------------
@@ -1911,7 +1923,7 @@ void plScrub (float Amount) {
 
     sprintf (PlayerString, "seek %4.2f\n", Amount);
     PlayerWrite (PlayerString);
-    printd (LogPlayer, "plScrub\n");
+    printd (LogPlayer, "plScrub %f\n", Amount);
 }
 
 /*-----------------------------------------------

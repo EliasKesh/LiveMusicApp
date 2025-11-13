@@ -25,6 +25,7 @@ else
     PipeStart=" "
     PipeOption=" "
 fi
+
 if [ "${1}" == "LiveMusicApp" ]; then
     ButtonSize=140
     if [ $(hostname) == "LiveMusic" ]; then
@@ -36,7 +37,7 @@ if [ "${1}" == "LiveMusicApp" ]; then
     fi
 
     if [ $(hostname) == "KeshZen" ]; then
-        ButtonSize=160
+        ButtonSize=140
     fi
 
 
@@ -70,7 +71,11 @@ if [ "${1}" == "CarlaGuitar" ]; then
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
     export PIPEWIRE_AUTOCONNECT=false
-    QT_SCREEN_SCALE_FACTORS="1.75;1.5;1.5" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+
+#     export PIPEWIRE_AUTOCONNECT=false
+#     QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    
     exit 0
 fi
 
@@ -189,7 +194,7 @@ if [ "${1}" == "Looper" ]; then
     echo "Running Looper"
     ss --kill state listening src :9951
     sleep 1
-    GDK_DPI_SCALE=1.3 nice -18 ${PipeStart} slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951 --never-timeout &
+    GDK_DPI_SCALE=1.25 GDK_SCALE=1.25  nice -18 ${PipeStart} slgui -L /home/MySongs/GuitarSound/GuitarSound.slsess -P=9951 --never-timeout &
     # --never-timeout &
 
     exit 0

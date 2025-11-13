@@ -507,6 +507,8 @@ function SetPlacement1920 {
 
     Disp1SizeX=2304
     Disp1SizeY=1440
+    Disp1SizeX=2100
+    Disp1SizeY=1354
 
 
     echo "1920 Placement Offset  "$XOffset" "$YOffset
@@ -530,20 +532,18 @@ function SetPlacement1920 {
         wmctrl -r qsynth -t $MidiDesktop
     elif [ `hostname` == "KeshZen" ]; then
         echo "SetPlacement1920 Zen"
-        Disp1SizeX=2592
-        Disp1SizeY=1620
 
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -r LiveMusicApp_1 -e 0,64,1620,2200,1150
+        wmctrl -r LiveMusicApp_1 -e 0,64,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
         wmctrl -r 'Carla - ' -t $CarlaDesktop
-        wmctrl -r 'Carla - ' -e 0,0,0,2200,1600
+        wmctrl -r 'Carla - ' -e 0,90,0,$Disp1SizeX,$Disp1SizeY
 
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,1400,0,1000,850
+        wmctrl -r SooperLooper -e 0,1100,0,1000,700
         
-        wmctrl -r qsynth -e 0,1600,1300,400,200
+        wmctrl -r qsynth -e 0,1100,1000,400,300
         wmctrl -r qsynth -t $MidiDesktop
 
     else
@@ -942,6 +942,8 @@ if [[ RunCount -gt 1 ]]; then
     exit 1
 fi
 
+DefaultAudio.sh
+
 #  the computer from screen saving.
 xset s off         # don't activate screensaver
 xset -dpms         # disable DPMS (Energy Star) features.
@@ -1042,6 +1044,7 @@ echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
 # SetUpConnections
 EffectsConnect.sh clear
+DefaultAudio.sh
 
 Delay 12
 SetPlacement
@@ -1053,6 +1056,7 @@ exit #### EJK
 if [[ $UsePipeWire == "Yes" ]]; then
     PipeConnect.sh 
 fi
+DefaultAudio.sh
 
 SetPlacement
 
@@ -1089,6 +1093,9 @@ exit 0
 # 15.9  -37.9   10.0  0   8.10  Acoustic
 
 
+
+
+
 Acoustic
 Tuner
 abGateCompressor
@@ -1101,6 +1108,20 @@ Loudness
 
 
 exit
+
+0-92 Bowed Glass
+
+wpctl set-volume 90 .5
+wpctl set-volume 127 1.2
+wpctl status --nick | grep "Arctis Nova 7" | sed '2!d'
+
+# Record
+export RecordNum=`wpctl status --nick | grep "Scarlett Solo USB" | sed '2!d' | awk -F'.' -F' ' '{print $2}' | sed 's/\.//g'`
+wpctl set-volume $RecordNum 1.2
+
+# Playback
+export PlaybackNum=`wpctl status --nick | grep "Scarlett Solo USB" | sed '3!d' | awk -F'.' -F' ' '{print $2}' | sed 's/\.//g'`
+wpctl set-volume $PlaybackNum 1.2
 
 
 /usr/src/Music/Impro-Visor10.2/impro-visor

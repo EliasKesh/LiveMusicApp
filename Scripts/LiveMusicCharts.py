@@ -1039,7 +1039,7 @@ else:
 
 # Most common options
 if (args.a):
-    ConvertPDF = 1
+    ConvertPDF = 0
     FixMetaData = 1
     CreateHTML = 1
     CreateIndexFile = 1
