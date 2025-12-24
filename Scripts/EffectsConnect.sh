@@ -395,7 +395,8 @@ pw-metadata -n settings 0 clock.force-rate 96000
     # Main Carla effect chain
     FindEffects "LSP Gate Mono"
 
-    FindEffects "LSP Multiband Compressor"
+    FindEffects "GOTT Compressor Mono"
+#    FindEffects "LSP Multiband Compressor"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     FindEffects "LSP Graphic Equalizer x16"
@@ -492,6 +493,8 @@ if [ "$1" == "clear" ]; then
 fi
 
 
+
+
 # Set the Volumes at the Alsa level
 #/home/ebin/AlsaSet.sh
 
@@ -529,6 +532,7 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
+
 Device="Positive_Grid_Spark_2"
 CheckInterface "$Device" 100 100
 MainInputL=$InLinkL
@@ -555,7 +559,6 @@ MainOutputR=$OutLinkR
 SetInput
 
 # ejk
-
 
 # Set up mixer inputs
 MixerInput1R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 1"
@@ -599,6 +602,7 @@ MainOutputL="${EffectInL}"
 MainOutputR="${EffectInR}"
 SetOutput
 
+
 # Create new effects chain connections
 NewRack
 
@@ -636,6 +640,90 @@ DoLink "qsynth:right" "${MixerInput2R}"
 
 echo "****************************"
 echo " Midi Connections "
+
+# Midi Connections
+# -------------------------------------------------------------------
+fluidsynth-midi:midi_00
+
+# -- Midi Fluid
+pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "fluidsynth-midi:midi_00"
+
+pw-link "Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)" "fluidsynth-midi:midi_00"
+
+pw-link "Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "fluidsynth-midi:midi_00"
+
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "fluidsynth-midi:midi_00"
+
+pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "fluidsynth-midi:midi_00"
+# 
+pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "fluidsynth-midi:midi_00"
+# 
+pw-link "Carla.0/MIDI Guitar 2:event-out" "fluidsynth-midi:midi_00"
+# 
+
+
+pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
+
+# pw-link "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
+
+pw-link "Midi-Bridge:LiveMusic OutputDAWPort (capture)" "Midi-Bridge:nanoKONTROL2 _ CTRL (playback)" 
+
+pw-link "Midi-Bridge:nanoKONTROL2 _ CTRL (capture)" "Midi-Bridge:LiveDAW (playback)"
+
+# Inputs
+# Midi-Bridge:Midi Through Port-0 (playback)
+# Midi-Bridge:nanoKONTROL2 _ CTRL (playback)
+# Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (playback)
+# Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (playback)
+# Midi-Bridge:LiveMusic (playback)
+# Midi-Bridge:LiveDAW (playback)
+# Midi-Bridge:LiveMidi (playback)
+# Midi-Bridge:LvSwitchSwitchIn (playback)
+# Midi-Bridge:FLUID Synth (qsynth)Synth input port (qsynth:0) (playback)
+# Midi-Bridge:sooperlooper (playback)
+# bluez_midi.server:in
+
+# output
+# Midi-Bridge:Midi Through Port-0 (capture)
+# Midi-Bridge:nanoKONTROL2 _ CTRL (capture)
+# Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)
+# Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)
+# Midi-Bridge:LiveMusic OutputFluid (capture)
+# Midi-Bridge:LiveMusic OutputGuitarix (capture)
+# Midi-Bridge:LiveMusic OutputLooper (capture)
+# Midi-Bridge:LiveMusic OutputTransport (capture)
+# Midi-Bridge:LiveMusic OutputTempo (capture)
+# Midi-Bridge:LiveMusic OutputClick (capture)
+# Midi-Bridge:LiveMusic OutputPedal (capture)
+# Midi-Bridge:LiveMusic OutputDAWPort (capture)
+# Midi-Bridge:LiveMusic OutputDRLoop (capture)
+# Midi-Bridge:LiveMusic OutputUser2 (capture)
+# Midi-Bridge:LiveMusic OutputUser3 (capture)
+# Midi-Bridge:LiveMusic OutputInternal (capture)
+# Midi-Bridge:LvSwitchSwitchOut (capture)
+# Midi-Bridge:sooperlooper (capture)
+# bluez_midi.server:out
+
+
+
+
+
+
+
+exit
+
+# Disconnect Plasma PA connections
+pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
+pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
+
+pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0" "Plasma PA:input_FL"
+pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1" "Plasma PA:input_FR"
+
+
+
+
+
 # -------------------------------------------------------------------
 # Configure MIDI connections
 
@@ -656,14 +744,18 @@ aconnect "TriplePlay Connect":"0" "LiveMidi":2
 aconnect "Fishman TriplePlay":"0" "LiveMidi":2
 
 # Midi-Bridge:LiveMusic Output:(capture_0) Fluid
-aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
+# aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
 aconnect "NMSVE":"0" "LiveMusic":"0"
+
+
+
+
 
 # DoLink "Midi-Bridge:LiveMusic Output:(capture_0) Fluid"  "Midi-Bridge:KORG INC- nanoKONTROL2 at usb-0000:00:14-0-7-2-4-1-2-1- full speed:(playback_0) nanoKONTROL2 nanoKONTROL2 _ CTR"
 
 # Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
 # DoLink  "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "gx_head_amp:midi_in_1"
-pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
+# pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
 # Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
 # "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
 
@@ -671,7 +763,7 @@ pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSw
 
 # Midi-Bridge:LiveMusic Output:(capture_2) Looper
 # DoLink ""Midi-Bridge:LiveMusic Output:(capture_2) Looper" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-DoLink "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
+# DoLink "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
 aconnect "LiveMusic Output":"2" "sooperlooper":"0"
 
 # Midi-Bridge:LiveMusic OutputFluid (capture)
@@ -691,7 +783,7 @@ aconnect "LiveMusic Output":"2" "sooperlooper":"0"
 # Midi-Bridge:LiveMusic Output:(capture_3) Transport
 # Midi-Bridge:LiveMusic Output:(capture_4) Tempo
 # Midi-Bridge:LiveMusic Output:(capture_5) Click
-aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+# aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
 
 ### FIX
 # DoLink "Midi-Bridge:LiveMusic Output:(capture_5) Click" "FLUID Synth (qsynth)":"0"
@@ -718,8 +810,8 @@ aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
 
 # Midi-Bridge:LiveMusic Output:(capture_8) DRLoop
 # DoLink "Midi-Bridge:LiveMusic Output:(capture_8) DRLoop" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
-aconnect "LiveMusic Output":8 "sooperlooper":0
+#aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+#aconnect "LiveMusic Output":8 "sooperlooper":0
 
 # Midi-Bridge:LiveMusic Output:(capture_9) User2
 
@@ -727,41 +819,21 @@ aconnect "LiveMusic Output":8 "sooperlooper":0
 
 # Midi-Bridge:LiveMusic Output:(capture_11) Internal
 
-aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
-aconnect "Fishman TriplePlay":0 "MusE":0
+#aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
+#aconnect "Fishman TriplePlay":0 "MusE":0
 
 # Disconnect unnecessary connections
-aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
-aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
-aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
-aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
-aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
-aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
-aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
-aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
-aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
-aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
-aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
-# Midi Connections
-# -------------------------------------------------------------------
-pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "qsynth:midi_00"
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "qsynth:midi_00"
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "qsynth:midi_00"
-pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "qsynth:midi_00"
-pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "qsynth:midi_00"
-
-pw-link "Carla.0/MIDI Guitar 2:event-out" "qsynth:midi_00"
-
-
-
-exit
-
-# Disconnect Plasma PA connections
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
-
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0" "Plasma PA:input_FL"
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1" "Plasma PA:input_FR"
+# aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
+# aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
+# aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
+# aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
+# aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
+# aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
+# aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
+# aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
+# aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
+# aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
+# aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
 
 # -------------------------------------------------------------------
 # Jack Mixer values

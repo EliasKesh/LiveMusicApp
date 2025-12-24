@@ -17,7 +17,7 @@ echo "MusicApp -> ${1}  ${2} ${3}"
 PipeActive=$(ps aux | grep pipewire | wc -l)
 if [[ $PipeActive > 1 ]]; then
     echo "Pipewire found"
-    PipeStart="pw-jack -s 96000"
+    PipeStart="pw-jack -s 96000 "
     # PipeOption=" -w "
     PipeOption=" "
 else
@@ -71,7 +71,7 @@ if [ "${1}" == "CarlaGuitar" ]; then
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
     export PIPEWIRE_AUTOCONNECT=false
-    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/bin/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
 
 #     export PIPEWIRE_AUTOCONNECT=false
 #     QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
@@ -103,12 +103,7 @@ if [ "${1}" == "DrumFile" ]; then
     exit 0
 fi
 
-if [ "${1}" == "mp4" ]; then
-    # Handle it internal to the App
-    smplayer "${2}" &
-    exit 1
-fi
-
+yt-
 if [ "${1}" == "mp3" ]; then
     # Handle it internal to the App
     #    smplayer "${2}" &
@@ -165,8 +160,8 @@ if [ "${1}" == "gp3" ] ||
     [ "${1}" == "pt2" ] ||
     [ "${1}" == "ptb" ]; then
 
-QT_STYLE_OVERRIDE=kvantum ${PipeStart} powertabeditor "${2}"
-
+# QT_STYLE_OVERRIDE=kvantum ${PipeStart} powertabeditor "${2}"
+${PipeStart} powertabeditor "${2}"
     exit 0
 fi
 

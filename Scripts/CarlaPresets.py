@@ -267,7 +267,64 @@ def EQControl(Mode):
     NormalValues =     [ 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00 ]
     AcousticValues =   [ 0.53, 0.74, 1.00, 0.71, 1.40, 0.98, 0.98, 0.88, 0.40, 0.33, 0.78, 1.00, 1.50, 2.33, 2.68, 2.5 ]
     TestValues =       [ 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50, 1.45, 1.40, 1.35, 1.30, 1.25, 1.20 ]
-    MellowValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.29, 1.36, 0.51, 0.52, 0.66, 0.64, 0.55, 0.81, 1.47, 1.20, 1.00 ]
+
+    MellowValues = [ 
+        1.00, # 16
+        1.00, # 25
+        1.00, # 40
+        1.00, # 63
+        1.50, # 100
+        1.33, # 160
+        1.28, # 250 
+        1.33, # 400 
+        0.67, # 630
+        0.50, # 1000
+        0.46, # 1600
+        0.46, # 2500
+        0.44, # 4000
+        0.45, # 6300
+        0.48, # 10000
+        1.05  # 16000 
+        ]
+
+    MellowValues1 = [ 
+        1.00, # 16
+        1.00, # 25
+        1.00, # 40
+        1.00, # 63
+        1.50, # 100
+        1.50, # 160
+        1.00, # 250 
+        0.81, # 400 
+        0.75, # 630
+        0.50, # 1000
+        0.40, # 1600
+        0.34, # 2500
+        0.46, # 4000
+        0.60, # 6300
+        0.83, # 10000
+        1.20  # 16000 
+        ]
+
+    MellowValuesBright = [ 
+        1.00, # 16
+        1.00, # 25
+        1.00, # 40
+        1.00, # 63
+        1.50, # 100
+        1.50, # 160
+        1.00, # 250 
+        0.81, # 400 
+        0.75, # 630
+        0.50, # 1000
+        0.40, # 1600
+        0.40, # 2500
+        0.65, # 4000
+        0.83, # 6300
+        1.9, # 10000
+        1.50  # 16000 
+        ]
+
 
     if (Mode == "Normal"):
         theArray = ChorusValues
@@ -278,6 +335,10 @@ def EQControl(Mode):
         print(Mode)
 
     if (Mode == "Chorus"):
+        theArray = ChorusValues
+        print(Mode)
+
+    if (Mode == "Jazz"):
         theArray = MellowValues
         print(Mode)
 
@@ -451,7 +512,8 @@ def main():
                         ResetToDefault()
                         ChorusControl(127)
                         DistortionControl(0)
-                        EQControl("Chorus")
+                        EQControl("Jazz")
+                        
                         # increase the bass
                         # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Toob.value)
                         # liblo.send(target, EffectString, 1, 0.65)
@@ -537,6 +599,13 @@ def main():
                     case 14:
                         print("GuiarMidi14")
                         MidiGuitar(3)
+
+                    case 15:
+                        print("Chorus")
+                        ResetToDefault()
+                        ChorusControl(127)
+                        DistortionControl(0)
+                        EQControl("Chorus")
 
                     case _:
                         print("Found Nothing")

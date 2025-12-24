@@ -100,6 +100,7 @@ GtkWidget *FineStartSpin, *FineEndSpin;
 GtkWidget *SpeedSpin, *VolumeSpin;
 float TotalLength;
 float CurrentSongPosition;
+float NewSongPosition;
 theImageButtons SetA;
 theImageButtons SetB;
 theImageButtons PlayPause;
@@ -354,8 +355,7 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
      */
     VolumeAdjustment = gtk_adjustment_new (50, 0, 100, 1, 10, 0);
     VolumeSpin = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL,
-//    VolumeSpin = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
-                                GTK_ADJUSTMENT (VolumeAdjustment));
+    GTK_ADJUSTMENT (VolumeAdjustment));
     //    gtk_scale_set_value_pos (GTK_SCALE (VolumeSpin), GTK_POS_BOTTOM);
     gtk_widget_set_vexpand (VolumeSpin, TRUE);
     gtk_widget_set_size_request (VolumeSpin, 200, 60);
@@ -1081,8 +1081,11 @@ void PlayerPoll (char How) {
      * Don't update the slider.
      */
     if (DontUpDateSlider) {
-        printd (LogPlayer, "Decrement Slider %d\n", DontUpDateSlider);
+        printd (LogTest, "Decrement Slider %d\n", DontUpDateSlider);
+        
         DontUpDateSlider--;
+        // debug
+        return;
     }
 
     // if (DontUpDateSlider == 1)
@@ -1279,16 +1282,23 @@ void PlayerPoll (char How) {
                 /* Set the Global.
                 */
                 if ( (TotalLength > 0) && (CurrentSongPosition + 0.5 >= TotalLength))  {
-                    printd (LogPlayer, "Player Stopping\n");
+                    printd (LogTest, "Player Stopping\n");
                     plSetPosition (0.0);
                 }
 
                 /*
                  * If someone is moving the position slider don't update it.
                  */
+                if (DontUpDateSlider == 3) {
+                    printd (LogTest, "DontUpDateSlider == 4\n");
+                    plSetPosition(NewSongPosition);
+                    CurrentSongPosition=NewSongPosition;
+                }   
+                
                 if (!DontUpDateSlider) {
+                    printd (LogTest, "!DontUpDateSlider\n");
                     DontUpDateSlider = 3;
-                    gtk_adjustment_set_value (PositionAdjustment, FValue);
+                    gtk_adjustment_set_value  (PositionAdjustment, FValue);
                 }
             }
         }
@@ -1314,24 +1324,21 @@ void PlayerPoll (char How) {
 void PositionSlider_Changed (GtkAdjustment * adj) {
     float NewValue;
     
-//    DontUpDateSlider = 20;
-//    plStop();
+//  The counter for not updating the current position
+    DontUpDateSlider = 8;
     NewValue = gtk_adjustment_get_value (PositionAdjustment);
-    plSetPosition(NewValue);    
-    printd (LogPlayer, "PositionSlider_Changed %f %f\n",
-            NewValue,
+    plSetPosition(NewValue);
+
+//    gtk_adjustment_set_value  (PositionAdjustment, NewValue);
+
+    printd (LogTest, "PositionSlider_Changed %f %f\n",NewValue,
+
             CurrentSongPosition);
+//    NewSongPosition = NewValue;
+//    CurrentSongPosition = NewValue;
+//    plSetPosition(NewSongPosition);
 
-    /* If we change the current position while stopped.
-    */
-    CurrentSongPosition = NewValue;
-//    plPlay();
-    if (InPlayingState) {
-        StartPlayer();
-    }
-
-    LEDControl (dLEDCnt_AllOff, 1);
-
+ //   LEDControl (dLEDCnt_AllOff, 1);
 }
 
 /*-----------------------------------------------
@@ -1543,8 +1550,7 @@ int NewLoopDialog (void) {
 #endif
         printd (LogPlayer, "Entry Value %s\n", entry_line);
         strcpy (mySavedLoops[NumSavedLoops].LoopName, entry_line);
-        mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value (
-                                                FineStartAdjustment);
+        mySavedLoops[NumSavedLoops].Start = gtk_adjustment_get_value (FineStartAdjustment);
         mySavedLoops[NumSavedLoops].Length = gtk_adjustment_get_value (
                 FineEndAdjustment);
         mySavedLoops[NumSavedLoops].Position = ScrollGetPosition();
@@ -1853,9 +1859,15 @@ int StartPlayer (void) {
     -demuxer lavf
     for stereo use two output system:playback_(21|22)
     */
+    
+// MPV vs mplayer
+#if 1 
+// -fs full screen
+    
+    
     if (WeAreLooping) {
         sprintf (PlayerString,
-                 //              "-use-filedir-conf=./Prefs/mplayer/
+//              "-use-filedir-conf=./Prefs/mplayer/
 "mplayer -identify \
 -nocache \
 -slave \
@@ -1865,7 +1877,9 @@ int StartPlayer (void) {
 -speed %0.2f \"%s\" \
 -hr-mp3-seek \
 -fixed-vo \
--osdlevel 0 \
+-osdlevel 3 \
+-sub-bg-alpha 40 \
+-sub-bg-color 30 \
 -quiet \
 -idle \
 -af scaletempo \
@@ -1893,6 +1907,9 @@ CurrentSpeed, CurrentFile);
 -idle \
 -hr-mp3-seek \
 -fixed-vo \
+-osdlevel 3 \
+-sub-bg-alpha 40 \
+-sub-bg-color 30 \
 -quiet \
 -idle \
 -af scaletempo \
@@ -1903,6 +1920,68 @@ gtk_adjustment_get_value (VolumeAdjustment),
 CurrentSpeed);
         printd (LogPlayer, "calling %s\n", PlayerString);
     }
+
+// Trying to use MPV
+#else
+
+    
+    if (WeAreLooping) {
+        sprintf (PlayerString,
+//              "-use-filedir-conf=./Prefs/mplayer/
+"mpv  \"%s\" -identify \
+-nocache \
+--input-ipc-server=/tmp/LiveMusicIn
+
+-slave \
+-ss %f \
+-endpos %f \
+ --volume=%3.1f \
+--speed %0.2f \"%s\" \
+-hr-mp3-seek \
+-fixed-vo \
+-osdlevel 3 \
+-quiet \
+-idle \
+-af scaletempo \
+-loop 0  \
+>/tmp/LiveMusicIn 2>/dev/null",
+gtk_adjustment_get_value (FineStartAdjustment),
+gtk_adjustment_get_value (FineEndAdjustment),
+gtk_adjustment_get_value (VolumeAdjustment),
+//              gtk_adjustment_get_value(SpeedAdjustment),
+CurrentSpeed, CurrentFile);
+// -fixed-ao hangs
+        printd (LogPlayer, "calling  Loop %s\n", PlayerString);
+// -ao %s \
+
+    }
+    else {
+        sprintf (PlayerString,
+"mplayer \"%s\" \
+-identify \
+-nocache \
+-slave \
+-ss %f \
+-volume %f \
+-speed %0.2f \
+-idle \
+-hr-mp3-seek \
+-fixed-vo \
+-osdlevel 3 \
+-quiet \
+-idle \
+-af scaletempo \
+>/tmp/LiveMusicIn 2>/dev/null",
+(char *) CurrentFile,
+CurrentSongPosition,
+gtk_adjustment_get_value (VolumeAdjustment),
+CurrentSpeed);
+        printd (LogPlayer, "calling %s\n", PlayerString);
+    }
+    
+
+#endif
+
 // -ao %s \
 
     OutPipe = popen (PlayerString, "w");
@@ -1911,6 +1990,8 @@ CurrentSpeed);
     }
     printd (LogPlayer, "After Loop open %x\n", OutPipe);
 
+    system("MplayerConnect.sh &");
+    
     return (0);
 }
 
@@ -2055,7 +2136,7 @@ bool plPausePlay (void) {
 
     if (InPlayingState) {
         gtk_image_set_from_pixbuf (GTK_IMAGE (PlayPause.Image),
-                                   PlayPause.ButtonUpImage);
+        PlayPause.ButtonUpImage);
         MyImageButtonSetText (&PlayPause, "Play");
         gtk_image_set_from_pixbuf (GTK_IMAGE (PlayPauseButton.Image),
                                    PlayPauseButton.ButtonUpImage);
@@ -2083,6 +2164,8 @@ bool plPausePlay (void) {
         printd (LogPlayer, "Mplayer Play\n");
         InPlayingState = 1;
     }
+
+    system("MplayerConnect.sh &");
     return (InPlayingState);
 }
 
@@ -2093,8 +2176,8 @@ bool plPausePlay (void) {
  *------------------------------------------------*/
 void plNextSeg (void) {
     gtk_adjustment_set_value (FineStartAdjustment,
-                              gtk_adjustment_get_value (FineStartAdjustment)
-                              + gtk_adjustment_get_value (FineEndAdjustment));
+    gtk_adjustment_get_value (FineStartAdjustment)
+    + gtk_adjustment_get_value (FineEndAdjustment));
 
     printd (LogPlayer, "plNextSeg\n");
     if (WeAreLooping) {
@@ -2109,8 +2192,8 @@ void plNextSeg (void) {
  *------------------------------------------------*/
 void plPrevSeg (void) {
     gtk_adjustment_set_value (FineStartAdjustment,
-                              gtk_adjustment_get_value (FineStartAdjustment)
-                              - gtk_adjustment_get_value (FineEndAdjustment));
+    gtk_adjustment_get_value (FineStartAdjustment)
+    - gtk_adjustment_get_value (FineEndAdjustment));
 
     printd (LogPlayer, "plPrevSeg\n");
     if (WeAreLooping) {
@@ -2126,7 +2209,7 @@ void plPrevSeg (void) {
 void plSpeedUp (void) {
 
     gtk_adjustment_set_value (SpeedAdjustment,
-                              gtk_adjustment_get_value (SpeedAdjustment) + 0.05);
+    gtk_adjustment_get_value (SpeedAdjustment) + 0.05);
     sprintf (PlayerString, "speed_set %f\n",
              gtk_adjustment_get_value (SpeedAdjustment));
     printd (LogPlayer, "%s \n", PlayerString);
@@ -2169,8 +2252,11 @@ void plSpeedDown (void) {
  *------------------------------------------------*/
 void plSetPosition (float position) {
     sprintf (PlayerString, "set_property time_pos %4.2f\n", position);
+
     PlayerWrite (PlayerString);
-    printd (LogPlayer, "plSetPosition %f\n", position);
+
+    printd (LogTest, "plSetPosition %f\n", position);
+
     CurrentSongPosition = position;
     gtk_adjustment_set_value (PositionAdjustment, position);
 }

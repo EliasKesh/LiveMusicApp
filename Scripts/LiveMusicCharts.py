@@ -133,7 +133,7 @@ def WriteFile(fname, dirname):
             theFile.write("[<a style=\"color:blue\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mid") > 0):
-            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+            theFile.write("[<a style=\"color:pink\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mscz") > 0):
             theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
@@ -170,6 +170,15 @@ def WriteFile(fname, dirname):
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("desktop") > 0):
             theFile.write("[<a style=\"color:green\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("webm") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mp4") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mkv") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         else:
             theFile.write("[<a style=\"color:cyan\" href=\"" + FileRef +
@@ -509,8 +518,13 @@ def LoadVariables(Files):
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
+        if (filename.endswith("webm")):
+            logger.debug ("webm %s %d", filename, sHREFIndex)
+            sHREFFile[sHREFIndex] = filename
+            sHREFIndex = sHREFIndex + 1
+
         if (filename.endswith("sng")):
-            logger.debug ("snd %s %d", filename, sHREFIndex)
+            logger.debug ("sng %s %d", filename, sHREFIndex)
             sHREFFile[sHREFIndex] = filename
             sHREFIndex = sHREFIndex + 1
 
@@ -582,6 +596,16 @@ def IsThereSng(Dir):
     return False
 
 
+Backprefixes = ["BK_", "HB_", "HB_"]
+
+def IsThereBacking(Dir):
+    import os
+    for file in os.listdir(Dir):
+        if file.startswith(tuple(Backprefixes)):
+            return True
+    return False
+
+
 # Create the main index html page
 # ------------------------------------------
 def GenerateIndex(Base, List, Reference):
@@ -599,7 +623,7 @@ def GenerateIndex(Base, List, Reference):
     global SongMarkIndex
     global SongMark
 
-    MaxNameLength = 18
+    MaxNameLength = 15
     Padding =    "_____________________________________"
 
     IndexName = os.path.basename(os.getcwd())
@@ -631,10 +655,12 @@ a:visited {\n\
 \n\
 </style>\n\
 </head>\n")
-    theFile.write("<title>" + IndexName + "_Index</title>\n")
-    theFile.write("<p style=\"line-height:175%\">\n<body>\n\n")
+    # theFile.write("<title>" + IndexName + "_Index</title>\n")
+    # theFile.write("<p style=\"line-height:200%\">S")
+    # theFile.write("<div class=\"box wrap\">")
+#    theFile.write("<span style=\"line-height:150%\"> ")
     theFile.write(
-        "<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt><big><big>")
+        "<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt><big>")
 
     #    logger.debug ("\n\n")
     logger.info("in GenerateIndex " + Base + "/" + IndexName + ".html")
@@ -648,6 +674,8 @@ a:visited {\n\
     PadLev = (MaxNameLength + 1) - 14
     PadString = Padding[1:PadLev]
     theFile.write("[<a style=\"color:cyan\" href=\"index_dir.html\">Directory View" + PadString + "</a>] ")
+    
+    theFile.write("<big/><span style=\"line-height:150%\">")
 
 #    WriteString=[]
 #    Count = 0
@@ -667,9 +695,15 @@ a:visited {\n\
         PadString = Padding[1:PadLev]
         if (IsThereSng(DirName)):
             # Add s for sng file present
-            PadString = PadString + 's'
+            if (IsThereBacking(DirName)):
+                PadString = PadString + "<a style=color:red>B</a>"
+            else:
+                PadString = PadString +  "<a style=color:red>S</a>"
         else:
-            PadString = PadString + ' '
+            if (IsThereBacking(DirName)):
+                PadString = PadString +  "<a style=color:red>V</a>"
+            else:
+                PadString = PadString + '_'
 
         # HERE ADD Section Index
         IndexLetter = FileName[0:1]
@@ -684,10 +718,9 @@ a:visited {\n\
         logger.debug (" ???? " + FileNoExt)
 
 #        theFile.write("[<a href=./"+DirName+"/"+FileName+">"+FileNoExt+PadString+"</a>]\n")
-        theFile.write("[<a href=" + x + ">" + FileNoExt + PadString +
-                      "</a>]\n")
+        theFile.write("<span style=\"line-height:150%\">")
+        theFile.write("[<a href=" + x + ">" + FileNoExt + PadString + "</a>]\n")
         PreviousIndex = CurrentIndex
-#        theFile.write("<body style=\"color:powderblue;\">")
 
 # Add links for the external media files.
     for x in range(0, sHREFIndex):
@@ -696,6 +729,7 @@ a:visited {\n\
 #        if (len(FileName) > 30):
 #            FileName = FileName[0:30]
 
+
         if (FileRef.find("mp3") > 0):
             theFile.write("[<a style=\"color:red\" href=\"" + FileRef + "\">" +
                           FileName + "</a>]\n")
@@ -703,7 +737,7 @@ a:visited {\n\
             theFile.write("[<a style=\"color:blue\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mid") > 0):
-            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+            theFile.write("[<a style=\"color:pink\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("mscz") > 0):
             theFile.write("[<a style=\"color:orange\" href=\"" + FileRef +
@@ -740,6 +774,15 @@ a:visited {\n\
                           "\">" + FileName + "</a>]\n")
         elif (FileRef.find("desktop") > 0):
             theFile.write("[<a style=\"color:green\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("webm") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mp4") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
+                          "\">" + FileName + "</a>]\n")
+        elif (FileRef.find("mkv") > 0):
+            theFile.write("[<a style=\"color:yellow\" href=\"" + FileRef +
                           "\">" + FileName + "</a>]\n")
         else:
             theFile.write("[<a style=\"color:cyan\" href=\"" + FileRef +
@@ -931,6 +974,12 @@ def index_folder(folderPath):
                     indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:red\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("mid")):
                     indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                elif (file.endswith("mkv")):
+                    indexText += "\t\t<li style=\"color:pink\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                elif (file.endswith("webm")):
+                    indexText += "\t\t<li style=\"color:pink\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
+                elif (file.endswith("mp4")):
+                    indexText += "\t\t<li style=\"color:pink\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
                 elif (file.endswith("Loops")):
                     pass
                 elif (file.endswith("spec.png")):
@@ -1137,8 +1186,8 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
     base_depth = Root.rstrip("/").count("/")
     if (base_depth < DirectoryLevel):
         for filename in Files:
-            if (filename.endswith(".mp3") or filename.endswith(".mp4")
-                    or filename.endswith(".webm")):
+            if (filename.endswith(".mp3")):
+            # or filename.endswith(".mp4") or filename.endswith(".webm") or filename.endswith(".mkv") ):
                 logger.debug("Found MP3 File %s", filename)
                 if (not os.path.exists(Root + "/" + filename + ".spec.png")):
                     logger.debug("Running Subprocess")

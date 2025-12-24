@@ -2471,13 +2471,29 @@ int CloseHistoryFile(void) {
     fclose(FileHistory);
 }
 
+float ConvertToLogF(float linear)
+{
+    const float MIN_DB = -60.0f; // dB at linear = 0.0
+    if (linear <= 0.0f)
+        return 0.0f;
+    if (linear >= 1.0f)
+        return 1.0f;
+    // convert linear [0..1] into dB range [MIN_DB .. 0]
+    float db = MIN_DB + (0.0f - MIN_DB) * linear;
+    // convert dB to linear amplitude (0..1)
+    float amp = powf(10.0f, db / 20.0f);
+    return amp;
+}
+
+
+
 /*-----------------------------------------------
- * Function: ConvertToLog
+ * Function: ConvertToLogF
  *
  * Description:  convert linear to Audio
  *
  *----------------------------------------------*/
-float ConvertToLogF(float Norm) {
+float ConvertToLogF_OLD(float Norm) {
 float LogValue;
 
     //LogValue = (log10(Norm)/1.8);
@@ -2494,7 +2510,8 @@ float LogValue;
 //    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
 
 //    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
-    LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
+//    LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
+    LogValue = ((log(Norm) / (0.05) + 32.0)/32.0);
     if (LogValue < 0.0)
         LogValue = 0.0;
 

@@ -122,11 +122,11 @@ function SetUpConnections {
     aconnect "XTONE":"0" "LiveMusic":"0"
 
     # Midi
-    aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
-    # Metronome
-    aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
-    # Drum Looper
-    aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
+#     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
+#     # Metronome
+#     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
+#     # Drum Looper
+#     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
     
     # Temp control for sooper
     aconnect "LiveMusic Output":"2" "sooperlooper":"0"
@@ -143,24 +143,24 @@ function SetUpConnections {
     aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
     
     
-    aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
+#    aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
     aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
     aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
     aconnect "NMSVE":"0" "LiveMusic":"0"
     aconnect "Fishman TriplePlay":0 "MusE":0
     
     
-    aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
-    aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
-    aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
-    aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
-    aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
-    aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
-    aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
-    aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
-    aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
-    aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
-    aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
+#     aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
 
     # ********************************
     # **** Jack audio and midi connections
@@ -174,7 +174,7 @@ function SetUpConnections {
     
     # Muse Connection
     aconnect "Fishman TriplePlay":0  MusE:0
-    aconnect "MusE":0 "FLUID Synth":0
+#    aconnect "MusE":0 "FLUID Synth":0
     ${PipeStart} jack_connect "MusE:Out 1-0" "system:playback_1"
     ${PipeStart} jack_connect "MusE:Out 1-1" "system:playback_1"
     
@@ -510,6 +510,9 @@ function SetPlacement1920 {
     Disp1SizeX=2100
     Disp1SizeY=1354
 
+    Disp1SizeX=2048
+    Disp1SizeY=1152
+
 
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
@@ -534,16 +537,16 @@ function SetPlacement1920 {
         echo "SetPlacement1920 Zen"
 
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -r LiveMusicApp_1 -e 0,64,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
+        wmctrl -r LiveMusicApp_1 -e 0,0,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
         wmctrl -r 'Carla - ' -t $CarlaDesktop
         wmctrl -r 'Carla - ' -e 0,90,0,$Disp1SizeX,$Disp1SizeY
 
         wmctrl -r SooperLooper -t $LooperDesktop
-        wmctrl -r SooperLooper -e 0,1100,0,1000,700
+        wmctrl -r SooperLooper -e 0,1100,0,1000,750
         
-        wmctrl -r qsynth -e 0,1100,1000,400,300
+        wmctrl -r qsynth -e 0,1100,800,400,300
         wmctrl -r qsynth -t $MidiDesktop
 
     else
@@ -975,7 +978,7 @@ PipeActive=`ps aux | grep pipewire | wc -l`
 if [[ $PipeActive > 1 ]];  then
     echo "Pipe found"
     UsePipeWire="Yes"
-    PipeStart="pw-jack -s 96000"
+    PipeStart="pw-jack -s 96000  "
     PipeOption=" -w "
     PatchBay="qpwgraph"
     PatchBayName="qpwgraph"
@@ -1039,9 +1042,13 @@ fuser -k 22752/udp
 echo "***************** Starting SetUpApplications"  | tee $LogFile
 # Set up the other applications.
 # $PipeStart  a2jmidi_bridge "GuitBridge" &
+
 SetUpApplications
 echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
+
+ 
+
 # SetUpConnections
 EffectsConnect.sh clear
 DefaultAudio.sh

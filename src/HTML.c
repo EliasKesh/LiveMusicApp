@@ -992,7 +992,8 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
         return (TRUE);
     }
 
-    if (strstr(theURI, ".mp4")) {
+#if 1
+    if (strstr(theURI, ".mp4") || strstr(theURI, ".webm") || strstr(theURI, ".mkv")) {
         /*
          * Tell web kit not to o anything with it.
          */
@@ -1009,6 +1010,7 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
          */
         return (TRUE);
     }
+#endif
 
     if (strstr(theURI, ".mid")) {
         /*
