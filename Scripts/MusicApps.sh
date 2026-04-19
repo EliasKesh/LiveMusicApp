@@ -14,8 +14,14 @@
 #------------------------------------------------#
 echo "MusicApp -> ${1}  ${2} ${3}"
 
+
+export PIPEWIRE_AUTOCONNECT=false 
+export PIPEWIRE_JACK_SERVER_GAIN=10.0
+    
+    
 PipeActive=$(ps aux | grep pipewire | wc -l)
-if [[ $PipeActive > 1 ]]; then
+echo $PipeActive
+if [[ $PipeActive > 0 ]]; then
     echo "Pipewire found"
     PipeStart="pw-jack -s 96000 "
     # PipeOption=" -w "
@@ -43,10 +49,32 @@ if [ "${1}" == "LiveMusicApp" ]; then
 
     GDK_DPI_SCALE=1.0 \
         GTK_THEME=LiveMusicTheme \
-        nice -15 ${PipeStart} \
+        nice -19 ${PipeStart} \
         LiveMusicApp -c 9 \
         -v -d 0x0220 $PipeOption \
         -f $ButtonSize &
+fi
+
+if [ "${1}" == "MidiProcessor" ]; then
+    echo "Running Midi Program"
+
+#     $PipeStart qsampler /home/MySongs/Prefs/Sampler/LSPLiveMusic5.lscp &
+# 
+#     echo "Starting PipeStart "$PipeStart | tee $LogFile
+#     nice -15 $PipeStart `QT_STYLE_OVERRIDE=QtCurve ${PipeStart} qsynth -g 1.0  -o  synth.midi-bank-select=mma` >> $LogFile 2>&1 &
+#     sfizz --jack  --load piano.sfz 
+# 
+#    ${PipeStart}
+# echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
+# echo "PIPEWIRE_REMOTE=$PIPEWIRE_REMOTE"
+# echo "DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS"
+
+#     systemd-run --user --scope "python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py"
+#    python3 /home/elias/workspace/LiveMusicApp/Scripts/StartPCtoSFIZZ.py &
+
+#   /home/elias/workspace/LiveMusicApp/Scripts/Startsfizz.sh & 
+
+exit 0
 fi
 
 if [ "${1}" == "EffectsProcessorApp" ]; then
@@ -70,8 +98,10 @@ if [ "${1}" == "CarlaGuitar" ]; then
     # Remove the auto connection 
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
-    export PIPEWIRE_AUTOCONNECT=false
-    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/bin/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    export PIPEWIRE_AUTOCONNECT=false 
+    export PIPEWIRE_JACK_SERVER_GAIN=10.0
+    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /home/Misc/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+#    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /usr/bin/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
 
 #     export PIPEWIRE_AUTOCONNECT=false
 #     QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -18 ${PipeStart} /usr/src/Music/LiveMusicBuilds/Carla/source/frontend/carla --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
@@ -103,7 +133,6 @@ if [ "${1}" == "DrumFile" ]; then
     exit 0
 fi
 
-yt-
 if [ "${1}" == "mp3" ]; then
     # Handle it internal to the App
     #    smplayer "${2}" &
@@ -164,7 +193,6 @@ if [ "${1}" == "gp3" ] ||
 ${PipeStart} powertabeditor "${2}"
     exit 0
 fi
-
 
 echo "About to check gp5"
 

@@ -62,7 +62,7 @@ function SetUpConnections {
     EffectsConnect.sh
     return
     # ********************************
-    # **** Alsa sound if no USB interface
+    # **** Alsa  sound if no USB interface
     # ********************************
     
     # Turn on Line input as source.
@@ -322,6 +322,9 @@ function SetUpApplications {
         CarlaPresets.py &  
     fi
     
+    # Run the midi to Audio generator
+    MusicApps.sh MidiProcessor
+
     if test "${RunPlugins}" = "true"; then
         echo "Plugins Effects" | tee $LogFile
 #        QT_SCREEN_SCALE_FACTORS=1.25 \ nice -18 $PipeStart \ carla-jack-multi /home/MySongs/CarlaConfig/EliasCarla.carxp &
@@ -389,6 +392,10 @@ function SetUpApplications {
 #    raysession --start-session /home/MySongs/Prefs/RaySessionLiveMusic &
 #    ${PatchBay} > $LogFile 2>&1 &
     Delay 1   
+
+#    if test "${SamplePlayer}" = "true"; then
+#    fi
+    
     
     # This script check for a failed app
     # and will relaunch it
@@ -414,12 +421,12 @@ function SetPlacement {
     
     ExtraMonitor=`xrandr | grep " connected" | wc -l`
     if [ "$ExtraMonitor" -eq "1" ]; then
-        YOffset=0
-        ExMonitor=0
+        export YOffset=0
+        export ExMonitor=0
         echo "External Monitor Not Found"
     else
         echo "External Monitor Found"
-        ExMonitor=1
+        export ExMonitor=1
     fi
 
     # On home PC spread it out
@@ -504,6 +511,17 @@ function SetPlacement {
 #-------------------------------------------#
 function SetPlacement1920 {
     set -x
+ 
+ExtraMonitor=`xrandr | grep " connected" | wc -l`
+    if [ "$ExtraMonitor" -eq "1" ]; then
+        export YOffset=0
+        export ExMonitor=0
+        echo "External Monitor Not Found"
+    else
+        echo "External Monitor Found"
+        export ExMonitor=1
+    fi
+
 
     Disp1SizeX=2304
     Disp1SizeY=1440
@@ -513,35 +531,61 @@ function SetPlacement1920 {
     Disp1SizeX=2048
     Disp1SizeY=1152
 
+    Disp1SizeX=2176
+    Disp1SizeY=1360
+    Disp1SizeY=(1360+1440)
+ 
+    ExtraMonitor=`xrandr | grep " connected" | wc -l`
+    if [ "$ExtraMonitor" -eq "1" ]; then
+        export YOffset=0
+        export ExMonitor=0
+        echo "External Monitor Not Found"
+        DisplayTop1=0
+        DisplayTop2=0
+        Disp1SizeX=2176
+        Disp1SizeY=1360
+    else
+        echo "External Monitor Found"
+        export ExMonitor=1
+        DisplayTop1=1449
+        DisplayTop2=2800
+        Disp1SizeX=2176
+        Disp1SizeY=1360
+    fi
+
 
     echo "1920 Placement Offset  "$XOffset" "$YOffset
     NewOffset=`expr $XOffset + 0`
     if [ "$ExMonitor" -eq "1" ]; then
         echo "SetPlacement1920 ExMonitor 1 "
 
+        wmctrl -r LiveMusicApp_1 -b remove,maximized_vert,maximized_horz
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -r LiveMusicApp_1 -e 0,64,1512,2200,1150
+        wmctrl -r LiveMusicApp_1 -e 0,60,$DisplayTop1,$(($Disp1SizeX-70)),$Disp1SizeY
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
-#        wmctrl -r '${EffectsProcessorWM}' -t $CarlaDesktop
-#        wmctrl -r '${EffectsProcessorWM}' -e 0,1600,0,2200,1450
         wmctrl -r 'Carla - ' -t $CarlaDesktop
-        wmctrl -r 'Carla - ' -e 0,1600,0,2200,1600
+        wmctrl -r 'Carla - ' -e 0,0,$DisplayTop2,$Disp1SizeX,$Disp1SizeY
+        wmctrl -r 'Carla - ' -b add,maximized_vert
 
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,3650,0,1000,850
         
+        wmctrl -r Qsampler -e 0,$Disp1SizeX,1440,1200,1000
+        wmctrl -r Qsampler -t $MidiDesktop
         wmctrl -r qsynth -e 0,3150,2000,400,200
         wmctrl -r qsynth -t $MidiDesktop
+                
     elif [ `hostname` == "KeshZen" ]; then
         echo "SetPlacement1920 Zen"
 
+        wmctrl -r LiveMusicApp_1 -b remove,maximized_vert
         wmctrl -F -r LiveMusicApp_1 -t $LiveMusicAppDesktop
-        wmctrl -r LiveMusicApp_1 -e 0,0,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
+        wmctrl -r LiveMusicApp_1 -e 0,60,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
         wmctrl -r LiveMusicApp_1 -b add,maximized_vert
         
         wmctrl -r 'Carla - ' -t $CarlaDesktop
-        wmctrl -r 'Carla - ' -e 0,90,0,$Disp1SizeX,$Disp1SizeY
+        wmctrl -r 'Carla - ' -e 0,90,$Disp1SizeY,$Disp1SizeX,$Disp1SizeY
 
         wmctrl -r SooperLooper -t $LooperDesktop
         wmctrl -r SooperLooper -e 0,1100,0,1000,750
@@ -631,6 +675,12 @@ function StopEverything {
     killall $InternetJam
     KillAll CarlaPresets.py
     KillAll raysession
+    KillAll qsampler
+    KillAll linuxsampler
+    KillAll jjazzlab
+    KillAll PCtoSFIZZ.py
+    KillAll sfizz
+   
 
     killall kmidimon
     killall kdialog
@@ -652,6 +702,8 @@ function StopEverything {
     killall a2jmidi_bridge
     killall guitarix
     KillAll raysession
+    KillAll PCtoSFIZZ.py
+    KillAll sfizz
 
     #    FAHClient --send-unpause "LiveMusicApp_Done"
     
@@ -671,6 +723,8 @@ function StopEverything {
     xset s on
     xset +dpms
     powerprofilesctl set balanced
+    KillAll PCtoSFIZZ.py
+    KillAll sfizz
 
     exit 0
 }
@@ -711,6 +765,8 @@ Looper=false
 MusicViewer=false
 WeAreDebugging=false
 KillJackOnExit=true
+SamplePlayer=true
+
 #LogFile=~/.config/LiveMusicApp/LogGuitar.txt
 LogFile=/dev/stdout
 # 2>&1 | tee outfile
@@ -722,8 +778,12 @@ ButtonLayout=1
 OneScreeOnly=false
 BackroundChecker=true
 InternetJamStart=false
-SoundSynth=true
+SoundSynth=false
 Version="2.2.2"
+
+
+export PIPEWIRE_AUTOCONNECT=false 
+export PIPEWIRE_JACK_SERVER_GAIN=10.0
 
 powerprofilesctl set performance
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
@@ -808,8 +868,9 @@ while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
                 # MidiController=true
                 # GuitarEffects=true
                 # VSTGuitarEffects=false
+                SamplePlayer=true
                 BackroundChecker=true
-#                SoundSynth=true
+                SoundSynth=false
                 Looper=true
                 #                Hydrogen=true
             else
@@ -831,6 +892,7 @@ while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
             BackroundChecker=false
             MP3Player=false
             SoundSynth=true
+            SamplePlayer=true
         ;;
         g)
             LiveMusicCharts.py /home/MySongs/FusionBlue/ -f -c -i -r
@@ -1047,8 +1109,6 @@ SetUpApplications
 echo "***************** Starting SetPlacement"  | tee $LogFile
 SetPlacement
 
- 
-
 # SetUpConnections
 EffectsConnect.sh clear
 DefaultAudio.sh
@@ -1056,7 +1116,7 @@ DefaultAudio.sh
 Delay 12
 SetPlacement
 SetUpConnections
-
+# python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py
 exit #### EJK
 
 # ejk Check this
@@ -1132,5 +1192,3 @@ wpctl set-volume $PlaybackNum 1.2
 
 
 /usr/src/Music/Impro-Visor10.2/impro-visor
-
-

@@ -65,7 +65,7 @@ find $BaseDir -iname \*html\#\* -exec rm {} \;
 # find ./ -iname \*.pdf -exec pdftoppm -jpeg {} {}".pdf.jpg" \;
 # find ./ -iname \*.pdf -exec mv {} {}".conv" \;
 
-for dir in $(find /home/Music/Learn/Courses -depth -type d )
+for dir in $(find /home/Music/Learn/Courses -type d )
 do
     cd $dir
     echo "Dir  "$dir
@@ -73,7 +73,7 @@ do
     LiveMusicCharts.py . -ig
 done
 
-for dir in $(find /home/Music/Learn/Reading -depth -type d )
+for dir in $(find /home/Music/Learn/Reading -type d )
 do
     cd $dir
     echo "Dir  "$dir
@@ -81,7 +81,7 @@ do
     LiveMusicCharts.py . -ig
 done
 
-for dir in $(find /home/Music/Learn/MuseLearn -depth -type d )
+for dir in $(find /home/Music/Learn/MuseLearn -type d )
 do
     cd $dir
     echo "Dir  "$dir
@@ -89,7 +89,7 @@ do
     LiveMusicCharts.py . -ig
 done
 
-for dir in $(find /home/Music/Learn/Transcriptions -depth -type d )
+for dir in $(find /home/Music/Learn/Transcriptions -type d )
 do
     cd $dir
     echo "Dir  "$dir
@@ -97,7 +97,7 @@ do
     LiveMusicCharts.py . -ig
 done
 
-for dir in $(find /home/Music/BackingTracks -depth -type d )
+for dir in $(find /home/Music/BackingTracks -type d )
 do
     cd $dir
     echo "Dir  "$dir

@@ -137,7 +137,7 @@ def DistortionControl(level):
     liblo.send(target, EffectString, Value )
 
     # Set Distortion amount (0-100)
-    Value=rescaleMidi(InitLevel, 0.0, 50.0)
+    Value=rescaleMidi(InitLevel, 0.0, 100.0)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion1.value)
     liblo.send(target, EffectString, 2, (Value))
 
@@ -265,8 +265,9 @@ def EQControl(Mode):
     ChorusValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.00, 1.00, 1.00, 2.10, 1.30, 0.44, 0.44, 0.80, 0.98, 0.97, 1.00 ]
     HigherValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.00, 1.00, 1.00, 2.10, 1.30, 0.80, 0.80, 0.80, 0.98, 0.97, 1.00 ]
     NormalValues =     [ 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00 ]
-    AcousticValues =   [ 0.53, 0.74, 1.00, 0.71, 1.40, 0.98, 0.98, 0.88, 0.40, 0.33, 0.78, 1.00, 1.50, 2.33, 2.68, 2.5 ]
+    AcousticValues =   [ 0.53, 0.74, 1.00, 0.71, 1.40, 0.98, 0.98, 0.88, 0.40, 0.33, 0.78, 1.00, 1.50, 2.33, 2.68, 2.50 ]
     TestValues =       [ 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50, 1.45, 1.40, 1.35, 1.30, 1.25, 1.20 ]
+    Normal1Values =    [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.30, 1.35, 0.50, 0.50, 0.65, 0.63, 0.55, 0.80, 1.45, 1.20, 1.00 ]
 
     MellowValues = [ 
         1.00, # 16
@@ -274,9 +275,28 @@ def EQControl(Mode):
         1.00, # 40
         1.00, # 63
         1.50, # 100
+        1.56, # 160
+        1.28, # 250 
+        1.00, # 400 
+        0.67, # 630
+        0.20, # 1000
+        0.21, # 1600
+        0.23, # 2500
+        0.22, # 4000
+        0.40, # 6300
+        0.70, # 10000
+        0.68  # 16000 
+        ]
+
+    MellowValues2 = [ 
+        1.00, # 16
+        1.00, # 25
+        1.00, # 40
+        1.00, # 63
+        1.50, # 100
         1.33, # 160
         1.28, # 250 
-        1.33, # 400 
+        1.00, # 400 
         0.67, # 630
         0.50, # 1000
         0.46, # 1600
@@ -327,7 +347,7 @@ def EQControl(Mode):
 
 
     if (Mode == "Normal"):
-        theArray = ChorusValues
+        theArray = Normal1Values
         print(Mode)
 
     if (Mode == "Acoustic"):
@@ -339,7 +359,7 @@ def EQControl(Mode):
         print(Mode)
 
     if (Mode == "Jazz"):
-        theArray = MellowValues
+        theArray = MellowValues1
         print(Mode)
 
     if (Mode == "Blues"):
@@ -523,12 +543,12 @@ def main():
                         ResetToDefault()
                         ChorusControl(25)
                         DistortionControl(0)
-                        EQControl("Chorus")
+                        EQControl("Normal")
 
                     case 2:
                         print("Blues")
                         ResetToDefault()
-                        DistortionControl(82)
+                        DistortionControl(70)
                         ChorusControl(25)
                         EQControl("Chorus")
 

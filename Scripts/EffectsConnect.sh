@@ -385,11 +385,6 @@ pw-metadata -n settings 0 clock.force-rate 96000
     LoopOut2="${EffectOutR}"
 
     
-    pw-link "FluidSynth:output_1" "${MixerInput2L}"
-    pw-link "FluidSynth:output_2" "${MixerInput2R}"
-
-    DoLink "qsynth:left" "${ChainOutNextL}"
-    DoLink "qsynth:right" "${ChainOutNextR}"
 
     # -------------------------------------------------------------------
     # Main Carla effect chain
@@ -492,9 +487,6 @@ if [ "$1" == "clear" ]; then
     ClearPlasma
 fi
 
-
-
-
 # Set the Volumes at the Alsa level
 #/home/ebin/AlsaSet.sh
 
@@ -519,7 +511,7 @@ Device="Burr-Brown"
 CheckInterface "$Device" 100 100
 
 Device="bluez_output"
-CheckInterface "$Device" 100 100
+CheckInterface "$Device" 40 40
 
 Device="NUX_USB"
 CheckInterface "$Device" 100 100
@@ -532,7 +524,6 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
-
 Device="Positive_Grid_Spark_2"
 CheckInterface "$Device" 100 100
 MainInputL=$InLinkL
@@ -544,6 +535,7 @@ SetInput
 Device="Focusrite_Scarlett"
 Device2="capture"
 CheckInterface "$Device" 125 120 "$Device2"
+
 MainInputL=$InLinkL
 MainInputR=$InLinkR
 MainOutputL=$OutLinkL
@@ -573,6 +565,13 @@ MixerInput4R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 4"
 # Device="G935"
 Device="Focusrite_Scarlett"
 CheckInterface "$Device" 100 100
+if [ $InterfaceFound -ne 0 ]; then
+    MainOutputL=$OutLinkL
+    MainOutputR=$OutLinkR
+fi
+SetOutput
+
+
 Device="SteelSeries"
 CheckInterface "$Device" 115 30
 
@@ -595,12 +594,12 @@ MainOutputR=$OutLinkR
 SetOutput
 
 # Double volume
-FindEffects "BassAmp"
-DoLink "${EffectOutL}" "${MainOutputL}"
-DoLink "${EffectOutR}" "${MainOutputR}"
-MainOutputL="${EffectInL}"
-MainOutputR="${EffectInR}"
-SetOutput
+# FindEffects "BassAmp"
+# DoLink "${EffectOutL}" "${MainOutputL}"
+# DoLink "${EffectOutR}" "${MainOutputR}"
+# MainOutputL="${EffectInL}"
+# MainOutputR="${EffectInR}"
+# SetOutput
 
 
 # Create new effects chain connections
@@ -643,26 +642,49 @@ echo " Midi Connections "
 
 # Midi Connections
 # -------------------------------------------------------------------
-fluidsynth-midi:midi_00
+
+SoundGenerator="${SoundGenerator}"
+SoundGenerator="LinuxSampler:midi_in_0"
+
+# Linuxsampler
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "LinuxSampler:midi_in_0"
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "LinuxSampler:midi_in_0"
+pw-link "Carla.0/MIDI Guitar 2:event-out" "LinuxSampler:midi_in_0"
+pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "LinuxSampler:midi_in_0"
+
+
+pw-link "LinuxSampler:0" "${MixerInput2L}"
+pw-link "LinuxSampler:1" "${MixerInput2R}"
 
 # -- Midi Fluid
-pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "${SoundGenerator}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 5-0VirMIDI 5-0 (capture)" "${SoundGenerator}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)" "fluidsynth-midi:midi_00"
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 5
+-1VirMIDI 5-1 (capture)" "${SoundGenerator}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)" "${SoundGenerator}"
 
-pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)" "${SoundGenerator}"
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "${SoundGenerator}"
+
+pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "${SoundGenerator}"
+
+pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "${SoundGenerator}"
 # 
-pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "fluidsynth-midi:midi_00"
+pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "${SoundGenerator}"
 # 
-pw-link "Carla.0/MIDI Guitar 2:event-out" "fluidsynth-midi:midi_00"
+pw-link "Carla.0/MIDI Guitar 2:event-out" "${SoundGenerator}"
 # 
 
+    pw-link "FluidSynth:output_1" "${MixerInput2L}"
+    pw-link "FluidSynth:output_2" "${MixerInput2R}"
 
+    DoLink "qsynth:left" "${ChainOutNextL}"
+    DoLink "qsynth:right" "${ChainOutNextR}"
+
+    
 pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
 
 # pw-link "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
@@ -670,6 +692,12 @@ pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSw
 pw-link "Midi-Bridge:LiveMusic OutputDAWPort (capture)" "Midi-Bridge:nanoKONTROL2 _ CTRL (playback)" 
 
 pw-link "Midi-Bridge:nanoKONTROL2 _ CTRL (capture)" "Midi-Bridge:LiveDAW (playback)"
+
+# From Guitar to software
+pw-link "Midi-Bridge:EliasMidi Bluetooth (capture)" "Midi-Bridge:LiveMusic (playback)"
+
+pw-link "Midi-Bridge:LiveMusic OutputPedal (capture)" "Midi-Bridge:EliasMidi Bluetooth (playback)"
+
 
 # Inputs
 # Midi-Bridge:Midi Through Port-0 (playback)
@@ -909,3 +937,7 @@ oscsend localhost 22752 /Carla/1/set_parameter_value if 42 0
 oscsend localhost 22752 /Carla/1/set_parameter_value if 43 3
 # Jack Mixer values
 # -------------------------------------------------------------------
+
+
+# Send bank and program change
+sendmidi dev "Midi Through Port-0" ch 1 cc 0 0 cc 32 1 pc 1

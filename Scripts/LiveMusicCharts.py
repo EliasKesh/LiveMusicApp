@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 
 #------------------------------------------------
 #
 #	File: 	LiveMusicCharts
@@ -52,6 +52,12 @@ sGPFile = []
 sGPIndex = 0
 sTitle = ""
 
+DebugLevel = 0
+
+def dprint(level, *args, **kwargs):
+    if (int(level) <= int(DebugLevel)):
+        print(*args, **kwargs)
+#         logger.info( args, **kwargs )
 # Write out the new HTML file
 # Here is where you can change the format.
 # ------------------------------------------
@@ -71,7 +77,11 @@ def WriteFile(fname, dirname):
     global SongMarkIndex
 #    PDFIndex = 0;
 
+    dprint( 2, "**********************\n")
+    dprint( 2, "*** open WriteFile \n",fname )
     theFile = open(fname, 'w+')
+    dprint( 2, "**********************\n")
+    dprint( 2, "**********************\n")
     # start writing the HTML header
     theFile.write("<html>\n<head>\n<style type=\"text/css\">\n")
     #  theFile.write("{text-align: left; width: 100%; height: 100%;}\n body {\n")
@@ -189,7 +199,7 @@ def WriteFile(fname, dirname):
 
     # Re-insert any user data
     ModString = sGlobalNotes.replace("\n\n", "\n")
-    #  logger.debug(ModString)
+    dprint(3, ModString)
     #  theFile.write("<br><LiveMusic><code>\n")
     theFile.write("<LiveMusic>")
     theFile.write(ModString)
@@ -204,7 +214,7 @@ def WriteFile(fname, dirname):
         # Look for a PDF file and see how many Pages.
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
-            logger.info("PDF Name: ", dirname + "/" + FileName)
+            dprint(2, "PDF Name: ", dirname + "/" + FileName)
             theFile.write("[<a style=\"color:Gold\" href=\"" + FileName +
                           "\">" + FileName + "</a>]\n")
         else:
@@ -311,13 +321,13 @@ def ParseFile(fname, dirname):
     global SongMark
     global SongMarkIndex
 
-    #  logger.debug("Parse Function %s %s",fname, dirname)
+    dprint( 3, "Parse Function %s %s",fname, dirname)
     userContStart = 0
     userContEnd = 0
 
     # open file in variable
-#    print("*****************************")
-#    print(dirname + "/" + fname)
+    dprint( 2, "**********************  open")
+    dprint( 2, dirname + "/" + fname)
     theHtmlFile = open(dirname + "/" + fname, 'r')
     theFileStr = theHtmlFile.read()
 
@@ -325,7 +335,7 @@ def ParseFile(fname, dirname):
     userContStart = theFileStr.find("<LiveMusic>")
     userContEnd = theFileStr.find("</LiveMusic>")
     if (userContStart < 0 or userContEnd < 0):
-        logger.info("**** NO **** %s ",fname )
+        dprint( 2, "**** NO **** %s ",fname )
         theHtmlFile.close()
         return (1)
 
@@ -333,7 +343,7 @@ def ParseFile(fname, dirname):
 
     # Let's split the file into lines for parsing
     for theLine in theFileStr.splitlines():
-        logger.debug("Line %s", theLine)
+        dprint( 2 ,"Line %s", theLine)
 
         # Look for embedded Preset
         contentRes = theLine.find("Preset")
@@ -410,7 +420,7 @@ def ParseFile(fname, dirname):
                 sSolo = theValue[0]
 
         contentRes = theLine.find("href=")
-        logger.debug("HREF___ %s %s", contentRes, theLine)
+        dprint( 2, "HREF___ %s %s", contentRes, theLine)
         if (contentRes > 0):
             theValue = theLine[contentRes + 5:-2].split(">")
             sHREFFile[sHREFIndex] = theValue[0]
@@ -460,12 +470,12 @@ def LoadVariables(Files):
 
         if filename.endswith(".mp3"):
             Command = "mpck " + Root + "/" + filename + " > /dev/null"
-            logger.info(Command)
+            dprint(2, Command)
             Mp3Problem=os.system(Command)
 
             if (Mp3Problem):
                 Command = "echo " + Root + "/" + filename + " >> ~/MP3Errors.txt"
-                logger.debug("*** MP3 Problem " + Command)
+                dprint( 2, "*** MP3 Problem " + Command)
                 os.system(Command)
 
         if (filename.endswith("mscz")):
@@ -589,21 +599,25 @@ def LoadVariables(Files):
 #            sHREFIndex = sHREFIndex + 1
 
 def IsThereSng(Dir):
-    import os
-    for file in os.listdir(Dir):
-        if file.endswith(".sng"):
-            return True
-    return False
+    
+    try:
+        for file in os.listdir(Dir):
+            if file.endswith(".sng"):
+                return True
+    except: 
+        return False
 
 
 Backprefixes = ["BK_", "HB_", "HB_"]
 
 def IsThereBacking(Dir):
-    import os
-    for file in os.listdir(Dir):
-        if file.startswith(tuple(Backprefixes)):
-            return True
-    return False
+
+    try:
+        for file in os.listdir(Dir):
+            if file.startswith(tuple(Backprefixes)):
+                return True
+    except:
+        return False
 
 
 # Create the main index html page
@@ -623,11 +637,14 @@ def GenerateIndex(Base, List, Reference):
     global SongMarkIndex
     global SongMark
 
+    dprint( 2, "********* ")
+    dprint( 2, "**** GenerateIndex \n")
+
     MaxNameLength = 15
     Padding =    "_____________________________________"
 
     IndexName = os.path.basename(os.getcwd())
-
+    dprint( 2, "GenerateIndex Open ",IndexName)
     theFile = open(Base + "/" + IndexName + ".html", 'w+')
     theFile.write
     theFile.write("<html>\n<head>\n<style type=\
@@ -663,7 +680,7 @@ a:visited {\n\
         "<body link=\"#ffd0a0\" vlink=\"#d08080\" alink=\"#FF0000\"><tr><tt><big>")
 
     #    logger.debug ("\n\n")
-    logger.info("in GenerateIndex " + Base + "/" + IndexName + ".html")
+    dprint( 2, "in GenerateIndex " + Base + "/" + IndexName + ".html")
     if (Reference):
         theFile.write(
             "<big><big><p id=\"#TOP\"></p><a href=\"#Aaaa\">[__A__]</a><a href=\"#Baaa\">[__B__]</a><a href=\"#Caaa\">[__C__]</a><a href=\"#Daaa\">[__D__]</a><a href=\"#Eaaa\">[__E__]</a><a href=\"#Faaa\">[__F__]</a><a href=\"#Gaaa\">[__G__]</a><a href=\"#Haaa\">[__H__]</a><a href=\"#Iaaa\">[__I__]</a><a href=\"#Jaaa\">[__J__]</a><a href=\"#Kaaa\">[__K__]</a><a href=\"#Laaa\">[__L__]</a><a href=\"#Maaa\">[__M__]</a><a href=\"#Naaa\">[__N__]</a><a href=\"#Oaaa\">[__O__]</a><a href=\"#Paaa\">[__P__]</a><a href=\"#Qaaa\">[__Q__]</a><a href=\"#Raaa\">[__R__]</a><a href=\"#Saaa\">[__S__]</a><a href=\"#Taaa\">[__T__]</a><a href=\"#Uaaa\">[__U__]</a><a href=\"#Vaaa\">[__V__]</a><a href=\"#Waaa\">[__W__]</a><a href=\"#Xaaa\">[__X__]</a><a href=\"#Yaaa\">[__Y__]</a><a href=\"#Zaaa\">[__Z__]</a>  "
@@ -679,13 +696,15 @@ a:visited {\n\
 
 #    WriteString=[]
 #    Count = 0
+    dprint( 2, "*********")
     for x in List:
         FileName = os.path.basename(x)
         DirName = os.path.basename(os.path.dirname(x))
+        # dprint( 2, "Loop \n", DirName)
         #        DirName=os.path.dirname(x)
         FileNoExt = os.path.splitext(FileName)[0]
-        logger.debug (" **** " + DirName+" "+FileName)
-        logger.debug (" ---- " + x)
+        # dprint (" **** " + DirName+" "+FileName)
+        # dprint (" ---- " + x)
         Length = len(FileNoExt)
         if (Length > MaxNameLength):
             Length = MaxNameLength
@@ -693,6 +712,7 @@ a:visited {\n\
 
         PadLev = (MaxNameLength + 1) - int(Length)
         PadString = Padding[1:PadLev]
+
         if (IsThereSng(DirName)):
             # Add s for sng file present
             if (IsThereBacking(DirName)):
@@ -795,7 +815,7 @@ a:visited {\n\
         # Look for a PDF file and see how many Pages.
         #    if (FileName.find(".pdf") > 0):
         if (FileName.endswith("pdf") > 0):
-            logger.info("PDF Name: ", dirname + "/" + FileName)
+            dprint( 2, "PDF Name: ", dirname + "/" + FileName)
             theFile.write("[<a style=\"color:Gold\" href=\"" + FileName +
                           "\">" + FileName + "</a>]\n")
         else:
@@ -826,7 +846,7 @@ def CreateNewHTML(fname, dirname, Files):
     global SongMark
     global SongMarkIndex
 
-    logger.debug ("In CreateHTML %s in %s",fname,dirname)
+    dprint (1, "In CreateHTML %s in %s",fname,dirname)
 #    logger.debug ("Files %s", Files)
 
 #    ClearVariables()
@@ -854,7 +874,7 @@ def ExtractPDF(Files, dirname):
         #        if (theFile.endswith("pdf.conv")):
 
         if (theFile.endswith("pdf")):
-#            print("Pdf ",theFile)
+            dprint( 2, "Pdf ",theFile)
             f = dirname + "/" + theFile
             print("Convert PDF " + f)
             # if (theFile.endswith("_001.pdf.jpg")):
@@ -864,7 +884,7 @@ def ExtractPDF(Files, dirname):
 
             if ( not isFullPdf(f)):
                 logger.error("BAD PDF " + f)
-#                print("BAD PDF " + f)
+                dprint( 2, "BAD PDF " + f)
                 Command = "echo " + f + ">> ~/MP3Errors.txt"
                 os.system(Command)
 
@@ -878,7 +898,7 @@ def ExtractPDF(Files, dirname):
                         print("NewPdf ",newfilename)
 
                         Image(image).save(filename=newfilename)
-                        logger.info("PDF to %s", newfilename)
+                        dprint( 2, "PDF to %s", newfilename)
             except:
                 logger.error("Image Exception\n")
                 print("pdf error ", theFile)
@@ -888,7 +908,7 @@ def ExtractPDF(Files, dirname):
 #                os.rename(f, f + ".conv")
 
 def isFullPdf(f):
-    logger.info("isFullPdf " + f)
+    dprint( 2, "isFullPdf " + f)
     end_content = ''
     start_content = ''
     size = os.path.getsize(f)
@@ -947,7 +967,12 @@ indexTextEnd = """
 """
 
 def index_folder(folderPath):
-    logger.info("Indexing: " + folderPath +'/')
+    dprint( 2, "Indexing: " + folderPath +'/')
+
+    dprint( 2, "****************************\n")
+    dprint( 2, "index_folder\n")
+    
+    dprint( 2, "Indexing: " + folderPath +'/')
     #Getting the content of the folder
     files = os.listdir(folderPath)
     files.sort()
@@ -964,9 +989,13 @@ def index_folder(folderPath):
     for file in files:
         #Avoiding index.html files
         if file != 'index_dir.html' and file != "background.png":
-            # if it's a directory then add the index
+            # if it's a directory then add to the index
             if os.path.isdir(folderPath+'/'+file):
                 indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:darkorange\" href='" + file + "/index_dir.html'>" + file + "</a>\n\t\t</li>\n"
+                dprint( 2, "*****************\n")
+                dprint( 2, "*** directory then add to the index\n")
+                dprint( 2, "Index %s \n", indexText)
+                
             else:
                 if (file.endswith("mscz")):
                     indexText += "\t\t<li style=\"color:red\">\n\t\t\t<a style=\"color:orange\" href='" + file + "'>" + file + "</a>\n\t\t</li>\n"
@@ -999,6 +1028,7 @@ def index_folder(folderPath):
     indexText += indexTextEnd
     #Create or override previous index.html
     index = open(folderPath+'/index_dir.html', "w")
+    dprint( 2, "Writing to ", folderPath+'/index_dir.html')
     #Save indexed content to file
     index.write(indexText)
 
@@ -1040,7 +1070,7 @@ parser.add_argument("-z", action='store_true', help="Force Create")
 args = parser.parse_args()
 
 # updated by the version script do not change.
-Version = "2.2.2"
+Version = "2.4.2"
 
 logger = logging.getLogger(__name__)
 
@@ -1057,7 +1087,7 @@ else:
 logger.setLevel(MyLevel)
 logging.basicConfig(level=MyLevel)
 
-logger.debug("Testing")
+dprint(0,"Testing")
 
 # if asking about version number.
 if (args.n):
@@ -1099,29 +1129,34 @@ if (args.a):
 # Guitar Pro to MuseScore do that first so
 # the new files can be found and added.
 #-------------------------------------------------------
+dprint( 2, "--------------------------------------------")
+dprint( 2, "--- PDF ")
+
 if (ConvertPDF):
     for Root, Dir, Files in os.walk(BaseDir):
         FoundHTML = 0
         Files.sort()
-        logger.debug(BaseDir, Root, Dir, "\n")
+        dprint(1, BaseDir, Root, Dir, "\n")
         ClearVariables()
         for filename in Files:
         #        Check for an html file
-            logger.debug("Convert PDF" + filename)
+            dprint( 2, "Convert PDF" + filename)
             if filename.endswith('.html') and not filename.startswith('.'):
                 # sys.stdout.write("\n 1-"+filename+" ")
                 FoundHTML = 1
 
                 # walk thru a file and pull out meta data.
                 if (ParseFile(filename, Root) == 0):
-                    #                logger.debug("Filename %s",filename)
+                    #                dprint("Filename %s",filename)
                     ExtractPDF(Files, Root)
 
+dprint( 2, "--------------------------------------------")
+dprint( 2, "--- Convert GP ")
 if (ConvertGP):
     for Root, Dir, Files in os.walk(BaseDir):
         FoundHTML = 0
         Files.sort()
-        logger.debug("GP-> %s %s %s\n",BaseDir, Root, Dir)
+        dprint( 2, "GP-> %s %s %s\n",BaseDir, Root, Dir)
         ClearVariables()
         for filename in Files:
             #        Check for an html file "ptb",
@@ -1130,41 +1165,41 @@ if (ConvertGP):
                 MuseFileName = os.path.splitext(filename)[0]
                 MuseFileName = Root + "/" + MuseFileName + ".mscz"
                 GPFileName = Root + "/" + filename
-                logger.debug ("Guitar New Pro ", MuseFileName)
+                dprint( 1, "Guitar New Pro ", MuseFileName)
                 #            Command="ConvertGPtoMScore.sh "+filename+" "+MuseFileName
                 if (not os.path.exists(MuseFileName)):
                     print("MuseName Doesn't Exist",MuseFileName)
                     #              logger.debug ("File Does not exist")
                     Command = "mscore -S EliasTab1.mss -f " + Root + "/" + filename + " -o " + MuseFileName + " > /dev/null 2>&1 "
-                    logger.debug(Command)
                     os.system(Command)
-#                    print(Command)
+                    dprint( 2, Command)
 
                     # Command = "mv " + GPFileName + " " + GPFileName + ".conv"
-                    # logger.debug(Command)
+                    # dprint(Command)
                     # os.system(Command)
 
                     Command = "mscore -a alsa -S EliasTab1.mss " + MuseFileName + " -o " + MuseFileName + ".musicxml"  + " > /dev/null 2>&1 "
-#                    logger.info(Command)
-#                    print(Command)
+                    dprint( 2, Command)
 #                    os.system(Command)
 
                     Command = "ChordsFromXML.py " + MuseFileName + ".musicxml > " + Root + "/Chords.txt"  + " > /dev/null 2>&1 "
-#                    logger.info(Command)
-#                    print(Command)
+                    dprint( 2, Command)
 #                    os.system(Command)
                 else:
-                    logger.debug("File " + MuseFileName + " Does exist")
-#                    print("MuseName Does ",MuseFileName)
+                    dprint( 2 ,"File " + MuseFileName + " Does exist")
+                    dprint( 2, "MuseName Does ",MuseFileName)
 
 
 # This is a hack . In order to find all of the 
 # files for creating the index this is done after
 # reading the existing file. If no file exists
 # then just create one here.
+dprint( 2, "--------------------------------------------")
+dprint( 2, "--- Create Index ")
+
 theFileName = os.path.basename(os.getcwd())
 if (not os.path.exists(theFileName) and CreateIndexFile):
-#    print("Create Dummy ", theFileName)
+    dprint( 2, "Create Dummy ", theFileName)
     ClearVariables()
     CreateNewHTML(theFileName, os.getcwd(), 0)
 
@@ -1172,6 +1207,8 @@ if (not os.path.exists(theFileName) and CreateIndexFile):
 # for Files in os.listdir(BaseDir):
 # This is recursive
 #-------------------------------------------------------
+dprint( 2, "--------------------------------------------")
+# dprint( 2, "--- Main Loops ")
 for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
     Files = [f for f in Files if not f[0] == '.']
     Dir[:] = [d for d in Dir if not d[0] == '.']
@@ -1179,18 +1216,25 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
     # Get the Current Dir Name.
     sTitle = os.path.basename(Root)
     Files.sort()
+#    dprint( 2, "File name \n", Files)
 
     FoundHTML = 0
     IndexedFiles = 0
-
+#    dprint( 2, "--- Files: ", Files)
+    
+#    DirectoryLevel=1000
     base_depth = Root.rstrip("/").count("/")
+    dprint( 2, "-Main Depth \n", base_depth, DirectoryLevel);
     if (base_depth < DirectoryLevel):
+        dprint( 2, "File name \n", Files)
         for filename in Files:
             if (filename.endswith(".mp3")):
             # or filename.endswith(".mp4") or filename.endswith(".webm") or filename.endswith(".mkv") ):
-                logger.debug("Found MP3 File %s", filename)
+                dprint( 2, "Found MP3 File %s", filename)
+#                dprint( 2, "Found MP3 File %s", filename)
+
                 if (not os.path.exists(Root + "/" + filename + ".spec.png")):
-                    logger.debug("Running Subprocess")
+                    dprint( 2, "Running Subprocess")
                     subprocess.run([
                         "ffmpeg", "-i", Root + "/" + filename, "-lavfi",
                         "showspectrumpic=s=1395x60:mode=combined:color=plasma:scale=5thrt:fscale=log:legend=off",
@@ -1200,7 +1244,7 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
             # Check for an html file
             if filename.endswith('.html') and (FoundHTML == 0 and
                 filename != "index_dir.html" ):
-                logger.debug("Found HTML File %s", filename)
+                dprint( 2, "Found HTML File %s", filename)
 
                 FoundHTML = 1
                 if (args.z):
@@ -1215,42 +1259,48 @@ for Root, Dir, Files in os.walk(BaseDir, followlinks=True, topdown=False):
                     # add the html to the main index list
                     # but don't add ourselves
                     if (Root != "."):
-                        logger.info("Adding to list %s %s", filename, Root)
+                        dprint( 2, "Adding to list %s %s", filename, Root)
                         MySongList.append(Root + "/" + filename)
                     else:
-                        logger.info("*** Not Added %s %s", filename, Root)
+                        dprint( 2, "*** Not Added %s %s", filename, Root)
 
                     LoadVariables(Files)
                     if (FixMetaData and CreateHTML):
 #                        LoadVariables(Files)
-                        logger.info("Update file %s", filename)
+                        dprint( 2, "*** Update file %s", filename)
                         WriteFile(Root + "/" + filename, Root)
 
                 # Check for Background and logo images.
                 if (not os.path.exists(Root + "/background.png")):
-                    logger.info(Root + "/background.png")
+                    dprint( 2, Root + "/background.png")
                     copyfile("/home/MySongs/background.png",
                              Root + "/background.png")
                     copyfile("/home/MySongs/logo.jpg", Root + "/logo.jpg")
+    # else:
+    #     dprint( 2, "******* Depth Directory \n", base_depth)
+
 
         # If we did find a valid html and were asked to create one.
-        logger.debug("CreateHTML and FoundHTML %s %s %s \n", CreateHTML, FoundHTML, sTitle)
+        dprint( 2, "CreateHTML and FoundHTML %s %s %s \n", CreateHTML, FoundHTML, sTitle)
 
         LoadVariables(Files)
         if (CreateHTML and FoundHTML == 0 and not sTitle.startswith('.')):
-            logger.info("Create file from Directory %s", sTitle)
+            dprint( 2, "Create file from Directory %s", sTitle)
             #        ClearVariables()
             CreateNewHTML(sTitle, Root, Files)
-#            print("** CreateNewHTML ", sTitle)
+            dprint( 2, "** CreateNewHTML ", sTitle)
 #            MySongList.append(Root + "/" + sTitle + ".html")
 
-# print(MySongList)
+dprint( 2, MySongList)
+dprint( 2, "--------------------------------------------")
+dprint( 2, "--- if Create Index ")
 if (CreateIndexFile):
-#    MySongList.sort()
+#.    MySongList.sort()
     MySongList = sorted(MySongList, key=lambda x: re.sub(r"\s+", "", x.casefold()))
 
-    logger.info("CreateIndexFile ----- List %d",len(MySongList))
-    logger.debug(MySongList)
+    dprint( 2, "CreateIndexFile ----- List ",len(MySongList))
+    dprint( 2 ,MySongList)
+    dprint( 2, "CreateIndexFile ----- List %d",len(MySongList))
     GenerateIndex(BaseDir, MySongList, ReferenceCreate)
 #    print("** GenerateIndex ", BaseDir)
 
@@ -1258,12 +1308,11 @@ if (CreateIndexFile):
 # Indexing root directory without modification (Script position)
 index_folder(BaseDir)
 
-logger.info("Version %s",Version)
-#logger.info(Version)
+# dprint(0, "Version ",Version)
 
 # find ./ -iname \*mp3 -exec normalize-mp3 -b {} \;
 
-# logger.debug("Done")
+# dprint("Done")
 
 # jpdfbookmarks.jar for modify pages
 

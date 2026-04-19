@@ -25,6 +25,7 @@ GrabInterface() {
 
 echo "GrabInterface " $1
 
+
 InLinkL=`echo "$DeviceList" | grep "${1}" | grep -i capture | tail -n 1`
 InLinkR=`echo "$DeviceList" | grep "${1}" | grep -i capture | tail -n 2 | head -n 1`
 
