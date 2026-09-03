@@ -1887,6 +1887,7 @@ void VScale1_Changed(GtkAdjustment *adj) {
     int ThisPatchNum;
     PatchInfo *ThisPatch;
     unsigned int NewValue;
+    unsigned int LogValue;
 
     /* Set the number of decimal places to which adj->value is rounded */
     //   gtk_scale_set_digits (GTK_SCALE (VScale1), (gint) adj->value);
@@ -1895,16 +1896,17 @@ void VScale1_Changed(GtkAdjustment *adj) {
     ThisPatchNum = gMyInfo.HardSlider[0];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
     //  gMyInfo.AnalogVolume = (char) gtk_adjustment_get_value(Adjustment1);
+    LogValue=NewValue;
 
-    //NewValue = ConvertToLogInt(NewValue);
+    //LogValue = ConvertToLogInt(NewValue);
     if (ThisPatch->OutPort == InternalPort) {
-        MyOSCJackVol(NewValue, typeOSCVolGuitarL);
-        MyOSCJackVol(NewValue, typeOSCVolGuitarR);
+        MyOSCJackVol(LogValue, typeOSCVolGuitarL);
+        MyOSCJackVol(LogValue, typeOSCVolGuitarR);
     } else
         SendMidi(SND_SEQ_EVENT_CONTROLLER, ThisPatch->OutPort,
-                 ThisPatch->Channel, ThisPatch->Patch, (char)NewValue);
+                 ThisPatch->Channel, ThisPatch->Patch, (char)LogValue);
 
-    printd(LogDebug, "Vscale 1 End %d\n", NewValue);
+    printd(LogDebug, "Vscale 1 End %d\n", LogValue);
 }
 
 /*--------------------------------------------
@@ -1927,9 +1929,9 @@ void VScale2_Changed(GtkAdjustment *adj) {
     gMyInfo.MidiVolume = (char)gtk_adjustment_get_value(Adjustment2) * 1.25;
 
     //LogValue = MidiToDB(NewValue);
+    LogValue=NewValue;
     //LogValue = ConvertToLogInt(NewValue);
     printd(LogInfo, "Vscale 2 %d %d \n", NewValue, LogValue);
-    LogValue=NewValue;
 
     if (ThisPatch->OutPort == InternalPort) {
         MyOSCJackVol(NewValue, typeOSCVolMidi);
@@ -1956,9 +1958,9 @@ void VScale3_Changed(GtkAdjustment *adj) {
     ThisPatchNum = gMyInfo.HardSlider[2];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-    //LogValue = MidiToDB(NewValue);
-    //LogValue = ConvertToLogInt(NewValue);
     LogValue=NewValue;
+    //LogValue = MidiToDB(NewValue);
+    // LogValue = ConvertToLogInt(NewValue);
     printd(LogInfo, "Vscale 3 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
@@ -2346,7 +2348,7 @@ int GuitarMidiPreset(char Wait) {
  *
  *---------------------------------------------*/
 int GuitarMidiPresetComplete(tPatchIndex MidiNote) {
-    tPatchIndex PatchChange;
+    tPatchIndex PatchChange = 0;
 
     printd(LogTest, "GuitarMidiPresetComplete Start %d\n", MidiNote);
 
@@ -2439,6 +2441,8 @@ int InitHistoryFile(void) {
         printd(LogDebug, FileHistory, "*****************\n");
         fflush(FileHistory);
     }
+
+    return 0;
 }
 
 /*-----------------------------------------------
@@ -2458,6 +2462,8 @@ int WriteToHistory(char *str) {
         fprintf(FileHistory, "%s\n", str);
         fflush(FileHistory);
     }
+
+    return 0;
 }
 
 /*-----------------------------------------------
@@ -2469,6 +2475,8 @@ int WriteToHistory(char *str) {
 int CloseHistoryFile(void) {
     fflush(FileHistory);
     fclose(FileHistory);
+
+    return 0;
 }
 
 float ConvertToLogF(float linear)
@@ -2494,7 +2502,7 @@ float ConvertToLogF(float linear)
  *
  *----------------------------------------------*/
 float ConvertToLogF_OLD(float Norm) {
-float LogValue;
+double LogValue;
 
     //LogValue = (log10(Norm)/1.8);
     //LogValue = 255*pow((float)Norm / 255, 4);
@@ -2511,7 +2519,36 @@ float LogValue;
 
 //    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
 //    LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
-    LogValue = ((log(Norm) / (0.05) + 32.0)/32.0);
+    // Claude
+//    LogValue = ((log(Norm) / (0.05) + 32.0)/32.0);
+//    LogValue = log10(1 + 9 * Norm);
+
+    // chatGPT 
+//    LogValue = log10(1.0 + 9.0 * pow(Norm, 2.0));
+
+//    double logValue;
+
+    // if (Norm <= 0.5) {
+    //     double x = Norm / 0.5;
+    //     LogValue = 0.85 * log10(1.0 + 9.0 * x);
+    // } else {
+    //     double x = (Norm - 0.5) / 0.5;
+    //     LogValue = 0.85 + 0.15 * log10(1.0 + 9.0 * x);
+    // }
+
+    
+    if (Norm <= 0.35) {
+        double x = Norm / 0.35;
+        LogValue = 0.85 * log10(1.0 + 9.0 * x);
+    } else {
+        double x = (Norm - 0.35) / 0.65;
+        LogValue = 0.85 + 0.15 * log10(1.0 + 9.0 * x);
+    }
+
+// ChatGPT DB conversion
+    // double dB = -60.0 + 60.0 * norm;    
+    // double gain = pow(10.0, dB / 20.0);
+    
     if (LogValue < 0.0)
         LogValue = 0.0;
 
@@ -2564,8 +2601,8 @@ int SetExpressionControl(int Controller, int Value) {
 //    NormValue = (float)Value/127;
 //    LogValue = (NormValue / (1 + (1 - NormValue) * 2) * 127);
 
-//    LogValue = ConvertToLogInt(Value);
     LogValue=Value;
+    LogValue = ConvertToLogInt(Value);
     printd(LogInfo, "SetExpressionControl %d %d %d\n", Controller, Value,
            LogValue);
 
@@ -2647,19 +2684,19 @@ int SetExpressionControl(int Controller, int Value) {
     // Looper volume
     case ecLooperVolume:
         //      ReturnVal = gMyInfo.MidiThresholdLevel;
-        MyOSCJackVol(Value, typeOSCVolLooper);
+        MyOSCJackVol(LogValue, typeOSCVolLooper);
         break;
 
     // Not used
     case ecMidiAnaMix:
         ReturnVal = gMyInfo.MidiAnalMixLevel;
-        gMyInfo.MidiAnalMixLevel = Value;
+        gMyInfo.MidiAnalMixLevel = LogValue;
         ReturnVal = gMyInfo.AnalogVolume;
         ReturnVal = gMyInfo.MidiVolume;
 
-        if (Value > 64) {
-        } else {
-        }
+        // if (Value > 64) {
+        // } else {
+        // }
 
         //      SetExpressionControl
         break;

@@ -15,7 +15,7 @@
 |   of the License, or (at your option) any later version.
 |
 |   This program is distributed in the hope that it will be useful,
-|   but WITHOUT ANY WARRANTY; without even the implied warranty of
+|   but WITHOUT ANY WARRANTY; without even the implied warranty ofsmplayer
 |   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 |   GNU General Public License for more details.
 |
@@ -134,7 +134,55 @@ int PrevMarkerIndex;
 /*-----------------------------------------------
  * Function:        LivePlayerInit
  *
- * Description:     Set up the Mplayer pipe and controls.
+ * Description:     One-time setup of the entire mplayer/mpv transport
+ *                   UI panel, called once at startup with the main
+ *                   app window and the panel's own container widget
+ *                   (`window`). Large, mostly repetitive GTK widget
+ *                   construction - same overall shape as HTML.c's
+ *                   InitHTML() and Chorder.c's InitChorder(): build a
+ *                   widget, wire its signal(s) to a *_click_handler/
+ *                   *_Changed function below, add a tooltip, repeat.
+ *                   Roughly, top to bottom:
+ *                     - Creates the named FIFO (InPipeName) used to
+ *                       send commands to the external player process
+ *                       (see PlayerWrite()/StartPlayer() below for
+ *                       the other end of this pipe).
+ *                     - Builds every transport control: Set A/Set B
+ *                       (loop start/end) buttons + coarse/fine
+ *                       sliders, Play/Pause, Reset, Loop toggle,
+ *                       Prev/Next segment, Speed, Volume, the big song
+ *                       position slider + waveform image, the "Saved
+ *                       Loops" row (save/edit/new-loop/new-marker).
+ *                     - Packs everything into framed sections (Start
+ *                       Position / Length / Speed / Player Control /
+ *                       Saved Loops / Song Position / Volume) and adds
+ *                       the whole thing to `window`.
+ *                     - Calls StartPlayer() (spawns the actual
+ *                       player process for whatever's already
+ *                       loaded/default), then opens InPipeFD for
+ *                       reading the player's output (see
+ *                       PlayerPoll()) - exits the whole process if
+ *                       that open fails.
+ *
+ *                   *** RECURRING BUG PATTERN - WORTH VERIFYING ***
+ *                   Near the end, `gtk_window_set_resizable()` is
+ *                   called on MainBox/theFrame/PositionBox/
+ *                   PlayerFrame/SavedFrame/VolumeFrame/ImageWidget/
+ *                   PositionSlider/PositionSliderBox - NONE of which
+ *                   are GtkWindow (they're GtkBox/GtkFrame/GtkImage/
+ *                   GtkScale widgets). Same class of GTK API misuse as
+ *                   Chorder.c's InitChorder() (see that function's
+ *                   doc) - each call would normally fail GTK's
+ *                   internal `GTK_IS_WINDOW()` check and log a
+ *                   critical warning rather than crash or do
+ *                   anything. Only the final `gtk_window_set_resizable
+ *                   (window, FALSE)` call is actually meaningful,
+ *                   since `window` is presumably a real window/
+ *                   container passed in from the caller. The
+ *                   repetition here (9 calls, 8 of them on non-window
+ *                   widgets) suggests this may be copy-pasted
+ *                   boilerplate rather than 9 separate mistakes -
+ *                   worth a systemic look rather than a one-off fix.
  *
  *------------------------------------------------*/
 int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
@@ -757,7 +805,16 @@ int LivePlayerInit (GtkWidget *MainWindow, GtkWidget *window) {
 /*-----------------------------------------------
  * Function:        SetMP3PlayVol
  *
- * Description:     Set the playback volume
+ * Description:     Set the transport panel's volume slider to `Value`
+ *                   (updates VolumeAdjustment, which VolumeSpin is
+ *                   already bound to - the gtk_range_set_adjustment()
+ *                   call re-attaches the same adjustment, which looks
+ *                   redundant but is harmless). Returns `Value`
+ *                   unchanged; doesn't itself send anything to the
+ *                   player process - the "value_changed" signal fired
+ *                   by gtk_adjustment_set_value() is what actually
+ *                   propagates the change (see VolumeSlider_Changed()
+ *                   below).
  *------------------------------------------------*/
 int SetMP3PlayVol (int Value) {
     gtk_adjustment_set_value (VolumeAdjustment, Value);
@@ -770,7 +827,15 @@ int SetMP3PlayVol (int Value) {
 /*-----------------------------------------------
  * Function:        SaveLoopPopup_cb
  *
- * Description:     Enter loop info after set by user..
+ * Description:     "changed" handler for the Saved Loops dropdown
+ *                   (`widget`): when the user picks a previously-saved
+ *                   loop, load its Start/Length into the fine-position
+ *                   adjustments and seek playback to the loop's start
+ *                   via plSetPosition(). `entry` is accepted but
+ *                   unused. `.Length` here is a duration relative to
+ *                   Start (matching mplayer's `-endpos` semantics when
+ *                   combined with `-ss` - see StartPlayer()'s doc and
+ *                   plSetB() below), not an absolute end timestamp.
  *------------------------------------------------*/
 static void SaveLoopPopup_cb (GtkWidget *widget, GtkWidget *entry) {
     int CurrentSavedLoop;
@@ -791,10 +856,19 @@ static void SaveLoopPopup_cb (GtkWidget *widget, GtkWidget *entry) {
 /*-----------------------------------------------
  * Function:        ResetPlayer
  *
- * Description:
- *
+ * Description:     Kill any running mplayer process and reset the UI/
+ *                   playback state back to the start: clears the
+ *                   marker display, zeroes the position/loop-start/
+ *                   loop-end adjustments, resets speed to 1.0x, resets
+ *                   CurrentSongPosition, and sends explicit
+ *                   stream_pos/time_pos = 0 commands to the player
+ *                   (belt-and-suspenders alongside StartPlayer()'s own
+ *                   restart, in case the player process is still
+ *                   alive when this runs).
  *------------------------------------------------*/
 int ResetPlayer (void) {
+
+    system ("killall mplayer");
 
     // Clear the Marker display.
     PlayerDisSection[0] = 0;
@@ -817,10 +891,16 @@ int ResetPlayer (void) {
 }
 
 /*-----------------------------------------------
- * Function:        LivePlayerInit
+ * Function:        LivePlayerClose
  *
- * Description:     Set up the Mplayer pipe and controls.
- *
+ * Description:     Clean shutdown of the transport panel: kills any
+ *                   running mplayer process, resets the marker display
+ *                   state, saves the current loop points to disk via
+ *                   SaveLoopFile(), then kills mplayer again (the
+ *                   double kill is redundant but harmless - possibly
+ *                   defensive against SaveLoopFile() somehow
+ *                   restarting playback, though nothing in that
+ *                   function does).
  *------------------------------------------------*/
 int LivePlayerClose (void) {
 
@@ -838,7 +918,36 @@ int LivePlayerClose (void) {
 /*-----------------------------------------------
  * Function:        SetPlayerFile
  *
- * Description:     Check for any data from MPlayer..
+ * Description:     Switch the transport panel over to a new song
+ *                   file: stops/resets any current playback, saves
+ *                   the previous song's loop points first (if one was
+ *                   loaded), clears the LEDs, sets CurrentFile/
+ *                   CurrentFileSpec (the latter is the file's
+ *                   waveform-image companion, "<file>.spec.png"),
+ *                   loads that file's saved loop points via
+ *                   OpenSavedLoopFile(), optionally displays the
+ *                   waveform image (only when ScreenSize == 2 - a
+ *                   larger-display-only feature), forces looping off,
+ *                   and resets again.
+ *
+ *                   *** DEAD CODE ***
+ *                   `sprintf(PlayerString, "load \"%s\"\n", FileName)`
+ *                   builds a player "load" command but it's never
+ *                   actually sent - there's no PlayerWrite(PlayerString)
+ *                   call anywhere in this function (compare other
+ *                   functions in this file, e.g. plSetA()/plSetB()
+ *                   below, which always follow an sprintf into
+ *                   PlayerString with a PlayerWrite(PlayerString)
+ *                   call). The actual file switch instead happens
+ *                   because StartPlayer() (invoked indirectly - not
+ *                   from here directly, but from whatever calls this
+ *                   function next / the play button path) relaunches
+ *                   the player process with the new CurrentFile as a
+ *                   command-line argument rather than sending a
+ *                   live "load" IPC command to an already-running
+ *                   instance. This sprintf looks like leftover from
+ *                   an earlier/alternate design where the file was
+ *                   loaded via IPC instead of a process restart.
  *------------------------------------------------*/
 void SetPlayerFile (char *FileName) {
 
@@ -864,6 +973,7 @@ void SetPlayerFile (char *FileName) {
         gtk_image_clear ( (GtkImage *) ImageWidget);
         gtk_image_set_from_file ( (GtkImage *) ImageWidget, CurrentFileSpec);
     }
+    
     RestartPlayer = RestartPlayerValue;
     sprintf (PlayerString, "load \"%s\"\n", FileName);
 
@@ -872,13 +982,53 @@ void SetPlayerFile (char *FileName) {
     plLoopToggle();
 
     // EJK check this.
+ //   plStop();
+
     ResetPlayer();
 }
 
 /*-----------------------------------------------
  * Function:        OpenSavedLoopFile
  *
- * Description:     Open/and or create new Saved Position file.
+ * Description:     Load the ".Loops" companion file for `FileName`
+ *                   (e.g. "song.html.Loops") into mySavedLoops[] and
+ *                   populate the Saved Loops dropdown (SaveCombo).
+ *                   Each line is "name start, length, position,
+ *                   measures" - Measures is read but discarded (not
+ *                   stored into mySavedLoops[], only ever used
+ *                   locally). Skips an entry whose fields are all
+ *                   zero/empty (treated as a blank/placeholder line
+ *                   rather than a real saved loop). Bails out early
+ *                   (returns without closing... actually see bug
+ *                   note below) if MaxSavedLoops would be exceeded.
+ *
+ *                   *** BUG: classic feof()/fscanf() EOF pattern ***
+ *                   `while (!feof(SavedLoopFD))` with fscanf() as the
+ *                   loop's only read, and no check of fscanf()'s
+ *                   return value, is a well-known bug shape: feof()
+ *                   only becomes true AFTER a read has already failed,
+ *                   so this loop runs one extra iteration past the
+ *                   real last line - that final fscanf() fails (matches
+ *                   nothing), leaving that iteration's
+ *                   mySavedLoops[NumSavedLoops] fields as whatever was
+ *                   already in that (memset-to-0-at-entry, so likely
+ *                   harmless here) memory, and still adds a blank
+ *                   combo box entry for it before the "all zero"
+ *                   check filters it from NumSavedLoops. Given the
+ *                   array is zeroed up front, this specific case is
+ *                   probably low-impact (an extra blank line is added
+ *                   to the combo, then filtered from the count) - but
+ *                   it's the same unsafe pattern regardless, and
+ *                   fscanf()'s return value should be checked instead
+ *                   of relying on feof().
+ *
+ *                   Also: the early `return` on the MaxSavedLoops
+ *                   overflow check skips the fclose(SavedLoopFD) a
+ *                   few lines below - the file handle stays open
+ *                   (SavedLoopFD itself doesn't get reset to 0
+ *                   either), leaking the descriptor until the next
+ *                   OpenSavedLoopFile() call's own `if (SavedLoopFD)
+ *                   fclose(...)` guard at the top happens to close it.
  *------------------------------------------------*/
 void OpenSavedLoopFile (char *FileName) {
     char SaveLoopName[300];
@@ -946,7 +1096,34 @@ void OpenSavedLoopFile (char *FileName) {
 /*-----------------------------------------------
  * Function:        SaveLoopFile
  *
- * Description:     Save the Loop points.
+ * Description:     Write the in-memory mySavedLoops[] back out to two
+ *                   companion files: "<FileName>.Loops" (name/start/
+ *                   length/position/measures - the format
+ *                   OpenSavedLoopFile() reads back) and
+ *                   "<FileName>.Structure" (just name + measure
+ *                   count, presumably for some other tool/reference).
+ *                   First sorts mySavedLoops[] into time order (bubble
+ *                   sort by Start), then for each loop computes a
+ *                   "Measures" count from the time gap to the *next*
+ *                   loop's start (or, for the last loop, from its own
+ *                   Start alone), converted via the current tempo.
+ *
+ *                   *** WORTH VERIFYING - possible off-by-one read ***
+ *                   The Measures calculation unconditionally reads
+ *                   `mySavedLoops[Loop + 1].Start` first, THEN
+ *                   overwrites the result if `Loop` turns out to be
+ *                   the last index (NumSavedLoops - 1) - so
+ *                   `Loop + 1` can equal NumSavedLoops even though
+ *                   its value gets discarded immediately after. If
+ *                   NumSavedLoops ever equals MaxSavedLoops exactly,
+ *                   this reads one entry past the last one actually
+ *                   populated (Loop + 1 == MaxSavedLoops) - likely
+ *                   still in-bounds for the array itself, but reading
+ *                   whatever stale/zeroed data sits there rather than
+ *                   a real loop's Start. Harmless in practice since
+ *                   the read result is thrown away for that case, but
+ *                   worth restructuring to check the last-index case
+ *                   before reading `Loop + 1` rather than after.
  *------------------------------------------------*/
 void SaveLoopFile (char *FileName) {
     char SaveLoopName[FileNameMaxLength];
@@ -1019,9 +1196,15 @@ void SaveLoopFile (char *FileName) {
 }
 
 /*-----------------------------------------------
- * Function:        Check info from MPlayer
+ * Function:        PlayerWrite
  *
- * Description:     Check for any data from MPlayer..
+ * Description:     Send a raw command string to the player process
+ *                   via OutPipe (the pipe end connected to the
+ *                   spawned mplayer/mpv's stdin - see StartPlayer()
+ *                   below, opened with popen()). Logs a write error if
+ *                   fputs() fails, but always returns 0 regardless -
+ *                   callers can't detect a failed write from the
+ *                   return value.
  *------------------------------------------------*/
 int PlayerWrite (char *String) {
     int Val;
@@ -1039,9 +1222,53 @@ int PlayerWrite (char *String) {
 }
 
 /*-----------------------------------------------
- * Function:        Check info from MPlayer
+ * Function:        PlayerPoll
  *
- * Description:     Check for any data from MPlayer..
+ * Description:     Called periodically (both from a GTK timer, `How`
+ *                   != 0, and directly from other code paths, `How`
+ *                   == 0) to drive the mplayer/mpv "slave mode" text
+ *                   protocol: sends a `get_time_pos` query, reads
+ *                   whatever the player wrote back on InPipeFD, and
+ *                   scans the response text for a handful of known
+ *                   tags (repeatedly, in a `while (CommandsDone == 0)`
+ *                   loop that keeps re-scanning from wherever the last
+ *                   match left off, in case multiple tags arrived in
+ *                   one read):
+ *                     - ID_LENGTH / ANS_LENGTH: total song length,
+ *                       both handled the same way (mplayer's own
+ *                       comment above notes ANS_LENGTH isn't always
+ *                       reliable, hence also watching for ID_LENGTH)
+ *                       - updates the position slider's/loop
+ *                       adjustments' upper bound.
+ *                     - ANS_TIME_POSITION: current playback position
+ *                       (CurrentSongPosition) - see StartPlayer()/
+ *                       plPausePlay() docs for why keeping this fresh
+ *                       matters for pause/resume. Also drives the
+ *                       "upcoming marker" countdown display
+ *                       (PlayerDisSection/PlayerDisTime -> LED
+ *                       countdown via LEDControl) and an
+ *                       auto-scroll-to-marker feature: each
+ *                       mySavedLoops[].Position value is either a real
+ *                       scroll-to pixel offset (>= 0) or one of six
+ *                       negative sentinels (-2..-7) mapped to
+ *                       ScrollHome/PgUp/KeyUp/KeyDn/PgDn/ScrollEnd
+ *                       (the same ScrollCtrl() sentinel constants
+ *                       defined in HTML.c) - so a saved marker can
+ *                       trigger a page-turn-style scroll action
+ *                       instead of a literal position.
+ *                   Also resets playback to 0 (not a real "stop",
+ *                   just re-seeks) once CurrentSongPosition reaches
+ *                   TotalLength, and throttles how often the GTK
+ *                   position slider itself gets updated
+ *                   (DontUpDateSlider) so a user actively dragging it
+ *                   doesn't fight with automatic updates.
+ *
+ *                   Early-returns (does nothing) if not currently
+ *                   playing, if called via timer while a direct call
+ *                   already has the timer locked out (InPlayerTimer),
+ *                   if the slider-update cooldown is active, or if a
+ *                   pending player restart (RestartPlayer) hasn't
+ *                   finished its wait yet.
  *------------------------------------------------*/
 void PlayerPoll (char How) {
     char Buffer[2000];
@@ -1291,6 +1518,8 @@ void PlayerPoll (char How) {
                  */
                 if (DontUpDateSlider == 3) {
                     printd (LogTest, "DontUpDateSlider == 4\n");
+                    NewSongPosition=CurrentSongPosition;
+
                     plSetPosition(NewSongPosition);
                     CurrentSongPosition=NewSongPosition;
                 }   
@@ -1319,7 +1548,13 @@ void PlayerPoll (char How) {
 /*-----------------------------------------------
  * Function:        PositionSlider_Changed
  *
- * Description:     Position Sliders changed.
+ * Description:     "change_value" handler for the main song-position
+ *                   slider: sets a 8-cycle cooldown on automatic
+ *                   slider updates (DontUpDateSlider - see
+ *                   PlayerPoll()'s doc for why: so this user-driven
+ *                   change doesn't immediately get overwritten by the
+ *                   next automatic position-poll update), then seeks
+ *                   playback to the new value via plSetPosition().
  *------------------------------------------------*/
 void PositionSlider_Changed (GtkAdjustment * adj) {
     float NewValue;
@@ -1344,7 +1579,22 @@ void PositionSlider_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        SetASlider_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the coarse Loop-Start
+ *                   slider (StartSpin/StartAdjustment).
+ *
+ *                   *** DEAD CODE / NO-OP ***
+ *                   Reads the new value into a local variable and
+ *                   does nothing else with it - no player command
+ *                   sent, no app state updated, only a log line.
+ *                   Compare SetAFineTickBox_Changed() below, which
+ *                   DOES act on a change (triggers a player restart
+ *                   when looping). Moving this coarse slider in the
+ *                   UI currently has no functional effect - only the
+ *                   fine spin-button control actually does anything.
+ *                   Worth verifying this is intentional (maybe the
+ *                   coarse slider is meant purely as a visual/rough
+ *                   indicator, with the fine control being the real
+ *                   input) rather than an oversight.
  *------------------------------------------------*/
 void SetASlider_Changed (GtkAdjustment * adj) {
     float NewValue;
@@ -1356,7 +1606,10 @@ void SetASlider_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        SetBSlider_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the coarse Loop-End
+ *                   slider (EndSpin/EndAdjustment). Same no-op
+ *                   pattern as SetASlider_Changed() above - see that
+ *                   function's doc.
  *------------------------------------------------*/
 void SetBSlider_Changed (GtkAdjustment * adj) {
     float NewValue;
@@ -1368,7 +1621,16 @@ void SetBSlider_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        SetAFineTickBox_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the fine Loop-Start
+ *                   spin button (FineStartSpin/FineStartAdjustment) -
+ *                   this is the control that actually matters for
+ *                   setting the loop start point precisely. If
+ *                   currently looping, schedules a player restart
+ *                   (RestartPlayer - see StartPlayer()/PlayerPoll())
+ *                   so the new loop bounds take effect. (The debug
+ *                   log line here says "SetBFineTickBox_Changed" -
+ *                   copy-paste leftover from the function below;
+ *                   cosmetic only, doesn't affect behavior.)
  *------------------------------------------------*/
 void SetAFineTickBox_Changed (GtkAdjustment * adj) {
     printd (LogPlayer, "SetBFineTickBox_Changed\n");
@@ -1380,7 +1642,11 @@ void SetAFineTickBox_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        SetBFineTickBox_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the fine Loop-End
+ *                   spin button (FineEndSpin/FineEndAdjustment) - the
+ *                   control that actually sets the loop end point.
+ *                   Same restart-on-change behavior as
+ *                   SetAFineTickBox_Changed() above.
  *------------------------------------------------*/
 void SetBFineTickBox_Changed (GtkAdjustment * adj) {
     printd (LogPlayer, "SetBFineTickBox_Changed\n");
@@ -1392,7 +1658,13 @@ void SetBFineTickBox_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        SpeedSlider_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the playback-speed
+ *                   slider: updates CurrentSpeed and sends a
+ *                   `speed_set` command directly to the player if not
+ *                   looping - but if currently looping, instead does
+ *                   a full StartPlayer() restart (rather than sending
+ *                   speed_set live) so the loop is relaunched at the
+ *                   new speed cleanly.
  *------------------------------------------------*/
 void SpeedSlider_Changed (GtkAdjustment * adj) {
 
@@ -1413,7 +1685,11 @@ void SpeedSlider_Changed (GtkAdjustment * adj) {
 /*-----------------------------------------------
  * Function:        VolumeSlider_Changed
  *
- * Description:     .
+ * Description:     "value_changed" handler for the volume slider:
+ *                   sends a `volume` command directly to the player
+ *                   with the new value. Unlike SpeedSlider_Changed()
+ *                   above, always sends live regardless of looping
+ *                   state (no restart needed for a volume change).
  *------------------------------------------------*/
 void VolumeSlider_Changed (GtkAdjustment * adj) {
     printd (LogPlayer, "VolumeSlider_Changed %f\n",
@@ -1424,9 +1700,13 @@ void VolumeSlider_Changed (GtkAdjustment * adj) {
 }
 
 /*-----------------------------------------------
- * Function:        normal_release_handler
+ * Function:        SetA_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Set A" button click handler - marks the current
+ *                   playback position as the loop start point. Forces
+ *                   an immediate position poll first (PlayerPoll(FALSE),
+ *                   so CurrentSongPosition is fresh) before calling
+ *                   plSetA() below to actually record it.
  *------------------------------------------------*/
 gboolean SetA_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
@@ -1444,7 +1724,10 @@ gboolean SetA_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        SetB_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Set B" button click handler - marks the current
+ *                   playback position as the loop end point. Same
+ *                   pattern as SetA_click_handler() above: force a
+ *                   fresh poll, then record via plSetB().
  *------------------------------------------------*/
 gboolean SetB_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
@@ -1462,7 +1745,12 @@ gboolean SetB_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        Speed_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Reset speed" button click handler - resets
+ *                   playback speed to 1.0x: updates the speed slider,
+ *                   CurrentSpeed, and sends `speed_set 1.0` directly
+ *                   to the player. Unlike SpeedSlider_Changed(), this
+ *                   doesn't special-case looping/restart the player -
+ *                   just sends the command live regardless.
  *------------------------------------------------*/
 gboolean Speed_click_handler (GtkWidget * widget, GdkEvent * event,
                               gpointer user_data) {
@@ -1484,7 +1772,12 @@ gboolean Speed_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        NewLoop_click_handler
  *
- * Description:     Create a new saved Loop.
+ * Description:     "New Loop" button click handler - opens the
+ *                   name-entry dialog (NewLoopDialog() below) to save
+ *                   the current loop points as a new named entry.
+ *                   (The debug log line here says
+ *                   "NextSeg_click_handler" - copy-paste leftover;
+ *                   cosmetic only.)
  *------------------------------------------------*/
 int NewLoop_click_handler (GtkWidget * widget, GdkEvent * event,
                            gpointer user_data) {
@@ -1505,9 +1798,36 @@ int NewLoop_click_handler (GtkWidget * widget, GdkEvent * event,
 
 
 /*-----------------------------------------------
- * Function:        NewLoop_click_handler
+ * Function:        NewLoopDialog
  *
- * Description:     Create a new saved Loop.
+ * Description:     Modal "name this loop" dialog: prompts for a name,
+ *                   and on OK, appends a new entry to mySavedLoops[]
+ *                   using the CURRENT fine Start/End adjustment values
+ *                   (not the values at some earlier point - whatever
+ *                   FineStartAdjustment/FineEndAdjustment are set to
+ *                   right now), plus the current scroll position (see
+ *                   HTML.c's ScrollGetPosition() - and that function's
+ *                   own doc on why its result may not actually be
+ *                   fresh). Refuses (returns FALSE) if MaxSavedLoops
+ *                   would be exceeded.
+ *
+ *                   `.Length` genuinely is a duration (matching its
+ *                   name) - it's set directly from FineEndAdjustment,
+ *                   which mplayer's `-endpos` option (see
+ *                   StartPlayer()) treats as relative to `-ss`
+ *                   (FineStartAdjustment) when both are given
+ *                   together, not an absolute end timestamp. See
+ *                   plSetB() below, which explicitly computes
+ *                   `CurrentSongPosition - FineStartAdjustment` for
+ *                   exactly this reason.
+ *
+ *                   Note: SaveLoopFile(CurrentFile) is called twice -
+ *                   once inside the OK case (redundant with the call
+ *                   right after the switch), and unconditionally again
+ *                   after the switch regardless of whether OK or
+ *                   Cancel was clicked. So cancelling the dialog still
+ *                   triggers a full loop-file rewrite (harmless since
+ *                   nothing changed, just wasted I/O).
  *------------------------------------------------*/
 int NewLoopDialog (void) {
     theImageButtons *theButton;
@@ -1589,16 +1909,20 @@ int NewLoopDialog (void) {
 /*-----------------------------------------------
  * Function:        NewMarker_click_handler
  *
- * Description:     Create a new saved Loop.
+ * Description:     "New Marker" button click handler - opens
+ *                   NewMarkerDialog() below to name and save the
+ *                   current playback position as a point marker
+ *                   (distinct from a start/end loop range - see
+ *                   NewMarkerDialog()'s doc on the `.Length == -1`
+ *                   sentinel that distinguishes the two). Redundantly
+ *                   sets theButton/logs/redraws the button image
+ *                   twice (before and after the dialog call) with
+ *                   identical code both times - harmless, just
+ *                   duplicated.
  *------------------------------------------------*/
 int NewMarker_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
     theImageButtons *theButton;
-    GtkWidget *dialog;
-    GtkWidget *entry;
-    GtkWidget *content_area;
-    char *entry_line;
-    float theTime;
 
     theButton = (theImageButtons *) user_data;
     printd (LogPlayer, "NewMarker_click_handler %x\n", theButton);
@@ -1611,18 +1935,39 @@ int NewMarker_click_handler (GtkWidget * widget, GdkEvent * event,
     gtk_image_set_from_pixbuf (GTK_IMAGE (theButton->Image),
                                theButton->ButtonUpImage);
 
-#ifdef GTK_4
-    gtk_window_destroy (dialog);
-#else
-    gtk_widget_destroy (dialog);
-#endif    
 return TRUE; /* stop event propagation */
 }
 
 /*-----------------------------------------------
  * Function:        NewMarkerDialog
  *
- * Description:     Create a new saved Loop.
+ * Description:     Modal "name this marker" dialog: prompts for a
+ *                   name, and on OK, appends a new mySavedLoops[]
+ *                   entry at the CURRENT playback time
+ *                   (PlayerCurrentTime, captured via a forced
+ *                   PlayerPoll() at the top) with `.Length` set to
+ *                   the sentinel value -1 rather than a real end
+ *                   position - this is how the saved-loops list tells
+ *                   a point marker apart from a real start/end loop
+ *                   (compare NewLoopDialog() above, which sets
+ *                   `.Length` from FineEndAdjustment). The disabled
+ *                   `#if 0`/`#else` branch shows an alternate,
+ *                   never-compiled design that would have used a
+ *                   separate SongMarkers[] array instead - superseded
+ *                   by folding markers into mySavedLoops[] as this
+ *                   sentinel-based special case.
+ *
+ *                   Also calls `gtk_combo_box_set_active(SaveCombo, 1)`
+ *                   unconditionally after adding the new entry - not
+ *                   `NumSavedLoops` (the index of the entry just
+ *                   added) or `NumSavedLoops - 1`, but the literal
+ *                   constant `1` - so the combo box always jumps to
+ *                   selecting the SECOND saved item after creating a
+ *                   marker, regardless of how many loops/markers
+ *                   already exist or where the new one actually
+ *                   landed. Worth verifying whether this is
+ *                   intentional (unlikely) or a copy-paste/off-by-one
+ *                   slip.
  *------------------------------------------------*/
 int NewMarkerDialog (void) {
     GtkWidget *dialog;
@@ -1696,10 +2041,18 @@ return TRUE; /* stop event propagation */
 
 
 #if 0
+/* Disabled (#if 0) - SaveSongMarkers() below is the write-side
+ * counterpart to the SongMarkers[]-based design shown in the disabled
+ * #else branch of NewMarkerDialog() above. Both were superseded by
+ * folding markers into mySavedLoops[] (using the `.Length == -1`
+ * sentinel) instead of a separate SongMarkers[] array/file - kept
+ * here as reference for the earlier design, not part of the build. */
 /*-----------------------------------------------
- * Function:        Save SongMarkers
+ * Function:        SaveSongMarkers
  *
- * Description:
+ * Description:     Write NumberSongMarks entries from the (disabled)
+ *                   SongMarkers[] array out to a "<FileName>.SongMarks"
+ *                   file, one "name time" pair per line.
  *------------------------------------------------*/
 void SaveSongMarkers (char *FileName) {
     char SaveMarksName[FileNameMaxLength];
@@ -1730,7 +2083,25 @@ void SaveSongMarkers (char *FileName) {
 /*-----------------------------------------------
  * Function:        EnterLoop_click_handler
  *
- * Description:     Modify a saved Loop.
+ * Description:     "Update this saved loop" button handler: overwrites
+ *                   the currently-selected Saved Loops combo entry's
+ *                   Start/Length/Position with whatever the fine
+ *                   adjustments/scroll position currently are - lets
+ *                   the user redefine an existing saved loop's bounds
+ *                   in place rather than creating a new one.
+ *
+ *                   *** WORTH VERIFYING ***
+ *                   Unlike NewLoopDialog()/NewMarkerDialog() (which
+ *                   both call SaveLoopFile() after modifying
+ *                   mySavedLoops[]), this function updates the array
+ *                   in memory only - no SaveLoopFile() call. The
+ *                   change is only visible for the current session
+ *                   unless something else triggers a save later (e.g.
+ *                   LivePlayerClose()'s save-on-exit). If the app
+ *                   closes uncleanly, an edit made here would be
+ *                   lost. Possibly intentional (avoid a disk write on
+ *                   every click while fine-tuning), but worth
+ *                   confirming against your actual usage.
  *------------------------------------------------*/
 gboolean EnterLoop_click_handler (GtkWidget * widget, GdkEvent * event,
                                   gpointer user_data) {
@@ -1760,7 +2131,8 @@ gboolean EnterLoop_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        NextSeg_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Next segment" button handler - jumps to the next
+ *                   saved loop/marker in time order via plNextSeg().
  *------------------------------------------------*/
 gboolean NextSeg_click_handler (GtkWidget * widget, GdkEvent * event,
                                 gpointer user_data) {
@@ -1779,7 +2151,9 @@ gboolean NextSeg_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        PrevSeg_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Previous segment" button handler - jumps to the
+ *                   previous saved loop/marker in time order via
+ *                   plPrevSeg().
  *------------------------------------------------*/
 gboolean PrevSeg_click_handler (GtkWidget * widget, GdkEvent * event,
                                 gpointer user_data) {
@@ -1797,7 +2171,17 @@ gboolean PrevSeg_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        Loop_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     "Loop" toggle button handler - flips looping on/off
+ *                   via plLoopToggle(), then resets the COARSE
+ *                   Start/End sliders (StartAdjustment/EndAdjustment)
+ *                   back to 0.0. Note this resets the coarse sliders,
+ *                   not the fine ones (FineStartAdjustment/
+ *                   FineEndAdjustment) that actually drive loop
+ *                   playback bounds - and per SetASlider_Changed()/
+ *                   SetBSlider_Changed()'s docs, the coarse sliders
+ *                   don't do anything when changed anyway, so this
+ *                   reset is purely cosmetic (returns their on-screen
+ *                   position to 0 without affecting playback).
  *------------------------------------------------*/
 gboolean Loop_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
@@ -1816,7 +2200,58 @@ gboolean Loop_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        StartPlayer
  *
- * Description:     Position Sliders changed.
+ * Description:     (Re)launch the external mplayer process for
+ *                   playback - this is how the app both starts a new
+ *                   song AND "resumes" after a pause: there's no
+ *                   persistent player process across pauses (see
+ *                   plPausePlay() below), instead every play/resume
+ *                   kills any existing mplayer, waits 1 second, and
+ *                   spawns a fresh one via popen(..., "w") - OutPipe
+ *                   becomes the write end of that process's stdin
+ *                   (used by PlayerWrite() for slave-mode commands),
+ *                   while the process's own stdout/status output is
+ *                   redirected to /tmp/LiveMusicIn (read separately
+ *                   via InPipeFD - see LivePlayerInit()/PlayerPoll()).
+ *
+ *                   Two command variants depending on WeAreLooping:
+ *                     - Looping: seeks to FineStartAdjustment, sets
+ *                       -endpos to FineEndAdjustment - plays only the
+ *                       defined loop range.
+ *                     - Not looping: seeks to CurrentSongPosition -
+ *                       THIS is the actual pause/resume mechanism:
+ *                       as long as CurrentSongPosition correctly
+ *                       reflects where playback was when paused (kept
+ *                       fresh by PlayerPoll()'s periodic
+ *                       get_time_pos polling), relaunching here picks
+ *                       up from that position rather than restarting
+ *                       from 0.
+ *
+ *                   Both variants include a `PIPEWIRE_PROPS='{
+ *                   node.autoconnect = false }'` environment prefix
+ *                   on the launch command, preventing PipeWire from
+ *                   auto-connecting mplayer's audio output - lets the
+ *                   app/user route it manually instead (matches the
+ *                   JACK-based -ao routing this app otherwise relies
+ *                   on for its various audio sources).
+ *
+ *                   The disabled `#else` branch (guarded by `#if 1`
+ *                   .../`#else` .../`#endif` around both variants,
+ *                   with `#if 1` always taken) shows an alternate mpv-
+ *                   based launch command using mpv's IPC socket
+ *                   instead of mplayer's slave-mode stdin/stdout -
+ *                   never actually compiled in, kept as reference for
+ *                   a possible future mpv migration (mpv is the
+ *                   actively maintained successor to the unmaintained
+ *                   mplayer).
+ *
+ *                   *** DEAD CODE ***
+ *                   `OutputString` is computed from the `UsePipewire`
+ *                   check (and then immediately overwritten to the
+ *                   same literal `"jack:name=MPlayer"` either way,
+ *                   making the whole if/else pointless on top of
+ *                   that) but is never actually used in either
+ *                   sprintf() command string below - no `-ao %s` or
+ *                   similar. Fully vestigial.
  *------------------------------------------------*/
 int StartPlayer (void) {
     char *OutputString;
@@ -1868,7 +2303,7 @@ int StartPlayer (void) {
     if (WeAreLooping) {
         sprintf (PlayerString,
 //              "-use-filedir-conf=./Prefs/mplayer/
-"mplayer -identify \
+"PIPEWIRE_PROPS='{ node.autoconnect = false }' mplayer -identify \
 -nocache \
 -slave \
 -ss %f \
@@ -1897,7 +2332,7 @@ CurrentSpeed, CurrentFile);
     }
     else {
         sprintf (PlayerString,
-"mplayer \"%s\" \
+"PIPEWIRE_PROPS='{ node.autoconnect = false }'  mplayer \"%s\" \
 -identify \
 -nocache \
 -slave \
@@ -1928,7 +2363,7 @@ CurrentSpeed);
     if (WeAreLooping) {
         sprintf (PlayerString,
 //              "-use-filedir-conf=./Prefs/mplayer/
-"mpv  \"%s\" -identify \
+"PIPEWIRE_PROPS='{ node.autoconnect = false }' mpv  \"%s\" -identify \
 -nocache \
 --input-ipc-server=/tmp/LiveMusicIn
 
@@ -1957,7 +2392,7 @@ CurrentSpeed, CurrentFile);
     }
     else {
         sprintf (PlayerString,
-"mplayer \"%s\" \
+"PIPEWIRE_PROPS='{ node.autoconnect = false }' mplayer \"%s\" \
 -identify \
 -nocache \
 -slave \
@@ -1998,7 +2433,13 @@ CurrentSpeed);
 /*-----------------------------------------------
  * Function:        plScrub
  *
- * Description:     Scrub
+ * Description:     Send a relative seek command directly to the
+ *                   player (`seek <Amount>` - positive/negative
+ *                   seconds). Currently has no callers anywhere in
+ *                   the codebase - declared and defined but unused;
+ *                   likely intended for a scrub/jog-wheel style UI
+ *                   control that was never wired up, or was removed
+ *                   elsewhere without removing this.
  *------------------------------------------------*/
 void plScrub (float Amount) {
 
@@ -2010,7 +2451,9 @@ void plScrub (float Amount) {
 /*-----------------------------------------------
  * Function:        Play_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     Play/Pause button handler - just delegates to
+ *                   plPausePlay() below, which toggles between the
+ *                   two states.
  *------------------------------------------------*/
 gboolean Play_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
@@ -2024,7 +2467,11 @@ gboolean Play_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        Stop_click_handler
  *
- * Description:     Position Sliders changed.
+ * Description:     Stop button handler - resets playback to the
+ *                   beginning via ResetPlayer() (the commented-out
+ *                   `PlayerWrite("stop \n")` shows an earlier, more
+ *                   direct approach that was replaced with the fuller
+ *                   ResetPlayer() reset).
  *------------------------------------------------*/
 gboolean Stop_click_handler (GtkWidget * widget, GdkEvent * event,
                              gpointer user_data) {
@@ -2047,7 +2494,13 @@ gboolean Stop_click_handler (GtkWidget * widget, GdkEvent * event,
 /*-----------------------------------------------
  * Function:        plSetA
  *
- * Description:     Position Sliders changed.
+ * Description:     Record the current playback position
+ *                   (CurrentSongPosition) as the loop start point,
+ *                   resets the coarse StartAdjustment to 0 (cosmetic
+ *                   only - see SetASlider_Changed()'s doc on why the
+ *                   coarse sliders don't otherwise do anything), and
+ *                   sets FineStartAdjustment to the actual start
+ *                   time. Called from SetA_click_handler() above.
  *------------------------------------------------*/
 void plSetA (void) {
     gtk_adjustment_set_value (StartAdjustment, 0.0);
@@ -2059,7 +2512,14 @@ void plSetA (void) {
 /*-----------------------------------------------
  * Function:        plSetB
  *
- * Description:     Position Sliders changed.
+ * Description:     Record the current playback position as the loop
+ *                   end point. FineEndAdjustment is set to
+ *                   `CurrentSongPosition - FineStartAdjustment` - a
+ *                   DURATION from the loop's start, not an absolute
+ *                   end timestamp (matching mplayer's `-endpos`
+ *                   semantics when combined with `-ss`, per
+ *                   StartPlayer()'s doc). Called from
+ *                   SetB_click_handler() above.
  *------------------------------------------------*/
 void plSetB (void) {
     gtk_adjustment_set_value (EndAdjustment, 0.0);
@@ -2072,7 +2532,17 @@ void plSetB (void) {
 /*-----------------------------------------------
  * Function:        plLoopToggle
  *
- * Description:     Position Sliders changed.
+ * Description:     Flip WeAreLooping on/off, update the Loop button's
+ *                   image accordingly, and if currently playing,
+ *                   restart the player via StartPlayer() so it picks
+ *                   up the new looping mode (StartPlayer() itself
+ *                   branches on WeAreLooping to build a different
+ *                   mplayer command line - see that function's doc).
+ *                   Returns the new WeAreLooping state. (The
+ *                   `if (InPlayingState) { if (InPlayingState) {...} }`
+ *                   nested duplicate check in the "turning loop off"
+ *                   branch is redundant - harmless, just leftover
+ *                   from an edit.)
  *------------------------------------------------*/
 bool plLoopToggle (void) {
 
@@ -2104,7 +2574,13 @@ bool plLoopToggle (void) {
 /*-----------------------------------------------
  * Function:        plPlay
  *
- * Description:     Start Player.
+ * Description:     Force playback into the PLAYING state, regardless
+ *                   of current state: sets InPlayingState = 0 first,
+ *                   then calls the plPausePlay() toggle below - since
+ *                   plPausePlay() checks `if (InPlayingState)` to
+ *                   decide which branch to take, forcing it to 0 here
+ *                   guarantees the "start playing" branch runs next,
+ *                   even if already playing.
  *------------------------------------------------*/
 void plPlay (void) {
 
@@ -2117,7 +2593,13 @@ void plPlay (void) {
 /*-----------------------------------------------
  * Function:        plStop
  *
- * Description:     Stop Player.
+ * Description:     Force playback into the PAUSED state, regardless
+ *                   of current state - same forcing pattern as
+ *                   plPlay() above, but setting InPlayingState = 1
+ *                   first so plPausePlay()'s "pause" branch runs.
+ *                   (Named plStop, but per plPausePlay()'s own fix
+ *                   history, this is a real pause rather than a full
+ *                   stop - see that function's doc.)
  *------------------------------------------------*/
 void plStop (void) {
 
@@ -2130,7 +2612,47 @@ void plStop (void) {
 /*-----------------------------------------------
  * Function:        plPausePlay
  *
- * Description:     Position Sliders changed.
+ * Description:     Toggle between playing and paused, based on the
+ *                   CURRENT value of InPlayingState (see plPlay()/
+ *                   plStop() above for how callers force a specific
+ *                   target state rather than toggle).
+ *
+ *                   Pausing (currently playing -> pause): updates the
+ *                   Play/Pause button images and labels, then sends a
+ *                   real `pause` command to the still-running mplayer
+ *                   process (PlayerWrite("pause\n")) - this keeps
+ *                   mplayer alive and responsive rather than
+ *                   unloading it, so PlayerPoll()'s ongoing
+ *                   get_time_pos polling keeps CurrentSongPosition
+ *                   accurate right up until Play is pressed again.
+ *                   (The commented-out `PlayerWrite("stop\n")` above
+ *                   it is the PREVIOUS, buggy behavior: sending "stop"
+ *                   instead of "pause" caused mplayer to lose its
+ *                   position tracking, so resuming would restart from
+ *                   0/stale position instead of where playback left
+ *                   off - this was fixed by switching to a real
+ *                   pause. See CLEANUP_PROGRESS.md for the fuller
+ *                   diagnosis from before the fix.)
+ *
+ *                   Resuming (currently paused -> play): updates the
+ *                   button images/labels, then calls StartPlayer() -
+ *                   which, despite mplayer still technically being
+ *                   alive and paused from the step above, always
+ *                   kills and relaunches it fresh (see StartPlayer()'s
+ *                   doc), seeking to CurrentSongPosition. This is why
+ *                   keeping CurrentSongPosition accurate during the
+ *                   paused interval (via the real "pause" above,
+ *                   rather than "stop") is what actually fixes
+ *                   resume - the relaunch itself was always going to
+ *                   happen either way; what mattered was seeding it
+ *                   with the right position. Also queries total
+ *                   length (`get_time_length`) after the restart.
+ *
+ *                   Always fires `MplayerConnect.sh &` at the end
+ *                   regardless of which branch ran (presumably a
+ *                   JACK/PipeWire port-connection helper script -
+ *                   reconnecting audio routing after any player
+ *                   restart or state change).
  *------------------------------------------------*/
 bool plPausePlay (void) {
 
@@ -2141,7 +2663,8 @@ bool plPausePlay (void) {
         gtk_image_set_from_pixbuf (GTK_IMAGE (PlayPauseButton.Image),
                                    PlayPauseButton.ButtonUpImage);
         MyImageButtonSetText (&PlayPauseButton, "Play");
-        PlayerWrite ("stop\n");
+//        PlayerWrite ("stop\n");
+        PlayerWrite ("pause\n");
         printd (LogPlayer, "Mplayer Pause\n");
         InPlayingState = 0;
     }
@@ -2172,7 +2695,14 @@ bool plPausePlay (void) {
 /*-----------------------------------------------
  * Function:        plNextSeg
  *
- * Description:     .
+ * Description:     Jump the loop-start point forward by the current
+ *                   loop's own duration (FineStartAdjustment +=
+ *                   FineEndAdjustment) - since FineEndAdjustment is a
+ *                   duration relative to start (see StartPlayer()'s
+ *                   doc), this moves start to exactly where the
+ *                   current segment ends, i.e. "next segment of the
+ *                   same length." If looping, schedules a player
+ *                   restart so the new bounds take effect.
  *------------------------------------------------*/
 void plNextSeg (void) {
     gtk_adjustment_set_value (FineStartAdjustment,
@@ -2188,7 +2718,9 @@ void plNextSeg (void) {
 /*-----------------------------------------------
  * Function:        plPrevSeg
  *
- * Description:     .
+ * Description:     Same as plNextSeg() above but moving backward:
+ *                   subtracts the current loop's duration from
+ *                   FineStartAdjustment instead of adding it.
  *------------------------------------------------*/
 void plPrevSeg (void) {
     gtk_adjustment_set_value (FineStartAdjustment,
@@ -2204,7 +2736,10 @@ void plPrevSeg (void) {
 /*-----------------------------------------------
  * Function:        plSpeedUp
  *
- * Description:     .
+ * Description:     Increase playback speed by a fixed 0.05x step via
+ *                   the speed adjustment (which fires
+ *                   SpeedSlider_Changed() - see that function's doc
+ *                   for what actually happens on change).
  *------------------------------------------------*/
 void plSpeedUp (void) {
 
@@ -2226,7 +2761,8 @@ void plSpeedUp (void) {
 /*-----------------------------------------------
  * Function:        plSpeedDown
  *
- * Description:     .
+ * Description:     Same as plSpeedUp() above but decreasing speed by
+ *                   0.05x instead of increasing.
  *------------------------------------------------*/
 void plSpeedDown (void) {
 
@@ -2248,7 +2784,14 @@ void plSpeedDown (void) {
 /*-----------------------------------------------
  * Function:        plSetPosition
  *
- * Description:     .
+ * Description:     Seek playback to an absolute position: sends the
+ *                   `set_property time_pos` command directly to the
+ *                   player (works whether playing or paused, unlike
+ *                   most other transport actions here which restart
+ *                   the whole process), and keeps CurrentSongPosition/
+ *                   the position slider in sync with the new value
+ *                   immediately rather than waiting for the next
+ *                   PlayerPoll() cycle to catch up.
  *------------------------------------------------*/
 void plSetPosition (float position) {
     sprintf (PlayerString, "set_property time_pos %4.2f\n", position);
@@ -2264,7 +2807,8 @@ void plSetPosition (float position) {
 /*-----------------------------------------------
  * Function:        plSeekFw
  *
- * Description:     .
+ * Description:     Seek forward 10 seconds from the current position
+ *                   slider value, via plSetPosition() above.
  *------------------------------------------------*/
 void plSeekFw (void) {
 
@@ -2275,7 +2819,11 @@ void plSeekFw (void) {
 /*-----------------------------------------------
  * Function:        plSeekBk
  *
- * Description:     .
+ * Description:     Seek backward 10 seconds from the current position
+ *                   slider value, via plSetPosition() above. (No
+ *                   clamping to >= 0 here - a seek near the start of
+ *                   the song could request a negative time_pos; left
+ *                   to the player itself to handle gracefully.)
  *------------------------------------------------*/
 void plSeekBk (void) {
 

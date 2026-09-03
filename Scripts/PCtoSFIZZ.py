@@ -42,18 +42,18 @@ sfizz_process = None
 SFZ_BANKS = {
 0: {
 0: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz",
-1: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-both-looped.sfz",
-2: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-mono-looped.sfz",
-3: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-stereo-looped.sfz",
-4: "/home/SoundFonts/SFZFonts/ocarina1/Ocarina 20241002.sfz",
-5: "/home/SoundFonts/SFZFonts/synth-strings-1/SynthStrings1 20200528.sfz",
+1: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-both-looped.sfz", # Nice Rhodes
+2: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-mono-looped.sfz", 
+3: "/home/SoundFonts/SFZFonts/jlearman.jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-stereo-looped.sfz", # Clean Rhodes
+4: "/home/SoundFonts/SFZFonts/ocarina1/Ocarina 20241002.sfz", # Remove
+5: "/home/SoundFonts/SFZFonts/synth-strings-1/SynthStrings1 20200528.sfz", # OK
 6: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_three_voice_one_shift.sfz",
 7: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_five_voice_one_shift.sfz",
 8: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_three_voice_one_shift_sc.sfz",
-9: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_clean.sfz",
-10: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_Master.sfz",
+9: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_clean.sfz", # OK
+10: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_Master.sfz",# Synth mellow
 11: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_midi_cc_setup.sfz",
-12: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_one_voice.sfz",
+12: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_one_voice.sfz", # sythn tight
 13: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_noise.sfz",
 14: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/blackheart_Master.sfz",
 15: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_sc_dist.sfz",
@@ -62,7 +62,7 @@ SFZ_BANKS = {
 18: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/blackheart_three.sfz",
 19: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_five_voice_two_shift.sfz",
 20: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/Ironface.sfz",
-21: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_Master.sfz",
+21: "/home/SoundFonts/SFZFont/karoryfer.string-cyborgs/Programs/zinc_Master.sfz", # Funk Synth
 22: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_five_voice_three_shift.sfz",                                                    
 23: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/ironface_distorted.sfz",                                                              
 24: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/Blackheart.sfz",
@@ -82,32 +82,32 @@ SFZ_BANKS = {
 38: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/blackheart_three_sc.sfz",
 39: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/zinc_five_voice_two_shift_sc.sfz",
 40: "/home/SoundFonts/SFZFonts/karoryfer.string-cyborgs/Programs/blackheart_noise.sfz",
-41: "/home/SoundFonts/SFZFonts/OvationGuitar/Ovation Guitar (mw1 for 12-string).sfz",
+41: "/home/SoundFonts/SFZFonts/OvationGuitar/Ovation Guitar (mw1 for 12-string).sfz", # Good Guitar
 42: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_48.sfz",
-43: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_47.sfz",
+43: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_47.sfz", # Bounce Sythn
 44: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_34.sfz",
 45: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_42.sfz",
-46: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_61.sfz",
-47: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_33.sfz",
-48: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_54.sfz",
+46: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_61.sfz", # Yaz Synth
+47: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_33.sfz", # Pop clean  Synth
+48: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_54.sfz", # Brught Synth
 49: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_38.sfz",
-50: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_40.sfz",
+50: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_40.sfz", # Media Bounce
 51: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_57.sfz",
 52: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_55.sfz",
 53: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_36.sfz",
-54: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_51.sfz",
+54: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_51.sfz", # Clean Bounce
 55: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_46.sfz",
 56: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_41.sfz",
 57: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_50.sfz",
 58: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_39.sfz",
-59: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_45.sfz",
-60: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_53.sfz",
+59: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_45.sfz", # Deel Synth
+60: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_53.sfz", # Funk Sync
 61: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_52.sfz",
 62: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_60.sfz",
 63: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_56.sfz",
 64: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_37.sfz",
 65: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_58.sfz",
-66: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_44.sfz",
+66: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_44.sfz", # Crackle Synth
 67: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_49.sfz",
 68: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_43.sfz",
 69: "/home/SoundFonts/SFZFonts/OldSynth/BassSeq-PW/MP-BSQ_35.sfz",
@@ -290,7 +290,7 @@ SFZ_BANKS = {
 42: "/home/SoundFonts/SFZFonts/OldSynth/RevNoise/MP-RNS_01.sfz",
 43: "/home/SoundFonts/SFZFonts/OldSynth/RevNoise/MP-RNS_03.sfz",
 44: "/home/SoundFonts/SFZFonts/OldSynth/RevNoise/MP-RNS_02.sfz",
-45: "/home/SoundFonts/SFZFonts/Discord-SFZ-GM-Bank/Discord GM/Discord GM Bank - Melodic-test.sfz",
+45: "/home/SoundFonts/SFZFonts/Discord-SFZ-GM-Bank/Discord GM/Discord GM Bank - Melodic-test.sfz", # Good Clean Paino
 46: "/home/SoundFonts/SFZFonts/Discord-SFZ-GM-Bank/Discord GM/Discord GM Bank - Drums.sfz",
 47: "/home/SoundFonts/SFZFonts/Discord-SFZ-GM-Bank/Discord GM/Drums/017-Power Kit.sfz",
 48: "/home/SoundFonts/SFZFonts/Discord-SFZ-GM-Bank/Discord GM/Drums/001-Standard Kit.sfz",
@@ -638,9 +638,9 @@ SFZ_BANKS = {
 83: "/home/SoundFonts/SFZFonts/sfzinstruments.github.io/macros/includes/sfz",
 84: "/home/SoundFonts/SFZFonts/sfzinstruments.github.io/data/sfz",
 85: "/home/SoundFonts/SFZFonts/sfzinstruments.github.io/layout/sfz",
-86: "/home/SoundFonts/SFZFonts/synth-calliope/SynthCalliope 20200512.sfz",
+86: "/home/SoundFonts/SFZFonts/synth-calliope/SynthCalliope 20200512.sfz",  # nice with lead
 87: "/home/SoundFonts/SFZFonts/Terkelsen.Marimba/Terkelsen's Marimba - xfade.sfz",
-88: "/home/SoundFonts/SFZFonts/Terkelsen.Marimba/Terkelsen's Marimba.sfz",
+88: "/home/SoundFonts/SFZFonts/Terkelsen.Marimba/Terkelsen's Marimba.sfz", # Great
 },
 }
 
@@ -709,7 +709,6 @@ def launch_sfizz(sfz_path):
         text=True,
         env=env
     )
-    
 
     # 🔥 DO NOT BLOCK MAIN THREAD
     threading.Thread(
@@ -723,8 +722,6 @@ def launch_sfizz(sfz_path):
     subprocess.run(["pw-link", "sfizz:output_1", AUDIO_TARGET_L], check=False)
     subprocess.run(["pw-link", "sfizz:output_2", AUDIO_TARGET_R], check=False)
     subprocess.run(["pw-link", SFIZZ_INPUT_PORT_NAME, "sfizz:input"], check=False)
-
-
 
 #    auto_connect()
     

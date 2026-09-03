@@ -207,6 +207,8 @@ gboolean Prefs_Regenerate_handler(GtkWidget *widget, GdkEvent *event,
 
     printd(LogDebug, "Prefs_Regenerate_handler\n");
     system("MusicApps.sh Reindex");
+
+    return TRUE; /* stop event propagation */
 }
 
 
@@ -221,6 +223,8 @@ gboolean Prefs_ReConnect_handler(GtkWidget *widget, GdkEvent *event,
 
     printd(LogDebug, "Prefs_Regenerate_handler\n");
     system("MusicApps.sh connect");
+
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------------------------------
@@ -235,6 +239,7 @@ gboolean Prefs_about_close_handler(GtkWidget *widget, GdkEvent *event,
     printd(LogDebug, "Prefs_about_close_handler\n");
     gtk_widget_destroy(user_data);
 
+    return TRUE; /* stop event propagation */
 }
 
 /*--------------------------------------------------------------------

@@ -66,8 +66,27 @@ gint theOldPane;
 /*--------------------------------------------------------------------
  * Function:            HIDPoll
  *
- * Description:
+ * Description:         Read pending input events from the raw HID
+ *                       device (theHID_fd, opened by InitHIDGrab()
+ *                       below - a footswitch, per the VENDORID/
+ *                       PRODUCTID #defines above) and act on key
+ *                       press/release events. Only responds to key
+ *                       code 48 specifically (this device's single
+ *                       footswitch button, presumably) - press
+ *                       switches to tab 0 and starts a MIDI-learn-style
+ *                       wait (WaitingforMidi/WaitingforMidiHold),
+ *                       release switches back to PreviousTab and
+ *                       cancels the wait. All other key codes are
+ *                       just logged. `result` is always 0 - this
+ *                       function has no actual error path currently.
  *
+ *                       The disabled (#if 0) block above the real
+ *                       read is leftover/broken as written: its
+ *                       `break;` isn't inside any loop or switch at
+ *                       that point in the function, so it would fail
+ *                       to compile if ever re-enabled as-is - not
+ *                       just inert, but not even valid C in its
+ *                       current form.
  *---------------------------------------------------------------------*/
 int HIDPoll() {
     struct input_event ev[64];
@@ -138,13 +157,25 @@ int HIDPoll() {
                 }
         }
     }
+
+    return result;
 }
 
 /*--------------------------------------------------------------------
  * Function:            CloseHIDGrab
  *
- * Description:
+ * Description:         Release the HID device and close it.
  *
+ *                       *** LIKELY BUG ***
+ *                       `ioctl(theHID_fd, EVIOCGRAB, 1)` - value 1
+ *                       means ACQUIRE exclusive access, not release
+ *                       it. This is the exact same call InitHIDGrab()
+ *                       uses to grab the device in the first place
+ *                       (see line ~261 below); releasing the grab
+ *                       before close should be `EVIOCGRAB, 0`. Looks
+ *                       like a copy-paste of the acquire call rather
+ *                       than the intended release. Flagging rather
+ *                       than fixing in this comments-only pass.
  *---------------------------------------------------------------------*/
 int CloseHIDGrab(void) {
 
@@ -156,8 +187,14 @@ int CloseHIDGrab(void) {
 /*--------------------------------------------------------------------
  * Function:            setNonblocking
  *
- * Description:
- *
+ * Description:         Put file descriptor `fd` into non-blocking
+ *                       mode, portably: uses fcntl()/O_NONBLOCK on
+ *                       any POSIX-ish system (the real, active path
+ *                       here), with an old-style ioctl(FIOBIO) fallback
+ *                       for platforms without O_NONBLOCK (SunOS 4.1.x/
+ *                       AIX 3.2.5 per the comment - not relevant on
+ *                       Linux, which is what this project actually
+ *                       targets, but kept for portability).
  *---------------------------------------------------------------------*/
 int setNonblocking(int fd) {
     int flags;
@@ -179,8 +216,35 @@ int setNonblocking(int fd) {
 /*--------------------------------------------------------------------
  * Function:            InitHIDGrab
  *
- * Description:
+ * Description:         Scan /dev/input for an "eventN" device matching
+ *                       VENDORID/PRODUCTID (the specific footswitch
+ *                       this file is built for), then open it, take
+ *                       exclusive access (EVIOCGRAB - so normal input
+ *                       handling doesn't also see its keypresses), and
+ *                       put it in non-blocking mode via setNonblocking()
+ *                       for HIDPoll() to read from. Returns nonzero on
+ *                       success (the EVIOCGRAB ioctl's own result),
+ *                       0 if no matching device was found.
  *
+ *                       *** ISSUES WORTH VERIFYING ***
+ *                       - Line ~262 calls `ioctl(scan_fd, EVIOCGRAB)`
+ *                         with NO value argument at all - undefined
+ *                         behavior (ioctl reads whatever garbage
+ *                         happens to be in that register/stack slot
+ *                         as the grab value). This grab also targets
+ *                         `scan_fd` (the probe fd used just to read
+ *                         the device's vendor/product ID), not
+ *                         `theHID_fd` (a completely separate fd,
+ *                         freshly re-opened from the same `path` a
+ *                         few lines below) - so even if this call did
+ *                         something meaningful, it's grabbing the
+ *                         wrong file descriptor.
+ *                       - `scan_fd` is also never closed once a
+ *                         matching device is found - it's left open
+ *                         and effectively leaked once `theHID_fd` is
+ *                         opened separately.
+ *                       Flagging both rather than fixing in this
+ *                       comments-only pass.
  *---------------------------------------------------------------------*/
 int InitHIDGrab() {
     int count = 0;
@@ -239,11 +303,24 @@ int InitHIDGrab() {
     setNonblocking(theHID_fd);
     result = ioctl(theHID_fd, EVIOCGRAB, 1);
     printd(LogDebug, "Getting exclusive access: %d\n", result);
+
+    return result;
 }
 
 //  NoteBookPaneS = (GtkWidget *)GTK_WIDGET(gtk_builder_get_object(gxml, "MainTab"));
 
 #if 0
+/* Disabled (#if 0) - keycodelist() and readScanner() below are
+ * leftover from what this file's own top comment describes as a
+ * barcode-scanner HID device use case (they reference a `scan_fd`
+ * global not defined anywhere in the active code, a raw keycode ->
+ * ASCII lookup table, and USB barcode-terminator handling via key
+ * code 28/carriage-return). This file's active code (HIDPoll() etc.)
+ * is now specifically about the footswitch device
+ * (VENDORID/PRODUCTID at the top of the file), so this is inert
+ * reference code from an earlier or alternate use of the same
+ * HID-grabbing infrastructure, not something the footswitch path
+ * depends on. */
 
 char keycodelist(int scancode) {
     char ret = '-';

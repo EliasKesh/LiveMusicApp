@@ -17,7 +17,7 @@ AC_REVISION([m4_esyscmd_s([git describe --always])])
 #AC_DEFINE([VERSION_GIT],[m4_esyscmd_s([git describe --always])])
 
 # Causes multiple definitions AM_INIT_AUTOMAKE([subdir-objects])
-AM_PROG_LIBTOOL
+LT_INIT
 AC_CONFIG_MACRO_DIRS([m4])
 
 # AC_CONFIG_SRCDIR([src/Connections.h])
@@ -28,13 +28,9 @@ AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([X11], [main])
-AC_CHECK_LIB([Xmu], [main])
 AC_CHECK_LIB([m], [main])
 AC_CHECK_LIB([rt], [main])
-AC_CHECK_LIB([xmltok], [main])
 AC_CHECK_LIB([pthread], [main])
-AC_CHECK_LIB([xml2], [main])
 
 # PKG_CHECK_MODULES(GTK4, [gtk4])
 # PKG_CHECK_MODULES(WEBKIT2GTK, [webkitgtk-6.0])
@@ -43,12 +39,12 @@ PKG_CHECK_MODULES(GTK3, [gtk+-3.0])
 PKG_CHECK_MODULES(WEBKIT2GTK, [webkit2gtk-4.1])
 
 PKG_CHECK_MODULES(ALSA, [alsa])
-PKG_CHECK_MODULES(GLADEUI, [gladeui-2.0])
 PKG_CHECK_MODULES(JACK, [jack])
 PKG_CHECK_MODULES(LIBLO, [liblo])
+PKG_CHECK_MODULES(LIBXML, [libxml-2.0])
+PKG_CHECK_MODULES(X11DEPS, [x11 xmu])
 
 # Checks for header files.
-AC_PATH_X
 AC_CHECK_HEADERS([fcntl.h locale.h malloc.h stdlib.h string.h sys/ioctl.h sys/time.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

@@ -36,18 +36,6 @@
 /* Define to 1 if you have the 'rt' library (-lrt). */
 #undef HAVE_LIBRT
 
-/* Define to 1 if you have the 'X11' library (-lX11). */
-#undef HAVE_LIBX11
-
-/* Define to 1 if you have the 'xml2' library (-lxml2). */
-#undef HAVE_LIBXML2
-
-/* Define to 1 if you have the 'xmltok' library (-lxmltok). */
-#undef HAVE_LIBXMLTOK
-
-/* Define to 1 if you have the 'Xmu' library (-lXmu). */
-#undef HAVE_LIBXMU
-
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 

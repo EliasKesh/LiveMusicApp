@@ -533,7 +533,10 @@ ExtraMonitor=`xrandr | grep " connected" | wc -l`
 
     Disp1SizeX=2176
     Disp1SizeY=1360
-    Disp1SizeY=(1360+1440)
+    Disp1SizeX=2560
+    Disp1SizeY=1440
+
+#    Disp1SizeY=(1360+1440)
  
     ExtraMonitor=`xrandr | grep " connected" | wc -l`
     if [ "$ExtraMonitor" -eq "1" ]; then
@@ -542,15 +545,16 @@ ExtraMonitor=`xrandr | grep " connected" | wc -l`
         echo "External Monitor Not Found"
         DisplayTop1=0
         DisplayTop2=0
-        Disp1SizeX=2176
-        Disp1SizeY=1360
+        Disp1SizeX=2560
+        Disp1SizeY=1440
     else
         echo "External Monitor Found"
         export ExMonitor=1
-        DisplayTop1=1449
-        DisplayTop2=2800
+        DisplayTop1=0
+        DisplayTop2=0
         Disp1SizeX=2176
-        Disp1SizeY=1360
+        Disp1SizeX=2560
+        Disp1SizeY=1440
     fi
 
 
@@ -783,7 +787,7 @@ Version="2.2.2"
 
 
 export PIPEWIRE_AUTOCONNECT=false 
-export PIPEWIRE_JACK_SERVER_GAIN=10.0
+# export PIPEWIRE_JACK_SERVER_GAIN=25.0
 
 powerprofilesctl set performance
 xinput set-prop --type=int --format=32 17 "Evdev Axis Calibration" 0 5464 0 4050
@@ -871,7 +875,7 @@ while getopts "abcdefgijkhrpmnovlqsuwtx" OPT; do
                 SamplePlayer=true
                 BackroundChecker=true
                 SoundSynth=false
-                Looper=true
+                Looper=false
                 #                Hydrogen=true
             else
                 StopEverything
@@ -1072,6 +1076,8 @@ then
     # jack_connections remove.
 fi
 
+export PIPEWIRE_PROPS='{ node.autoconnect = false }'
+
 # Set the definitions for the functions.
 echo "Set Definitions"  | tee $LogFile
 SetDefinitions
@@ -1116,7 +1122,7 @@ DefaultAudio.sh
 Delay 12
 SetPlacement
 SetUpConnections
-# python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py
+python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py
 exit #### EJK
 
 # ejk Check this

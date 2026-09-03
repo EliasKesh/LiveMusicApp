@@ -62,7 +62,30 @@ static char CurrentLoop;
 /*------------------------------------------------
  * Function:        OSCCommand.
  *
- * Description:     <Description/Comments>
+ * Description:     Translate an app-level command (one of the
+ *                   OSCSelect/OSCRec/OSCPause/... constants) into the
+ *                   corresponding SooperLooper OSC message and send it
+ *                   via liblo (lo_send). SooperLooper's own OSC API is
+ *                   documented at essej.net/sooperlooper/doc_osc.html
+ *                   (see the URL comment above this function) - most
+ *                   commands are a `/sl/<loop>/hit` message with a
+ *                   string naming the action ("record", "mute",
+ *                   "undo", etc.), addressed to whichever loop
+ *                   `CurrentLoop` currently selects.
+ *
+ *                   OSCSelect is special: it sets CurrentLoop from
+ *                   `Option`, then immediately decrements it by 1 if
+ *                   it's >= 0 (i.e. converts a 1-based selection into
+ *                   SooperLooper's 0-based loop indexing), while
+ *                   leaving negative values - SooperLooper's "-1 =
+ *                   all loops" sentinel among others - untouched.
+ *
+ *                   Returns 1 immediately without sending anything if
+ *                   SLOSCaddr hasn't been set up yet (i.e.
+ *                   MyOSCInit() hasn't successfully resolved
+ *                   SooperLooper's OSC address); otherwise always
+ *                   returns 0, even for a Command value that matches
+ *                   none of the switch cases (silently does nothing).
  *
  *-------------------------------------------------*/
 int OSCCommand(int Command, char Option)
@@ -184,9 +207,24 @@ int OSCCommand(int Command, char Option)
 /*------------------------------------------------
  * Function:        ctrl_handler.
  *
- * Description:     Return command from the one sent in
- *  the poll.
+ * Description:     Registered in MyOSCInit() as a catch-all liblo
+ *                   method (NULL path/types - see the commented-out,
+ *                   more specific `"/ctrl", "isf"` registration just
+ *                   below it, which this replaced), so this receives
+ *                   any incoming OSC message not claimed by a more
+ *                   specific handler - in practice, SooperLooper's
+ *                   `loop_pos` reply to the periodic `/sl/N/get`
+ *                   request MyOSCPoll() sends below lands here.
+ *                   `argv[2]` (a float) is the loop's current
+ *                   playback position, stored into
+ *                   gMyInfo.LoopPosition every time this fires.
  *
+ *                   Also implements "stop recording once playback
+ *                   actually starts": if a record-stop was requested
+ *                   (gMyInfo.RecordStopLoop >= 0, set elsewhere) and
+ *                   the loop position has now moved past 0, sends the
+ *                   OSCRec command (toggles record off) and clears
+ *                   the pending flag.
  *-------------------------------------------------*/
 static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int argc,
                         void *data, void *user_data)
@@ -214,8 +252,19 @@ static int ctrl_handler(const char *path, const char *types, lo_arg **argv, int 
 /*------------------------------------------------
  * Function:        midi_handler.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Registered in MyOSCInit() for the specific "/midi"
+ *                   OSC path - a custom (non-SooperLooper) message
+ *                   format this app defines for some external
+ *                   controller/bridge to drive it over OSC instead of
+ *                   real MIDI. `argv[0]` (a string) selects "button"
+ *                   vs "slider" behavior:
+ *                     - "button": queues a layout/patch call
+ *                       (gMyInfo.LayoutCall + params), handled later
+ *                       on the main thread rather than acted on here.
+ *                     - "slider": applies directly via
+ *                       SetExpressionControl(Controller, Value).
+ *                   `argv[1]`/`argv[2]` are the controller number and
+ *                   value respectively.
  *-------------------------------------------------*/
 static int midi_handler(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data)
 {
@@ -245,7 +294,15 @@ static int midi_handler(const char *path, const char *types, lo_arg **argv, int 
     return 0;
 }
 
-lo_err_handler OSCErrHandler(int num, const char *msg, const char *where)
+/* liblo error callback, registered with lo_server_new() in
+ * MyOSCInit() below. Just logs whatever liblo reports (bad OSC
+ * message, network error, etc.) - takes no other action.
+ * (Previously declared to return `lo_err_handler` - a function
+ * pointer type - instead of `void`, which caused a real type
+ * mismatch at its lo_server_new() call site, hidden by the
+ * project-wide -Wno-incompatible-pointer-types suppression. Fixed;
+ * see CLEANUP_PROGRESS.md / patch 0002.) */
+void OSCErrHandler(int num, const char *msg, const char *where)
 {
 
     printf("OSCErrHandler %d, %s, %s \n", num, msg, where);
@@ -256,8 +313,24 @@ lo_err_handler OSCErrHandler(int num, const char *msg, const char *where)
 /*------------------------------------------------
  * Function:        MyOSCInit.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     One-time OSC setup, called once at startup with the
+ *                   local OSC server's listen port. Two halves:
+ *                   1. Client side: resolves lo_address handles for
+ *                      four remote OSC targets this app talks to -
+ *                      SooperLooper (SLOSCaddr), a separate JACK
+ *                      volume control endpoint (JackVoladdr), Carla
+ *                      (Carlaaddr), and Hydrogen (Hydrogenaddr) - all
+ *                      sharing the same configured IP but different
+ *                      ports.
+ *                   2. Server side: opens this app's own OSC server
+ *                      (osc_server) on `PortNumber` and registers two
+ *                      incoming-message handlers: midi_handler() for
+ *                      the "/midi" path, and ctrl_handler() as a
+ *                      catch-all for everything else (see both
+ *                      functions' docs above).
+ *                   Logs and leaves osc_server NULL (silently - no
+ *                   further error propagation) if the server can't be
+ *                   opened.
  *-------------------------------------------------*/
 void MyOSCInit(char *PortNumber)
 {
@@ -322,8 +395,17 @@ void MyOSCInit(char *PortNumber)
 /*------------------------------------------------
  * Function:        MyOSCPoll.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Called periodically (from the app's main timer
+ *                   loop) to service OSC I/O: drains any pending
+ *                   incoming messages non-blocking (up to 2ms wait -
+ *                   dispatches to midi_handler()/ctrl_handler() as
+ *                   registered), then actively requests the current
+ *                   loop's playback position from SooperLooper via
+ *                   `/sl/N/get loop_pos`, asking for the reply to be
+ *                   sent back to this app's own "/ctrl" endpoint -
+ *                   which ctrl_handler() (registered as the catch-all
+ *                   above) then receives. `DownBeat` is accepted but
+ *                   unused.
  *-------------------------------------------------*/
 void MyOSCPoll(char DownBeat)
 {
@@ -345,8 +427,12 @@ void MyOSCPoll(char DownBeat)
 /*------------------------------------------------
  * Function:        MyOSCTap.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Send SooperLooper a "tap tempo" event
+ *                   (`/sl/-2/set tap_tempo 1.0` - loop index -2 is
+ *                   SooperLooper's "apply to the global/master engine
+ *                   settings, not a specific loop" convention).
+ *                   `DownBeat` is accepted but unused - this fires
+ *                   once per call regardless of beat position.
  *-------------------------------------------------*/
 void MyOSCTap(char DownBeat)
 {
@@ -362,8 +448,13 @@ void MyOSCTap(char DownBeat)
 /*------------------------------------------------
  * Function:        MyOSCClose.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Shutdown/cleanup: frees all four remote
+ *                   lo_address handles (SLOSCaddr/JackVoladdr/
+ *                   Carlaaddr/Hydrogenaddr) and this app's own OSC
+ *                   server (osc_server). Note: doesn't free
+ *                   LoMidi/the registered method handles explicitly,
+ *                   but lo_server_free() takes care of any methods
+ *                   still registered on that server.
  *-------------------------------------------------*/
 void MyOSCClose(void)
 {
@@ -378,10 +469,27 @@ void MyOSCClose(void)
 }
 
 /*------------------------------------------------
- * Function:        MyOSCClose.
+ * Function:        MyOSCSetSync.
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Switch SooperLooper's sync configuration between
+ *                   two modes, keyed off `Type`:
+ *                     - Type == 1 ("before recording"): selects loop
+ *                       1, sets internal sync source (-2 = MIDI clock
+ *                       per the sync_source convention documented
+ *                       inline below), 8th-note quantization, and
+ *                       turns on relative_sync - without which,
+ *                       per the inline comment, recordings won't
+ *                       start correctly.
+ *                     - Otherwise ("after recording"): switches sync
+ *                       source to loop 1 itself (sync_source = 1),
+ *                       different quantization, and turns
+ *                       relative_sync back off (also per the inline
+ *                       comment, otherwise the recording start point
+ *                       drifts).
+ *                   Every setting here is a direct SooperLooper OSC
+ *                   `/set`/`/sl/N/set` call - see the inline comments
+ *                   at each lo_send() for what each parameter means;
+ *                   they're already well-annotated in the source.
  *-------------------------------------------------*/
 void MyOSCSetSync(char Type)
 {
@@ -436,10 +544,23 @@ void MyOSCSetSync(char Type)
 }
 
 /*------------------------------------------------
- * Function:        MyOSCClose.
+ * Function:        MyOSCLoadFile.
  *
- * Description:     <Description/Comments>
+ * Description:     Tell SooperLooper to load a saved session file
+ *                   (`FileName`, a .slsess path) via `/load_session`.
  *
+ *                   *** WORTH VERIFYING ***
+ *                   The two reply-address arguments are hardcoded to
+ *                   `"osc.udp://localhost:9951/"` rather than using
+ *                   `our_url` (this app's own actual OSC server URL,
+ *                   computed dynamically in MyOSCInit() and used
+ *                   correctly elsewhere - e.g. MyOSCPoll()'s `/ctrl`
+ *                   reply-to). If this app's OSC server isn't
+ *                   actually running on port 9951, SooperLooper's
+ *                   response to the load would be sent nowhere this
+ *                   app is listening. Flagging rather than changing -
+ *                   see the manual oscsend example in the comment
+ *                   just below, which shows the same hardcoded port.
  *-------------------------------------------------*/
 void MyOSCLoadFile(char *FileName)
 {
@@ -460,8 +581,36 @@ void MyOSCLoadFile(char *FileName)
 /*------------------------------------------------
  * Function:        MyOSCJackVol.
  *
- * Description:     Set Jack Master Volume
- *      Values 0 - 127
+ * Description:     Set a volume level (0-127 in) on a specific
+ *                   channel, `channel` being one of the
+ *                   typeOSCVolMaster/GuitarL/Midi/MP3/Looper/GuitarR
+ *                   constants. Converts to a log-scaled 0.0-1.0 float
+ *                   (ConvertToLogF(), clamped both ends) and sends it
+ *                   out to up to two separate OSC targets in parallel,
+ *                   each with its own channel->address/parameter
+ *                   mapping:
+ *                     - JackVoladdr: a dedicated external JACK-volume
+ *                       OSC service (`/net/mhcloud/volume/jack-volume/N`),
+ *                       if configured.
+ *                     - Carlaaddr: Carla's own OSC control surface
+ *                       (`/Carla/<rack>/set_parameter_value`, scaled
+ *                       by MaxLevel=4), if configured. Note: the
+ *                       typeOSCVolGuitarR case here is empty (no
+ *                       lo_send) - unlike the JackVoladdr switch just
+ *                       above, which does have a GuitarR case. Could
+ *                       be intentional (GuitarR not exposed as a
+ *                       Carla parameter) or an oversight - worth
+ *                       checking against your actual Carla rack setup.
+ *
+ *                   *** Known workaround, already flagged in-source ***
+ *                   The "Bandaid fix" early-return means a volume
+ *                   that computes to exactly 0.0 after log conversion
+ *                   sends NOTHING at all rather than a 0 volume - so
+ *                   this function can't be used to actually mute a
+ *                   channel to silence (see MyOSCJackMute() below for
+ *                   the real mute path). Not something introduced by
+ *                   this comment pass - already marked as a bandaid
+ *                   by whoever added it.
  *-------------------------------------------------*/
 void MyOSCJackVol(int Volume, int channel)
 {
@@ -557,8 +706,32 @@ void MyOSCJackVol(int Volume, int channel)
 /*------------------------------------------------
  * Function:        MyOSCJackMute.
  *
- * Description:     Set Jack Master Volume
- *      Values 0 - 127
+ * Description:     Mute/unmute a channel (`Mute` 1/0), `channel`
+ *                   being the same typeOSCVolMaster(0xff)/GuitarL(0)/
+ *                   Midi(1)/MP3(2)/Looper(3)/GuitarR(4) values as
+ *                   MyOSCJackVol() above, though this function uses
+ *                   raw numeric case labels instead of the named
+ *                   constants. Always sends a MIDI CC to the pedal's
+ *                   mute LED (PedalPort/DrumMidiChannel, controller 4)
+ *                   first, regardless of which channel - so the LED
+ *                   only tracks the last mute/unmute action, not any
+ *                   particular channel. Then mirrors the same
+ *                   channel->address/parameter mapping as
+ *                   MyOSCJackVol() out to JackVoladdr's own `.../mute`
+ *                   sub-path and Carla's set_parameter_value, if each
+ *                   is configured.
+ *
+ *                   *** LIKELY BUG ***
+ *                   Neither switch here has a `case 4:` (
+ *                   typeOSCVolGuitarR) - unlike MyOSCJackVol()'s
+ *                   JackVoladdr switch, which does cover it. Muting
+ *                   channel 4 silently sends nothing via OSC to
+ *                   either target (only the MIDI LED update above
+ *                   still happens). Flagging rather than adding the
+ *                   missing cases in this comments-only pass - would
+ *                   need the right Carla parameter index for GuitarR
+ *                   mute to fill it in correctly (compare the pattern
+ *                   of indices 0/11/20/29/38 for the other channels).
  *-------------------------------------------------*/
 void MyOSCJackMute(int Mute, int channel)
 {

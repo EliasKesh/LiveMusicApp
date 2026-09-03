@@ -34,25 +34,25 @@ src/APlayMidi.h \
 src/SooperOSC.h 
 
 LiveMusicApp_CPPFLAGS = -Wno-incompatible-pointer-types -Wformat=0 -Wno-unused-result -Wno-deprecated -Wdeprecated-declarations -Wpointer-to-int-cast -Wno-int-to-pointer-cast
-LiveMusicApp_CPPFLAGS += $(GTK4_CFLAGS)
+LiveMusicApp_CPPFLAGS += $(GTK3_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(ALSA_CFLAGS)
-LiveMusicApp_CPPFLAGS += $(GLADEUI_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(WEBKIT2GTK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(JACK_CFLAGS)
 LiveMusicApp_CPPFLAGS += $(LIBLO_CFLAGS)
+LiveMusicApp_CPPFLAGS += $(LIBXML_CFLAGS)
+LiveMusicApp_CPPFLAGS += $(X11DEPS_CFLAGS)
 LiveMusicApp_CPPFLAGS += -DMY_BUILD_NUMBER=$$(cat ./Scripts/BuildNumber)
 LiveMusicApp_CPPFLAGS += -DMY_VERSION_NUMBER=$$(cat ./Scripts/version.txt)
 #LiveMusicApp_CPPFLAGS += -DBUILD_NUMBER1=$(shell ./IncBuildNumber.sh)
 LiveMusicApp_CFLAGS = $(LiveMusicApp_CPPFLAGS)
 
-LiveMusicApp_LDFLAGS = -L/usr/lib/x86_64-linux-gnu/
-LiveMusicApp_LDFLAGS += -lxmltok -lxml2
-LiveMusicApp_LDFLAGS += $(GTK4_LIBS)
+LiveMusicApp_LDFLAGS = $(GTK3_LIBS)
 LiveMusicApp_LDFLAGS += $(ALSA_LIBS)
-LiveMusicApp_LDFLAGS += $(GLADEUI_v)
 LiveMusicApp_LDFLAGS += $(WEBKIT2GTK_LIBS)
 LiveMusicApp_LDFLAGS += $(JACK_LIBS)
 LiveMusicApp_LDFLAGS += $(LIBLO_LIBS)
+LiveMusicApp_LDFLAGS += $(LIBXML_LIBS)
+LiveMusicApp_LDFLAGS += $(X11DEPS_LIBS)
 LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __Bump_NUMBER=$$(./Scripts/IncBuildNumber.sh)
 # LiveMusicApp_LDFLAGS += -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d')
 

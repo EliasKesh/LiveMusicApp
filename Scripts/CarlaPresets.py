@@ -24,24 +24,28 @@ import math          # Mathematical operations
 from enum import auto, Enum
 class Effect(Enum):
         ABGate = 0          # Noise gate effect
-        Compressor2 = auto() # Dynamic range compressor
+#        Compressor2 = auto() # Dynamic range compressor
+        GOTTCompressor = auto()
         Equalizer = auto()    # Equalizer
+        Distortion2 = auto()    # Tube screamer
         PreAmp = auto()      # Amplifier preamp simulation
         Distortion1 = PreAmp  # Alias for PreAmp
 #        Conditioner = auto()      # Amplifier preamp simulation
 #        Toob = auto()      # Amplifier preamp simulation
-        Distortion2 = auto()    # Tube screamer
         Mojo = auto()        # Tone shaping effect
+        Waylo = auto()
+        Voice2 = auto()
         Wah = Mojo          # Alias for Mojo (Wah effect)
-        Chorus = auto()      # Modulation effect
         Reverb = auto()      # Reverb effect
-        Squish = auto()      # Compression effect
+#        Chorus = auto()      # Modulation effect
+#        Squish = auto()      # Compression effect
+        Loudness = auto()
         Mixer = auto()       # Audio mixer
         Tuner = auto()       # Guitar tuner
         MidiConvert = auto()
 #        GxDelay = auto()     # Delay effect
 #        DubDelay = auto()    # Additional delay
-#        FlangeChorus = auto() # Combined flanger/chorus
+#        FlangeWaylo = auto() # Combined flanger/chorus
 
 GuitarMidiVar=1
 # for testing.
@@ -54,7 +58,7 @@ GuitarMidiVar=1
 def foo_bar_callback(path, args):
     # Handle basic OSC messages with integer and float arguments
     i, f = args
-    print( "received message '%s' with arguments '%d' and '%f'" % (path, i, f))
+    print( "received mes4sage '%s' with arguments '%d' and '%f'" % (path, i, f))
 
 #--------------------------------------------------------------
 # --- 
@@ -71,11 +75,11 @@ def fallback(path, args, types, src):
     # Default handler for unrecognized OSC messages
     print( "got unknown message '%s' from '%s'" % (path, src.url))
     for a, t in zip(args, types):
-        print( "argument of type '%s': %s" % (t, LSPMixerx4Stereoa))
+        print( "argument of type '%s': %s" % (t, a))
 
 #--------------------------------------------------------------
 # --- 
-#--------------------------------------------------------------
+#-------------------------------------------------           -------------
 # Effect control functions
 def MidiGuitar(switch):
     global GuitarMidiVar 
@@ -133,7 +137,7 @@ def DistortionControl(level):
     # Set Distortion volume
     EffectString = "/Carla/%d/set_volume" % (Effect.Distortion1.value)
 #    Value=(0.7 * rescaleMidiL(InitLevel, 1.0, 0.20)) + 0.2
-    Value=rescale(InitLevel, 128.0, 0.0, 0.22, 1.25)
+    Value=rescale(InitLevel, 128.0, 0.0, 0.20, 1.25)
     liblo.send(target, EffectString, Value )
 
     # Set Distortion amount (0-100)
@@ -142,7 +146,7 @@ def DistortionControl(level):
     liblo.send(target, EffectString, 2, (Value))
 
     # Set drive level (0-1)
-    Value=rescaleMidi(InitLevel, 0.0, 0.99)
+    Value=rescaleMidi(InitLevel, 0.0, 0.5)
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion1.value)
     liblo.send(target, EffectString, 3, (Value))
 
@@ -168,6 +172,52 @@ def DistortionControl(level):
 #  Parameter Value 0 Master Out
 #  Parameter Value 1 Pregain
 
+def Dist1Setup(Mode):
+    print("Dist1Setup " + Mode)
+
+    Dist1Bass=0.6
+    Dist1Mid=0.5499
+    Dist1Treble=0.47
+    Dist1Presence=10.0
+    Dist1PreGain=0.0
+    Dist1Master=-18.0
+    Dist1Distortion=1.0
+    Dist1Drive=0.0
+    
+    if (Mode == "FunkyStrat"):
+        Dist1Bass=0.4
+        Dist1Mid=0.35
+        Dist1Treble=0.68
+        Dist1Presence=14.0
+        Dist1PreGain=0.0
+        Dist1Master=-18.0
+        Dist1Drive=0.0
+        Dist1Distortion=0.0
+
+    # Set drive level (0-1)
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion1.value)
+    liblo.send(target, EffectString, 3, Dist1Drive)
+
+    # Distortion 1 - 100
+    liblo.send(target, EffectString, 2, Dist1Distortion)
+
+    # Set bass level (0.6-0.85)
+    liblo.send(target, EffectString, 5, Dist1Bass)
+ 
+    # Mid 
+    liblo.send(target, EffectString, 4,Dist1Mid)
+    # Treble 
+    liblo.send(target, EffectString, 6, Dist1Treble)
+
+    # Presence  
+    liblo.send(target, EffectString, 8, Dist1Presence)
+
+        # PreGain   
+    liblo.send(target, EffectString, 1, 0.0)
+
+        # Master   
+    liblo.send(target, EffectString, 0, -18.0)
+
 
 #--------------------------------------------------------------
 # --- 
@@ -181,16 +231,74 @@ def WahControl(level):
     liblo.send(target, EffectString, Value)
     print("WahControl ", Value)
 
+def WahSetup(Mode):
+    print("WahSetup " + Mode)
+
+    WahResonace=62.0
+    WahBypass=0
+    WahSmooth=105
+    WahSense=-24.0
+    WahWetDry=0
+    
+    if (Mode == "FunkyStrat"):
+        WahResonace=78.0
+        WahBypass=0
+        WahSmooth=55
+        WahSense=-34.0
+        WahWetDry=0
+
+    # Resonance 0 - 127
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Wah.value)
+    liblo.send(target, EffectString, 2, WahResonace)
+
+    # Sensitivity -64 to 64
+    liblo.send(target, EffectString, 8, WahSense)
+
+    # Smoothing 0 - 127
+    liblo.send(target, EffectString, 10, WahSmooth)
+
+    # Bypass
+    liblo.send(target, EffectString, 0, WahBypass)
+
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+    liblo.send(target, EffectString, WahWetDry )
+
 def ChorusControl(level):
+    
     InitLevel=level
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Chorus.value)
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Waylo.value)
     Value=rescaleMidi(InitLevel, 0.0, 1.0)
     liblo.send(target, EffectString, Value)
 
+    # Set Distortion volume
+#     EffectString = "/Carla/%d/set_volume" % (Effect.Waylo.value)
+# #    Value=(0.7 * rescaleMidiL(InitLevel, 1.0, 0.20)) + 0.2
+#     Value=rescale(InitLevel, 128.0, 0.0, 0.40, 1.25)
+#     liblo.send(target, EffectString, Value )
+
+
     # InitLevel=level
-    # EffectString = "/Carla/%d/set_drywet" % (Effect.FlangeChorus.value)
+    # EffectString = "/Carla/%d/set_drywet" % (Effect.FlangeWaylo.value)
     # Value=rescaleMidi(InitLevel, 0.0, 1.0)
     # liblo.send(target, EffectString, Value)
+
+def ReverbSetup(Mode):
+    print("ReverbSetup " + Mode)
+
+    ReverbWetDry=1
+    ReverbLevel=-1.157
+    
+    if (Mode == "FunkyStrat"):
+        ReverbLevel=-6
+        ReverbWetDry=1
+
+    # Reverb level is volume; dry/wet is a separate parameter.
+#    EffectString = "/Carla/%d/set_volume" % (Effect.Reverb.value)
+#    liblo.send(target, EffectString, ReverbLevel)
+
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Reverb.value)
+    liblo.send(target, EffectString, ReverbWetDry)
+
 
 def GateControl(level):
     InitLevel=level
@@ -219,50 +327,264 @@ def GateControl(level):
 
 def CompressorControl(level):
     InitLevel=level
-    EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor2.value)
-    Value=rescaleMidi(InitLevel, 0.0, 1.0)
-    liblo.send(target, EffectString, 0)
+    # EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor2.value)
+    # Value=rescaleMidi(InitLevel, 0.0, 1.0)
+    # liblo.send(target, EffectString, 0)
+    # 
+    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    # liblo.send(target, EffectString, 23, 55.0)
+    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    # liblo.send(target, EffectString, 25, 170.0)
+    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    # liblo.send(target, EffectString, 27, 608.0)
+    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    # liblo.send(target, EffectString, 29, 1976.0)
+    # 
+    # InitLevel = 60.0
+    # BaseFreq=36
+    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
+    # liblo.send(target, EffectString, (BaseFreq+6), 0.04211)
+    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
+    # liblo.send(target, EffectString, (BaseFreq+24), 1.02)
+    # 
+    # BaseFreq=64
+    # liblo.send(target, EffectString, (BaseFreq+6), 1.165)
+    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
+    # liblo.send(target, EffectString, (BaseFreq+24), 0.35)
+    # 
+    # BaseFreq=92
+    # liblo.send(target, EffectString, (BaseFreq+6), 0.244)
+    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
+    # liblo.send(target, EffectString, (BaseFreq+24), 0.23)
+    # 
+    # BaseFreq=120
+    # liblo.send(target, EffectString, (BaseFreq+6), 0.24)
+    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
+    # liblo.send(target, EffectString, (BaseFreq+24), 0.42)
+    # 
+    # BaseFreq=148
+    # liblo.send(target, EffectString, (BaseFreq+6), 0.04)
+    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
+    # liblo.send(target, EffectString, (BaseFreq+24), 1.9)
 
-    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    liblo.send(target, EffectString, 23, 55.0)
-    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    liblo.send(target, EffectString, 25, 170.0)
-    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    liblo.send(target, EffectString, 27, 608.0)
-    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    liblo.send(target, EffectString, 29, 1976.0)
+def WayLo(Mode):
 
-    InitLevel = 60.0
-    BaseFreq=36
-    EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    liblo.send(target, EffectString, (BaseFreq+6), 0.04211)
-    liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    liblo.send(target, EffectString, (BaseFreq+24), 1.02)
+    print("WayLo " + Mode)
+    WayChorusFunk = [ 
+        0.0316, # 1 Delay time
+        0.85, # Gain 
+        0.75, # 1 Gain
+        0.11, # 1 Depth
+        0.47, # 1 Rate
+        0.00, # 1 Feedback
 
-    BaseFreq=64
-    liblo.send(target, EffectString, (BaseFreq+6), 1.165)
-    liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    liblo.send(target, EffectString, (BaseFreq+24), 0.35)
+        0.0226, # 2 Delay time
+        0.75, # 2 Gain
+        0.11, # 2 Depth
+        0.48, # 2 Rate
+        0.00, # 2 Feedback
+        
+        0.04, # 3 Delay time
+        0.75, # 3 Gain
+        0.90, # 3 Depth
+        0.62, # 3 Rate
+        0.00, # 3 Feedback
+        
+        0.048, # 4 Delay time
+        0.75, # 4 Gain
+        0.90, # 4 Depth
+        0.71, # 4 Rate
+        0.00, # 4 Feedback
+        
+        0.25, # 5 Delay time
+        0.375, # 5 Gain
+        0.10, # 5 Depth
+        0.33, # 5 Rate
+        0.50, # 5 Feedback
+        
+        0.30, # 6 Delay time
+        0.375, # 6 Gain
+        0.104, # 6 Depth
+        0.42, # 6 Rate
+        0.40, # 6 Feedback
+        
+        0.30, # 7 Delay time
+        0.375, # 7 Gain
+        0.104, # 7 Depth
+        0.35, # 7 Rate
+        0.10, # 7 Feedback
+        
+        0.35, # 8 Delay time
+        0.375, # 8 Gain
+        0.14, # 8 Depth
+        0.35, # 8 Rate
+        0.30 # 8 Feedback
+        ]
+        
+    WayLead4 = [ 
+        0.0316, # 1 Delay time
+        0.85, # Gain 
+        0.85, # 1 Gain
+        0.00, # 1 Depth
+        0.00, # 1 Rate
+        0.00, # 1 Feedback
 
-    BaseFreq=92
-    liblo.send(target, EffectString, (BaseFreq+6), 0.244)
-    liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    liblo.send(target, EffectString, (BaseFreq+24), 0.23)
+        0.045, # 2 Delay time
+        0.85, # 2 Gain
+        0.00, # 2 Depth
+        0.00, # 2 Rate
+        0.00, # 2 Feedback
+        
+        0.13, # 3 Delay time
+        0.425, # 3 Gain
+        0.0, # 3 Depth
+        0.0, # 3 Rate
+        0.0, # 3 Feedback
+        
+        0.00, # 4 Delay time
+        0.00, # 4 Gain
+        0.00, # 4 Depth
+        0.00, # 4 Rate
+        0.00, # 4 Feedback
+        
+        0.30, # 5 Delay time
+        0.34, # 5 Gain
+        0.00, # 5 Depth
+        0.00, # 5 Rate
+        0.13, # 5 Feedback
+        
+        0.40, # 6 Delay time
+        0.34, # 6 Gain
+        0.00, # 6 Depth
+        0.00, # 6 Rate
+        0.10, # 6 Feedback
+        
+        0.355, # 7 Delay time
+        0.34, # 7 Gain
+        0.00, # 7 Depth
+        0.00, # 7 Rate
+        0.08, # 7 Feedback
+        
+        0.455, # 8 Delay time
+        0.34, # 8 Gain
+        0.00, # 8 Depth
+        0.00, # 8 Rate
+        0.05 # 8 Feedback
+        ]
 
-    BaseFreq=120
-    liblo.send(target, EffectString, (BaseFreq+6), 0.24)
-    liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    liblo.send(target, EffectString, (BaseFreq+24), 0.42)
+    WayChorus8 = [ 
+        0.0316, # 1 Delay time
+        0.85, # Gain 
+        0.75, # 1 Gain
+        0.11, # 1 Depth
+        0.47, # 1 Rate
+        0.00, # 1 Feedback
 
-    BaseFreq=148
-    liblo.send(target, EffectString, (BaseFreq+6), 0.04)
-    liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    liblo.send(target, EffectString, (BaseFreq+24), 1.9)
+        0.0226, # 2 Delay time
+        0.75, # 2 Gain
+        0.11, # 2 Depth
+        0.48, # 2 Rate
+        0.00, # 2 Feedback
+        
+        0.040, # 3 Delay time
+        0.73, # 3 Gain
+        0.90, # 3 Depth
+        0.62, # 3 Rate
+        0.0, # 3 Feedback
+        
+        0.048, # 4 Delay time
+        0.75, # 4 Gain
+        0.90, # 4 Depth
+        0.71, # 4 Rate
+        0.00, # 4 Feedback
+        
+        0.212, # 5 Delay time
+        0.375, # 5 Gain
+        0.10, # 5 Depth
+        0.38, # 5 Rate
+        0.50, # 5 Feedback
+        
+        0.225, # 6 Delay time
+        0.375, # 6 Gain
+        0.104, # 6 Depth
+        0.42, # 6 Rate
+        0.40, # 6 Feedback
+        
+        0.226, # 7 Delay time
+        0.375, # 7 Gain
+        0.104, # 7 Depth
+        0.35, # 7 Rate
+        0.10, # 7 Feedback
+        
+        0.240, # 8 Delay time
+        0.375, # 8 Gain
+        0.104, # 8 Depth
+        0.35, # 8 Rate
+        0.30 # 8 Feedback
+        ]
+        
+    theArray=WayChorus8
+
+    if (Mode == "FunkyStrat"):
+        theArray=WayChorusFunk
+
+    if (Mode == "Jazz"):
+        theArray=WayChorus8
+
+    if (Mode == "WayLead4"):
+        theArray=WayChorus8
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Waylo.value)
+    Loop = 0
+    for index in theArray:
+        liblo.send(target, EffectString, Loop, index)
+        print("WayLo ", index, Loop)
+        Loop = Loop + 1
+        
+
+def Distortion2(Mode):
+    print("Distortion2 " + Mode)
+    
+    DistLevel=-3.22
+    DistTone=314.0
+    DistDrive=0.43
+    DistByPass=1
+
+    if (Mode == "FunkyStrat"):
+ #       theArray = FunkyStrat
+        DistLevel=-1.5
+        DistTone=550.0
+        DistDrive=0.08
+        DistByPass=0
+
+    if (Mode == "Boston"):
+        DistLevel=4.0
+        DistTone=560.0
+        DistDrive=0.12
+        DistByPass=0
+        
+        
+    # Level -20 to 4 
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion2.value)
+    liblo.send(target, EffectString, 0, DistLevel)
+
+    # Tone 100 - 1000
+    liblo.send(target, EffectString, 1, DistTone)
+
+    # Drive 0 - 1 
+    liblo.send(target, EffectString, 2, DistDrive)
+
+    # Bypass
+    liblo.send(target, EffectString, 3, DistByPass)
+
+
 
 def EQControl(Mode):
+    print("EQControl " + Mode)
+    
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Equalizer.value)
 #                        16   25     40     63  100    160   250  400   630   1000  1600  2500  4000  6300  10000 16000 
-    ChorusValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.00, 1.00, 1.00, 2.10, 1.30, 0.44, 0.44, 0.80, 0.98, 0.97, 1.00 ]
+    WayloValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.00, 1.00, 1.00, 2.10, 1.30, 0.44, 0.44, 0.80, 0.98, 0.97, 1.00 ]
     HigherValues =     [ 1.00, 1.00, 1.00, 1.00, 0.70, 1.00, 1.00, 1.00, 2.10, 1.30, 0.80, 0.80, 0.80, 0.98, 0.97, 1.00 ]
     NormalValues =     [ 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00 ]
     AcousticValues =   [ 0.53, 0.74, 1.00, 0.71, 1.40, 0.98, 0.98, 0.88, 0.40, 0.33, 0.78, 1.00, 1.50, 2.33, 2.68, 2.50 ]
@@ -345,7 +667,45 @@ def EQControl(Mode):
         1.50  # 16000 
         ]
 
+    FunkyStrat = [ 
+        1.00, # 16
+        0.70, # 25
+        0.80, # 40
+        0.85, # 63
+        0.90, # 100
+        0.85, # 160
+        0.75, # 250 
+        0.65, # 400 
+        0.80, # 630
+        1.30, # 1000
+        1.50, # 1600
+        1.40, # 2500
+        1.15, # 4000
+        1.00, # 6300
+        0.95, # 10000
+        0.90  # 16000 
+        ]
 
+    BostonValues = [ 
+        0.90, # 16
+        0.92, # 25
+        0.94, # 40
+        0.97, # 63
+        1.02, # 100
+        1.06, # 160
+        1.00, # 250
+        0.92, # 400
+        0.96, # 630
+        1.08, # 1000
+        1.18, # 1600
+        1.28, # 2500
+        1.22, # 4000
+        1.10, # 6300
+        0.90, # 10000
+        0.72  # 16000
+        ]
+    
+    
     if (Mode == "Normal"):
         theArray = Normal1Values
         print(Mode)
@@ -354,8 +714,8 @@ def EQControl(Mode):
         theArray = AcousticValues
         print(Mode)
 
-    if (Mode == "Chorus"):
-        theArray = ChorusValues
+    if (Mode == "Waylo"):
+        theArray = WayloValues
         print(Mode)
 
     if (Mode == "Jazz"):
@@ -366,7 +726,15 @@ def EQControl(Mode):
         theArray = HigherValues
         print(Mode)
 
+    if (Mode == "FunkyStrat"):
+        theArray = FunkyStrat
+        print(Mode)
 
+    if (Mode == "Boston"):
+        theArray = BostonValues
+        print(Mode)
+        
+        
     Loop = 0
     for index in theArray:
         liblo.send(target, EffectString, (17 + (Loop * 5)), index)
@@ -428,6 +796,132 @@ def ResetToDefault():
 #    print(EffectString)
 
 
+def WayLoBoston():
+    print("WayLo Boston Solo")
+
+    # ----------------------------------------------------------
+    # Boston first-album style guitar doubler / harmony width
+    #
+    # Short delays + very small modulation.
+    # The idea is multiple guitar voices rather than obvious
+    # "chorus pedal" modulation.
+    #
+    # Each voice:
+    #   Delay
+    #   Gain
+    #   Depth
+    #   Rate
+    #   Feedback
+    # ----------------------------------------------------------
+
+    WayBoston = [
+        # Voice 1 - very close first double
+        0.026,       # Delay ~26 ms
+        0.82,        # Gain
+        0.035,       # Depth
+        0.30,        # Rate
+        0.00,        # Feedback
+
+        # Voice 2 - opposite side / slightly later
+        0.038,       # Delay ~38 ms
+        0.72,        # Gain
+        0.045,       # Depth
+        0.38,        # Rate
+        0.00,        # Feedback
+
+        # Voice 3 - adds width
+        0.055,       # Delay ~55 ms
+        0.48,        # Gain
+        0.030,       # Depth
+        0.25,        # Rate
+        0.00,        # Feedback
+
+        # Voice 4 - very subtle
+        0.070,
+        0.32,
+        0.025,
+        0.32,
+        0.00,
+
+        # Voices 5-8 - essentially disabled
+        0.00, 0.00, 0.00, 0.00, 0.00,
+        0.00, 0.00, 0.00, 0.00, 0.00,
+        0.00, 0.00, 0.00, 0.00, 0.00,
+        0.00, 0.00, 0.00, 0.00, 0.00
+    ]
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Waylo.value)
+
+    Loop = 0
+    for value in WayBoston:
+        liblo.send(target, EffectString, Loop, value)
+        Loop += 1
+
+    # Bring the effect in
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Waylo.value)
+    liblo.send(target, EffectString, 0.32)
+
+    # Unity-ish output level
+#    EffectString = "/Carla/%d/set_volume" % (Effect.Waylo.value)
+#    liblo.send(target, EffectString, 0.90)
+
+def BostonSetup():
+    print("BostonSetup")
+
+    # ----------------------------------------------------------
+    # Tom Scholz / Boston-style amp
+    #
+    # GxAmplifier-X parameters:
+    # 0 MasterGain
+    # 1 PreGain
+    # 2 Distortion
+    # 3 Drive
+    # 4 Middle
+    # 5 Bass
+    # 6 Treble
+    # 8 Presence
+    # 10 Tonestack Model
+    # 12 BYPASS
+    # ----------------------------------------------------------
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+
+    liblo.send(target, EffectString, 0, -15.0)   # Master
+    liblo.send(target, EffectString, 1, -4.0)    # PreGain
+    liblo.send(target, EffectString, 2, 35.0)    # Distortion
+    liblo.send(target, EffectString, 3, 0.32)    # Drive
+    liblo.send(target, EffectString, 4, 0.63)    # Mid
+    liblo.send(target, EffectString, 5, 0.46)    # Bass
+    liblo.send(target, EffectString, 6, 0.66)    # Treble
+    liblo.send(target, EffectString, 8, 7.0)     # Presence
+    liblo.send(target, EffectString, 10, 16)     # Tonestack Model
+    liblo.send(target, EffectString, 12, 0)      # Amp ON
+
+    # ----------------------------------------------------------
+    # Tube Screamer
+    # ----------------------------------------------------------
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion2.value)
+
+    liblo.send(target, EffectString, 0, 4.0)     # Level
+    liblo.send(target, EffectString, 1, 560.0)   # Tone
+    liblo.send(target, EffectString, 2, 0.12)    # Drive
+    liblo.send(target, EffectString, 3, 0)       # Bypass OFF
+
+    # ----------------------------------------------------------
+    # Disable the MuTroMojo / auto-wah
+    # ----------------------------------------------------------
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Mojo.value)
+    liblo.send(target, EffectString, 0, 1)
+
+    EffectString = "/Carla/%d/set_drywet" % (Effect.Mojo.value)
+    liblo.send(target, EffectString, 0.0)
+
+    # No chorus/modulation for the basic Boston sound
+    ChorusControl(0)
+    
+    
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
@@ -466,7 +960,7 @@ def main():
     # Initialize OSC communication
     try:
         target = liblo.Address(22752)
-    except (liblo.AddressError, err):
+    except liblo.AddressError as err:
         print("opening 22752", str(err))
         sys.exit()
 
@@ -474,7 +968,7 @@ def main():
     # Setup OSC server
     try:
         server = liblo.Server(1234)
-    except (liblo.ServerError, err):
+    except liblo.ServerError as err:
         print("opening 1234", str(err))
         sys.exit()
 
@@ -499,9 +993,9 @@ def main():
     port.send(msg)
 
     # Print the effects list.
-    print(Effect.ABGate.value, Effect.Compressor2.value, Effect.Equalizer.value, Effect.PreAmp.value)
+    print(Effect.ABGate.value, Effect.Equalizer.value, Effect.PreAmp.value)
     print(Effect.Distortion1.value, Effect.Distortion2.value, )
-    print(Effect.Mojo.value, Effect.Wah.value, Effect.Chorus.value, Effect.Reverb.value)
+    print(Effect.Wah.value, Effect.Waylo.value, Effect.Reverb.value)
     print(Effect.Mixer.value, Effect.Tuner.value, Effect.MidiConvert.value)
 
 #    ResetToDefault()
@@ -533,7 +1027,7 @@ def main():
                         ChorusControl(127)
                         DistortionControl(0)
                         EQControl("Jazz")
-                        
+                        WayLo("Jazz")
                         # increase the bass
                         # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Toob.value)
                         # liblo.send(target, EffectString, 1, 0.65)
@@ -550,7 +1044,7 @@ def main():
                         ResetToDefault()
                         DistortionControl(70)
                         ChorusControl(25)
-                        EQControl("Chorus")
+                        EQControl("Waylo")
 
                     case 3:
                         print("Acoustic")
@@ -579,11 +1073,22 @@ def main():
                         ResetToDefault()
 
                     case 5:
-                        print("Funky")
+                        print("FunkyStrat")
                         ResetToDefault()
-                        EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
-                        Value=rescale(1.0, 0.0, 1.0, 0.0, 1.0)
-                        liblo.send(target, EffectString, (Value) )
+                        EQControl("FunkyStrat")
+                        Distortion2("FunkyStrat")                    
+                        WahSetup("FunkyStrat")
+                        ReverbSetup("FunkyStrat")
+                        Dist1Setup("FunkyStrat")
+                        WayLo("FunkyStrat")
+
+
+                    # case 5:
+                    #     print("Funky")
+                    #     ResetToDefault()                        
+                    #     EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+                    #     Value=rescale(1.0, 0.0, 1.0, 0.0, 1.0)
+                    #     liblo.send(target, EffectString, (Value) )
 
                     case 6:
                         print("FlangeD_Pre")
@@ -593,8 +1098,9 @@ def main():
 
                     case 8:
                         print("AutoWah")
-                        EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
-                        liblo.send(target, EffectString, 1.0)
+                        # EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+                        # liblo.send(target, EffectString, 1.0)
+                        WahControl(100)
                         # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Toob.value)
                         # liblo.send(target, EffectString, 1, 0.2)
 
@@ -611,6 +1117,9 @@ def main():
                         print("ThickDist")
                         DistortionControl(96)
                         ChorusControl(60)
+                        WayLo("ThickDist")
+                        EQControl("Boston")
+
 
                     case 13:
                         print("GuiarMidi13")
@@ -621,11 +1130,30 @@ def main():
                         MidiGuitar(3)
 
                     case 15:
-                        print("Chorus")
+                        print("Waylo")
                         ResetToDefault()
                         ChorusControl(127)
                         DistortionControl(0)
-                        EQControl("Chorus")
+                        EQControl("Waylo")
+                    
+                    case 16:
+                        print("Boston")
+
+                        ResetToDefault()
+
+                        BostonSetup()
+                        EQControl("Boston")
+                        Distortion2("Boston")
+                        WayLoBoston()
+                        # ReverbSetup("Boston")
+                        
+                        # Make absolutely sure wah is bypassed
+                        EffectString = "/Carla/%d/set_parameter_value" % (Effect.Wah.value)
+                        liblo.send(target, EffectString, 0, 1)
+                        
+                        EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
+                        liblo.send(target, EffectString, 0.0)
+    
 
                     case _:
                         print("Found Nothing")
@@ -666,7 +1194,7 @@ def main():
                         WahControl(InitLevel)
 
                     case 12:     
-                        print("Corus ",Effect.Chorus.value,  InitLevel)
+                        print("Corus ",Effect.Waylo.value,  InitLevel)
                         ChorusControl(InitLevel)
 
                     case _:
@@ -679,115 +1207,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-# Parse Carla File.
-# sed -n '/\<Info/,/\/Info/{//!p;}' NewGuitarix.carxp | grep -oP '(?<=<Name>).*(?=</Name)' | tr -d '[:blank:]'
-# line=line.strip()
-# print(MyEnum[line].value)
-
-# GT10QM
-# GxCompressor
-# GxAmplifier-Stereo-X
-# rkrMuTroMojo
-# GxChorus-Stereo
-# rkrWahWah
-# GxZita_rev1-Stereo
-# theinfamouslushlife
-# PurestSquish
-# LSPMixerx4Stereo
-# PreAmps
-# LSPProfilerStereo
-# MultivoiceChorus
-
-
-
-
-# EffectString = "/Carla/%d/set_volume" % (Effect.Distortion1.value)
-# liblo.send(target, EffectString, (1.0 - (msg.value/200)) )
-# EffectString = "/Carla/%d/set_parameter_value" % (Effect.Distortion1.value)
-# liblo.send(target, EffectString, 2, (msg.value * 0.9))
-# EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
-# liblo.send(target, EffectString, 1.0)
-
-# oscsend localhost 22752 /Carla/1/set_parameter_value if 43 3
-# oscsend localhost 22752 /Carla/1/set_drywet f 1.0
-# Guitar Mute
-# oscsend localhost 22752 /Carla/9/set_parameter_value if 11 1
-# Midi Mute
-# oscsend localhost 22752 /Carla/9/set_parameter_value if 20 1
-
-# 23 28 33 38 43  48   53  
-# 16 25 40 63 100 160  250
-    EffectString = "/Carla/%d/set_parameter_value" % (Effect.Equalizer.value)
-
-    # 16Hz
-    liblo.send(target, EffectString, 23, 1.0)
-    # 25
-    liblo.send(target, EffectString, 28, 0.505)
-    # 40
-    liblo.send(target, EffectString, 33, 0.60)
-    # 63
-    liblo.send(target, EffectString, 38, 0.68)
-    # 100
-    liblo.send(target, EffectString, 43, 0.788)
-    # 160
-    liblo.send(target, EffectString, 48, 0.870)
-    # 250
-    liblo.send(target, EffectString, 53, 1.0)
-    # 400
-    liblo.send(target, EffectString, 58, 1.0)
-    # 630
-    liblo.send(target, EffectString, 63, 1.09)
-    # 1000
-    liblo.send(target, EffectString, 68, 1.23)
-    # 1600
-    liblo.send(target, EffectString, 73, 1.45)
-    # 2500
-    liblo.send(target, EffectString, 78, 1.66)
-    # 4000
-    liblo.send(target, EffectString, 83, 1.40)
-    # 6300
-    liblo.send(target, EffectString, 88, 1.21)
-    # 10000
-    liblo.send(target, EffectString, 93, 1.0)
-    # 16000
-    liblo.send(target, EffectString, 98, 1.0)
-
-
-    if (Mode == "Normal"):
-        liblo.send(target, EffectString, 23, 1.0) # 16Hz
-        liblo.send(target, EffectString, 28, 1.0) # 25
-        liblo.send(target, EffectString, 33, 1.0)  # 40
-        liblo.send(target, EffectString, 38, 1.0) # 63
-        liblo.send(target, EffectString, 43, 1.0) # 100
-        liblo.send(target, EffectString, 48, 1.0) # 160
-        liblo.send(target, EffectString, 53, 1.0) # 250
-        liblo.send(target, EffectString, 58, 1.0) # 400
-        liblo.send(target, EffectString, 63, 1.0) # 630
-        liblo.send(target, EffectString, 68, 1.0) # 1000
-        liblo.send(target, EffectString, 73, 1.0) # 1600
-        liblo.send(target, EffectString, 78, 1.0) # 2500
-        liblo.send(target, EffectString, 83, 1.0) # 4000
-        liblo.send(target, EffectString, 88, 1.0) # 6300
-        liblo.send(target, EffectString, 93, 1.0) # 10000
-        liblo.send(target, EffectString, 98, 1.0) # 16000
-
-    if (Mode == "Acoustic"):
-        liblo.send(target, EffectString, 23, 1.0) # 16Hz
-        liblo.send(target, EffectString, 28, 0.505) # 25
-        liblo.send(target, EffectString, 33, 0.60)  # 40
-        liblo.send(target, EffectString, 38, 0.68) # 63
-        liblo.send(target, EffectString, 43, 0.788) # 100
-        liblo.send(target, EffectString, 48, 0.870) # 160
-        liblo.send(target, EffectString, 53, 1.0) # 250
-        liblo.send(target, EffectString, 58, 1.0) # 400
-        liblo.send(target, EffectString, 63, 1.09) # 630
-        liblo.send(target, EffectString, 68, 1.23) # 1000
-        liblo.send(target, EffectString, 73, 1.45) # 1600
-        liblo.send(target, EffectString, 78, 1.66) # 2500
-        liblo.send(target, EffectString, 83, 1.40) # 4000
-        liblo.send(target, EffectString, 88, 1.21) # 6300
-        liblo.send(target, EffectString, 93, 1.0) # 10000
-        liblo.send(target, EffectString, 98, 1.0) # 16000

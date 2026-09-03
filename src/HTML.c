@@ -124,8 +124,21 @@ int WaitForCallBack;
 /*----------------------------------------------
  * Function:        SavePresetChanges
  *
- * Description: write any changes to the file.
- * Cheesy way of doing this.
+ * Description: Rewrite the setlist song's HTML file in place, updating
+ *              its <meta name="PresetN"...> and <meta name="Tempo"...>
+ *              tags to match the currently-assigned web presets
+ *              (gMyInfo.WebPresets.thePreset[0..5]) and tempo. Works by
+ *              streaming the file line-by-line to a ".Test" temp file,
+ *              rewriting any line containing "PresetN"/"Tempo" as it
+ *              goes, then renaming the temp file over the original once
+ *              done. Refuses to touch `FileName` if it's actually a
+ *              directory. Returns 0 on success, 1 if either file
+ *              couldn't be opened.
+ *
+ *              ("Cheesy" per the original comment: it does substring
+ *              matching on the raw HTML text rather than proper HTML/
+ *              XML parsing, so it depends on the file's meta tags
+ *              looking exactly like the ones it writes.)
  *-----------------------------------------------*/
 char SavePresetChanges(char *FileName) {
     FILE *InFile;
@@ -154,6 +167,13 @@ char SavePresetChanges(char *FileName) {
     OutFile = fopen(FileLine, "w+");
 
     if (!OutFile) {
+        /* BUG: remove() takes a filename (const char *), not a FILE*.
+         * `OutFile` is NULL here anyway (that's why we're in this
+         * branch), so this call does nothing useful - it's not
+         * actually deleting the ".Test" temp file it looks like it's
+         * trying to clean up (that would be `remove(FileLine)`).
+         * Left as-is; flagging for a follow-up fix rather than
+         * changing behavior in a comments-only pass. */
         remove(OutFile);
         printd(LogError, "Html File Error %x %x\n", InFile, OutFile);
         return (1);
@@ -255,7 +275,13 @@ char SavePresetChanges(char *FileName) {
 /*----------------------------------------------
  * Function:        on_Back_clicked
  *
- * Description: Web browser back button
+ * Description: "Back" button handler: saves any preset/tempo changes
+ *              made to the currently-displayed song page (via
+ *              SavePresetChanges()) before navigating the embedded
+ *              WebKit browser back to the previous page. Also resets
+ *              the 5 preset button labels back to their generic
+ *              defaults, unless PersistentPresets is defined (it isn't
+ *              anywhere in this tree, so this reset always runs).
  *
  *-----------------------------------------------*/
 void on_Back_clicked(GtkButton *button, gpointer user_data) {
@@ -268,6 +294,11 @@ void on_Back_clicked(GtkButton *button, gpointer user_data) {
     /* Get the currently loaded page.
      */
     CurrentURI = webkit_web_view_get_uri(web_view);
+    /* &CurrentURI[7] skips over the "file://" scheme prefix (7 chars)
+     * to turn the URI into a plain filesystem path for
+     * SavePresetChanges(). Assumes the URI is always a local file://
+     * URL - would misbehave (wrong offset) if a page were ever loaded
+     * from http(s):// instead. */
     SavePresetChanges((char *)&CurrentURI[7]);
     webkit_web_view_go_back(web_view);
 
@@ -285,7 +316,10 @@ void on_Back_clicked(GtkButton *button, gpointer user_data) {
 /*----------------------------------------------
  * Function:        on_Forward_clicked
  *
- * Description: Web browser forward button
+ * Description: "Forward" button handler: navigates the embedded
+ *              WebKit browser forward. Unlike on_Back_clicked(), does
+ *              not save preset changes first (there's nothing to save
+ *              going forward - the page being left wasn't just edited).
  *
  *-----------------------------------------------*/
 void on_Forward_clicked(GtkButton *button, gpointer user_data) {
@@ -299,8 +333,21 @@ void on_Forward_clicked(GtkButton *button, gpointer user_data) {
 /*----------------------------------------------
  * Function:        web_view_javascript_finished
  *
- * Description: JavaScript callback
+ * Description: Generic async callback for
+ *              webkit_web_view_evaluate_javascript() calls made
+ *              elsewhere in this file. Extracts the JS result as a
+ *              string (if it is one) and, when `user_data` was passed
+ *              as 1 by the caller that kicked off the evaluation,
+ *              interprets that string as the page's current scroll
+ *              position (JavaScrollPosition) - this is how
+ *              ScrollCtrl() below reads back where the WebView is
+ *              scrolled to. `user_data` values other than 1 currently
+ *              do nothing with the result; the "1 = scroll position"
+ *              convention is entirely defined by the caller(s) that
+ *              queue the JS eval, not by this function itself.
  *
+ *              Also sets WaitForCallBack = -100 as a "callback has
+ *              fired" sentinel that callers can poll for.
  *-----------------------------------------------*/
 static void web_view_javascript_finished(GObject *object, GAsyncResult *result,
                                          gpointer user_data) {
@@ -343,6 +390,15 @@ static void web_view_javascript_finished(GObject *object, GAsyncResult *result,
     webkit_javascript_result_unref(js_result);
 }
 
+/*----------------------------------------------
+ * Function:        scroll_js_finished_cb
+ *
+ * Description: Fire-and-forget async callback for the JS that actually
+ *              performs a scroll (window.scrollTo(...) or similar,
+ *              queued by ScrollCtrl() below). Doesn't need the result
+ *              value - it's only used to catch and log a JS execution
+ *              error, if any.
+ *-----------------------------------------------*/
 static void scroll_js_finished_cb(GObject *object, GAsyncResult *result,
                                   gpointer user_data) {
     WebKitJavascriptResult *js_result;
@@ -365,8 +421,17 @@ static void scroll_js_finished_cb(GObject *object, GAsyncResult *result,
 /*----------------------------------------------
  * Function:        ScrollCtrl
  *
- * Description: Scroll the music
- *
+ * Description: Programmatic scrolling of the loaded song page.
+ *              `Amount` is overloaded: either one of the ScrollPgDn/
+ *              ScrollPgUp/ScrollEnd/ScrollHome/ScrollKeyDn/ScrollKeyUp
+ *              sentinel constants (relative scroll by a fixed pixel
+ *              amount), or - if > 20 - taken as an absolute target
+ *              scroll position directly. Reads the current scroll
+ *              position first via ScrollGetPosition(), applies the
+ *              requested change, clamps to >= 0, then injects a
+ *              `window.scrollTo(0, N)` JS call into the WebView to
+ *              actually move it. The JS runs async; scroll_js_finished_cb()
+ *              just logs errors, it doesn't confirm the scroll landed.
  *-----------------------------------------------*/
 int ScrollCtrl(float Amount) {
     GtkAdjustment *Adjust;
@@ -423,8 +488,31 @@ int ScrollCtrl(float Amount) {
 /*----------------------------------------------
  * Function:        ScrollGetPosition
  *
- * Description: Get the Current Scolling position
+ * Description: Read back the WebView's current vertical scroll offset
+ *              (window.pageYOffset) by running a JS snippet
+ *              asynchronously and waiting for web_view_javascript_finished()
+ *              to store the result in JavaScrollPosition.
  *
+ *              *** POTENTIAL BUG - WORTH VERIFYING ***
+ *              The "wait" below is a plain busy-wait spin loop on
+ *              WaitForCallBack, with no call to
+ *              g_main_context_iteration()/gtk_main_iteration() (there
+ *              are none anywhere in this codebase). WebKit's async JS
+ *              callback can only fire when GTK's main loop processes
+ *              pending events - and if this function runs on the main
+ *              thread (which it appears to, since it drives UI/WebKit
+ *              calls directly), that main loop is the very thing
+ *              blocked spinning here. That would mean
+ *              web_view_javascript_finished() never actually runs
+ *              during this wait, WaitForCallBack just counts down to 0
+ *              every time (a ~10000-iteration busy-wait doing nothing
+ *              useful), and JavaScrollPosition is always stale/whatever
+ *              it was from some previous, unrelated call. Flagging this
+ *              rather than changing it, since fixing it (e.g. dropping
+ *              the busy-wait and making callers handle the result
+ *              asynchronously) is a behavioral change beyond the scope
+ *              of a comments pass - worth a focused look/test on real
+ *              hardware.
  *-----------------------------------------------*/
 float ScrollGetPosition(void) {
 
@@ -450,9 +538,26 @@ float ScrollGetPosition(void) {
 }
 
 /*----------------------------------------------
- * Function:        Scale the page to fit with scroll bars
+ * Function:        ScalePage
  *
- * Description: Scale to fit routine. Doesn't work well.
+ * Description: "Fit to page" zoom: computes a WebKit zoom level that
+ *              would make the loaded page's content fit within the
+ *              scrolled window's current viewport, then applies the
+ *              smaller of the horizontal/vertical scale factors (so
+ *              the whole page fits without cropping in either
+ *              direction) via webkit_web_view_set_zoom_level().
+ *              ScaleH/V = viewport page_size / content upper bound,
+ *              i.e. "what fraction of the current zoom would make the
+ *              content exactly fill the viewport."
+ *
+ *              (Previously this was reading `Horiz`/`Vert` completely
+ *              uninitialized - they were declared but never assigned
+ *              before use, a real bug that made the "doesn't work
+ *              well" comment below unsurprising. Fixed to pull the
+ *              viewport size from gtk_adjustment_get_page_size(); see
+ *              CLEANUP_PROGRESS.md bug log / patch 0002. Still worth
+ *              re-testing visually since the fix changes the actual
+ *              computed zoom level, not just silences a warning.)
  *
  *-----------------------------------------------*/
 int ScalePage(void) {
@@ -465,10 +570,12 @@ int ScalePage(void) {
     Adjust =
         gtk_scrolled_window_get_hadjustment((GtkScrolledWindow *)ChartGTKView);
     UpperH = gtk_adjustment_get_upper(Adjust);
+    Horiz = (gint)gtk_adjustment_get_page_size(Adjust);
 
     Adjust =
         gtk_scrolled_window_get_vadjustment((GtkScrolledWindow *)ChartGTKView);
     UpperV = gtk_adjustment_get_upper(Adjust);
+    Vert = (gint)gtk_adjustment_get_page_size(Adjust);
     printf("ScalePage %x %f\n", Adjust, UpperV);
 
     if (UpperH != 0) {
@@ -490,7 +597,10 @@ int ScalePage(void) {
 /*----------------------------------------------
  * Function:        on_DrumLoopButton_clicked
  *
- * Description: Scale the graphics to fit the page
+ * Description: Toggle the drum loop/backing track on or off (via
+ *              ToggleMidiLoop()). (The doc here previously said "Scale
+ *              the graphics to fit the page" - copy/paste leftover
+ *              from the neighboring ScalePage(); corrected.)
  *
  *-----------------------------------------------*/
 void on_DrumLoopButton_clicked(GtkWidget *widget, gpointer data) {
@@ -506,9 +616,36 @@ void on_DrumLoopButton_clicked(GtkWidget *widget, gpointer data) {
 unsigned int CurTapTempo;
 struct timeval Time0;
 /*----------------------------------------------
- * Function:        Tap Tempo
+ * Function:        on_TapTempo_clicked
  *
- * Description: Tap Tempo
+ * Description: Tap-tempo button handler: on each click, measures the
+ *              elapsed time since the previous click and derives a BPM
+ *              from it (60,000,000 / elapsed-microseconds), then
+ *              rolling-averages that into gMyInfo.Tempo (see the
+ *              MinTempoValue/MaxTempoValue-gated averaging below). A
+ *              ctrl-click or right-click instead commits the current
+ *              running average (CurTapTempo) as the tempo immediately,
+ *              without waiting for another tap.
+ *
+ *              *** LIKELY BUG - WORTH VERIFYING ***
+ *              `Time1` is declared as `struct timeval` (seconds +
+ *              MICROseconds) but passed to clock_gettime(), which
+ *              expects `struct timespec` (seconds + NANOseconds) - a
+ *              type mismatch normally caught by
+ *              -Wincompatible-pointer-types, which is suppressed
+ *              project-wide (see Makefile.am). On this platform the two
+ *              structs happen to be the same size, so it doesn't crash,
+ *              but clock_gettime() is actually writing NANOseconds into
+ *              a field this function then treats as MICROseconds (used
+ *              directly in the BPM math, and divided by 1000 as if
+ *              converting microseconds to milliseconds). That would
+ *              make every BPM calculation here off by roughly 1000x in
+ *              its sub-second component, badly corrupting the tap-tempo
+ *              result. Flagging rather than fixing in this
+ *              comments-only pass, since correcting it (switching
+ *              Time0/Time1 to struct timespec and fixing the math
+ *              throughout this function) is a behavioral change worth
+ *              testing on real hardware.
  *
  *-----------------------------------------------*/
 gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event,
@@ -586,12 +723,30 @@ gboolean on_TapTempo_clicked(GtkWidget *widget, GdkEvent *event,
      */
     gtk_image_set_from_pixbuf(GTK_IMAGE(TapTempoButton.Image),
                               TapTempoButton.ButtonDownImage);
+
+    return (1);
 }
 
 /*----------------------------------------------
- * Function:        Patch Selected
+ * Function:        on_patch_clicked
  *
- * Description: The users custom patch was selected.
+ * Description: Click handler for one of the numbered preset buttons
+ *              (CPatch = which button, 0-based, from user_data). Two
+ *              distinct behaviors depending on the Ctrl key:
+ *                - Ctrl+click: opens the patch-picker popup
+ *                  (ShowPatchListSelect) to let the user (re)assign
+ *                  which patch this preset button points to, rather
+ *                  than triggering the patch itself.
+ *                - Plain click: looks up which patch this preset
+ *                  button is currently assigned to
+ *                  (gMyInfo.WebPresets.thePreset[CPatch]), applies it
+ *                  via DoPatch(), and redraws the button in its
+ *                  "pressed" state.
+ *              (Note: Preset indices up to Max_Patches are accepted,
+ *              not just < Max_Patches - MyPatchInfo[] is actually
+ *              sized to Max_Patches_W_Presets to also hold the special
+ *              "preset of a preset" slots, so this isn't an
+ *              off-by-one.)
  *
  *-----------------------------------------------*/
 gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event,
@@ -660,7 +815,10 @@ gboolean on_patch_clicked(GtkWidget *widget, GdkEvent *event,
 /*----------------------------------------------
  * Function:        on_patch__release_handler
  *
- * Description: The release of a preset click.
+ * Description: Button-release counterpart to on_patch_clicked() -
+ *              just redraws the preset button back to its "up"
+ *              (unpressed) image. Doesn't re-trigger or undo the
+ *              patch change itself, that already happened on press.
  *
  *-----------------------------------------------*/
 gboolean on_patch__release_handler(GtkWidget *widget, GdkEvent *event,
@@ -676,6 +834,13 @@ gboolean on_patch__release_handler(GtkWidget *widget, GdkEvent *event,
 }
 
 #if 0
+/* Disabled (#if 0) old implementation of on_SaveWeb_clicked: toggled
+ * WebKit's own in-page rich-text editing mode (editable overlay on the
+ * loaded HTML) and, on save, wrote the WebView's title/content
+ * straight back to the file. Superseded by the #else branch below,
+ * which instead shells out to an external HTML editor - presumably
+ * because in-page WebKit editing was unreliable or insufficient for
+ * real chart editing. Left here for reference. */
 /*----------------------------------------------
  * Function:        on_SaveWeb_clicked
  *
@@ -726,7 +891,12 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 /*----------------------------------------------
  * Function:        on_SaveWeb_clicked
  *
- * Description: Save the changes to the file
+ * Description: "Edit"/save button for the current song's HTML file:
+ *              shells out to `MusicApps.sh html <path>` (an external
+ *              editor launcher script, per the MusicApps.sh
+ *              convention used elsewhere in this codebase) rather than
+ *              editing in-page. See the #if 0 block above for the
+ *              earlier, in-WebView-editing approach this replaced.
  *
  *-----------------------------------------------*/
 void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
@@ -756,8 +926,34 @@ void on_SaveWeb_clicked(GtkWidget *widget, gpointer data) {
 /*----------------------------------------------
  * Function:        PageLoaded
  *
- * Description: Called after the page is loaded, we can then parse
- *      for the user selections.
+ * Description: WebKit load-status callback, fired on every navigation
+ *              event. Only acts on WEBKIT_LOAD_COMMITTED (note: NOT
+ *              WEBKIT_LOAD_FINISHED, despite what the old comment
+ *              above the check used to say - COMMITTED fires once the
+ *              new URI is known, which is what this function needs).
+ *              On a committed load:
+ *                - Derives BasePathName (the containing folder) and
+ *                  FileName from the URI, for relative-path resolution
+ *                  elsewhere.
+ *                - Logs the navigation to the history file.
+ *                - If it's an .html file: runs Search_in_File() to
+ *                  pick up any web-preset/tempo meta tags embedded in
+ *                  the page, and updates the status bar unless it's
+ *                  the index page.
+ *                - If it's .mp3 or .mid: just logs and returns (these
+ *                  aren't HTML content to scan for presets).
+ *
+ *              *** BUG: the zoom reset below is dead code ***
+ *              `webkit_web_view_set_zoom_level(web_view, 1)` at the
+ *              end of this function can never execute - every branch
+ *              of the .mp3/.mid/else `if` chain above it ends in
+ *              `return`, including the plain `else` for any URI that
+ *              matched none of them. So whatever this line was meant
+ *              to do (reset zoom to 100% after every load, most
+ *              likely undoing ScalePage()'s zoom-to-fit) simply never
+ *              runs. Flagging rather than fixing in this comments
+ *              pass - moving the reset earlier would be a real
+ *              behavior change worth testing.
  *
  *-----------------------------------------------*/
 void PageLoaded(WebKitWebView *web_view, WebKitLoadEvent load_event,
@@ -853,8 +1049,46 @@ void PageLoaded(WebKitWebView *web_view, WebKitLoadEvent load_event,
 /*----------------------------------------------
  * Function:        NavigationPolicy
  *
- * Description: Return TRUE means we are handling the URL
- * FALSE means that webkit has to handle it.
+ * Description: WebKit response-policy-decision callback: for every
+ *              resource WebKit is about to load, decides whether
+ *              WebKit should render it normally (return FALSE) or
+ *              whether this app is going to handle it instead
+ *              (webkit_policy_decision_ignore() + return TRUE).
+ *
+ *              Decision flow:
+ *                1. `.rtf` or no extension at all, or `.html`: let
+ *                   WebKit render it normally (return TRUE here just
+ *                   means "decision made", not "let WebKit handle
+ *                   it" - see the note below, this looks like a bug).
+ *                2. Otherwise, try delegating to the external
+ *                   `MusicApps.sh <ext> <path>` script via system().
+ *                   If that script exits 0 (success = "I handled
+ *                   it"), tell WebKit to ignore the request and stop.
+ *                3. If MusicApps.sh didn't handle it (nonzero exit),
+ *                   fall back to handling known media types directly:
+ *                   .mp3/.mp4/.webm/.mkv/.mid all get routed to the
+ *                   internal player (SetPlayerFile/StartMidiLoop)
+ *                   instead of being opened as a web resource.
+ *                4. Anything else: return FALSE, let WebKit handle it.
+ *
+ *              `(theURI + 7)` throughout skips the "file://" scheme
+ *              prefix, same assumption as on_Back_clicked() - only
+ *              valid for local file:// URIs.
+ *
+ *              *** LIKELY BUG (pre-existing, not from this pass) ***
+ *              Step 1's `.rtf`/no-extension/`.html` branches all
+ *              `return (TRUE)` with a comment "Let WebKit handle it" -
+ *              but returning TRUE from a WebKitPolicyDecision callback
+ *              means "I'm handling this" (matching this function's own
+ *              header doc: "Return TRUE means we are handling the
+ *              URL"), and without a matching
+ *              webkit_policy_decision_ignore()/_use() call, the
+ *              decision is left unresolved. The commented-out
+ *              `return (FALSE)` right above each of these suggests an
+ *              earlier version had this the other way around, and it
+ *              got inverted at some point. Flagging rather than
+ *              changing, since it's a routing behavior change worth
+ *              testing rather than a comments-pass fix.
  *
  *-----------------------------------------------*/
 gboolean NavigationPolicy(WebKitWebView *web_view,
@@ -917,11 +1151,25 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
     DecodeURI(theOrgURI, theURI);
     printd(LogHTML, "NavigationPolicy2 %s %s \n", theURI, theOrgURI);
 
+    /* Default: if no '/' is found below, treat the whole URI as the
+     * filename rather than leaving FileName uninitialized (it's
+     * dereferenced further below in the .mid/.mp3/.mp4 branches).
+     */
+    FileName = requestURI;
+
     for (Loop = strlen(requestURI); Loop >= 0; Loop--)
         if (requestURI[Loop] == '/') {
             FileName = &requestURI[Loop + 1];
             Loop = -1;
         }
+
+    /* Fallback: no '/' found in the URI, so there's nothing to split off -
+     * treat the whole URI as the filename rather than leaving FileName
+     * uninitialized (it's dereferenced further below).
+     */
+    if (FileName == requestURI + strlen(requestURI) || FileName == NULL) {
+        FileName = requestURI;
+    }
 
     /* get the extension of the file.
      */
@@ -1038,7 +1286,37 @@ gboolean NavigationPolicy(WebKitWebView *web_view,
 /*----------------------------------------------
  * Function:        OpenSetListSong
  *
- * Description: If we have a set list saved then open a song from it.
+ * Description: Open the Nth song (1-based `SongNumber`) from the
+ *              currently-loaded set list HTML file
+ *              (SetListFileName). Does a simple manual scan of the
+ *              file's raw text for `href=` occurrences (not real
+ *              HTML parsing) - the Nth href found is treated as song
+ *              N, its target extracted with `strtok(Found, ">")` up
+ *              to the closing `>` of the `<a href="...">` tag, and
+ *              that becomes the URI loaded into the WebView.
+ *              `Found += 6` skips past the literal `href="` (5 chars
+ *              for "href=" + 1 for the opening quote) to land on the
+ *              actual link target.
+ *
+ *              *** POSSIBLE BUG - WORTH VERIFYING ***
+ *              The resolved path is built as
+ *              dirname(set-list-file) + "/." + tokenizer - note the
+ *              literal "." before the song filename, which makes the
+ *              final path something like ".../SongsDir/.SongName.html"
+ *              (a dot-prefixed/hidden filename). This is the only
+ *              place in the file that does this; nowhere else writes
+ *              set-list entries with a leading dot on the filename
+ *              (compare DrumFav_cb/SaveFav_cb below, which write plain
+ *              paths). If set-list entries are actually just
+ *              "SongName.html" without a leading dot, this would be
+ *              looking for a file that doesn't exist and silently fail
+ *              to load. Could be `strcat(Copy, "/.")` was meant to be
+ *              `strcat(Copy, "/")` (i.e. the "." is a stray typo, not
+ *              a real relative-path "./" marker - there'd be no reason
+ *              for one here since dirname() already gives an absolute
+ *              path). Flagging rather than changing - would need to
+ *              see a real set-list file's actual href format to be
+ *              sure.
  *
  *-----------------------------------------------*/
 void OpenSetListSong(int SongNumber) {
@@ -1115,7 +1393,16 @@ void OpenSetListSong(int SongNumber) {
 /*----------------------------------------------
  * Function:        on_SetList_clicked
  *
- * Description: Save the changes to the file
+ * Description: "Load this page as the set list" button handler: takes
+ *              the currently-displayed page's URI and remembers it as
+ *              SetListFileName (used later by OpenSetListSong() to
+ *              open songs from it). Also updates the SetList button's
+ *              own label to show just the base filename (no path, no
+ *              ".html" extension - `Length - 5` chops the trailing
+ *              5-char ".html" suffix; assumes the URI always ends in
+ *              exactly that extension).
+ *              (The doc here previously said "Save the changes to the
+ *              file" - leftover from SavePresetChanges(); corrected.)
  *
  *-----------------------------------------------*/
 void on_SetList_clicked(GtkWidget *widget, gpointer data) {
@@ -1149,7 +1436,49 @@ void on_SetList_clicked(GtkWidget *widget, gpointer data) {
 /*----------------------------------------------
  * Function:        InitHTML
  *
- * Description: Set up the WebKit environment.
+ * Description: One-time setup of the "chart display" side of the UI,
+ *              called once from the app's startup path with the
+ *              GtkBuilder handle for the main window's Glade layout.
+ *              Three main things happen here, in order:
+ *                1. Wire up all the fixed on-screen buttons related to
+ *                   HTML browsing (preset/patch buttons 1..N, Back,
+ *                   Forward, Drum loop, Tap tempo, Edit/SaveWeb,
+ *                   SetList, Play/Pause): look each widget up from the
+ *                   Glade builder by name, initialize it as a
+ *                   theImageButtons (2-state image button), and
+ *                   connect its press/release signal handlers. This
+ *                   is repetitive by nature - same pattern per button,
+ *                   just a different Glade widget name/handler/image
+ *                   set each time.
+ *                2. Create the embedded WebKitWebView, parent it into
+ *                   the "scrolledwindow1" Glade widget (ChartGTKView),
+ *                   wire its load-changed/decide-policy/hovering-over-
+ *                   link/context-menu signals to PageLoaded/
+ *                   NavigationPolicy/HoverLink_cb/on_RightMenu_clicked,
+ *                   and load the initial page from gMyInfo.BasePath.
+ *                3. Configure WebKitSettings for that view (font size,
+ *                   disabled media stream/mediasource, fullscreen
+ *                   allowed, page cache disabled) and apply them.
+ *
+ *              Notes on specific non-obvious bits:
+ *              - The Glade widget backing DrumLoopButton is named
+ *                "ScaleButton" in the .glade file, not "DrumButton" or
+ *                similar - likely a repurposed widget from an earlier
+ *                UI iteration whose Glade ID was never renamed to
+ *                match its current DrumLoop function. Worth knowing if
+ *                editing the .glade layout directly.
+ *              - Font sizing has a disabled (#if 0) screen-size-aware
+ *                block (12/18/28pt for ScreenSize 0/1/2) - the #else
+ *                branch that's actually active just hardcodes 28pt
+ *                regardless of screen size.
+ *              - The `FileName` URI buffer is built with two
+ *                back-to-back strncpy() calls and no explicit null
+ *                terminator; it works because strncpy() zero-pads the
+ *                remainder of the destination when the source is
+ *                shorter than the given length, so termination happens
+ *                to fall out of that padding behavior rather than
+ *                being done explicitly - fragile if BasePath were ever
+ *                as long as the buffer itself.
  *
  *-----------------------------------------------*/
 void InitHTML(GtkBuilder *gxml) {
@@ -1358,6 +1687,16 @@ void InitHTML(GtkBuilder *gxml) {
     gtk_widget_show_all(ChartGTKView);
 }
 
+/*----------------------------------------------
+ * Function:        HoverLink_cb
+ *
+ * Description: WebView "hovering-over-link" signal handler. Currently
+ *              just logs the hovered link's title/URI - the "Hover in
+ *              case we use it" comment at the connect site in
+ *              InitHTML() suggests this was wired up for a future
+ *              feature (e.g. a status-bar link preview) that was
+ *              never built out.
+ *-----------------------------------------------*/
 void HoverLink_cb(WebKitWebView *web_view, gchar *title, gchar *uri,
                   gpointer user_data) {
 
@@ -1367,8 +1706,13 @@ void HoverLink_cb(WebKitWebView *web_view, gchar *title, gchar *uri,
 /*----------------------------------------------
  * Function: on_RightMenu_clicked
  *
- * Description: Setup the context Menu.
- *
+ * Description: WebView "context-menu" signal handler - builds the
+ *              right-click context menu shown over a song page,
+ *              adding three custom items (Drum Fav / Edit Chart /
+ *              Save link) on top of WebKit's own defaults, each wired
+ *              to its own callback below. Returning FALSE tells
+ *              WebKit to go ahead and show the (now-augmented) menu
+ *              rather than suppressing it.
  *-----------------------------------------------*/
 // https://webkitgtk.org/reference/webkit2gtk/stable/WebKitContextMenuItem.html
 // https://developer.gnome.org/gio/stable/GAction.html#GAction-struct
@@ -1422,8 +1766,13 @@ gboolean on_RightMenu_clicked(WebKitWebView *page, WebKitContextMenu *menu,
 /*----------------------------------------------
  * Function: DrumFav CallBack.
  *
- * Description: Setup the context Menu.
- *
+ * Description: "Drum Fav" context menu item handler: appends the
+ *              current drum-loop file (LastDrumName, set when a
+ *              .mid file was last opened via NavigationPolicy) as an
+ *              `<a href>` line to DrumFav.html, a simple growing
+ *              bookmarks-style list of favorited drum loops. Uses a
+ *              shell `echo ... >>` via system() rather than opening
+ *              the file directly in C.
  *-----------------------------------------------*/
 static void DrumFav_cb(gpointer *Data) {
     WebKitWebView *thepage;
@@ -1445,8 +1794,12 @@ static void DrumFav_cb(gpointer *Data) {
 /*----------------------------------------------
  * Function: SaveFav CallBack.
  *
- * Description: Setup the context Menu.
- *
+ * Description: "Save link" context menu item handler - same pattern
+ *              as DrumFav_cb() above, but appends the last-clicked
+ *              link (LastClickURI, captured in NavigationPolicy when
+ *              it saw a file extension) to SaveFav.html instead of
+ *              DrumFav.html. General-purpose "bookmark this link"
+ *              rather than drum-loop-specific.
  *-----------------------------------------------*/
 static void SaveFav_cb(gpointer *Data) {
     WebKitWebView *thepage;
@@ -1470,8 +1823,13 @@ static void SaveFav_cb(gpointer *Data) {
 /*----------------------------------------------
  * Function: EditChart_cb CallBack.
  *
- * Description: Setup the context Menu.
- *
+ * Description: "Edit Chart" context menu item handler: launches the
+ *              external HTML editor for the currently-displayed page
+ *              via `MusicApps.sh html <path>`, same mechanism as
+ *              on_SaveWeb_clicked()'s active (#else) implementation
+ *              higher up in this file - this is effectively that same
+ *              action, reachable from the right-click menu as well as
+ *              the toolbar "Edit" button.
  *-----------------------------------------------*/
 static void EditChart_cb(gpointer *Data) {
     WebKitWebView *thepage;
@@ -1490,13 +1848,58 @@ static void EditChart_cb(gpointer *Data) {
     //  printf("We got this %x %s\n", Data, webkit_web_view_get_uri(thepage));
 }
 
-#define ContentTagLen 9
+#define ContentTagLen 9 /* strlen("content=\"") - see Search_in_File() */
 /*----------------------------------------------
  * Function:        Search_in_File
  *
- * Description: Look thru the file and find presets.
- * Put the specific presets in the WebLoadPresets
- * structure.
+ * Description: Scans a song's HTML file line-by-line (up to 150
+ *              lines) for a fixed set of custom `<meta name="Xxx"
+ *              content="...">`-style tags embedded in the page, and
+ *              applies each one found:
+ *                - PresetN (N=1-9): assigns a patch to preset button N
+ *                  via AssignPreset(), stored into thePresets->thePreset[].
+ *                - Tempo: sets the song's tempo (60-160 BPM range
+ *                  enforced) and updates the status bar.
+ *                - LMA_Time: sets gMyInfo.TempoMax (doubled "since we
+ *                  flash we need twice as many counts" per the
+ *                  original comment - presumably a metronome LED/UI
+ *                  flash rate tied to this).
+ *                - SetNow: immediately assigns the "current" patch
+ *                  (AssignPreset(0, ...)) rather than a numbered preset.
+ *                - LoopFile / DrumFile: load an associated looper/drum
+ *                  MIDI file for this song (DrumFile[0]==62 is '>' -
+ *                  guards against picking up an unclosed/malformed tag
+ *                  as a filename; "/dev/null" is treated as "no file").
+ *                - IntroCount / BeatsPerMeasure / LoopLength: metronome/
+ *                  looper timing parameters, each just parsed with
+ *                  atoi() and stored, plus a status bar update.
+ *
+ *              Same "cheesy" substring-matching approach as
+ *              SavePresetChanges() (not real HTML parsing) - and this
+ *              is effectively the read-side counterpart to that
+ *              function's write-side. Each tag's `Found += (N +
+ *              ContentTagLen)` skip amount is: length of the
+ *              tag-specific boilerplate after the matched name (the
+ *              rest of the attribute name plus `" content="`) + the 9
+ *              chars of `content="` itself (ContentTagLen). If you
+ *              add a new tag, work out its own skip length the same
+ *              way rather than reusing an existing one.
+ *
+ *              PersistentPresets is never #defined anywhere in this
+ *              tree, so both the "clear presets before loading" block
+ *              near the top and the "reset unfilled presets to
+ *              generic labels" block at the end are always/never
+ *              active respectively, consistently (the #ifndef and
+ *              #ifdef are complementary) - not a bug, just dead
+ *              alternate-behavior code as it stands.
+ *
+ *              NOTE: `FValue` is declared but never used in this
+ *              function - harmless leftover, not fixed here since
+ *              this is a comments-only pass (this class of "declared
+ *              but unused" warning wasn't in scope for the earlier
+ *              bugfix pass either, which only tackled uninitialized-
+ *              read and missing-return warnings).
+ *
  *-----------------------------------------------*/
 int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
     FILE *fp;
@@ -1742,8 +2145,20 @@ int Search_in_File(const char *fname, WebLoadPresets *thePresets) {
 /*----------------------------------------------
  * Function:        AssignPreset
  *
- * Description: Parse for the value of the preset given.
- *
+ * Description: Resolve a preset's value string (from a Search_in_File()
+ *              meta tag) into a patch index, and apply it. `String`
+ *              is either a quoted patch name (`"My Patch Name"` -
+ *              looked up via FindString() against the patch name
+ *              table) or a bare numeric patch index (parsed with
+ *              atoi(), clamped to 0 if out of range). `PresetNum` of
+ *              0 means "apply this patch immediately" (the "SetNow"
+ *              tag case); PresetNum 1-8 instead just labels/assigns
+ *              that numbered preset button via SetPatchTitles(),
+ *              without switching to it yet. Returns the resolved
+ *              patch index (or an invalid value if String didn't
+ *              resolve to anything in range - the caller,
+ *              Search_in_File(), stores this into
+ *              thePresets->thePreset[] regardless, invalid or not).
  *-----------------------------------------------*/
 tPatchIndex AssignPreset(int PresetNum, char *String) {
     int Value;
@@ -1836,8 +2251,14 @@ tPatchIndex AssignPreset(int PresetNum, char *String) {
 /*----------------------------------------------
  * Function:        SetPatchTitles
  *
- * Description: When we load patched, rename the buttons.
- *
+ * Description: Update one preset button's displayed label/number
+ *              (Value = the preset slot number, Text = the patch
+ *              name) - thin wrapper around MyImageButtonSetText2().
+ *              Called from AssignPreset() when a numbered preset tag
+ *              is resolved, and from Search_in_File()'s
+ *              PersistentPresets block (never active - see
+ *              Search_in_File()'s doc) to reset unfilled presets to a
+ *              generic "Preset N" label.
  *-----------------------------------------------*/
 void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value) {
     //    char String[PatchNameSize];
@@ -1852,12 +2273,22 @@ void SetPatchTitles(theImageButtons *MyButton, char *Text, int Value) {
     MyImageButtonSetText2(MyButton, Value, Text);
 }
 
+/* ishex: is character `x` a valid hex digit (0-9, a-f, A-F)? Helper
+ * for DecodeURI()'s %XX escape decoding below. */
 int ishex(int x) {
     return (x >= '0' && x <= '9') || (x >= 'a' && x <= 'f') ||
            (x >= 'A' && x <= 'F');
 }
 
 /* Get rid of URL funky characters, like %20
+ *
+ * Standard-ish URL-decode: `+` becomes a space, `%XX` becomes the
+ * byte with that hex value (via ishex() + sscanf), everything else
+ * copies through unchanged. Writes the decoded result into `dec`
+ * (caller-supplied buffer, must be at least as large as `s`) and
+ * returns the decoded length, or -1 if a `%` wasn't followed by two
+ * valid hex digits. Used by NavigationPolicy() to turn a raw request
+ * URI into a usable filesystem path before extension/routing checks.
  */
 int DecodeURI(char *s, char *dec) {
     char *o;
@@ -1883,6 +2314,14 @@ int DecodeURI(char *s, char *dec) {
 }
 
 #if 0
+/* Disabled (#if 0) - all four functions below use the WebKit1 API
+ * (WebKitWebFrame, WebKitViewportAttributes - neither exists in
+ * WebKit2/webkit2gtk, which is what this project actually links
+ * against per configure.ac). Leftover from a pre-WebKit2 port, kept
+ * as reference for the viewport/zoom-on-load behavior they
+ * implemented (auto-fit zoom on load, similar in spirit to the live
+ * ScalePage()/PageLoaded() zoom handling above) rather than deleted
+ * outright. */
 void load_finished_cb(WebKitWebView *web_view, WebKitWebFrame *web_frame,
                       gpointer data) {
     printd(LogHTML, "Finished downloading %s\n",
@@ -1927,6 +2366,13 @@ static void viewport_valid_changed_cb(WebKitViewportAttributes* attributes,
 }
 #endif
 #if 0
+/* Disabled (#if 0) - another WebKit1-era leftover: an older
+ * DownloadRequestcb/PolicyRequestCD pair that appear to be an earlier
+ * take on what NavigationPolicy() does now (deciding how to handle
+ * downloads/navigation requests, including a PDF-handling branch not
+ * present in the current NavigationPolicy()). Superseded by
+ * NavigationPolicy() + the decide-policy signal wired up in
+ * InitHTML(); kept here as reference rather than deleted. */
 gboolean
 DownloadRequestcb(WebKitWebView *web_view,
                   WebKitDownload *download,

@@ -24,7 +24,7 @@ LiveMusicCharts.py . -a
 cd /home/MySongs/Solo
 LiveMusicCharts.py . -a
 
-cd /home/MySongs/FrutaLoka
+cd /home/MySongs/Practice
 LiveMusicCharts.py . -a
 
 cd /home/MySongs/OtherTunes

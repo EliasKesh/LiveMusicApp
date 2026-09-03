@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libxml/parser.h>
-#include "xmltok/xmlparse.h"
 #include "SooperOSC.h"
 #include <libxml/xmlreader.h>
 
@@ -79,8 +78,24 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo);
 /*--------------------------------------------------------------------
  * Function:        InitPref
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Top-level preferences initialization, called once
+ *                   at startup before the main window is built. Zeroes
+ *                   gMyInfo, loads the actual saved preferences from
+ *                   the XML prefs file via ReadPrefs() (the #else/
+ *                   "load compiled-in GlobalInfo defaults instead" path
+ *                   is permanently disabled - #if 1 is always taken),
+ *                   resets a few runtime-only fields that shouldn't
+ *                   persist across restarts (TempoMax, the web preset
+ *                   slots), optionally dumps the whole structure as a
+ *                   C header via PrintDataStructure() if GenerateHFile
+ *                   is set (a developer/debug feature - see that
+ *                   function's own doc), then runs PostProcessPrefs()
+ *                   to derive a few values from what was just loaded.
+ *                   Finally hardcodes MidiThresholdLevel to 30
+ *                   (Fishman pickup ghost-note filter threshold, see
+ *                   AlsaUtils.c's alsa_midi_Note_thread()) - this
+ *                   overrides whatever value ReadPrefs() may have
+ *                   loaded from the XML file, unconditionally.
  *------------------------------------------------*/
 void
 InitPref(void) {
@@ -144,8 +159,18 @@ InitPref(void) {
 /*--------------------------------------------------------------------
  * Function:        PostProcessPrefs
  *
- * Description:     Make any assignments not included in the prefs
- *
+ * Description:     Build the HardSlider[] lookup table from the
+ *                   loaded patch list: for every patch whose
+ *                   CustomCommand is cmdHardSlider (i.e. it's
+ *                   configured to be controlled by a physical
+ *                   hardware slider rather than triggered as a normal
+ *                   patch), record which patch index corresponds to
+ *                   which slider channel. This inverts the
+ *                   patch->slider-channel mapping stored per-patch
+ *                   into a slider-channel->patch-index array, so
+ *                   incoming slider MIDI CC events can be resolved
+ *                   back to a patch quickly at runtime instead of
+ *                   scanning the whole patch list each time.
  *------------------------------------------------*/
 int PostProcessPrefs(LiveMusicInfo *MyInfo) {
     int Index;
@@ -162,8 +187,20 @@ int PostProcessPrefs(LiveMusicInfo *MyInfo) {
 /*--------------------------------------------------------------------
  * Function:        PrintDataStructure
  *
- * Description:     Print out the data structure in an "#include" format
- *
+ * Description:     Developer/debug utility: dumps the entire loaded
+ *                   LiveMusicInfo structure (gMyInfo) back out as C
+ *                   source - a `LiveMusicInfo GlobalInfo = { ... };`
+ *                   initializer - to the file named by `PrefsRef`.
+ *                   Used to "bake in" a snapshot of the current XML
+ *                   prefs as compiled-in defaults (see the disabled
+ *                   `#else` branch of InitPref() above, which would
+ *                   load from this GlobalInfo struct instead of the
+ *                   XML file). Only runs when InitPref() sees
+ *                   GenerateHFile set - not part of normal startup.
+ *                   If `PrefsRef` is NULL, still computes everything
+ *                   but writes to nothing (PrefsFile stays NULL and
+ *                   every `if (PrefsFile)` guard skips the actual
+ *                   fprintf calls) - effectively a no-op in that case.
  *------------------------------------------------*/
 void PrintDataStructure(LiveMusicInfo * myInfo, char *PrefsRef) {
     int Loop;
@@ -386,10 +423,30 @@ void PrintDataStructure(LiveMusicInfo * myInfo, char *PrefsRef) {
 }
 
 /*--------------------------------------------------------------------
- * Function:        WritePref
+ * Function:        WritePrefs
  *
- * Description:     <Description/Comments>
+ * Description:     Serialize the entire live preferences structure
+ *                   (gMyInfo) out to the XML prefs file (LiveMusic.xml,
+ *                   via libxml2's tree-building API - xmlNewDoc/
+ *                   xmlNewChild/xmlSetProp, then xmlSaveFormatFileEnc
+ *                   at the end). This is the write-side counterpart to
+ *                   ReadPrefs()/XMLParseFileElement() below, and the
+ *                   two must be kept in sync by hand - every field
+ *                   written here needs a matching case in
+ *                   XMLParseFileElement() to be read back, and vice
+ *                   versa. Called whenever settings change and need
+ *                   persisting (see callers in LiveMusicApp.c - e.g.
+ *                   on layout mode changes and at clean shutdown).
  *
+ *                   Covers: basic settings (tempo, metronome, MIDI
+ *                   base note, count-in, etc.), per-output-port
+ *                   config, the full patch list (name/bank/patch
+ *                   number/output port/channel/custom command/chain),
+ *                   and named layout presets (each a named set of
+ *                   patch assignments). If GenerateHFile is set, also
+ *                   re-dumps everything as a C header via
+ *                   PrintDataStructure() right after saving the XML -
+ *                   same as InitPref() does at load time.
  *------------------------------------------------*/
 void WritePrefs(void) {
     xmlDocPtr doc = NULL;       /* document pointer */
@@ -597,9 +654,41 @@ static int elementLevel;
 /*--------------------------------------------------------------------
  * Function:        XMLParseFileElement
  *
- * Description:     Given an XML node get the data and
- * sote it in the main data structure gMyInfo
+ * Description:     Read-side counterpart to WritePrefs() above: given
+ *                   one XML node from the prefs file and its tree
+ *                   depth (`Level`, 0 = document root), matches the
+ *                   node's element name against the known field names
+ *                   WritePrefs() writes, and stores the parsed value
+ *                   into the corresponding gMyInfo field. Called once
+ *                   per node by print_element_names()'s recursive tree
+ *                   walk below - despite the name, that function
+ *                   (called from ReadPrefs()) is actually the parse
+ *                   driver, not just a printer.
  *
+ *                   `ElementName[Level]` (a small static array
+ *                   maintained by print_element_names() as it
+ *                   recurses) holds the name of the ancestor element
+ *                   at each depth, letting deeper-level checks
+ *                   (case 2, case 3) know which "section" they're in -
+ *                   e.g. case 2 uses `ElementName[1]` to tell "PatchInfo"
+ *                   entries apart from "AppNames"/"ControllerMap"/
+ *                   "Layouts" entries, all of which are Level-2
+ *                   children of different Level-1 parents.
+ *
+ *                   *** BUG: missing `break` before `case 3:` ***
+ *                   `case 0` and `case 1` both end with `break;`, but
+ *                   `case 2`'s block falls straight through into
+ *                   `case 3`'s body with no `break` in between. That
+ *                   means every time a Level-2 node is parsed, after
+ *                   its own handling runs, the Level-3 "Layout Patch"
+ *                   logic ALSO runs against that same node - using
+ *                   whatever `ElementName[2]` happens to contain left
+ *                   over from a previous, unrelated recursion (it's
+ *                   not reset for a Level-2 call). Usually a silent
+ *                   no-op (since `ElementName[2]` would have to
+ *                   happen to start with "Layout" to match), but a
+ *                   real correctness bug worth fixing - flagging
+ *                   rather than changing in this comments-only pass.
  *------------------------------------------------*/
 int XMLParseFileElement(int Level, xmlNode *theNode) {
     int theValue;
@@ -851,8 +940,19 @@ int XMLParseFileElement(int Level, xmlNode *theNode) {
 /*--------------------------------------------------------------------
  * Function:        print_element_names
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Despite the name (leftover from a libxml2 example
+ *                   this was likely adapted from), this is the actual
+ *                   recursive XML-tree walker/parse driver: for every
+ *                   sibling at the current level, calls
+ *                   XMLParseFileElement() to process it, records its
+ *                   name into ElementName[elementLevel] so deeper
+ *                   levels know their ancestry (see
+ *                   XMLParseFileElement()'s doc above), then recurses
+ *                   into its children one level deeper before
+ *                   backtracking (elementLevel--, clearing the name
+ *                   slot). Standard depth-first tree walk with a
+ *                   manually-maintained "path so far" array instead
+ *                   of an explicit stack/recursion-carried context.
  *------------------------------------------------*/
 static void print_element_names(xmlNode * a_node) {
     xmlNode *cur_node = NULL;
@@ -880,8 +980,16 @@ static void print_element_names(xmlNode * a_node) {
 /*--------------------------------------------------------------------
  * Function:        ReadPrefs
  *
- * Description:     <Description/Comments>
- *
+ * Description:     Load and parse the XML prefs file (LiveMusic.xml)
+ *                   into gMyInfo. Opens/parses the file with libxml2
+ *                   (xmlReadFile), then kicks off the recursive parse
+ *                   via print_element_names() starting at the root
+ *                   element with elementLevel reset to 0. Exits the
+ *                   whole process immediately if the file can't be
+ *                   parsed at all (doc == NULL) - there's no fallback
+ *                   to defaults here (compare the disabled
+ *                   GlobalInfo-defaults path in InitPref() above,
+ *                   which never actually runs).
  *------------------------------------------------*/
 int ReadPrefs() {
     xmlDoc *doc = NULL;

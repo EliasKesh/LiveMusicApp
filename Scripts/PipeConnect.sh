@@ -315,7 +315,6 @@ ZoomVoice
 
 BrowserSetup
 
-
 # Loopback Link
 pw-link "alsa_output.platform-snd_aloop.0.analog-stereo:monitor_FL" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:playback_FL"
 pw-link "alsa_output.platform-snd_aloop.0.analog-stereo:monitor_FR" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink:playback_FR"
@@ -326,12 +325,7 @@ pw-link "${G935MonR}" "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic
 pw-link  "Carla:LSP Mixer x4 Stereo:Output L" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX0"
 pw-link  "Carla:LSP Mixer x4 Stereo:Output R" "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX1"
 
-
 # pw-link "jack-volume:output_1"   "alsa_output.usb-Logitech_G935_Gaming_Headset-00.pro-output-0:playback_AUX0"
-
-
-
-
 
 # ------------- Output Mplayer to MP3 input
 pw-link "MPlayer:output_FR" "jack-volume:input_3"
@@ -366,7 +360,6 @@ pw-link "gx_head_fx:out_1" "Carla:rkr Shelf Boost:Audio In L"
 pw-link "qsynth:left"  "Carla:LSP Mixer x4 Stereo:Audio input left 2"
 pw-link "qsynth:right" "Carla:LSP Mixer x4 Stereo:Audio input right 2"
 
-
 pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "gx_head_amp:midi_in_1"
 
 pw-link "Midi-Bridge:Virtual MIDI Card 1:(capture_0) VirMIDI 6-0" "qsynth:midi_00"
@@ -387,32 +380,20 @@ pw-link "${CarlPre}audio-out2" "jack-volume:input_5"
 pw-link "${CarlPre}audio-out1" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
 pw-link "${CarlPre}audio-out2" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
 
-
 # Serial or parallel connection with Carla
 # CarlaRackL="gx_head_fx:out_0"
 # CarlaRackR="gx_head_fx:out_1"
 # CarlaRackL=$InLinkL
 # CarlaRackR=$InLinkR
 
-
 echo "*** MHarmonizerMB"
 
-
-
 pw-link "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
-
-
-
-
-
-
-
 
 pw-link -d "Firefox:output_FL" "Plasma PA:input_FL"
 pw-link -d "Firefox:output_FR" "Plasma PA:input_FR"
 pw-link -d "${G935PlayL}" "plasma PA:input_FL"
 pw-link -d "${G935PlayR}" "Plasma PA:input_FR"
-
 
 pw-link -d "Plasma PA:input_FL" "alsa_input.usb-Logitech_G935_Gaming_Headset-00.pro-input-0:capture_AUX0
 "
@@ -449,7 +430,6 @@ echo "Delete 1 "${OutLinkL}" 2 "${G935PlayL}
 pw-link -d "${OutLinkL}" "${G935PlayL}"
 pw-link -d "${OutLinkL}" "${G935PlayR}"
 
-
 set -x
 CarlPre="LveMus.0/"
 pw-link "${CarlaRackL}" "${CarlPre}abGate:Input"
@@ -457,7 +437,6 @@ pw-link "${CarlaRackR}" "${CarlPre}abGate:Input_2"
 
 pw-link "${InputGuitarL}" "${CarlPre}abGate:Input"
 pw-link "${InputGuitarR}" "${CarlPre}abGate:Input_2"
-
 
 pw-link "${CarlPre}abGate:Output"  "${CarlPre}Calf Mono Compressor:In L"
 pw-link "${CarlPre}abGate:Output"  "${CarlPre}Calf Mono Compressor:In L"
@@ -479,7 +458,6 @@ pw-link "${CarlPre}TAP Chorus.Flanger:Output_R" "${CarlPre}GxZita_rev1-Stereo:In
 
 pw-link "${CarlPre}GxZita_rev1-Stereo:Out" "${CarlPre}StereoFX:input_1"
 pw-link "${CarlPre}GxZita_rev1-Stereo:Out1" "${CarlPre}StereoFX:input_2"
-
 
 pw-link "${CarlPre}StereoFX:output_1" "jack-volume:input_1"
 pw-link "${CarlPre}StereoFX:output_2" "jack-volume:input_5"
@@ -506,8 +484,6 @@ pw-link "${CarlPre}MHarmonizerMB:output_1" "Carla:LSP Mixer x4 Stereo:Audio inpu
 pw-link "${CarlPre}MHarmonizerMB:output_2" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
 pw-link "${CarlPre}MHarmonizerMB:output_3" "Carla:LSP Mixer x4 Stereo:Audio input right 1"
 pw-link "${CarlPre}MHarmonizerMB:output_4" "Carla:LSP Mixer x4 Stereo:Audio input left 1"
-
-
 
 echo "*** MUltraMaximizer"
 #pw-link "${InputGuitarR}" "Manifold:input_1"
@@ -550,7 +526,6 @@ pw-link "${CarlaRackR}" "${CarlPre}Doublelay:input_2"
 
 pw-link "${CarlPre}Doublelay:output_1" "jack-volume:input_1"
 pw-link "${CarlPre}Doublelay:output_2" "jack-volume:input_5"
-
 
 echo "*** Manifold"
 #pw-link "${InputGuitarR}" "Manifold:input_1"

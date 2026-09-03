@@ -258,9 +258,13 @@ int InitJackTransport(void) {
     //  com_play();
     com_activate();
     printd(LogDebug, "*********** Jack done\n");
+
+    return 0;
 }
 
 int CloseJackTransport(void) {
 
     jack_client_close(client);
+
+    return 0;
 }

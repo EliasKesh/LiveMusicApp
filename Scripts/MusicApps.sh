@@ -17,7 +17,8 @@ echo "MusicApp -> ${1}  ${2} ${3}"
 
 export PIPEWIRE_AUTOCONNECT=false 
 export PIPEWIRE_JACK_SERVER_GAIN=10.0
-    
+export PIPEWIRE_PROPS='{ node.autoconnect = false }'
+
     
 PipeActive=$(ps aux | grep pipewire | wc -l)
 echo $PipeActive
@@ -43,15 +44,15 @@ if [ "${1}" == "LiveMusicApp" ]; then
     fi
 
     if [ $(hostname) == "KeshZen" ]; then
-        ButtonSize=140
+        ButtonSize=160
     fi
 
 
-    GDK_DPI_SCALE=1.0 \
+    GDK_DPI_SCALE=1.25 \
         GTK_THEME=LiveMusicTheme \
         nice -19 ${PipeStart} \
-        LiveMusicApp -c 9 \
-        -v -d 0x0220 $PipeOption \
+        LiveMusicApp -c 0x0a \
+        -v -d 0x220 $PipeOption \
         -f $ButtonSize &
 fi
 
@@ -98,9 +99,22 @@ if [ "${1}" == "CarlaGuitar" ]; then
     # Remove the auto connection 
     awk '/<Connection>+$/,/<\/Connection>+$/{next}1' /home/MySongs/CarlaConfig/NewGuitarix1.carxp >/home/MySongs/CarlaConfig/NewGuitarix.carxp
 
+#     export PIPEWIRE_AUTOCONNECT=false 
+#     export PIPEWIRE_JACK_SERVER_GAIN=10.0
+#     QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /home/Misc/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+    
     export PIPEWIRE_AUTOCONNECT=false 
-    export PIPEWIRE_JACK_SERVER_GAIN=10.0
-    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /home/Misc/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
+#    export PIPEWIRE_JACK_SERVER_GAIN=20.0
+#    export QT_QPA_PLATFORM=xcb
+ #   export QT_SCREEN_SCALE_FACTORS="1.25"
+#    LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu/pipewire-0.3/jack/"
+nice -19 ${PipeStart} /home/Misc/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --with-libprefix=/usr/local --cnprefix "Carla" /home/MySongs/CarlaConfig/Holdsworth_335_Style.carxp &
+    
+#    Holdsworth_UD_Style.carxp &
+
+#    Holdsworth_335_Style.carxp
+#     QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /home/Misc/src/Music/LiveMusicBuilds/Carla/source/frontend/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/Holdsworth_Full.carxp &
+
 #    QT_SCREEN_SCALE_FACTORS="1.25;1.25;1.25" nice -19 ${PipeStart} /usr/bin/carla-jack-multi --cnprefix "Carla" /home/MySongs/CarlaConfig/NewGuitarix.carxp &
 
 #     export PIPEWIRE_AUTOCONNECT=false
@@ -136,12 +150,13 @@ fi
 if [ "${1}" == "mp3" ]; then
     # Handle it internal to the App
     #    smplayer "${2}" &
+    # PIPEWIRE_PROPS='{ node.autoconnect = false }' smplayer
     exit 1
 fi
 
 if [ "${1}" == "mid" ]; then
     # Handle it internal to the App
-    mscore "${2}" &
+    /opt/musescore/bin/mscore "${2}" &
     exit 1
 fi
 
@@ -151,7 +166,7 @@ if [ "${1}" == "med" ]; then
 fi
 
 if [ "${1}" == "Score" ]; then
-    ${PipeStart} mscore3 "${2}" &
+    ${PipeStart} /opt/musescore/bin/mscore "${2}" &
     exit 0
 fi
 
@@ -199,7 +214,7 @@ echo "About to check gp5"
 if [ "${1}" == "mscz" ]; then
     echo "Muse Score ${1} ${2} nice -15 ${PipeStart}"
 
-    QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS="1.5;1.5;1.5" nice -15 ${PipeStart} /usr/bin/mscore "${2}" &>/dev/null &
+    QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS="1.5;1.5;1.5" nice -15 ${PipeStart} /opt/musescore/bin/mscore "${2}" &>/dev/null &
 
     #     QT_PLUGIN_PATH="" QT_SCREEN_SCALE_FACTORS=1.4 nice -15 ${PipeStart} /usr/src/Music/LiveMusicBuilds/MuseScore-Studio-4.3.2.241630832-x86_64.appimage "${2}" &>/dev/null &
     #    /usr/src/LiveMusicBuilds/MuseScore-4.0.0-x86_64.appimage "${2}" &>/dev/null &
@@ -265,7 +280,7 @@ fi
 
 if [ "${1}" == "connect" ]; then
     GuitarEffects -c
-    exit 0
+    exit 0mask
 fi
 
 if [ "${1}" == "Reindex" ]; then

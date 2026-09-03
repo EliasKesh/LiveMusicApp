@@ -477,8 +477,11 @@ void SetChord (char Root, thePreChord *myPreChord);
 /*--------------------------------------------
  * Function:        SetChordCallBack
  *
- * Description:     The Scale or Chord call back from button press and
- *              call the drawing routine.
+ * Description:     GtkComboBox "changed" handler for the chord-shape
+ *              selector: looks up the selected entry's chord data
+ *              (myPreChordMenu[]) into CurPreScale, applies it via
+ *              SetChord(), and forces a redraw of the fretboard
+ *              display.
  *---------------------------------------------*/
 static void SetChordCallBack (GtkWidget *widget, gpointer data) {
     int ScaleIndex;
@@ -496,8 +499,12 @@ static void SetChordCallBack (GtkWidget *widget, gpointer data) {
 /*--------------------------------------------
  * Function:        SetScaleCallBack
  *
- * Description:     The Scale or Chord call back from button press and
- *              call the drawing routine.
+ * Description:     GtkComboBox "changed" handler for the scale
+ *              selector: looks up the selected entry's scale data
+ *              (myChordMenu[]) into CurScale, applies it via
+ *              SetScale(), and forces a redraw of the fretboard
+ *              display. (Same pattern as SetChordCallBack() above,
+ *              scale vs. chord.)
  *---------------------------------------------*/
 static void SetScaleCallBack (GtkWidget *widget, gpointer data) {
     int ScaleIndex;
@@ -514,8 +521,10 @@ static void SetScaleCallBack (GtkWidget *widget, gpointer data) {
 /*--------------------------------------------
  * Function:        SetRootCallBack
  *
- * Description:     Set root note call back from button press and
- *              call the drawing routine.
+ * Description:     GtkComboBox "changed" handler for the root-note
+ *              selector: updates CurRootNote from the combo box
+ *              selection index and re-applies the current scale
+ *              (SetScale()) against the new root, then redraws.
  *---------------------------------------------*/
 static void SetRootCallBack (GtkWidget *widget, gpointer data) {
 
@@ -528,9 +537,13 @@ static void SetRootCallBack (GtkWidget *widget, gpointer data) {
 }
 
 /*--------------------------------------------
- * Function:        GetFretPosition
+ * Function:        GetFretPositionCallBack
  *
- * Description:     When the fret position is changed by the user.
+ * Description:     GtkComboBox "changed" handler for the fretboard
+ *              display-position selector (which fret range/position
+ *              the board view is centered on): updates
+ *              DisplayPosition from the selection index, re-applies
+ *              the current scale, and redraws.
  *---------------------------------------------*/
 static void GetFretPositionCallBack (GtkWidget *widget, GtkWidget *entry) {
     //    const gchar *PositionText = gtk_entry_get_text(GTK_ENTRY (entry));
@@ -546,7 +559,11 @@ static void GetFretPositionCallBack (GtkWidget *widget, GtkWidget *entry) {
 /*--------------------------------------------
  * Function:        GetIntervalNote
  *
- * Description:     Given a root note and an interval get the new note
+ * Description:     Given a starting note (0-11, chromatic scale
+ *              degree) and an interval in semitones, return the
+ *              resulting note, wrapped into 0-11 with modulo 12.
+ *              Basic building block used throughout this file to
+ *              derive scale/chord tones from a root note.
  *---------------------------------------------*/
 char GetIntervalNote (char Starting, char Interval) {
     char NewInt;
@@ -559,7 +576,10 @@ char GetIntervalNote (char Starting, char Interval) {
 /*--------------------------------------------
  * Function:        PrintBoard
  *
- * Description: Print the board to a terminal -- Test
+ * Description: Debug/test utility: dumps the full fretboard note
+ *              layout (StringLayout[][], every string x every fret)
+ *              as note names to the log. Not called during normal
+ *              operation - a manual debugging aid.
  *---------------------------------------------*/
 void PrintBoard() {
     int FretLoop;
@@ -577,7 +597,16 @@ void PrintBoard() {
 /*--------------------------------------------
  * Function:        SetOpenString
  *
- * Description: Set the open string tuning.
+ * Description: Initialize fret 0 (the open-string note) for every
+ *              string, from the user's configured tuning
+ *              (gMyInfo.BaseStringName[]/NumberOfStrings) rather than
+ *              a fixed tuning. The disabled (#if 0) block above shows
+ *              what this looked like before it became
+ *              preferences-driven - a hardcoded standard-ish 9-string
+ *              tuning (low to high: B, E, A, D, G, C, F, Bb, Eb) -
+ *              kept as reference. The "TODO make dynamic" comment
+ *              below is now stale: this already reads from
+ *              gMyInfo/preferences, it just hasn't been removed.
  * ** TODO Make this dynamic based on Preferences
  *---------------------------------------------*/
 void SetOpenString (void) {
@@ -605,8 +634,13 @@ void SetOpenString (void) {
 /*--------------------------------------------
  * Function:        SetupFretBoard
  *
- * Description: Based on the open string tuning fill in all the notes
- *          for every fret on everystring.
+ * Description: Fills in StringLayout[][] for every fret beyond the
+ *              open string (fret 0, set by SetOpenString() above):
+ *              each fret is just the previous fret's note plus one
+ *              semitone (GetIntervalNote(..., 1)), since moving up one
+ *              fret always raises the pitch by a semitone regardless
+ *              of tuning. Must be called after SetOpenString() has
+ *              set the open-string notes and NumStrings.
  *---------------------------------------------*/
 void SetupFretBoard (void) {
     int  FretLoop;
@@ -625,14 +659,43 @@ void SetupFretBoard (void) {
 /*--------------------------------------------
  * Function:        SetChord
  *
- * Description: Clear the chord structure and fill in the notes we
- *      want to display.
+ * Description: Compute and populate myChord (the currently-displayed
+ *              chord shape) from a "pre-chord" template
+ *              (`myPreChord[]` - a fixed-shape chord fingering
+ *              pattern: relative string/fret/finger/interval per
+ *              note, terminated by an entry with Finger == -1) and a
+ *              root note.
+ *
+ *              Two phases:
+ *              1. Scan the template to find its bounding box
+ *                 (MaxFret/MaxString) and which entry is the root
+ *                 note itself (Interval == 1 - i.e. the root, not a
+ *                 3rd/5th/etc; RootIndex isn't actually used after
+ *                 being found, this scan is effectively just for the
+ *                 debug printd below).
+ *              2. Find where on the actual fretboard (within the
+ *                 currently-displayed position window,
+ *                 myChord.Position) the root note occurs on string 2+
+ *                 within the display window (MaxDisplayFrets - 3
+ *                 frets) - this becomes the anchor (String, Fret) the
+ *                 whole relative shape gets placed at.
+ *              Then places every note from the template into
+ *              myChord.ChordNotes[][]/FingerNumber[][], offset from
+ *              that anchor. String indices are inverted
+ *              (MaxNumStrings - (String + ...)) since the template's
+ *              string numbering and the display's string numbering
+ *              run in opposite directions.
+ *
+ *              The #if 0 block at the end is leftover from an older,
+ *              scale-based (rather than pre-chord-template-based)
+ *              approach - see SetScale() below for the scale
+ *              equivalent of what this disabled block used to do.
  *---------------------------------------------*/
 void SetChord (char Root, thePreChord *myPreChord) {
     int  Loop;
     //    char  NewNote;
     int String;
-    int Fret;
+    int Fret = 0;
     int Value;
     int MaxFret = 0;
     int MaxString = 0;
@@ -704,8 +767,21 @@ void SetChord (char Root, thePreChord *myPreChord) {
 /*--------------------------------------------
  * Function:        SetScale
  *
- * Description: Clear the chord structure and fill in the notes we
- *      want to display.
+ * Description: Populate myChord (the currently-displayed overlay) by
+ *              walking a scale-interval table (`Scale[]`, an array of
+ *              semitone offsets from the root, EOfscl-terminated) and
+ *              marking every matching note on the fretboard via
+ *              MarkNote(). `Value` per note (Loop + 1) is the scale
+ *              degree (1st, 2nd, 3rd...), used by the drawing code to
+ *              label/distinguish notes.
+ *
+ *              `Scale == (void *) 1` is a sentinel meaning "no scale -
+ *              just show the plain fretboard" (see the "Fret Board"
+ *              entry in myChordMenu[] that uses this same magic
+ *              value) - not a real scale-table pointer, so it's
+ *              checked for and short-circuited before any array
+ *              access. Same sentinel is checked directly (not via
+ *              this function) elsewhere against CurScale.
  *---------------------------------------------*/
 void SetScale (char Root, char *Scale) {
     int Loop;
@@ -731,7 +807,14 @@ void SetScale (char Root, char *Scale) {
 /*--------------------------------------------
  * Function:        MarkNote
  *
- * Description: Add the note we want to display into the structure.
+ * Description: For every string, scan the visible fret window
+ *              (myChord.Position .. +MaxDisplayFrets) for occurrences
+ *              of `Note` and record `Value` (typically a scale
+ *              degree, from SetScale()'s caller) at each match in
+ *              myChord.ChordNotes[][] - so a single note class (e.g.
+ *              "all the Cs") can appear multiple times across
+ *              different strings/frets within the visible window, all
+ *              tagged with the same degree/value.
  *---------------------------------------------*/
 void MarkNote (char Note, char Value) {
     int String;
@@ -749,7 +832,18 @@ void MarkNote (char Note, char Value) {
 /*--------------------------------------------
  * Function:        delete_event
  *
- * Description:
+ * Description: Standard GTK-tutorial-boilerplate "delete-event"
+ *              handler (the comment block inside it is the original
+ *              GTK tutorial text, left in place). Connected in
+ *              InitChorder() to the `window` parameter passed in -
+ *              but that parameter is actually the "ChordFrame"
+ *              GtkFrame embedded within the main window (see
+ *              InitChorder()'s caller in LiveMusicApp.c), not a
+ *              standalone top-level GtkWindow. "delete-event" is
+ *              normally only emitted by a window manager closing a
+ *              real GtkWindow, so this handler likely never actually
+ *              fires in practice - worth confirming rather than
+ *              assuming it's live code.
  *---------------------------------------------*/
 static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer data) {
     /* If you return FALSE in the "delete-event" signal handler,
@@ -767,6 +861,22 @@ static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 /* Another callback */
+/*--------------------------------------------
+ * Function:        destroy
+ *
+ * Description: "destroy" signal handler for the same "ChordFrame"
+ *              widget as delete_event() above. Unlike delete-event,
+ *              GtkWidget's "destroy" signal fires on any widget when
+ *              it's actually destroyed - which would happen if the
+ *              main window (and its children, including this frame)
+ *              is torn down at app shutdown. Calling gtk_main_quit()
+ *              here is presumably meant as a "shut down the GTK main
+ *              loop when the app's window goes away" cleanup hook -
+ *              plausible as a once-at-shutdown safety net, though
+ *              worth verifying it isn't firing earlier/more often
+ *              than intended given it's attached to a child frame
+ *              rather than the top-level window directly.
+ *---------------------------------------------*/
 static void destroy (GtkWidget *widget, gpointer data) {
     gtk_main_quit();
 }
@@ -775,17 +885,68 @@ static void destroy (GtkWidget *widget, gpointer data) {
 /*--------------------------------------------
  * Function:        CloseChorder
  *
- * Description: for GTK 3.X
+ * Description: Currently just a log line and a return - no actual
+ *              GTK3/cairo resource cleanup happens here (CSurface,
+ *              the cairo image surface created in InitChorder(), is
+ *              never explicitly freed by this function, for example).
+ *              The "for GTK 3.X" doc here (and on InitChorder() below)
+ *              most likely marks this as the GTK3-targeted
+ *              implementation, as opposed to some other GTK version's
+ *              variant that either never existed or was removed.
  *---------------------------------------------*/
 int CloseChorder (void) {
     printd (LogDebug, "CloseChorder\n");
 
+    return 0;
 }
 
 /*--------------------------------------------
  * Function:        InitChorder
  *
- * Description: for GTK 3.X
+ * Description: One-time setup of the chord/scale fretboard display,
+ *              called once at startup with the main app window and
+ *              the "ChordFrame" GtkFrame widget it's embedded in (see
+ *              the caller in LiveMusicApp.c - `window` here is that
+ *              frame, not a standalone top-level window, despite
+ *              several GTK-window-style calls treating it like one -
+ *              see the flag below).
+ *
+ *              Sets up, in order:
+ *              1. The fretboard background image (CSurface, loaded
+ *                 from DarkRedWood.png) and drawing area (MyFretArea),
+ *                 sized from the main window's dimensions.
+ *              2. Tuning/note-layout state via SetOpenString()/
+ *                 SetupFretBoard(), defaulting to root C / major scale.
+ *              3. Four GtkComboBoxText selectors (Root note, Scale,
+ *                 Fret position, Predefined chord shape), each built
+ *                 as a GtkFixed containing a label + combo box, wired
+ *                 to its respective *CallBack() handler above. The
+ *                 PreChord combo's entries go through g_convert()
+ *                 ISO-8859-1->UTF-8 first - suggesting myPreChordMenu[]
+ *                 names are stored in Latin-1 rather than UTF-8 in
+ *                 source, unlike the other three combos' text.
+ *              4. GTK-tutorial-boilerplate delete-event/destroy
+ *                 handlers (see delete_event()/destroy() above - and
+ *                 their docs on why they're attached to a frame, not
+ *                 a real window).
+ *              5. Loads all the fixed cairo image assets used by
+ *                 draw_fretboard_background() (ball icons in several
+ *                 colors, note-head glyphs, treble clef, fret dot) -
+ *                 loaded once here rather than per-frame.
+ *              6. Packs everything into boxes and adds them to
+ *                 `window`, connects MyFretArea's "draw" signal to
+ *                 draw_fretboard_background(), and shows it all.
+ *
+ *              *** WORTH VERIFYING ***
+ *              `gtk_window_get_default_size(window, &Fwidth, &Fheight)`
+ *              is called with `window` (the GtkFrame) where GTK
+ *              expects a GtkWindow - this would normally fail GTK's
+ *              own `GTK_IS_WINDOW()` runtime check (logging a
+ *              "Gtk-CRITICAL" warning) rather than crash, and likely
+ *              leaves Fwidth/Fheight untouched from the earlier,
+ *              correct `gtk_window_get_size(MainWindow, ...)` call a
+ *              few lines above - so probably harmless in practice,
+ *              but still a real API misuse worth cleaning up.
  *---------------------------------------------*/
 int InitChorder (GtkWidget *MainWindow, GtkWidget *window) {
     GtkWidget *button;
@@ -1043,7 +1204,44 @@ int InitChorder (GtkWidget *MainWindow, GtkWidget *window) {
 /*--------------------------------------------
  * Function:        draw_fretboard_background
  *
- * Description: The drawing routine.
+ * Description: The "draw" signal handler for MyFretArea - repaints
+ *              the entire chord/scale fretboard display every time
+ *              GTK asks it to redraw. All drawing is done directly
+ *              with cairo (cr, a module-level context recreated each
+ *              call). Structure, top to bottom:
+ *              1. Paint the wood-texture background (CSurface).
+ *              2. Draw the fret lines (three overlaid strokes per
+ *                 fret at slightly offset x-positions/colors, for a
+ *                 pseudo-3D beveled look) plus the fret number labels
+ *                 below the board.
+ *              3. Draw the standard fretboard position-marker dots
+ *                 (single dots at frets 2/4/6/8/14/16/18/20 relative
+ *                 to the display position, double dots at fret 11 -
+ *                 i.e. the classic single/double inlay-dot pattern,
+ *                 just offset for whatever window of frets is
+ *                 currently on screen via myChord.Position).
+ *              4. Draw each string as a horizontal line (again three
+ *                 overlaid strokes for a bevel effect) with its open
+ *                 note name/mute marker ('x') at the left edge.
+ *              5. The actual chord/scale overlay: for every string x
+ *                 fret cell in the display window, if CurScale is the
+ *                 "(void *) 1" sentinel (plain fretboard mode - see
+ *                 SetScale()'s doc), only the root note gets marked
+ *                 (with a red ball); otherwise falls into the
+ *                 per-note-value switch below that picks a colored
+ *                 ball icon (root/3rd/5th/etc, or a specific
+ *                 chord-shape fingered note) and overlays a note-head/
+ *                 finger-number label on top of it.
+ *
+ *              This function was previously reading `theBall`/
+ *              `NoteIndex` completely uninitialized whenever the
+ *              per-note switch below hit a value with no matching
+ *              case (a real crash/corruption risk, since theBall is a
+ *              pointer passed straight into cairo_set_source_surface)
+ *              - fixed to default both consistently with how "rest"/
+ *              unmatched notes are already treated elsewhere in the
+ *              same switch (NULL). See CLEANUP_PROGRESS.md / patch
+ *              0002 for the fix.
  *---------------------------------------------*/
 gboolean draw_fretboard_background (GtkWidget *widget, GdkEventExpose *event) {
     //  GError* error = NULL;
@@ -1052,9 +1250,9 @@ gboolean draw_fretboard_background (GtkWidget *widget, GdkEventExpose *event) {
     char StrBuf[10];
     int FretLoop;
     int StringLoop;
-    GdkPixbuf *theBall;
+    GdkPixbuf *theBall = NULL;
     char NewNote;
-    char NoteIndex;
+    char NoteIndex = 0;
 
     //  printf("draw_fretboard_background \n");
     /*

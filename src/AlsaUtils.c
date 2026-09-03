@@ -64,7 +64,10 @@ void NanoKntrl2(snd_seq_t *handle, snd_seq_event_t *ev);
 /*------------------------------------------
  * Function:            show_status
  *
- * Description:
+ * Description:         Debug/diagnostic dump of the ALSA timer's current
+ *                       status (resolution, lost ticks, overruns, queue
+ *                       depth) to the log. Not used in the tempo-critical
+ *                       path itself - purely informational.
  *-------------------------------------------*/
 void show_status(void *handle) {
     int err;
@@ -108,12 +111,24 @@ int ToggleMidi(int ControlValue) {
         gMyInfo.MidiPassThru = 1;
         SetDAWLed(ControlValue, 0);
     }
+
+    /* Return value isn't used by either caller today, but returning the
+       resulting state (rather than falling off the end with no return)
+       gives callers a defined value if they ever want to check it. */
+    return gMyInfo.MidiPassThru;
 }
 
 /*------------------------------------------
  * Function:            MyAlsaClose
  *
- * Description:         Close and cleanup
+ * Description:         Shut down all ALSA sequencer input/output for a
+ *                       clean app exit: cancels the MIDI input thread
+ *                       (there's no clean unblock/poll mechanism for the
+ *                       blocking snd_seq_event_input() call it's stuck
+ *                       in, so pthread_cancel is used instead - see the
+ *                       comment below), waits for it to actually exit,
+ *                       then closes the three sequencer ports and the
+ *                       mixer handle. Always returns FALSE.
  *-------------------------------------------*/
 bool MyAlsaClose(void) {
     int ret;
@@ -141,7 +156,16 @@ bool MyAlsaClose(void) {
 /*------------------------------------------
  * Function:     MyAlsaInit
  *
- * Description:      Set up Alsa Midi and create the I/O Ports
+ * Description:      Top-level ALSA setup, called once at startup: opens
+ *                    a duplex sequencer client, creates one output port
+ *                    per configured output (gMyInfo.OutPortName[]), sets
+ *                    up the three dedicated input ports/threads (main
+ *                    LiveMusic input, DAW control surface, Fishman MIDI
+ *                    pickup - see alsa_input_init/_DAW_init/_Midi_init),
+ *                    logs the available device list, and opens the ALSA
+ *                    mixer for volume control. Returns false only if the
+ *                    initial snd_seq_open() itself fails; downstream
+ *                    port/mixer setup calls aren't individually checked.
  *
  *-------------------------------------------*/
 bool MyAlsaInit() {
@@ -166,8 +190,7 @@ bool MyAlsaInit() {
     // Using the Same Seq causes it to add increment the port number.
     snd_seq_set_client_name(Seq, "LiveMusic");
     Loop = snd_seq_create_simple_port(Seq, "input",
-                                      SND_SEQ_PORT_CAP_WRITE |
-                                      SND_SEQ_PORT_CAP_SUBS_WRITE,
+                                      SND_SEQ_PORT_CAP_WRITE |     
                                       SND_SEQ_PORT_TYPE_APPLICATION);
 #endif
 
@@ -217,7 +240,21 @@ snd_async_handler_t *ahandler;
 /*------------------------------------------------
  * Function:            SetupAlsaTimer
  *
- * Description:         Setup timer for Tempo
+ * Description:         Open (or reopen) the ALSA system timer
+ *                       (hw:CLASS=GLOBAL,...,DEV=SYSTEM) and configure its
+ *                       tick rate so it fires roughly in proportion to the
+ *                       song tempo passed in `Count` (higher Count = more
+ *                       ticks per resolution period = faster timer). This
+ *                       underlies the app's internal metronome/clock; it
+ *                       does not itself schedule playback, just the timer
+ *                       device used to drive it. Exits the process on any
+ *                       ALSA timer API failure (open/info/params), since
+ *                       the app can't function without a working timer.
+ *
+ *                       NOTE: the async-callback registration below is
+ *                       only compiled in when `AlsaTimer` is #defined,
+ *                       which it currently isn't anywhere in this tree -
+ *                       so `async_callback()` is dead code as shipped.
  *----------------------------------------------*/
 void SetupAlsaTimer(int Count) {
     char timername[64];
@@ -280,6 +317,10 @@ void SetupAlsaTimer(int Count) {
     gMyInfo.TempoReload = 1;
 
     if (!snd_timer_info_is_slave(gMyInfo.AlsaTimerinfo)) {
+        /* Empirically-tuned divisor (35) converts the timer's hardware
+         * resolution (ns/tick) and the requested tempo `Count` into a
+         * tick-count that yields a reasonably smooth, low-jitter rate -
+         * not derived from a formula tied to actual BPM here. */
         snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams,
                                    (gMyInfo.AlsaResolution) / (35 * Count));
 
@@ -339,30 +380,21 @@ void SetupAlsaTimer(int Count) {
  * Function:            setTimerFreq
  *
  * Description:         Change the tempo (thanks muse)
+ *-------------------------------------------
+ * NOTE: removed as dead code (2026) - body was fully commented out,
+ * function had no callers, and always fell through without a return.
  *-------------------------------------------*/
-unsigned long setTimerFreq(unsigned long freq) {
-    signed int err;
-    long int cur_freq;
-
-    printd(LogInfo, "setTimerFreq %ld\n", freq);
-    //  snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
-
-    //  if (snd_timer_params_get_ticks(gMyInfo.AlsaTimerParams) < 1)
-    //  snd_timer_stop(gMyInfo.AlsaTimerHandle);
-
-    //  snd_timer_params_set_ticks(gMyInfo.AlsaTimerParams, 150);
-    //  snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
-    //  snd_async_add_timer_handler(&ahandler, gMyInfo.AlsaTimerHandle,
-    //                                    async_callback, NULL);
-
-    //  snd_timer_start(gMyInfo.AlsaTimerHandle);
-    //  snd_timer_params_set_auto_start(gMyInfo.AlsaTimerParams, 1);
-}
 
 /*------------------------------------------
  * Function:     CreatePort
  *
- * Description:      <Description/Comments>
+ * Description:      Create an ALSA sequencer output port named `Name` on
+ *                    client `Seq`, readable by subscribers (used for MIDI
+ *                    output to hardware/software synths). Returns the
+ *                    sequencer handle on success, or `false` (0) on failure -
+ *                    note the return type is a pointer, so callers should
+ *                    check the boolean success/fail, not use it as a real
+ *                    handle when it fails.
  *
  *-------------------------------------------*/
 snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
@@ -386,12 +418,19 @@ snd_seq_t *CreatePort(snd_seq_t *Seq, char *Name) {
 /*------------------------------------------
  * Function:             SendMidi
  *
- * Description:      <Description/Comments>
+ * Description:      Build and send a single ALSA sequencer MIDI event
+ *                    (note, controller, program change, etc. depending on
+ *                    `Type`) to the given output port. `Value` is clamped
+ *                    to the valid MIDI data range (0-127) before sending.
+ *                    `Port1` selects which of the app's output ports the
+ *                    event goes to (see the Port lookup below).
  *
  *-------------------------------------------*/
 int SendMidi(char Type, char Port1, char Channel, char Controller, int Value) {
     snd_seq_event_t ev;
-    int err;
+    int err = 0; /* initialized: `err` is only assigned inside a switch
+                    on Type below; if Type matches none of the cases it's
+                    never set, and it gets logged/returned regardless. */
     int Port;
     unsigned long adjbpm;
     snd_seq_queue_tempo_t *queue_tempo;
@@ -583,9 +622,20 @@ int change_tempo(snd_seq_t *handle, int q, unsigned int tempo) {
 /*------------------------------------------
  * Function:     SendMidiPatch
  *
- * Description:      This should not get
- * called via the thread.
+ * Description:      Dispatch a patch/preset change. `thePatch->CustomCommand`
+ *                    selects between an ordinary MIDI program change
+ *                    (NoCustom - the common case, sends bank select +
+ *                    PGMCHANGE) and a set of app-level "virtual patches"
+ *                    that don't touch MIDI at all: desktop switching,
+ *                    setlist navigation, scroll/increment commands, etc.
+ *                    Those app-level commands just set flags/call other
+ *                    functions and fall through the switch.
  *
+ *                    NOTE (per the original comment): this is meant to be
+ *                    called from the main GTK thread's patch-change path,
+ *                    not from inside the ALSA MIDI input threads - several
+ *                    of the app-level branches touch gMyInfo/GTK state
+ *                    that isn't thread-safe.
  *-------------------------------------------*/
 int SendMidiPatch(PatchInfo *thePatch) {
     int err = 0;
@@ -612,7 +662,13 @@ int SendMidiPatch(PatchInfo *thePatch) {
         /* Now send the standard program change.
          */
         TestProgram++;
-        TestProgram = 20;
+        TestProgram = 20; /* NOTE: the increment above is immediately
+                              overwritten - TestProgram is always sent as
+                              20 regardless of how many times this has
+                              run. Looks like a leftover debug pin from
+                              testing a specific program-change value;
+                              left as-is since behavior shouldn't change
+                              without confirming intent. */
         SendMidi(SND_SEQ_EVENT_PGMCHANGE, thePatch->OutPort, thePatch->Channel,
                  TestProgram, thePatch->Patch);
         printd(LogInfo, "MidiPatch %x %x %x %x %x\n", thePatch->Channel,
@@ -842,9 +898,13 @@ int SendMidiPatch(PatchInfo *thePatch) {
 /*------------------------------------------
  * Function:     alsa_midi_DAW_thread
  *
- * Description:      This is a separate thread
- * that handles midi messages received.
- *
+ * Description:      Dedicated pthread that blocks on
+ *                    snd_seq_event_input() for the "DAW" ALSA sequencer
+ *                    port (SeqPortDAWIn) and dispatches each incoming
+ *                    event to NanoKntrl2() for handling. Runs for the
+ *                    lifetime of the app once started in
+ *                    alsa_input_DAW_init(); loop only exits if the ALSA
+ *                    read itself fails.
  *-------------------------------------------*/
 void *alsa_midi_DAW_thread(void *context_ptr) {
     snd_seq_event_t *event_ptr, ev;
@@ -853,14 +913,31 @@ void *alsa_midi_DAW_thread(void *context_ptr) {
         //       KeyFADR(SeqPortDAWIn, event_ptr);
         NanoKntrl2(SeqPortDAWIn, event_ptr);
     }
+
+    return NULL;
 }
 
 /*------------------------------------------
  * Function:     alsa_midi_Note_thread
  *
- * Description:      This is a separate thread
- * that handles midi messages received.
- *
+ * Description:      Dedicated pthread that blocks on
+ *                    snd_seq_event_input() for the "Fishman" MIDI input
+ *                    port (SeqPortMidiIn - a Fishman TriplePlay-style
+ *                    guitar-to-MIDI pickup) and handles each event type:
+ *                      - NOTE/NOTEON/NOTEOFF: either captured as a
+ *                        "waiting for MIDI" calibration value (see
+ *                        WaitingforMidi, used e.g. for MIDI-learn), or
+ *                        passed through to another output port with a
+ *                        velocity threshold (MidiThresholdLevel) applied
+ *                        to filter ghost/false-trigger notes from the
+ *                        pickup.
+ *                      - PGMCHANGE: queues a patch/layout change via
+ *                        gMyInfo.LayoutCall (deferred to the main loop
+ *                        rather than acted on directly in this thread).
+ *                      - CONTROLLER (main volume): forwarded to
+ *                        SetExpressionControl().
+ *                    Runs for the app's lifetime; loop only exits if the
+ *                    ALSA read itself fails.
  *-------------------------------------------*/
 void *alsa_midi_Note_thread(void *context_ptr) {
     snd_seq_event_t *event_ptr, ev;
@@ -917,8 +994,11 @@ void *alsa_midi_Note_thread(void *context_ptr) {
                     snd_seq_ev_set_direct(&ev);
                     ev.type = SND_SEQ_EVENT_NOTEON;
 
-                    // EJK NOTE:Midi Threshold
-                    // We get ghost notes for the fishman.
+                    /* The Fishman pickup fires spurious low-velocity
+                     * "ghost notes" from string noise/bleed. Treat
+                     * anything below MidiThresholdLevel as noise and
+                     * send a NOTEOFF instead of a NOTEON so it doesn't
+                     * sound or hang a note. */
                     if (event_ptr->data.note.velocity >
                         gMyInfo.MidiThresholdLevel) {
                         printd(
@@ -999,13 +1079,20 @@ void *alsa_midi_Note_thread(void *context_ptr) {
             }
         }
     }
+
+    return NULL;
 }
 
 /*------------------------------------------
  * Function:     SetDAWLed
  *
- * Description:  LED Control
- *
+ * Description:  Turn a single LED/button light on the DAW control
+ *               surface on or off, by sending a MIDI CC message back
+ *               out to it: value 127 for on, 0 for off. `Button` is the
+ *               CC/button number on the surface (its LEDs are lit by
+ *               echoing the same controller number back with a
+ *               nonzero/zero value - standard for DAW controllers like
+ *               this one).
  *-------------------------------------------*/
 void SetDAWLed(int Button, int Value) {
 
@@ -1019,7 +1106,20 @@ void SetDAWLed(int Button, int Value) {
 /*------------------------------------------
  * Function:     NanoKntrl2
  *
- * Description:  Mapping for Reloop KeyFADR
+ * Description:  MIDI event handler for a Korg nanoKONTROL2-style DAW
+ *               control surface (function name = "Nano Kontrol 2").
+ *               Dispatches on ALSA sequencer event type; the interesting
+ *               case is SND_SEQ_EVENT_CONTROLLER, further switched on
+ *               the controller number to identify which physical
+ *               fader/knob/button was touched. See the control-number
+ *               map in the comment block just above the CONTROLLER case
+ *               below (faders 0-7, knobs 16-23, solo/mute/record/
+ *               transport buttons, etc.) - that's this specific unit's
+ *               MIDI CC layout, not a general standard.
+ *               (NOTE: this header previously said "Reloop KeyFADR",
+ *               copied from the KeyFADR() function below - that was a
+ *               documentation error, not a description of this
+ *               function; corrected here.)
  *
  *-------------------------------------------*/
 void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
@@ -1089,6 +1189,15 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
         // 46 Cycle
 
     case SND_SEQ_EVENT_CONTROLLER:
+        /* This surface has 8 channel strips; each strip's controls are
+         * spaced by a fixed CC offset from the strip's base number
+         * (base = strip index 0-7): fader = base+0, knob = base+16,
+         * solo = base+32, mute = base+48, record = base+64. So e.g.
+         * case 0 = channel 1 fader, case 16 = channel 1 knob,
+         * case 1 = channel 2 fader, case 17 = channel 2 knob, etc.
+         * (see the CC map comment just above this switch). The cases
+         * below are effectively per-channel-strip application actions
+         * mapped onto that physical layout, not a generic MIDI mapping. */
         switch (ControlValue) {
         // -----------  Slot 1 Instrument Volume
         case 0:
@@ -1538,7 +1647,16 @@ void NanoKntrl2(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 /*------------------------------------------
  * Function:     KeyFADR
  *
- * Description:  Mapping for Reloop KeyFADR
+ * Description:  MIDI event handler for the Reloop KeyFADR control
+ *               surface. Like NanoKntrl2() above, dispatches on ALSA
+ *               sequencer event type, with SND_SEQ_EVENT_CONTROLLER as
+ *               the main case: each of the 8 physical sliders (CC 0-7)
+ *               is mapped individually to one of the app's expression
+ *               controls (guitar/MIDI/MP3/looper/master volume, pedal,
+ *               tempo), and the PAN knobs (CC 57-64) similarly - unlike
+ *               the nanoKONTROL2 mapping, this surface's controls are
+ *               each wired to a fixed, distinct function rather than
+ *               following a repeating per-channel-strip offset pattern.
  *
  *-------------------------------------------*/
 void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
@@ -1873,9 +1991,20 @@ void KeyFADR(snd_seq_t *SeqPortDAWIn, snd_seq_event_t *event_ptr) {
 /*------------------------------------------
  * Function:     alsa_midi_thread
  *
- * Description:      This is a separate thread that handles midi messages
- *       received.
- *
+ * Description:      Dedicated pthread that blocks on
+ *                    snd_seq_event_input() for the main "LiveMusic"
+ *                    ALSA sequencer input port (SeqPort1In - general
+ *                    MIDI controller/keyboard input, as opposed to the
+ *                    Fishman-pickup-specific alsa_midi_Note_thread() or
+ *                    the DAW-surface alsa_midi_DAW_thread()). Handles
+ *                    the same broad event categories as those threads
+ *                    (note on/off with MIDI-learn capture via
+ *                    WaitingforMidi, pass-through with a velocity
+ *                    threshold to filter noise, program change ->
+ *                    layout/patch switching, CC -> expression controls)
+ *                    but for whatever's plugged into this general input
+ *                    port. Runs for the app's lifetime; loop only exits
+ *                    if the ALSA read itself fails.
  *-------------------------------------------*/
 void *alsa_midi_thread(void *context_ptr) {
     snd_seq_event_t *event_ptr, ev;
@@ -3203,7 +3332,15 @@ static snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
 /*------------------------------------------
  * Function:     device_list
  *
- * Description:      Look for all devices.
+ * Description:      Enumerate every ALSA sound card/PCM device/subdevice
+ *                    on the system and log them (card name, device
+ *                    name, subdevice list) for the capture stream
+ *                    direction (see the `stream` global just above).
+ *                    Purely diagnostic - called once from MyAlsaInit()
+ *                    to record what hardware is visible at startup;
+ *                    doesn't select or open anything itself. Standard
+ *                    ALSA card/PCM enumeration pattern (same shape as
+ *                    `aplay -l`'s device listing).
  *
  *-------------------------------------------*/
 static void device_list(void) {
@@ -3300,7 +3437,15 @@ static void device_list(void) {
 /*------------------------------------------
  * Function:     pcm_list
  *
- * Description:      Look for Capture Cards.
+ * Description:      Enumerate PCM devices matching a stream-direction
+ *                    filter (input/output/duplex) using ALSA's PCM
+ *                    hint API (snd_device_name_hint), logging each
+ *                    device's name/description/IO direction. Standard
+ *                    ALSA enumeration pattern (same shape as `aplay -L`).
+ *                    NOTE: unlike device_list() (called from
+ *                    MyAlsaInit()), this function has no callers
+ *                    anywhere in the codebase - it's currently dead
+ *                    code, left in from an earlier iteration.
  *
  *-------------------------------------------*/
 static void pcm_list(void) {
@@ -3369,7 +3514,13 @@ static void pcm_list(void) {
 /*------------------------------------------
  * Function:     SetAlsaMasterVolume
  *
- * Description:      Control the Alsa Mixer
+ * Description:      Set the system-level ALSA "Master" mixer volume to
+ *                    `volume` (expected as a 0-100 percentage), by
+ *                    finding the Master simple-mixer element and scaling
+ *                    it against the hardware's own playback volume range
+ *                    (min/max returned by the driver, which varies by
+ *                    sound card). Also unconditionally un-mutes the
+ *                    Master switch as a side effect.
  *
  *-------------------------------------------*/
 void SetAlsaMasterVolume(long volume) {
@@ -3394,7 +3545,12 @@ void SetAlsaMasterVolume(long volume) {
 /*------------------------------------------
  * Function:     SetAlsaCaptureVolume
  *
- * Description:      Control the Alsa Mixer
+ * Description:      Set the ALSA "Capture" mixer volume (input gain,
+ *                    e.g. for a mic/line-in used by the Fishman pickup
+ *                    or similar) to `volume` (0-100 percentage),
+ *                    scaled against the hardware's capture volume range.
+ *                    Same pattern as SetAlsaMasterVolume() above but for
+ *                    the Capture element rather than Master.
  *
  *-------------------------------------------*/
 void SetAlsaCaptureVolume(long volume) {
@@ -3421,7 +3577,20 @@ void SetAlsaCaptureVolume(long volume) {
 /*------------------------------------------
  * Function:     alsa_input_init
  *
- * Description:      Setup the Alsa input port.
+ * Description:      Create the main "LiveMusic" ALSA sequencer input
+ *                    client/port (writable/subscribable, 16 MIDI
+ *                    channels) named `name` at sequencer port `portnum`,
+ *                    then spawn the dedicated alsa_midi_thread() pthread
+ *                    to service it (raised scheduling priority 50, since
+ *                    MIDI input needs to be handled promptly). This is
+ *                    the general-purpose input path - see
+ *                    alsa_input_DAW_init()/alsa_input_Midi_init() below
+ *                    for the same pattern applied to the DAW control
+ *                    surface and Fishman pickup inputs respectively.
+ *                    Returns false if either the sequencer open or port
+ *                    creation fails (cleaning up the sequencer handle on
+ *                    the latter); the thread-creation result itself
+ *                    isn't checked.
  *
  *-------------------------------------------*/
 bool alsa_input_init(const char *name, char portnum) {
@@ -3495,7 +3664,10 @@ fail:
 /*------------------------------------------
  * Function:     alsa_input_DAW_init
  *
- * Description:      Setup the Alsa input port.
+ * Description:      Same setup pattern as alsa_input_init() above, but
+ *                    for the DAW control-surface input (SeqPortDAWIn)
+ *                    and its dedicated alsa_midi_DAW_thread() reader -
+ *                    this is what feeds NanoKntrl2()/KeyFADR().
  *
  *-------------------------------------------*/
 bool alsa_input_DAW_init(const char *name, char portnum) {
@@ -3570,8 +3742,10 @@ fail:
 /*------------------------------------------
  * Function:     alsa_input_Midi_init
  *
- * Description:      Setup the Alsa input port
- * for the fishman triple play.
+ * Description:      Same setup pattern as alsa_input_init() above, but
+ *                    for the Fishman TriplePlay guitar-to-MIDI pickup
+ *                    input (SeqPortMidiIn) and its dedicated
+ *                    alsa_midi_Note_thread() reader.
  *
  *-------------------------------------------*/
 bool alsa_input_Midi_init(const char *name, char portnum) {
@@ -3644,6 +3818,16 @@ fail:
 }
 
 #if 0
+/* Everything from here to the end of the file is disabled (#if 0) and
+ * not part of the build. ProgramChange() and Mysystem() are old/unused
+ * alternate implementations (see the real, active equivalents used
+ * elsewhere: SendMidiPatch() for program changes, the smplayer control
+ * path in Player.c for player IPC). sendMessageNow() below isn't even
+ * valid C - it takes a `MidiMessage &` reference and calls C++-style
+ * methods (message.isProgramChange(), etc.), so it looks like it was
+ * pasted in from a different (C++/JUCE?) codebase as a reference and
+ * never actually compiled here. Left disabled rather than deleted in
+ * case it's useful reference for a future MIDI rewrite. */
 // /usr/include/alsa/seq_event.h
 /*------------------------------------------
 * Function:     ProgramChange

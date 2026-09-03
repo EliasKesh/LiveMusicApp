@@ -1,103 +1,218 @@
 #!/bin/bash
 #------------------------------------------------
 #
-#	File: 	KeepLiveAppRunning
+#	File:		KeepLiveAppRunning.sh
 #
-#	Contains: 	This will keep LiveMusic app running if it quits.
+#	Contains:	Keeps LiveMusicApp and Carla running (relaunches
+#			them if they quit), and keeps a handful of desktop
+#			apps (Java, MPlayer, MuseScore, sfizz) routed into
+#			the Carla mixer.
 #
+#	Written By:	Elias Keshishoglou on Thu Jun 25 20:49:03 PDT 2009
 #
-#	Written By: 	Elias Keshishoglou on Thu Jun 25 20:49:03 PDT 2009
-#
-#	Copyright ©: 	2015 Elias Keshishoglou
-#
+#	Copyright:	2015 Elias Keshishoglou
 #
 #------------------------------------------------#
-set -x
-sleep 10
 
-MainOutR="alsa_output.usb-Logitech_G935_Gaming_Headset-00.analog-stereo:playback_FR"
-MainOutL="alsa_output.usb-Logitech_G935_Gaming_Headset-00.analog-stereo:playback_FL"
+#=======================================================================
+# CONFIGURATION - all connection points live here
+#=======================================================================
 
-MainOutL="alsa_output.usb-SteelSeries_Arctis_Nova_7-00.analog-stereo:playback_FL"
-MainOutR="alsa_output.usb-SteelSeries_Arctis_Nova_7-00.analog-stereo:playback_FR"
+# --- Processes / launcher ---------------------------------------------
+AppLiveMusic="LiveMusicApp"
+AppCarlaProc="Carla"
+LaunchScript="MusicApps.sh"
+CarlaGuitarProfile="CarlaGuitar"
+EffectsCli="GuitarEffects"
 
-MainOutL="alsa_output.usb-Focusrite_Scarlett_Solo_4th_Gen_S1C3HQ25739430-00.pro-output-0:playback_AUX0"
-MainOutR="alsa_output.usb-Focusrite_Scarlett_Solo_4th_Gen_S1C3HQ25739430-00.pro-output-0:playback_AUX1"
+# --- Carla mixer prefix (same convention as EffectsConnect.sh) --------
+PreFixMix="Carla.0/"
+FxMixer="LSP Mixer x4 Stereo"
+
+# --- Headset/interface match strings, in fallback priority order ------
+# (whichever of these is actually connected becomes MainOutL/R - see
+# FindMainOutput below). Channel suffixes differ per device (most use
+# FL/FR, the Scarlett's PipeWire node uses AUX0/AUX1), so each device
+# carries its own pair.
+MainOutDevices=("Logitech_G935"          "SteelSeries_Arctis_Nova_7"  "Focusrite_Scarlett")
+MainOutSuffixL=("playback_FL"            "playback_FL"                "playback_AUX0")
+MainOutSuffixR=("playback_FR"            "playback_FR"                "playback_AUX1")
+
+# --- Desktop app source ports (may or may not be running) -------------
+AppJava="alsa_playback.java"
+AppMPlayer="MPlayer"
+AppMscore="mscore"
+AppSfizz="sfizz"
+
+# --- Midi-Bridge ports (looked up dynamically - see FindPort) ---------
+KwLiveMusicOutFluid=("LiveMusic" "Fluid")
+KwRtMidiIn=("RtMidiIn")
+
+# --- Screensaver inhibit ------------------------------------------------
+DbusScreensaverService="org.freedesktop.ScreenSaver"
+DbusScreensaverPath="/ScreenSaver"
+
+#=======================================================================
+# FUNCTIONS
+#=======================================================================
+
+#---------------------------------------------------------------------#
+#*** FindPort
+#---------------------------------------------------------------------#
+# FindPort: Resolve a live port name from loose keywords instead of a
+# hardcoded literal (same helper as in EffectsConnect.sh - PipeWire
+# naming punctuation has changed on us before).
+#   $1        direction: "out" = capture/source ports (pw-link -o,
+#             cached in $DeviceList) | "in" = playback/sink ports
+#             (pw-link -i, cached in $DeviceListI)
+#   $2, $3... substrings that must ALL appear in the port name
+#             (case-insensitive, ANDed together); first match wins.
+function FindPort {
+
+    local direction="$1"; shift
+    local list
+    if [ "$direction" == "out" ]; then
+        list="$DeviceList"
+    else
+        list="$DeviceListI"
+    fi
+
+    for kw in "$@"; do
+        list=$(echo "$list" | grep -i -- "$kw") 
+    done
+
+    local match
+    match=$(echo "$list" | head -n 1)
+    if [ -z "$match" ]; then
+        echo "FindPort: no match for [$*]" >&2
+    fi
+    echo "$match"
+}
+
+#---------------------------------------------------------------------#
+#*** FindMainOutput
+#---------------------------------------------------------------------#
+# FindMainOutput: The original script set MainOutL/MainOutR three
+# times in a row (G935, then Arctis, then Scarlett) - each assignment
+# silently overwrote the last, so only the Scarlett lines ever actually
+# took effect, regardless of what was plugged in. This picks whichever
+# device in $MainOutDevices is actually present, in priority order.
+function FindMainOutput {
+    local i dev sufL sufR l r
+    for i in "${!MainOutDevices[@]}"; do
+        dev="${MainOutDevices[$i]}"
+        sufL="${MainOutSuffixL[$i]}"
+        sufR="${MainOutSuffixR[$i]}"
+        l=$(FindPort in "$dev" "$sufL")
+        r=$(FindPort in "$dev" "$sufR")
+        if [ -n "$l" ] && [ -n "$r" ]; then
+            MainOutL="$l"
+            MainOutR="$r"
+            return 0
+        fi
+    done
+    echo "FindMainOutput: no known output device found" >&2
+    MainOutL=""
+    MainOutR=""
+    return 1
+}
+
+#---------------------------------------------------------------------#
+#*** SafeLink / SafeUnlink
+#---------------------------------------------------------------------#
+# Thin wrappers so call sites don't all repeat ">/dev/null 2>&1" -
+# these routes are opportunistic (the source app may not be running).
+function SafeLink {
+    pw-link "$1" "$2" >/dev/null 2>&1
+}
+
+function SafeUnlink {
+    pw-link -d "$1" "$2" >/dev/null 2>&1
+}
+
+#=======================================================================
+# MAIN
+#=======================================================================
+
+echo "Waiting"
+sleep 1
 
 while true
 do
-pid=`pgrep -i LiveMusicApp`
-if [ -z $pid ]
-then
-# theDATE=$(date +"%d%H%M%S")
-echo "Launching LiveMusic"
-    MusicApps.sh LiveMusicApp
+    # Refresh port lists each pass - devices/apps come and go.
+    DeviceList="$(pw-link -o)"
+    DeviceListI="$(pw-link -i)"
+    FindMainOutput    
+    
+    # --- Keep LiveMusicApp running ---
+    pid=$(pgrep -i "$AppLiveMusic")
+    if [ -z "$pid" ]; then
+        echo "Launching LiveMusic"
+        "$LaunchScript" "$AppLiveMusic"
+        sleep 3
+        "$EffectsCli" -c
+        "$EffectsCli" -b
+    fi
 
-	sleep 3
-	GuitarEffects -c
-	GuitarEffects -b
-fi
+    # --- Keep Carla running ---
+    pid=$(pgrep -i "$AppCarlaProc" | head -n 1)
+    if [ -z "$pid" ]; then
+        echo "Launching Carla"
+        "$LaunchScript" "$CarlaGuitarProfile" &
+        sleep 3
+        "$EffectsCli" -c
+    fi
 
-pid=`pgrep -i Carla | head -n1 `
-if [ -z $pid ]
-then
-# theDATE=$(date +"%d%H%M%S")
-echo "Launching Carla"
-#	cd /home/Dropbox/LiveEffects
-    MusicApps.sh CarlaGuitar &
-	sleep 3
-	GuitarEffects -c
-	# GuitarEffects -b
-fi
+    # --- (disabled) Keep PCtoSFIZZ.py running ---
+    # pid=$(pgrep -fi PCtoSFIZZ.py | head -n 1)
+    # if [ -z "$pid" ]; then
+    #     echo "Launching PCtoSFIZZ.py"
+    #     pw-jack bash -c "exec python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py"
+    # fi
+    sleep 5
+    qdbus "$DbusScreensaverService" "$DbusScreensaverPath" SimulateUserActivity
 
-# pid=`pgrep -fi PCtoSFIZZ.py | head -n1 `
-# if [ -z $pid ]
-# then
-# # theDATE=$(date +"%d%H%M%S")
-# echo "Launching PCtoSFIZZ.py"
-# 
-# # 	python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py & 
-# # script -q -c 'python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py' /dev/null &
-# pw-jack bash -c  exec "python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py "
-# fi
+# FluidSynth:output_1
+# FluidSynth:output_2
+    # --- Java audio -> Carla mixer input 2 ---
+    PwAppJava=$(FindPort out "FluidSynth")
+    PwAppJavaBase=${PwAppJava%:*}
+    SafeUnlink "${PwAppJavaBase}:output_1" "$MainOutL"
+    SafeUnlink "${PwAppJavaBase}:output_2" "$MainOutR"
+    SafeLink   "${PwAppJavaBase}:output_1" "${PreFixMix}${FxMixer}:Audio input left 3"
+    SafeLink   "${PwAppJavaBase}:output_2" "${PreFixMix}${FxMixer}:Audio input right 3"
+    
+    # --- Java audio -> Carla mixer input 2 ---
+    PwAppJava=$(FindPort out "$AppJava")
+    PwAppJavaBase=${PwAppJava%:*}
+    SafeUnlink "${PwAppJavaBase}:output_FL" "$MainOutL"
+    SafeUnlink "${PwAppJavaBase}:output_FR" "$MainOutR"
+    SafeLink   "${PwAppJavaBase}:output_FL" "${PreFixMix}${FxMixer}:Audio input left 2"
+    SafeLink   "${PwAppJavaBase}:output_FR" "${PreFixMix}${FxMixer}:Audio input right 2"
 
-sleep 10
-qdbus org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity
+    # --- MPlayer -> Carla mixer input 3 ---
+    PwAppMPlayer=$(FindPort out "$AppMPlayer")
+    PwAppMPlayerBase=${PwAppMPlayer%:*}
+    SafeUnlink "${PwAppMPlayerBase}:output_FL" "$MainOutL"
+    SafeUnlink "${PwAppMPlayerBase}:output_FR" "$MainOutR"
+    SafeLink   "${PwAppMPlayerBase}:output_FL" "${PreFixMix}${FxMixer}:Audio input left 3"
+    SafeLink   "${PwAppMPlayerBase}:output_FR" "${PreFixMix}${FxMixer}:Audio input right 3"
 
-pw-link -d "alsa_playback.java:output_FL" $MainOutL  >/dev/null 2>&1
-pw-link -d "alsa_playback.java:output_FR" $MainOutR  >/dev/null 2>&1
+    # --- MuseScore -> Carla mixer input 3 ---
+	PwAppMscore=$(FindPort out "mscore")
+    PwAppMscoreBase=${PwAppMscore%:*}
+    SafeUnlink "${PwAppMscoreBase}:output_FL" "$MainOutL"
+    SafeUnlink "${PwAppMscoreBase}:output_FR" "$MainOutR"
+    SafeLink   "${PwAppMscoreBase}:output_FL" "${PreFixMix}${FxMixer}:Audio input left 3"
+    SafeLink   "${PwAppMscoreBase}:output_FR" "${PreFixMix}${FxMixer}:Audio input right 3"
 
-pw-link "alsa_playback.java:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2"  >/dev/null 2>&1
-pw-link "alsa_playback.java:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input right 2"  >/dev/null 2>&1
+    # --- sfizz <-> Carla mixer / MIDI Guitar 2 ---
+    timeout 1 pw-link "${AppSfizz}:output_1" "${PreFixMix}${FxMixer}:Audio input left 2" >/dev/null 2>&1; true
+    timeout 1 pw-link "${AppSfizz}:output_2" "${PreFixMix}${FxMixer}:Audio input right 2" >/dev/null 2>&1; true
+    timeout 1 pw-link "${PreFixMix}MIDI Guitar 2:event-out" "${AppSfizz}:input" >/dev/null 2>&1; true
 
-pw-link -d "MPlayer:output_FL" "alsa_output.usb-SteelSeries_Arctis_Nova_7-00.analog-stereo:playback_FL"  >/dev/null 2>&1
-pw-link -d "MPlayer:output_FR" "alsa_output.usb-SteelSeries_Arctis_Nova_7-00.analog-stereo:playback_FR"  >/dev/null 2>&1
-
-pw-link -d "MPlayer:output_FL" "alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:playback_AUX0"  >/dev/null 2>&1
-pw-link -d "MPlayer:output_FR" "alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:playback_AUX1"  >/dev/null 2>&1
-
-
-# Mplayer
-pw-link -d "MPlayer:output_FL"  $MainOutL  >/dev/null 2>&1
-pw-link -d "MPlayer:output_FR"  $MainOutR  >/dev/null 2>&1
-pw-link "MPlayer:output_FL"  "Carla.0/LSP Mixer x4 Stereo:Audio input left 3"  >/dev/null 2>&1
-pw-link "MPlayer:output_FR"  "Carla.0/LSP Mixer x4 Stereo:Audio input right 3"  >/dev/null 2>&1
-
-pw-link "alsa_playback.java:output_FR" "Carla.0/LSP Mixer x4 Stereo:Audio input left 1"  >/dev/null 2>&1
-pw-link "alsa_playback.java:output_FL" "Carla.0/LSP Mixer x4 Stereo:Audio input left 2"  >/dev/null 2>&1
-
-# Muse Score
-pw-link "mscore:output_1" $MainOutL  >/dev/null 2>&1
-pw-link "mscore:output_2" $MainOutR  >/dev/null 2>&1
-
-timeout 1 pw-link sfizz:output_1 "Carla.0/LSP Mixer x4 Stereo:Audio input left 2" >/dev/null 2>&1; true  
-timeout 1 pw-link sfizz:output_2 -L "Carla.0/LSP Mixer x4 Stereo:Audio input right 2" >/dev/null 2>&1 ; true
-timeout 1 pw-link "Carla.0/MIDI Guitar 2:event-out" "sfizz:input" >/dev/null 2>&1; true
-
-pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "Midi-Bridge:RtMidiIn ClientRtMidi input (playback)"  >/dev/null 2>&1
-
-
-
+    # --- LiveMusic Fluid output -> RtMidiIn (looked up, not literal) ---
+    PortLiveMusicFluid=$(FindPort out "${KwLiveMusicOutFluid[@]}")
+    PortRtMidiIn=$(FindPort in "${KwRtMidiIn[@]}")
+    SafeLink "$PortLiveMusicFluid" "$PortRtMidiIn"
 done
-   
-   

@@ -1,35 +1,124 @@
 #!/bin/bash
 #---------------------------------------------------------------------
 #
-#	File: 	EffectsConnect
+#	File:		EffectsConnect.sh
 #
-#	Contains:
+#	Contains:	Rebuilds PipeWire/Carla audio routing and MIDI
+#			connections for the live rig. Run with "clear" as
+#			the first argument to tear down existing Carla
+#			links before reconnecting.
 #
+#	Written By:	Elias Keshishoglou on Wed Jun 26 07:38:22 EEST 2024
 #
-#	Written By: 	Elias Keshishoglou on Wed Jun 26 07:38:22 EEST 2024
-#
-#	Copyright : 	2024 Elias Keshishoglou all rights reserved.
-#
+#	Copyright:	2024 Elias Keshishoglou all rights reserved.
 #
 #---------------------------------------------------------------------#
 set -x
 
-# Set prefix for identifying Carla plugins and mixer devices
+#=======================================================================
+# CONFIGURATION - all connection points live here
+# Edit these instead of hunting for literal device/plugin names inside
+# the functions or the main flow below.
+#=======================================================================
+
+# --- Carla plugin / mixer prefixes, as they show up in pw-link -----
 PreFix="Carla.0"
 PreFixMix="Carla.0/"
+
+# --- OSC target for Carla mixer parameter changes -------------------
+# (used only by the disabled reference block at the end of this file)
+OscHost="localhost"
+OscPort="22752"
+
+# --- Hardware interfaces (match strings against `pw-link -i/-o`) ---
+DevAudioAir="Audio_AIR_192"
+DevCMedia="C-Media_Electronics"
+DevAudioBoxGo="AudioBox_Go"
+DevZoomU24="ZOOM_Corporation_U-24"
+DevBurrBrown="Burr-Brown"
+DevBluezOutput="bluez_output"
+DevNuxUsb="NUX_USB"
+DevXTone="XSONIC_XTONE"
+DevSpark2="Positive_Grid_Spark_2"
+DevScarlett="Focusrite_Scarlett"
+DevSteelSeries="SteelSeries"
+
+# --- ALSA card match strings (used by AlsaSet) ----------------------
+AlsaDevG935="G935"
+AlsaDevArctis="Arctis"
+AlsaDevNux="nux"
+AlsaDevScarlett="Scarlett"
+AlsaDevUsb="USB"
+AlsaMicCards="1 2 3 4 5"
+AlsaPcmCards="4 5 6 7 8 9"
+
+# --- Carla effect/plugin names (used by FindEffects) ----------------
+FxTuner="x42 Instrument Tuner"
+FxMidiGuitar="MIDI Guitar 2"
+FxGate="LSP Gate"
+FxGateMono="LSP Gate Mono"
+FxCompMono="LSP Compressor Mono"
+FxGottComp="GOTT Compressor Mono"
+FxGeq16="LSP Graphic Equalizer x16 Mono"
+FxTubeScreamer="GxTubeScreamer"
+FxAmplifier="GxAmplifier-X"
+FxMuTroMojo="rkr MuTroMojo"
+FxDelay="${PreFixMix}windowswaylodelayUD"
+# MOD 2Voices pitch/harmonizer. It has one mono input and two outputs.
+Fx2Voices="2Voices"
+FxReverb="GxZita_rev1-Stereo"
+FxLoudnessComp="${PreFixMix}LSP Loudness Compensator Stereo"
+FxMixer="LSP Mixer x4 Stereo"
+FxLooper="sooperlooper"
+
+# --- MIDI device / port names ---------------------------------------
+MidiLinuxSampler="LinuxSampler:midi_in_0"
+MidiSoundGenerator="LinuxSampler:midi_in_0"
+
+# Keywords for FindPort (see below) - loose substrings, not exact
+# literal port names, so a punctuation change doesn't break the link.
+KwMidiThrough=("Midi Through" "Port-0")
+KwMidiVirtual0=("Virtual Raw MIDI 2-0")
+KwMidiVirtual1=("Virtual Raw MIDI 2-1")
+KwNanoKontrolCtrl=("nanoKONTROL2" "CTRL")
+KwLiveDaw=("LiveDAW")
+KwLvSwitchIn=("LvSwitch" "SwitchIn")
+KwOutFluid=("LiveMusic" "Fluid")
+KwOutClick=("LiveMusic" "Click")
+KwOutGuitarix=("LiveMusic" "Guitarix")
+KwOutDawPort=("LiveMusic" "DAWPort")
+KwOutPedal=("LiveMusic" "Pedal")
+KwEliasMidiBt=("EliasMidi" "Bluetooth")
+
+# sendmidi (in the disabled reference block) talks to an ALSA/rtmidi
+# device name, not a pw-link port, so this one stays a plain literal.
+MidiThroughDevName="Midi Through Port-0"
+
+MidiPedal="EliasPedal3"
+MidiGuitarCtrl="EliasGuitar"
+MidiMidiCtrl="EliasMidi"
+MidiXToneCtrl="XTONE"
+MidiNanoKontrol="nanoKONTROL2"
+MidiLpd8="LPD8"
+MidiKeyFadr="Reloop KeyFadr"
+MidiTriplePlayConnect="TriplePlay Connect"
+MidiFishman="Fishman TriplePlay"
+MidiNmsve="NMSVE"
+
+#=======================================================================
+# FUNCTIONS
+#=======================================================================
 
 #---------------------------------------------------------------------#
 #*** ClearRack
 #---------------------------------------------------------------------#
-# ClearRack: Disconnect all audio connections with the specified prefix
+# ClearRack: Disconnect all audio connections with the Carla prefix
 function ClearRack {
-    # Get and disconnect all connections containing PreFix
-    IDList=$(pw-link --id -l | grep $PreFix | awk '{print $1}')
-    // IDList=$(pw-link --id -o | grep $PreFix | awk '{print $1}')
+    IDList=$(pw-link --id -l | grep "$PreFix" | awk '{print $1}')
 
     for theID in $IDList; do
-        echo "Link "$theID
-        pw-link -d $theID
+        echo "Link $theID"
+        pw-link -d "$theID"
         sleep 0.08
     done
 }
@@ -37,15 +126,13 @@ function ClearRack {
 #---------------------------------------------------------------------#
 #*** ClearPlasma
 #---------------------------------------------------------------------#
-# ClearPlasma: Disconnect all Plasma PA audio connections 
+# ClearPlasma: Disconnect all Plasma PA audio connections
 function ClearPlasma {
-    # Get and disconnect all Plasma PA connections
     IDList=$(pw-link --id -l | grep "Plasma PA" | awk '{print $1}')
-# IDList=$(pw-link --id -o | grep "Plasma PA" | awk '{print $1}')
 
     for theID in $IDList; do
-        echo "Link "$theID
-        pw-link -d $theID
+        echo "Link $theID"
+        pw-link -d "$theID"
         sleep 0.08
     done
 }
@@ -59,126 +146,80 @@ function AlsaSet {
     # Detect available audio sinks and sources
     MySinks=$(aplay -l | grep "card 0:" | head -n 1)
     if [ "$?" -eq 0 ]; then
-        echo "Sink Found "$MySinks
+        echo "Sink Found $MySinks"
     fi
 
     MySources=$(arecord -l | grep "card 0:" | head -n 1)
     if [ "$?" -eq 0 ]; then
-        echo "Source Found "$MySources
+        echo "Source Found $MySources"
     fi
 
-    # ----Card ------------------------------
-    # Set volume levels for various audio cards
-    CardNum=$(aplay -l | grep G935 | awk -F'[\t: ]' '{print $2}')
-    amixer -c $CardNum set 'PCM',0 50
-    amixer -c $CardNum set 'Mic',0 65
+    # ---- G935 headset ------------------------------
+    CardNum=$(aplay -l | grep "$AlsaDevG935" | awk -F'[\t: ]' '{print $2}')
+    amixer -c "$CardNum" set 'PCM',0 50
+    amixer -c "$CardNum" set 'Mic',0 65
 
-    # ----Card ------------------------------
-    CardNum=$(aplay -l | grep Arctis | awk -F'[\t: ]' '{print $2}')
-    amixer -c $CardNum set 'PCM',0 `100`
-    amixer -c $CardNum set 'Mic',0 65
+    # ---- Arctis headset -----------------------------
+    CardNum=$(aplay -l | grep "$AlsaDevArctis" | awk -F'[\t: ]' '{print $2}')
+    amixer -c "$CardNum" set 'PCM',0 100
+    amixer -c "$CardNum" set 'Mic',0 65
 
-    # ----Card ------------------------------
-    CardNum=$(aplay -l | grep -i nux | awk -F'[\t: ]' '{print $2}')
-    amixer -c $CardNum set "NUX USB Audio 2.0 ",0 2032
-    amixer -c $CardNum set "NUX USB Audio 2.0 ",1 2032
-    amixer -c $CardNum set 'Mic',0 2032
-    amixer -c $CardNum set 'Mic',1 2032
+    # ---- NUX interface -------------------------------
+    CardNum=$(aplay -l | grep -i "$AlsaDevNux" | awk -F'[\t: ]' '{print $2}')
+    amixer -c "$CardNum" set "NUX USB Audio 2.0 ",0 2032
+    amixer -c "$CardNum" set "NUX USB Audio 2.0 ",1 2032
+    amixer -c "$CardNum" set 'Mic',0 2032
+    amixer -c "$CardNum" set 'Mic',1 2032
 
-    # ----Card ------------------------------
-    CardNum=$(aplay -l | grep -i "Scarlett" | awk -F'[\t: ]' '{print $2}')
-    # No Alsa Controls
+    # ---- Scarlett (no ALSA controls) -----------------
+    CardNum=$(aplay -l | grep -i "$AlsaDevScarlett" | awk -F'[\t: ]' '{print $2}')
 
-    # ----Card ------------------------------
-    CardNum=$(aplay -l | grep -i "USB" | head -n1 | tail -n1 | awk -F'[\t: ]' '{print $2}')
-    amixer -c $CardNum set "Master",0 75
-    amixer -c $CardNum set "Headphone",0 80
-    amixer -c $CardNum set "PCM",0 220
+    # ---- Generic USB device #1 -----------------------
+    CardNum=$(aplay -l | grep -i "$AlsaDevUsb" | head -n1 | tail -n1 | awk -F'[\t: ]' '{print $2}')
+    amixer -c "$CardNum" set "Master",0 75
+    amixer -c "$CardNum" set "Headphone",0 80
+    amixer -c "$CardNum" set "PCM",0 220
 
-    # ----Card ------------------------------
-    CardNum=$(aplay -l | grep -i "USB" | head -n2 | tail -n1 | awk -F'[\t: ]' '{print $2}')
-    amixer -c $CardNum set "Master",0 75
-    amixer -c $CardNum set "Headphone",0 80
-    amixer -c $CardNum set "PCM",0 220
+    # ---- Generic USB device #2 -----------------------
+    CardNum=$(aplay -l | grep -i "$AlsaDevUsb" | head -n2 | tail -n1 | awk -F'[\t: ]' '{print $2}')
+    amixer -c "$CardNum" set "Master",0 75
+    amixer -c "$CardNum" set "Headphone",0 80
+    amixer -c "$CardNum" set "PCM",0 220
 
-    #amixer  set  'Master',0 35000 35000 on
-
-    # amixer -c 0 scontrols
+    # ---- Card 0 (onboard) -----------------------------
     amixer -c 0 set -M 'Master',0 65 on
     amixer -c 0 set 'Headphone',0 75 unmute
-    # amixer -c 0 set  'Speaker',0 0 mute
     amixer -c 0 set 'PCM',0 100
-    #amixer -c 0 set  'Mic Boost',0 85
-    # amixer -c 0 set  'IEC958',0 0
-    # amixer -c 0 set  'IEC958',1 0
-    # amixer -c 0 set  'IEC958',2 0
-    # amixer -c 0 set  'IEC958',3 0
-    # amixer -c 0 set  'IEC958',4 0
-    # amixer -c 0 set  'IEC958',5 0
-    # amixer -c 0 set  'IEC958',6 0
-    # amixer -c 0 set  'IEC958',7 0
-    # amixer -c 0 set  'IEC958',8 0
-    # amixer -c 0 set  'IEC958',9 0
-    # amixer -c 0 set  'IEC958',10 0
-    # amixer -c 0 set  'IEC958',11 0
-
     amixer -c 0 set 'Capture',0 100
-    # amixer -c 0 set  'Auto-Mute Mode',0 0
     amixer -c 0 set 'Digital',0 0
 
-    # Master Playback Volume
-    # amixer -c 0 cset numid=9 100 unmute
+    amixer -c 0 cset numid=1 80 unmute   # Headphone
+    amixer -c 0 cset numid=8 80 unmute   # Mic Boost
+    amixer -c 0 cset numid=6 80 unmute   # Capture Volume
+    amixer -c 0 cset numid=4 0 unmute    # Speaker playback switch
+    amixer -c 0 cset numid=4 0 mute      # Speaker playback volume
+    amixer -c 0 cset -M numid=100 80 unmute  # PCM Playback
 
-    # Headphone
-    amixer -c 0 cset numid=1 80 unmute
-
-    # Mic Boost
-    amixer -c 0 cset numid=8 80 unmute
-
-    # Capture Volume
-    amixer -c 0 cset numid=6 80 unmute
-
-    # Speaker playback switch
-    amixer -c 0 cset numid=4 0 unmute
-
-    # Speaker playback volume
-    amixer -c 0 cset numid=4 0 mute
-
-    # PCM Playback
-    amixer -c 0 cset -M numid=100 80 unmute
-    #fi
-
-    # amixer -c 1 scontrols
+    # ---- Card 1 / 2 PCM levels -------------------------
     amixer -c 1 set 'PCM',0 100
-
-    # amixer -c 2 scontrols
     amixer -c 2 set 'PCM',0 100
-    amixer -c 1 set 'Mic',0 1950
-    amixer -c 1 set 'Mic',1 1950
-    amixer -c 2 set 'Mic',0 1950
-    amixer -c 2 set 'Mic',1 1950
-    amixer -c 3 set 'Mic',0 1950
-    amixer -c 3 set 'Mic',1 1950
-    amixer -c 4 set 'Mic',0 1950
-    amixer -c 4 set 'Mic',1 1950
-    amixer -c 5 set 'Mic',0 1950
-    amixer -c 5 set 'Mic',1 1950
 
-    # amixer -c 2 scontrols
+    # ---- Mic levels across cards 1-5 -------------------
+    for card in $AlsaMicCards; do
+        amixer -c "$card" set 'Mic',0 1950
+        amixer -c "$card" set 'Mic',1 1950
+    done
+
     amixer -c 2 set 'Speaker',0 100
-    # amixer -c 2 set 'Mic',0 100
     amixer -c 2 set 'Auto Gain Control',0 on
 
     amixer -c 3 set 'PCM',0 45
     amixer -c 3 set -M 'Master',0 100 on
 
-    amixer -c 4 set 'PCM',0 100
-    amixer -c 5 set 'PCM',0 100
-    amixer -c 6 set 'PCM',0 100
-    amixer -c 7 set 'PCM',0 100
-    amixer -c 8 set 'PCM',0 100
-    amixer -c 9 set 'PCM',0 100
-
+    # ---- PCM levels across cards 4-9 -------------------
+    for card in $AlsaPcmCards; do
+        amixer -c "$card" set 'PCM',0 100
+    done
 }
 
 #---------------------------------------------------------------------#
@@ -186,28 +227,27 @@ function AlsaSet {
 # Device
 # Input Volume
 # Output Volume
-#
 #---------------------------------------------------------------------#
 # CheckInterface: Verify audio interface exists and set its volumes
 function CheckInterface {
 
-    echo "CheckInterface " $1
+    echo "CheckInterface $1"
 
-    echo "$DeviceList" | grep "${Device}" >/dev/null 2>&1
+    echo "$DeviceList" | grep "${1}" >/dev/null 2>&1
     if [ "$?" -ne 0 ]; then
         InterfaceFound=0
         return 1
     fi
 
-    echo "We Found " $1
+    echo "We Found $1"
 
-    InLinkL=$(echo "$DeviceList" | grep "${1}" | grep -i capture | head -n 1) >/dev/null 2>&1
-    InLinkR=$(echo "$DeviceList" | grep "${1}" | grep -i capture | head -n 2 | tail -n 1) >/dev/null 2>&1
+    InLinkL=$(echo "$DeviceList" | grep "${1}" | grep -i capture | head -n 1)
+    InLinkR=$(echo "$DeviceList" | grep "${1}" | grep -i capture | head -n 2 | tail -n 1)
 
-    OutLinkL=$(echo "$DeviceListI" | grep "${1}" | grep -i playback | head -n 1) >/dev/null 2>&1
-    OutLinkR=$(echo "$DeviceListI" | grep "${1}" | grep -i playback | head -n 2 | tail -n 1) >/dev/null 2>&1
+    OutLinkL=$(echo "$DeviceListI" | grep "${1}" | grep -i playback | head -n 1)
+    OutLinkR=$(echo "$DeviceListI" | grep "${1}" | grep -i playback | head -n 2 | tail -n 1)
 
-    SetVolumes $1 $2 $3 $4
+    SetVolumes "$1" "$2" "$3" "$4"
     InterfaceFound=1
     return 0
 }
@@ -217,14 +257,49 @@ function CheckInterface {
 #---------------------------------------------------------------------#
 # SetVolumes: Set input/output volumes for an audio interface
 function SetVolumes {
-    echo "****SetVolumes "$1 $2 $3 $4
-    # Set sink (output) volume
-    InputVolume=$(pactl list short sinks | grep $1 | grep output | awk '{print $1}')
-    pactl set-sink-volume $InputVolume $2"%"
+    echo "****SetVolumes $1 $2 $3 $4"
 
-    OutputVolume=$(pactl list short sources | grep $1 | grep input | awk '{print $1}')
-    echo "SetVolumes Capture "$OutputVolume
-    pamixer --set-volume $3 --allow-boost --source $OutputVolume
+    # Set sink (output) volume
+    InputVolume=$(pactl list short sinks | grep "$1" | grep output | awk '{print $1}')
+    pactl set-sink-volume "$InputVolume" "$2%"
+
+    # Set source (input) volume
+    OutputVolume=$(pactl list short sources | grep "$1" | grep input | awk '{print $1}')
+    echo "SetVolumes Capture $OutputVolume"
+    pamixer --set-volume "$3" --allow-boost --source "$OutputVolume"
+}
+
+#---------------------------------------------------------------------#
+#*** FindPort
+#---------------------------------------------------------------------#
+# FindPort: Resolve a live port name from loose keywords instead of a
+# hardcoded literal, since Midi-Bridge naming punctuation (colons,
+# spacing) has changed between PipeWire versions/restarts before.
+#   $1        direction: "out" = capture/source ports (pw-link -o,
+#             cached in $DeviceList) | "in" = playback/sink ports
+#             (pw-link -i, cached in $DeviceListI)
+#   $2, $3... substrings that must ALL appear in the port name
+#             (case-insensitive, ANDed together); first match wins.
+# Prints the matched port name (or nothing, with a warning on stderr).
+function FindPort {
+    local direction="$1"; shift
+    local list
+    if [ "$direction" == "out" ]; then
+        list="$DeviceList"
+    else
+        list="$DeviceListI"
+    fi
+
+    for kw in "$@"; do
+        list=$(echo "$list" | grep -i -- "$kw")
+    done
+
+    local match
+    match=$(echo "$list" | head -n 1)
+    if [ -z "$match" ]; then
+        echo "FindPort: no match for [$*]" >&2
+    fi
+    echo "$match"
 }
 
 #---------------------------------------------------------------------#
@@ -236,15 +311,12 @@ function FindEffects {
     echo "Find Effects ${1}"
 
     echo "$DeviceList" | grep "${1}" >/dev/null 2>&1
-
     if [ "$?" -ne 0 ]; then
         EffectFound=0
         return 1
     fi
 
-    echo "Effect Found " "${1}"
-    echo "$DeviceList" | grep "${1} | grep -i out" >/dev/null 2>&1
-    echo "$DeviceListI" | grep "${1} | grep -i in" >/dev/null 2>&1
+    echo "Effect Found ${1}"
 
     ChainOutNextL="${EffectOutL}"
     ChainOutNextR="${EffectOutR}"
@@ -257,205 +329,165 @@ function FindEffects {
     EffectOutL="$(echo "$DeviceList" | grep "${1}" | grep -i out | head -n 1)"
     EffectOutR="$(echo "$DeviceList" | grep "${1}" | grep -i out | head -n 2 | tail -n 1)"
 
-    # echo $EffectInL
-    # echo $EffectInR
-    # echo $EffectOutL
-    # echo $EffectOutR
     EffectFound=1
     return 0
-
 }
 
 #---------------------------------------------------------------------#
-#*** ChainNext
+#*** ChainNext / ChainNextLeft / ChainNextRight / DoLink
 #---------------------------------------------------------------------#
 # ChainNext: Connect stereo effect chain links
 function ChainNext {
     echo "${1}" "${EffectInL}"
     echo "${2}" "${EffectInR}"
 
-    # Connect left and right channels if effect was found
-    if [ $EffectFound -ne 0 ]; then
+    if [ "$EffectFound" -ne 0 ]; then
         DoLink "${1}" "${EffectInL}"
         DoLink "${2}" "${EffectInR}"
     fi
-
 }
 
 function ChainNextLeft {
-    if [ $EffectFound -ne 0 ]; then
+    if [ "$EffectFound" -ne 0 ]; then
         DoLink "${1}" "${EffectInL}"
     fi
-
 }
 
 function ChainNextRight {
-    if [ $EffectFound -ne 0 ]; then
+    if [ "$EffectFound" -ne 0 ]; then
         DoLink "${1}" "${EffectInR}"
     fi
-
 }
 
 function DoLink {
-    # Link two devices
     pw-link "${1}" "${2}"
 }
 
-function OldRack {
-
-    # -------------------------------------------------------------------
-    # Main Guitarix effect chain
-
-    # Guitarix Head to Effects
-    FindEffects gx_head_fx
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    # Guitarix Out to Carla Boost Preamp.
-    FindEffects "${PreFix}:rkr Parametric EQ:Audio In"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    FindEffects "${PreFix}:the infamous lush life:Audio In"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    # Boost Preamp to Carla Mixer
-    FindEffects "${PreFixMix}LSP Mixer x4 Stereo:Output"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    # Carla Mixer to output Device
-    DoLink "${EffectOutL}" "${MainOutputL}"
-    DoLink "${EffectOutR}" "${MainOutputR}"
-    # Main Guitarix effect chain
-    # -------------------------------------------------------------------
-
-    # -------------------------------------------------------------------
-    # Carla Internal Post Rack
-    FindEffects "${PreFix}:rkr Shelf Boost"
-    FindEffects "${PreFixMix}LSP Mixer x4 Stereo:Audio input"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-    # Carla Internal Rack
-    # -------------------------------------------------------------------
-
-}
-
+#---------------------------------------------------------------------#
+#*** SetInput / SetOutput
+#---------------------------------------------------------------------#
 function SetInput {
-
     echo "*** SetInput"
     echo "${MainInputL}" "${MainInputR}"
 
-#    FindEffects "GxTuner"
-    FindEffects "x42 Instrument Tuner"   
+    FindEffects "$FxTuner"
     ChainNextLeft "${MainInputL}"
     ChainNextLeft "${MainInputR}"
     ChainNextRight "${MainInputL}"
     ChainNextRight "${MainInputR}"
 
-    FindEffects "MIDI Guitar 2"   
+    FindEffects "$FxMidiGuitar"
     ChainNextLeft "${MainInputL}"
     ChainNextLeft "${MainInputR}"
     ChainNextRight "${MainInputL}"
     ChainNextRight "${MainInputR}"
 
-    FindEffects "LSP Gate"
+    FindEffects "$FxGate"
     ChainNextLeft "${MainInputL}"
     ChainNextLeft "${MainInputR}"
     ChainNextRight "${MainInputL}"
     ChainNextRight "${MainInputR}"
-
 }
 
 function SetOutput {
-
-    echo "*** SetOuput "
-    # Carla Mixer to output device
-    FindEffects "LSP Mixer x4 Stereo"
+    echo "*** SetOutput"
+    FindEffects "$FxMixer"
     DoLink "${EffectOutL}" "${MainOutputL}"
     DoLink "${EffectOutR}" "${MainOutputR}"
-
 }
 
+#---------------------------------------------------------------------#
+#*** NewRack - current Carla effect chain
+#---------------------------------------------------------------------#
 function NewRack {
- 
-pw-metadata -n settings 0 clock.force-rate 96000
- 
+
+    pw-metadata -n settings 0 clock.force-rate 96000
     set -x
-    FindEffects "sooperlooper"
+
+    FindEffects "$FxLooper"
     LoopIn1="${EffectInL}"
     LoopIn2="${EffectInR}"
     LoopOut1="${EffectOutL}"
     LoopOut2="${EffectOutR}"
 
-    
-
     # -------------------------------------------------------------------
     # Main Carla effect chain
-    FindEffects "LSP Gate Mono"
+    FindEffects "$FxGateMono"
 
-    FindEffects "GOTT Compressor Mono"
-#    FindEffects "LSP Multiband Compressor"
+    FindEffects "$FxCompMono"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "LSP Graphic Equalizer x16"
- #   FindEffects "Parametric Equalizer x8 Stereo"
+    FindEffects "$FxGottComp"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "GxAmplifier"
+    FindEffects "$FxGeq16"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-#    FindEffects "GuitarConditioner"
-#    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-#    FindEffects "MDA Bandisto"
-#    FindEffects "rkr Valve"
-#    FindEffects "rkr Distorsion"
-    FindEffects "GxTubeScreamer"
-    # FindEffects "TooB Tone Stack""
+    FindEffects "$FxTubeScreamer"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    # FindEffects "Neural Amp Modeler"
+    FindEffects "$FxAmplifier"
+    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+    FindEffects "$FxMuTroMojo"
+    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+
+    FindEffects "$FxReverb"
     # ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
+    # 
+    # FindEffects "$FxMuTroMojo"
 
-    FindEffects "rkr MuTroMojo"
+    # -------------------------------------------------------------------
+    # Waylo + MOD 2Voices are PARALLEL branches.
+    #
+    # Waylo remains the normal stereo doubler/delay branch. MOD 2Voices
+    # receives the guitar signal from the left channel (the guitar source
+    # is effectively mono) and produces two independent pitch-shifted
+    # voices. The Waylo stereo output and the two 2Voices outputs are then
+    # mixed together before entering the reverb.
+    #
+    # 2Voices is not handled by FindEffects because it has ONE input and
+    # TWO outputs, whereas FindEffects assumes a conventional stereo
+    # input/output plugin.
+    # -------------------------------------------------------------------
+
+   ParallelInL="${ChainOutNextL}"
+   ParallelInR="${ChainOutNextR}"
+
+    # --- Waylo branch ---------------------------------------------------
+    FindEffects "$FxDelay"
+    WayloInL="${EffectInL}"
+    WayloInR="${EffectInR}"
+    WayloOutL="${EffectOutL}"
+    WayloOutR="${EffectOutR}"
+
+    DoLink "${ParallelInL}" "${WayloInL}"
+    DoLink "${ParallelInR}" "${WayloInR}"
+
+    # --- MOD 2Voices branch --------------------------------------------
+    # Carla exposes the LV2 ports using their LV2 names: In, Out 1, Out 2.
+    TwoVoicesIn="${PreFixMix}${Fx2Voices}:In"
+    TwoVoicesOut1="${PreFixMix}${Fx2Voices}:Out 1"
+    TwoVoicesOut2="${PreFixMix}${Fx2Voices}:Out 2"
+
+    # Feed the mono guitar signal to the harmonizer.
+    DoLink "${ParallelInL}" "${TwoVoicesIn}"
+
+    # --- Rejoin the parallel branches at the reverb -------------------
+    FindEffects "$FxReverb"
+    ReverbInL="${EffectInL}"
+    ReverbInR="${EffectInR}"
+
+    DoLink "${WayloOutL}" "${ReverbInL}"
+    DoLink "${TwoVoicesOut1}" "${ReverbInL}"
+    DoLink "${WayloOutR}" "${ReverbInR}"
+    DoLink "${TwoVoicesOut2}" "${ReverbInR}"
+
+    # Continue the normal chain from the reverb output.
+    ChainNext "${EffectOutL}" "${EffectOutR}"
+
+    FindEffects "$FxLoudnessComp"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    LastEffectOutR="${EffectOutR}"
-    LastEffectOutL="${EffectOutL}"
-
-    # FindEffects "GxDelay-Stereo"
-#    FindEffects "MDA DubDelay"
-#    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-#   FindEffects "rkr Flanger.Chorus"
- #   ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-#    DoLink "${EffectOutL}" "${MixerInput1L}"
-#    DoLink "${EffectOutR}" "${MixerInput1R}"
-#    DoLink "${EffectOutL}" "${LoopIn1}"
-#    DoLink "${EffectOutL}" "${LoopIn2}"
-
- #   EffectOutR="${LastEffectOutR}"
- #   EffectOutL="${LastEffectOutL}"
-
-    FindEffects "GxZita_rev1-Stereo"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
- #   FindEffects "GxChorus-Stereo"
-    FindEffects "LSP Chorus Stereo"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    #vFindEffects "rkr WahWah"
-    # ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    #FindEffects "the infamous lush life"
-    #ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    FindEffects "PurestSquish"
-    ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-    set -x
-    #FindEffects "LSP Profiler Stereo"
-    #ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
-
-    # FindEffects "rkr Flanger.Chorus"
-    # ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     # To Carla Mixer
     echo "Last Effect to Mixer 1 input"
@@ -463,60 +495,42 @@ pw-metadata -n settings 0 clock.force-rate 96000
     DoLink "${EffectOutR}" "${MixerInput1R}"
     LastEffectOutR="${EffectOutR}"
     LastEffectOutL="${EffectOutL}"
-    echo $LastEffectOutR
-    # This script echoes the value of the variable LastEffectOutL.
-    echo $LastEffectOutL
-    
+    echo "$LastEffectOutR"
+    echo "$LastEffectOutL"
+
     # Sooper Looper
     DoLink "${LastEffectOutL}" "${LoopIn1}"
     DoLink "${LastEffectOutR}" "${LoopIn2}"
-    DoLink "${LoopOut1}" "${MixerInput3L}"
-    DoLink "${LoopOut2}" "${MixerInput3R}"
-
 }
 
-#---------------------------------------------------------------------#
-#*** Main
-#---------------------------------------------------------------------#
-# Main script execution
-# Clear all connections to Carla Rack
+#=======================================================================
+# MAIN
+#=======================================================================
+
+# Clear all connections to the Carla rack if requested
 if [ "$1" == "clear" ]; then
     echo "ClearRack"
     ClearRack
-    # Clear the Plasma connections
     ClearPlasma
 fi
 
-# Set the Volumes at the Alsa level
+# Set the Volumes at the ALSA level
 #/home/ebin/AlsaSet.sh
 
 # Get current audio device lists
 export DeviceList="$(pw-link -o)"
 export DeviceListI="$(pw-link -i)"
 
-# Check and set up various devices
-Device="Audio_AIR_192"
-CheckInterface "$Device" 100 100
+# --- Check and set up input/output devices --------------------------
+Device="$DevAudioAir";      CheckInterface "$Device" 100 100
+Device="$DevCMedia";        CheckInterface "$Device" 100 100
+Device="$DevAudioBoxGo";    CheckInterface "$Device" 100 100
+Device="$DevZoomU24";       CheckInterface "$Device" 100 100
+Device="$DevBurrBrown";     CheckInterface "$Device" 100 100
+Device="$DevBluezOutput";   CheckInterface "$Device" 60 60
+Device="$DevNuxUsb";        CheckInterface "$Device" 100 100
 
-Device="C-Media_Electronics"
-CheckInterface "$Device" 100 100
-
-Device="AudioBox_Go"
-CheckInterface "$Device" 100 100
-
-Device="ZOOM_Corporation_U-24"
-CheckInterface "$Device" 100 100
-
-Device="Burr-Brown"
-CheckInterface "$Device" 100 100
-
-Device="bluez_output"
-CheckInterface "$Device" 40 40
-
-Device="NUX_USB"
-CheckInterface "$Device" 100 100
-
-Device="XSONIC_XTONE"
+Device="$DevXTone"
 CheckInterface "$Device" 100 100
 MainInputL=$InLinkL
 MainInputR=$InLinkR
@@ -524,7 +538,7 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
-Device="Positive_Grid_Spark_2"
+Device="$DevSpark2"
 CheckInterface "$Device" 100 100
 MainInputL=$InLinkL
 MainInputR=$InLinkR
@@ -532,17 +546,16 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
-Device="Focusrite_Scarlett"
+Device="$DevScarlett"
 Device2="capture"
 CheckInterface "$Device" 125 120 "$Device2"
-
 MainInputL=$InLinkL
 MainInputR=$InLinkR
 MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
-Device="SteelSeries"
+Device="$DevSteelSeries"
 CheckInterface "$Device" 125 120
 MainInputL=$InLinkL
 MainInputR=$InLinkR
@@ -550,394 +563,188 @@ MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetInput
 
-# ejk
+# --- Carla mixer input ports -----------------------------------------
+MixerInput1R="${PreFixMix}${FxMixer}:Audio input right 1"
+MixerInput1L="${PreFixMix}${FxMixer}:Audio input left 1"
+MixerInput2R="${PreFixMix}${FxMixer}:Audio input right 2"
+MixerInput2L="${PreFixMix}${FxMixer}:Audio input left 2"
+MixerInput3L="${PreFixMix}${FxMixer}:Audio input left 3"
+MixerInput3R="${PreFixMix}${FxMixer}:Audio input right 3"
+MixerInput4L="${PreFixMix}${FxMixer}:Audio input left 4"
+MixerInput4R="${PreFixMix}${FxMixer}:Audio input right 4"
 
-# Set up mixer inputs
-MixerInput1R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 1"
-MixerInput1L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 1"
-MixerInput2R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 2"
-MixerInput2L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 2"
-MixerInput3L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 3"
-MixerInput3R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 3"
-MixerInput4L="${PreFixMix}LSP Mixer x4 Stereo:Audio input left 4"
-MixerInput4R="${PreFixMix}LSP Mixer x4 Stereo:Audio input right 4"
-
-# Device="G935"
-Device="Focusrite_Scarlett"
+# --- Route mixer output back out to each interface --------------------
+Device="$DevScarlett"
 CheckInterface "$Device" 100 100
-if [ $InterfaceFound -ne 0 ]; then
+if [ "$InterfaceFound" -ne 0 ]; then
     MainOutputL=$OutLinkL
     MainOutputR=$OutLinkR
 fi
 SetOutput
 
-
-Device="SteelSeries"
+Device="$DevSteelSeries"
 CheckInterface "$Device" 115 30
-
-if [ $InterfaceFound -ne 0 ]; then
+if [ "$InterfaceFound" -ne 0 ]; then
     MainOutputL=$OutLinkL
     MainOutputR=$OutLinkR
 fi
 SetOutput
 
-Device="Positive_Grid_Spark_2"
+Device="$DevSpark2"
 CheckInterface "$Device" 50 100
 MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetOutput
 
-Device="XSONIC_XTONE"
+Device="$DevXTone"
 CheckInterface "$Device" 50 100
 MainOutputL=$OutLinkL
 MainOutputR=$OutLinkR
 SetOutput
 
-# Double volume
-# FindEffects "BassAmp"
-# DoLink "${EffectOutL}" "${MainOutputL}"
-# DoLink "${EffectOutR}" "${MainOutputR}"
-# MainOutputL="${EffectInL}"
-# MainOutputR="${EffectInR}"
-# SetOutput
-
-
-# Create new effects chain connections
+# Build the current effects chain
 NewRack
 
 # -------------------------------------------------------------------
-# Sound font to mixer
-#FindEffects "qsynth"
-echo "qsynth:left  "${MixerInput2L}
+# Soundfont synth to mixer
+echo "qsynth:left  $MixerInput2L"
 DoLink "qsynth:left" "${MixerInput2L}"
 DoLink "qsynth:right" "${MixerInput2R}"
 
-
-# Sound font to mixer
-# -------------------------------------------------------------------
-
-# -------------------------------------------------------------------
-# Looper Connection
-# FindEffects gx_head_fx
-# LoopIn1="${EffectInL}"
-# LoopIn2="${EffectInR}"
-# DoLink "${LastEffectOutL}" "${EffectInL}"
-# DoLink "${LastEffectOutR}" "${EffectInR}"
-
-#ChainNextLeft "${MainInputL}"
-#ChainNextLeft "${MainInputR}"
-#ChainNextRight "${MainInputL}"
-#ChainNextRight "${MainInputR}"
-
-# Looper output
-#FindEffects "sooperlooper"
-#DoLink "${EffectOutL}" "${MixerInput4L}"
-#DoLink "${EffectOutR}" "${MixerInput4R}"
-
-# Looper Connection
-# -------------------------------------------------------------------
-
 echo "****************************"
 echo " Midi Connections "
-
-# Midi Connections
 # -------------------------------------------------------------------
 
-SoundGenerator="${SoundGenerator}"
-SoundGenerator="LinuxSampler:midi_in_0"
+# Resolve the Midi-Bridge ports we need up front, by keyword rather
+# than exact literal - see FindPort() above.
+PortVirtual0Cap=$(FindPort out "${KwMidiVirtual0[@]}")
+PortVirtual1Cap=$(FindPort out "${KwMidiVirtual1[@]}")
+PortThroughCap=$(FindPort out "${KwMidiThrough[@]}")
+PortFluidCap=$(FindPort out "${KwOutFluid[@]}")
+PortClickCap=$(FindPort out "${KwOutClick[@]}")
+PortGuitarixCap=$(FindPort out "${KwOutGuitarix[@]}")
+PortDawPortCap=$(FindPort out "${KwOutDawPort[@]}")
+PortPedalCap=$(FindPort out "${KwOutPedal[@]}")
+PortEliasMidiBtCap=$(FindPort out "${KwEliasMidiBt[@]}")
 
-# Linuxsampler
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "LinuxSampler:midi_in_0"
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "LinuxSampler:midi_in_0"
-pw-link "Carla.0/MIDI Guitar 2:event-out" "LinuxSampler:midi_in_0"
-pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "LinuxSampler:midi_in_0"
+PortNanoCtrlPlay=$(FindPort in "${KwNanoKontrolCtrl[@]}")
+PortNanoCtrlCap=$(FindPort out "${KwNanoKontrolCtrl[@]}")
+PortLiveDawPlay=$(FindPort in "${KwLiveDaw[@]}")
+PortLvSwitchInPlay=$(FindPort in "${KwLvSwitchIn[@]}")
+PortEliasMidiBtPlay=$(FindPort in "${KwEliasMidiBt[@]}")
+# "LiveMusic" (plain) vs "LiveMusic Output:*" is a substring trap -
+# every Output port also contains "LiveMusic", so filter those out.
+PortLiveMusicPlay=$(echo "$DeviceListI" | grep -i "LiveMusic" | grep -vi "Output" | head -n 1)
 
+# LinuxSampler
+pw-link "$PortVirtual0Cap" "$MidiLinuxSampler"
+pw-link "$PortVirtual1Cap" "$MidiLinuxSampler"
+pw-link "${PreFixMix}${FxMidiGuitar}:event-out" "$MidiLinuxSampler"
+pw-link "$PortFluidCap" "$MidiLinuxSampler"
 
 pw-link "LinuxSampler:0" "${MixerInput2L}"
 pw-link "LinuxSampler:1" "${MixerInput2R}"
 
 # -- Midi Fluid
-pw-link "Midi-Bridge:Midi Through Port-0 (capture)" "${SoundGenerator}"
+# Note: the old rig had separate VirMIDI 5-x/6-x/7-x pairs feeding this;
+# the current PipeWire graph only exposes one virtual pair, so those
+# have collapsed into the two links below.
+pw-link "$PortThroughCap" "${MidiSoundGenerator}"
+pw-link "$PortVirtual0Cap" "${MidiSoundGenerator}"
+pw-link "$PortVirtual1Cap" "${MidiSoundGenerator}"
+pw-link "$PortClickCap" "${MidiSoundGenerator}"
+pw-link "$PortFluidCap" "${MidiSoundGenerator}"
+pw-link "${PreFixMix}${FxMidiGuitar}:event-out" "${MidiSoundGenerator}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 5-0VirMIDI 5-0 (capture)" "${SoundGenerator}"
+pw-link "FluidSynth:output_1" "${MixerInput2L}"
+pw-link "FluidSynth:output_2" "${MixerInput2R}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 5
--1VirMIDI 5-1 (capture)" "${SoundGenerator}"
+DoLink "qsynth:left" "${ChainOutNextL}"
+DoLink "qsynth:right" "${ChainOutNextR}"
 
-pw-link "Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)" "${SoundGenerator}"
-
-pw-link "Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)" "${SoundGenerator}"
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-0VirMIDI 7-0 (capture)" "${SoundGenerator}"
-
-pw-link "Midi-Bridge:Virtual Raw MIDI 7-1VirMIDI 7-1 (capture)" "${SoundGenerator}"
-
-pw-link "Midi-Bridge:LiveMusic OutputClick (capture)" "${SoundGenerator}"
-# 
-pw-link "Midi-Bridge:LiveMusic OutputFluid (capture)" "${SoundGenerator}"
-# 
-pw-link "Carla.0/MIDI Guitar 2:event-out" "${SoundGenerator}"
-# 
-
-    pw-link "FluidSynth:output_1" "${MixerInput2L}"
-    pw-link "FluidSynth:output_2" "${MixerInput2R}"
-
-    DoLink "qsynth:left" "${ChainOutNextL}"
-    DoLink "qsynth:right" "${ChainOutNextR}"
-
-    
-pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
-
-# pw-link "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
-
-pw-link "Midi-Bridge:LiveMusic OutputDAWPort (capture)" "Midi-Bridge:nanoKONTROL2 _ CTRL (playback)" 
-
-pw-link "Midi-Bridge:nanoKONTROL2 _ CTRL (capture)" "Midi-Bridge:LiveDAW (playback)"
+pw-link "$PortGuitarixCap" "$PortLvSwitchInPlay"
+pw-link "$PortDawPortCap" "$PortNanoCtrlPlay"
+pw-link "$PortNanoCtrlCap" "$PortLiveDawPlay"
 
 # From Guitar to software
-pw-link "Midi-Bridge:EliasMidi Bluetooth (capture)" "Midi-Bridge:LiveMusic (playback)"
+pw-link "$PortEliasMidiBtCap" "$PortLiveMusicPlay"
+pw-link "$PortPedalCap" "$PortEliasMidiBtPlay"
 
-pw-link "Midi-Bridge:LiveMusic OutputPedal (capture)" "Midi-Bridge:EliasMidi Bluetooth (playback)"
+aconnect "$MidiNanoKontrol":"0" "LiveDAW":"1"
 
-
-# Inputs
-# Midi-Bridge:Midi Through Port-0 (playback)
-# Midi-Bridge:nanoKONTROL2 _ CTRL (playback)
-# Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (playback)
-# Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (playback)
-# Midi-Bridge:LiveMusic (playback)
-# Midi-Bridge:LiveDAW (playback)
-# Midi-Bridge:LiveMidi (playback)
-# Midi-Bridge:LvSwitchSwitchIn (playback)
-# Midi-Bridge:FLUID Synth (qsynth)Synth input port (qsynth:0) (playback)
-# Midi-Bridge:sooperlooper (playback)
-# bluez_midi.server:in
-
-# output
-# Midi-Bridge:Midi Through Port-0 (capture)
-# Midi-Bridge:nanoKONTROL2 _ CTRL (capture)
-# Midi-Bridge:Virtual Raw MIDI 6-0VirMIDI 6-0 (capture)
-# Midi-Bridge:Virtual Raw MIDI 6-1VirMIDI 6-1 (capture)
-# Midi-Bridge:LiveMusic OutputFluid (capture)
-# Midi-Bridge:LiveMusic OutputGuitarix (capture)
-# Midi-Bridge:LiveMusic OutputLooper (capture)
-# Midi-Bridge:LiveMusic OutputTransport (capture)
-# Midi-Bridge:LiveMusic OutputTempo (capture)
-# Midi-Bridge:LiveMusic OutputClick (capture)
-# Midi-Bridge:LiveMusic OutputPedal (capture)
-# Midi-Bridge:LiveMusic OutputDAWPort (capture)
-# Midi-Bridge:LiveMusic OutputDRLoop (capture)
-# Midi-Bridge:LiveMusic OutputUser2 (capture)
-# Midi-Bridge:LiveMusic OutputUser3 (capture)
-# Midi-Bridge:LiveMusic OutputInternal (capture)
-# Midi-Bridge:LvSwitchSwitchOut (capture)
-# Midi-Bridge:sooperlooper (capture)
-# bluez_midi.server:out
-
-
-
-
-
-
+# Reference - Midi-Bridge ports seen on this rig (not connected here):
+# Inputs:  Midi Through: Port-0, nanoKONTROL2: _ CTRL, Virtual Raw MIDI 2-0/2-1,
+#          LiveMusic:, LiveDAW:, LiveMidi:, LvSwitch:SwitchIn,
+#          FLUID Synth (qsynth) input, sooperlooper, bluez_midi.server:in
+# Outputs: Virtual Raw MIDI 2-0/2-1, LiveMusic Output:{Fluid,Guitarix,Looper,
+#          Transport,Tempo,Click,Pedal,DAWPort,DRLoop,User2,User3,Internal},
+#          LvSwitch:SwitchOut, sooperlooper, bluez_midi.server:out
 
 exit
 
-# Disconnect Plasma PA connections
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
-pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
+#=======================================================================
+# DISABLED / REFERENCE ONLY
+# Everything below this point was already unreachable in the original
+# script (it lived after an unconditional `exit`), kept here in case
+# any of it needs to be revived. Nothing here currently runs.
+#=======================================================================
 
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0" "Plasma PA:input_FL"
-pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1" "Plasma PA:input_FR"
+# --- Disconnect Plasma PA connections ---------------------------------
+# pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX0 "Plasma PA:input_FL"
+# pw-link -d alsa_output.usb-Focusrite_Scarlett_Solo_USB-00.pro-output-0:monitor_AUX1 "Plasma PA:input_FR"
+# pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX0" "Plasma PA:input_FL"
+# pw-link -d "alsa_input.usb-Focusrite_Scarlett_Solo_USB-00.pro-input-0:capture_AUX1" "Plasma PA:input_FR"
 
+# --- Older ALSA-sequencer based MIDI routing (aconnect) ----------------
+# aconnect "$MidiPedal":"0" "LiveMusic":"0"
+# aconnect "$MidiGuitarCtrl":"0" "LiveMusic":"0"
+# aconnect "$MidiMidiCtrl":"0" "LiveMusic":"0"
+# aconnect "$MidiXToneCtrl":"0" "LiveMusic":"0"
+#
+# aconnect "$MidiNanoKontrol":"0" "LiveDAW":"1"
+# aconnect "$MidiLpd8":"0" "LiveDAW":"1"
+# aconnect "$MidiKeyFadr":"0" "LiveDAW":"1"
+#
+# aconnect "$MidiTriplePlayConnect":"0" "LiveMidi":2
+# aconnect "$MidiFishman":"0" "LiveMidi":2
+#
+# aconnect "$MidiNmsve":"0" "LiveMusic":"0"
+# aconnect "LiveMusic Output":"2" "$FxLooper":"0"
+# aconnect "LiveMusic Output":"Click" "$FxLooper":"0"
+#
+# aconnect "LiveMusic Output":"6" "$MidiNmsve":"0"
+# aconnect "LiveMusic Output":"6" "$MidiPedal":"0"
+# aconnect "LiveMusic Output":"6" "$MidiGuitarCtrl":"0"    # To Guitar Controller
+# aconnect "LiveMusic Output":"6" "$MidiMidiCtrl":"0"
+#
+# aconnect "LiveMusic Output":"7" "$MidiNanoKontrol":"0"   # To KorgNano
+# aconnect "LiveMusic Output":"7" "$MidiLpd8":"0"
+# aconnect "LiveMusic Output":"7" "$MidiKeyFadr":"0"
 
+# --- Carla mixer channel strip defaults via OSC ------------------------
+# Channel strip parameter indices: 0/1 in/out?, 2 output balance,
+# 3 dry balance, 4/5 wet balance, 10/19/28/37 solo, 11/20/29/38 mute,
+# 12/21/30/39 phase invert, 13/22/31/40 left ch, 14/23/32/41 right ch,
+# 15/24/33/42 balance, 16/25/34/43 volume.
+# for strip in 1 2 3 4; do
+#     base=$(( (strip - 1) * 9 + 1 ))
+#     ...
+# done
+#
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 0 1
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 1 0
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 2 1.0   # Output Balance
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 3 0.25  # Dry Balance
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 4 1     # Wet Balance
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 5 3
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 10 0    # Solo
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 11 0    # Mute
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 12 0    # Phase Invert
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 13 0    # Left Channel
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 14 0    # Right Channel
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 15 0    # Balance
+# oscsend $OscHost $OscPort /Carla/1/set_parameter_value if 16 3    # Volume
+# (same pattern repeats for strips 2-4 at offsets 19, 28, 37)
 
-
-
-# -------------------------------------------------------------------
-# Configure MIDI connections
-
-aconnect "EliasPedal3":"0" "LiveMusic":"0"
-aconnect "EliasGuitar":"0" "LiveMusic":"0"
-aconnect "EliasMidi":"0" "LiveMusic":"0"
-aconnect "XTONE":"0" "LiveMusic":"0"
-
-# Midi-Bridge:LiveMusic:(playback_0) LiveMusic
-
-# Midi-Bridge:LiveDAW:(playback_1) LiveDAW
-# DoLink "Midi-Bridge:nanoKONTROL2 3:(capture_0) nanoKONTROL2 nanoKONTROL2 _ CTR" "Midi-Bridge:LiveDAW:(playback_1) LiveDAW"
-aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
-aconnect "LPD8":"0" "LiveDAW":"1"
-aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
-# Midi-Bridge:LiveMidi:(playback_2) LiveMidi
-aconnect "TriplePlay Connect":"0" "LiveMidi":2
-aconnect "Fishman TriplePlay":"0" "LiveMidi":2
-
-# Midi-Bridge:LiveMusic Output:(capture_0) Fluid
-# aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
-aconnect "NMSVE":"0" "LiveMusic":"0"
-
-
-
-
-
-# DoLink "Midi-Bridge:LiveMusic Output:(capture_0) Fluid"  "Midi-Bridge:KORG INC- nanoKONTROL2 at usb-0000:00:14-0-7-2-4-1-2-1- full speed:(playback_0) nanoKONTROL2 nanoKONTROL2 _ CTR"
-
-# Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
-# DoLink  "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "gx_head_amp:midi_in_1"
-# pw-link "Midi-Bridge:LiveMusic OutputGuitarix (capture)" "Midi-Bridge:LvSwitchSwitchIn (playback)"
-# Midi-Bridge:LiveMusic Output:(capture_1) Guitarix
-# "Midi-Bridge:LvSwitch:(playback_0) SwitchIn"
-
-# DoLink "Midi-Bridge:LvSwitch:(playback_0) SwitchIn" "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix"
-
-# Midi-Bridge:LiveMusic Output:(capture_2) Looper
-# DoLink ""Midi-Bridge:LiveMusic Output:(capture_2) Looper" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-# DoLink "Midi-Bridge:LiveMusic OutputLooper (capture)" "Midi-Bridge:sooperlooper (playback)"
-aconnect "LiveMusic Output":"2" "sooperlooper":"0"
-
-# Midi-Bridge:LiveMusic OutputFluid (capture)
-# Midi-Bridge:LiveMusic OutputGuitarix (capture)
-# Midi-Bridge:LiveMusic OutputLooper (capture)
-# Midi-Bridge:LiveMusic OutputTransport (capture)
-# Midi-Bridge:LiveMusic OutputTempo (capture)
-# Midi-Bridge:LiveMusic OutputClick (capture)
-# Midi-Bridge:LiveMusic OutputPedal (capture)
-# Midi-Bridge:LiveMusic OutputDAWPort (capture)
-# Midi-Bridge:LiveMusic OutputDRLoop (capture)
-# Midi-Bridge:LiveMusic OutputUser2 (capture)
-# Midi-Bridge:LiveMusic OutputUser3 (capture)
-# Midi-Bridge:LiveMusic OutputInternal (capture)
-
-
-# Midi-Bridge:LiveMusic Output:(capture_3) Transport
-# Midi-Bridge:LiveMusic Output:(capture_4) Tempo
-# Midi-Bridge:LiveMusic Output:(capture_5) Click
-# aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
-
-### FIX
-# DoLink "Midi-Bridge:LiveMusic Output:(capture_5) Click" "FLUID Synth (qsynth)":"0"
-
-# DoLink "Midi-Bridge:LiveMusic Output:(capture_5) Click" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-aconnect "LiveMusic Output":"Click" "sooperlooper":"0"
-
-# Midi-Bridge:LiveMusic Output:(capture_6) Pedal
-aconnect "LiveMusic Output":"6" "NMSVE":"0"
-aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
-# To Guitar Controller
-aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
-aconnect "LiveMusic Output":"6" "EliasMidi":"0"
-# To KorgNano
-aconnect "LiveMusic Output":"6" "NMSVE":"0"
-
-# Midi-Bridge:LiveMusic Output:(capture_7) DAWPort
-# DoLink "Midi-Bridge:LiveMusic Output:(capture_7) DAWPort" "Midi-Bridge:nanoKONTROL2 3:(playback_0) nanoKONTROL2 nanoKONTROL2 _ CTR"
-
-aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
-
-aconnect "LiveMusic Output":"7" "LPD8":"0"
-aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
-
-# Midi-Bridge:LiveMusic Output:(capture_8) DRLoop
-# DoLink "Midi-Bridge:LiveMusic Output:(capture_8) DRLoop" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-#aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
-#aconnect "LiveMusic Output":8 "sooperlooper":0
-
-# Midi-Bridge:LiveMusic Output:(capture_9) User2
-
-# Midi-Bridge:LiveMusic Output:(capture_10) User3
-
-# Midi-Bridge:LiveMusic Output:(capture_11) Internal
-
-#aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
-#aconnect "Fishman TriplePlay":0 "MusE":0
-
-# Disconnect unnecessary connections
-# aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
-# aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
-# aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
-# aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
-# aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
-# aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
-# aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
-# aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
-# aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
-# aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
-# aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
-
-# -------------------------------------------------------------------
-# Jack Mixer values
-
-oscsend localhost 22752 /Carla/1/set_parameter_value if 0 1
-oscsend localhost 22752 /Carla/1/set_parameter_value if 1 0
-# Output Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 2 1.0
-# Dry Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 3 0.25
-# Wet Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 4 1
-oscsend localhost 22752 /Carla/1/set_parameter_value if 5 3
-
-# Solo
-oscsend localhost 22752 /Carla/1/set_parameter_value if 10 0
-# Mute
-oscsend localhost 22752 /Carla/1/set_parameter_value if 11 0
-# Phase Invert
-oscsend localhost 22752 /Carla/1/set_parameter_value if 12 0
-# Left Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 13 0
-# Right Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 14 0
-# Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 15 0
-# Volume
-oscsend localhost 22752 /Carla/1/set_parameter_value if 16 3
-
-# Solo 2
-oscsend localhost 22752 /Carla/1/set_parameter_value if 19 0
-# Mute
-oscsend localhost 22752 /Carla/1/set_parameter_value if 20 0
-# Phase Invert
-oscsend localhost 22752 /Carla/1/set_parameter_value if 21 0
-# Left Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 22 0
-# Right Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 23 0
-# Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 24 0
-# Volume
-oscsend localhost 22752 /Carla/1/set_parameter_value if 25 3
-
-# Solo 3
-oscsend localhost 22752 /Carla/1/set_parameter_value if 28 0
-# Mute
-oscsend localhost 22752 /Carla/1/set_parameter_value if 29 0
-# Phase Invert
-oscsend localhost 22752 /Carla/1/set_parameter_value if 30 0
-# Left Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 31 0
-# Right Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 32 0
-# Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 33 0
-# Volume
-oscsend localhost 22752 /Carla/1/set_parameter_value if 34 3
-
-# Solo 3
-oscsend localhost 22752 /Carla/1/set_parameter_value if 37 0
-# Mute
-oscsend localhost 22752 /Carla/1/set_parameter_value if 38 0
-# Phase Invert
-oscsend localhost 22752 /Carla/1/set_parameter_value if 39 0
-# Left Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 40 0
-# Right Channel
-oscsend localhost 22752 /Carla/1/set_parameter_value if 41 0
-# Balance
-oscsend localhost 22752 /Carla/1/set_parameter_value if 42 0
-# Volume
-oscsend localhost 22752 /Carla/1/set_parameter_value if 43 3
-# Jack Mixer values
-# -------------------------------------------------------------------
-
-
-# Send bank and program change
-sendmidi dev "Midi Through Port-0" ch 1 cc 0 0 cc 32 1 pc 1
+# --- Bank/program change on start-up ------------------------------------
+# sendmidi dev "$MidiThroughDevName" ch 1 cc 0 0 cc 32 1 pc 1
