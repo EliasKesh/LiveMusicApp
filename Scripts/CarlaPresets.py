@@ -25,7 +25,7 @@ from enum import auto, Enum
 class Effect(Enum):
         ABGate = 0          # Noise gate effect
 #        Compressor2 = auto() # Dynamic range compressor
-        GOTTCompressor = auto()
+        LSPCompressor = auto()
         Equalizer = auto()    # Equalizer
         Distortion2 = auto()    # Tube screamer
         PreAmp = auto()      # Amplifier preamp simulation
@@ -34,7 +34,7 @@ class Effect(Enum):
 #        Toob = auto()      # Amplifier preamp simulation
         Mojo = auto()        # Tone shaping effect
         Waylo = auto()
-        Voice2 = auto()
+        TwinPitch = auto()
         Wah = Mojo          # Alias for Mojo (Wah effect)
         Reverb = auto()      # Reverb effect
 #        Chorus = auto()      # Modulation effect
@@ -238,14 +238,14 @@ def WahSetup(Mode):
     WahBypass=0
     WahSmooth=105
     WahSense=-24.0
-    WahWetDry=0
+    WahWetDry=0.0
     
     if (Mode == "FunkyStrat"):
         WahResonace=78.0
         WahBypass=0
         WahSmooth=55
         WahSense=-34.0
-        WahWetDry=0
+        WahWetDry=1.0
 
     # Resonance 0 - 127
     EffectString = "/Carla/%d/set_parameter_value" % (Effect.Wah.value)
@@ -325,48 +325,61 @@ def GateControl(level):
     # EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
     # liblo.send(target, EffectString, 3, (Value))
 
-def CompressorControl(level):
-    InitLevel=level
-    # EffectString = "/Carla/%d/set_drywet" % (Effect.Compressor2.value)
-    # Value=rescaleMidi(InitLevel, 0.0, 1.0)
-    # liblo.send(target, EffectString, 0)
-    # 
-    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    # liblo.send(target, EffectString, 23, 55.0)
-    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    # liblo.send(target, EffectString, 25, 170.0)
-    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    # liblo.send(target, EffectString, 27, 608.0)
-    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    # liblo.send(target, EffectString, 29, 1976.0)
-    # 
-    # InitLevel = 60.0
-    # BaseFreq=36
-    # EffectString = "/Carla/%d/set_parameter_value" %  (Effect.Compressor2.value)
-    # liblo.send(target, EffectString, (BaseFreq+6), 0.04211)
-    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    # liblo.send(target, EffectString, (BaseFreq+24), 1.02)
-    # 
-    # BaseFreq=64
-    # liblo.send(target, EffectString, (BaseFreq+6), 1.165)
-    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    # liblo.send(target, EffectString, (BaseFreq+24), 0.35)
-    # 
-    # BaseFreq=92
-    # liblo.send(target, EffectString, (BaseFreq+6), 0.244)
-    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    # liblo.send(target, EffectString, (BaseFreq+24), 0.23)
-    # 
-    # BaseFreq=120
-    # liblo.send(target, EffectString, (BaseFreq+6), 0.24)
-    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    # liblo.send(target, EffectString, (BaseFreq+24), 0.42)
-    # 
-    # BaseFreq=148
-    # liblo.send(target, EffectString, (BaseFreq+6), 0.04)
-    # liblo.send(target, EffectString, (BaseFreq+20), InitLevel)
-    # liblo.send(target, EffectString, (BaseFreq+24), 1.9)
 
+def CompressorControl(Mode):
+    print("CompressorControl:", Mode)
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.LSPCompressor.value)
+
+    if (Mode == "Off"):
+        # Disable compressor
+        liblo.send(target, EffectString, 6, 0)
+        return
+
+    # ----------------------------------------------------------
+    # Enable compressor
+    # ----------------------------------------------------------
+    liblo.send(target, EffectString, 6, 1)
+
+    # Down compression
+    liblo.send(target, EffectString, 23, 0)
+
+    # Input / output / makeup at unity
+    liblo.send(target, EffectString, 7, 1.0)
+    liblo.send(target, EffectString, 8, 1.0)
+    liblo.send(target, EffectString, 33, 1.0)
+
+    # Soft knee
+    liblo.send(target, EffectString, 30, 0.50)
+
+    # No hold
+    liblo.send(target, EffectString, 28, 0.0)
+
+    # Dry/Wet blend
+    liblo.send(target, EffectString, 34, 0.65)   # Dry
+    liblo.send(target, EffectString, 35, 1.0)    # Wet
+    liblo.send(target, EffectString, 36, 35.0)   # 35% wet
+
+    if (Mode == "Jazz"):
+        # Gentle, smooth compression
+        liblo.send(target, EffectString, 24, 0.25)   # Attack threshold
+        liblo.send(target, EffectString, 25, 15.0)   # Attack
+        liblo.send(target, EffectString, 26, 0.0)    # Release threshold
+        liblo.send(target, EffectString, 27, 150.0)  # Release
+        liblo.send(target, EffectString, 29, 2.0)    # 2:1
+
+    elif (Mode == "Hollowbody"):
+        # Slightly more control and sustain
+        liblo.send(target, EffectString, 24, 0.20)   # Attack threshold
+        liblo.send(target, EffectString, 25, 20.0)   # Attack
+        liblo.send(target, EffectString, 26, 0.0)    # Release threshold
+        liblo.send(target, EffectString, 27, 180.0)  # Release
+        liblo.send(target, EffectString, 29, 2.5)    # 2.5:1
+
+    else:
+        print("Unknown compressor mode:", Mode)
+        
+        
 def WayLo(Mode):
 
     print("WayLo " + Mode)
@@ -418,7 +431,11 @@ def WayLo(Mode):
         0.375, # 8 Gain
         0.14, # 8 Depth
         0.35, # 8 Rate
-        0.30 # 8 Feedback
+        0.30, # 8 Feedback
+        
+        1.00, # Wet Gain
+        1.00, # Global Rate
+        1.00 # Global Depth
         ]
         
     WayLead4 = [ 
@@ -469,7 +486,11 @@ def WayLo(Mode):
         0.34, # 8 Gain
         0.00, # 8 Depth
         0.00, # 8 Rate
-        0.05 # 8 Feedback
+        0.05, # 8 Feedback
+        
+        1.00, # Wet Gain
+        1.00, # Global Rate
+        1.00 # Global Depth
         ]
 
     WayChorus8 = [ 
@@ -520,7 +541,11 @@ def WayLo(Mode):
         0.375, # 8 Gain
         0.104, # 8 Depth
         0.35, # 8 Rate
-        0.30 # 8 Feedback
+        0.30, # 8 Feedback
+        
+        1.00, # Wet Gain
+        0.20, # Global Rate
+        0.20 # Global Depth
         ]
         
     theArray=WayChorus8
@@ -648,6 +673,25 @@ def EQControl(Mode):
         1.20  # 16000 
         ]
 
+    HollowbodyValues = [
+        1.00, # 16
+        1.00, # 25
+        1.00, # 40
+        1.00, # 63
+        1.45, # 100 - body
+        1.55, # 160 - warmth
+        1.35, # 250 - hollowbody low mids
+        1.10, # 400 - body
+        0.82, # 630 - keep mud controlled
+        0.55, # 1000
+        0.42, # 1600 - soften pick attack
+        0.36, # 2500 - soften attack/presence
+        0.40, # 4000
+        0.50, # 6300
+        0.62, # 10000
+        0.55  # 16000 - rolled off
+        ]
+
     MellowValuesBright = [ 
         1.00, # 16
         1.00, # 25
@@ -705,11 +749,33 @@ def EQControl(Mode):
         0.72  # 16000
         ]
     
-    
+    JazzBellValues = [
+        1.00,  # 16 Hz
+        1.00,  # 25 Hz
+        1.00,  # 40 Hz
+        1.00,  # 63 Hz
+        1.45,  # 100 Hz
+        1.50,  # 160 Hz
+        1.25,  # 250 Hz
+        1.00,  # 400 Hz
+        0.75,  # 630 Hz
+        0.55,  # 1000 Hz
+        0.65,  # 1600 Hz
+        0.72,  # 2500 Hz
+        1.00,  # 4000 Hz
+        1.00,  # 6300 Hz
+        1.00,  # 10000 Hz
+        1.00   # 16000 Hz
+    ]
+
     if (Mode == "Normal"):
         theArray = Normal1Values
         print(Mode)
 
+    if (Mode == "JazzBell"):
+        theArray = JazzBellValues
+        print(Mode)
+    
     if (Mode == "Acoustic"):
         theArray = AcousticValues
         print(Mode)
@@ -720,6 +786,10 @@ def EQControl(Mode):
 
     if (Mode == "Jazz"):
         theArray = MellowValues1
+        print(Mode)
+
+    if (Mode == "Hollowbody"):
+        theArray = HollowbodyValues
         print(Mode)
 
     if (Mode == "Blues"):
@@ -750,6 +820,7 @@ def EQControl(Mode):
 #--------------------------------------------------------------
 def ResetToDefault():
     # Reset all effects to their default values
+    RestoreGateCompressor()
     DistortionControl(0)
     WahControl(0)
     ChorusControl(15)
@@ -946,10 +1017,97 @@ def rescaleMidiL(val, out_min, out_max):
     LogValue = NormValue / (1 + (1 - NormValue) * 2)
     print("Norm ", NormValue, "Log ",LogValue)
     return (LogValue)
-
+    
 #--------------------------------------------------------------
 # --- 
 #--------------------------------------------------------------
+   
+def TwinPitch(preset, wet_dry):          
+    print("TwinPitch: preset=%d wet/dry=%.2f" %
+          (preset, wet_dry))
+
+    # TwinPitch uses LV2 Atom controls rather than normal
+    # Carla numeric parameters, so select the factory preset.
+    #
+    # TwinPitch factory preset:
+    #   "Harmonizer - 4th-6th" = program 15
+    #
+    # tone and scale are retained in the function signature so
+    # the preset interface can be extended later if needed.
+    #
+    # tone:
+    #   0 = C
+    #   1 = C#
+    #   2 = D
+    #   ...
+    #   11 = B
+    #
+    # scale:
+    #   0 = Major
+    #   1 = Minor
+    #   2 = Harmonic Minor
+
+
+    EffectString = "/Carla/%d/set_program" % (Effect.TwinPitch.value)
+
+    # Select TwinPitch factory preset
+    liblo.send(target, EffectString, preset)
+
+    EffectString = "/Carla/%d/set_drywet" % (Effect.TwinPitch.value)
+    liblo.send(target, EffectString, wet_dry)
+
+    
+def RestoreGateCompressor():
+    """Restore the current/default gate and compressor settings.
+
+    This restores the values currently used by CarlaPresets.py:
+      Gate:
+        dry/wet = 100%
+        parameter 8 = 0 ms
+
+       Compressor:
+        dry/wet = 28%
+    """
+    print("RestoreGateCompressor")
+
+    # ----------------------------------------------------------
+    # Gate
+    # ----------------------------------------------------------
+    EffectString = "/Carla/%d/set_drywet" % (Effect.ABGate.value)
+    liblo.send(target, EffectString, 1.0)
+
+    # Restore the current GateControl() parameter-8 value.
+    # GateControl(0) maps MIDI 0 -> 0 ms.
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.ABGate.value)
+    liblo.send(target, EffectString, 8, 0.0)
+
+    # ----------------------------------------------------------
+    #  Compressor
+    # ----------------------------------------------------------
+    CompressorControl(28)   # ON
+    
+def HollowbodySetup():
+    print("HollowbodySetup")
+
+    ResetToDefault()
+    DistortionControl(0)
+
+    CompressorControl("Hollowbody")
+
+    EffectString = "/Carla/%d/set_parameter_value" % (Effect.PreAmp.value)
+    liblo.send(target, EffectString, 0, -20.0)
+    liblo.send(target, EffectString, 1, -7.5)
+    liblo.send(target, EffectString, 2, 0.0)
+    liblo.send(target, EffectString, 3, 0.0)
+    liblo.send(target, EffectString, 4, 0.60)
+    liblo.send(target, EffectString, 5, 0.66)
+    liblo.send(target, EffectString, 6, 0.38)
+    liblo.send(target, EffectString, 8, 6.0)
+
+    ChorusControl(45)
+    EQControl("Hollowbody")
+    WayLo("Jazz")
+    
 def main():
     global target
     global server
@@ -1012,25 +1170,28 @@ def main():
     with mido.open_input('SwitchIn', virtual=True, client_name='LvSwitch') as inport:
 
         for msg in inport:
-            print("*********************")
-            print(msg)
-#            print(msg.type)
+            print("**** msg *****************")
+#            print(msg, msg.type, msg.program)
 
             # Handle program changes (preset switches)
             if (msg.type == "program_change"):
-#                print(msg.program)
 
                 match msg.program:
                     case 0:
                         print("Jazz")
                         ResetToDefault()
+                        CompressorControl("Jazz")
                         ChorusControl(127)
                         DistortionControl(0)
-                        EQControl("Jazz")
+                        EQControl("JazzBell")
                         WayLo("Jazz")
-                        # increase the bass
-                        # EffectString = "/Carla/%d/set_parameter_value" % (Effect.Toob.value)
-                        # liblo.send(target, EffectString, 1, 0.65)
+                        TwinPitch(9, 0.50)   
+                        
+                        # ChorusControl(127)
+                        # DistortionControl(0)
+                        # EQControl("JazzBell")
+                        # WayLo("Jazz")
+                        # TwinPitch(9, 0.35)
 
                     case 1:
                         print("Straight")
@@ -1080,7 +1241,8 @@ def main():
                         WahSetup("FunkyStrat")
                         ReverbSetup("FunkyStrat")
                         Dist1Setup("FunkyStrat")
-                        WayLo("FunkyStrat")
+                        WayLo("Jazz")
+#                        WayLo("FunkyStrat")
 
 
                     # case 5:
@@ -1145,7 +1307,8 @@ def main():
                         EQControl("Boston")
                         Distortion2("Boston")
                         WayLoBoston()
-                        # ReverbSetup("Boston")
+                        TwinPitch(15,1.0)
+                        ReverbSetup("Boston")
                         
                         # Make absolutely sure wah is bypassed
                         EffectString = "/Carla/%d/set_parameter_value" % (Effect.Wah.value)
@@ -1154,6 +1317,10 @@ def main():
                         EffectString = "/Carla/%d/set_drywet" % (Effect.Wah.value)
                         liblo.send(target, EffectString, 0.0)
     
+
+                    case 17:
+                        print("Hollowbody")
+                        HollowbodySetup()
 
                     case _:
                         print("Found Nothing")

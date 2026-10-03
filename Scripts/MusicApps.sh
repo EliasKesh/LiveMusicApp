@@ -47,7 +47,6 @@ if [ "${1}" == "LiveMusicApp" ]; then
         ButtonSize=160
     fi
 
-
     GDK_DPI_SCALE=1.25 \
         GTK_THEME=LiveMusicTheme \
         nice -19 ${PipeStart} \

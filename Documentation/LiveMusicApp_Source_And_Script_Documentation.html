@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LiveMusicApp – Source & Script Documentation</title>
+    <style>
+        body {font-family: Arial, sans-serif; margin: 2em; line-height: 1.5;}
+        h1 {color: #2c3e50;}
+        h2 {color: #34495e; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;}
+        ul {margin-left: 1.5em;}
+        li {margin-bottom: 0.4em;}
+        code {background: #f4f4f4; padding: 0.2em 0.4em; border-radius: 3px;}
+        pre {background: #f9f9f9; padding: 0.8em; border: 1px solid #ddd; overflow-x: auto;}
+        .footer {margin-top: 2em; font-size: 0.9em; color: #777;}
+    </style>
+</head>
+<body>
+    <h1>LiveMusicApp – Source Code & Script Documentation</h1>
+
+    <h2>C Source Files (src/)</h2>
+    <p>These files constitute the core of the LiveMusicApp application.  Each file is responsible for a specific functional area, from MIDI handling to UI widgets.</p>
+    <ul>
+        <li><strong>APlayMidi.c</strong> – Implements MIDI playback using the ALSA sequencer.</li>
+        <li><strong>LiveMusicApp.c</strong> – Entry point and main event loop of the application.</li>
+        <li><strong>SooperOSC.c</strong> – Handles Open Sound Control (OSC) messaging for remote control.</li>
+        <li><strong>AlsaUtils.c</strong> – Small utility library for ALSA MIDI operations (device enumeration, config).</li>
+        <li><strong>MyWidgets.c</strong> – Definition of custom GTK+ widgets used in the UI.</li>
+        <li><strong>Timers.c</strong> – Management of high‑resolution timers and scheduled callbacks.</li>
+        <li><strong>Connections.c</strong> – Implements the internal “connection” graph that links UI actions to audio processes.</li>
+        <li><strong>Chorder.c</strong> – Generates chord progressions based on user‑defined rules.</li>
+        <li><strong>Player.c</strong> – Core audio playback engine; handles buffering, effects, and output.</li>
+        <li><strong>HTML.c</strong> – Utilities for generating static HTML snippets (e.g., song listings).</li>
+        <li><strong>RightMenuClick.c</strong> – Callback for right‑mouse context menu generation.</li>
+        <li><strong>HIDGrab.c</strong> – Reads input from human‑interface devices (e.g., MIDI keyboards, control surfaces).</li>
+        <li><strong>PrefsFile.c</strong> – Persistent storage of user preferences (JSON‑based).</li>
+        <li><strong>PrefsGui.c</strong> – GUI front‑end for editing preferences.</li>
+        <li><strong>Transport.c</strong> – Controls global transport (play, stop, record, loop).</li>
+        <li><strong>XMLReader2.c</strong> – Robust XML parser used for importing/exporting song metadata.</li>
+    </ul>
+
+    <h2>Header Files (src/*.h)</h2>
+    <p>Public interfaces for the C source files.  They define data structures, function prototypes, and macro constants.</p>
+    <ul>
+        <li>APlayMidi.h</li>
+        <li>GenPrefs.h</li>
+        <li>Player.h</li>
+        <li>Timers.h</li>
+        <li>Connections.h</li>
+        <li>LiveMusicApp.h</li>
+        <li>PrefsFile.h</li>
+        <li>PrefsGui.h</li>
+        <li>config.h</li>
+        <li>APlayMidi.h, AlsaUtils.h, Connections.h, DefPrefs.h, MyWidgets.h, SooperOSC.h, HTML.h, RightMenuClick.h, HIDGrab.h, PrefsFile.h, PrefsGui.h, Transport.h, XMLReader2.h</li>
+    </ul>
+
+    <h2>Python Scripts (Scripts/)</h2>
+    <p>The scripts are auxiliary tools that support development, performance, and data‑management tasks.</p>
+    <ul>
+        <li><strong>2025-01-12CarlaSwitcher.py</strong> – Switches between Carla audio back‑ends at runtime.</li>
+        <li><strong>LiveMusicCharts.py</strong> – Generates visual charts (tempo, key, energy) for songs.</li>
+        <li><strong>LiveMusicReplacePDF.py</strong> – Replaces placeholder PDFs in documentation with generated images.</li>
+        <li><strong>MeasureCount.py</strong> – Counts the number of measures in a supplied MIDI or MusicXML file.</li>
+        <li><strong>Metronome.py</strong> – Simple command‑line metronome with configurable BPM and time signatures.</li>
+        <li><strong>CarlaPresets.py</strong> – Lists, saves, and loads Carla preset bundles.</li>
+        <li><strong>CarlaPresetsCluade.py</strong> – Specific utilities for the Cluade preset format.</li>
+        <li><strong>CarlaSwitcher1.py</strong> – Legacy switcher for older Carla versions.</li>
+        <li><strong>ChordsFromXML.py</strong> – Extracts chord symbols from MusicXML files.</li>
+        <li><strong>OCRMusicBooksIndex.py</strong> – Builds an index from OCR‑derived music book PDFs.</li>
+        <li><strong>PCtoLinuxSampler.py</strong> – Sends MIDI to LinuxSampler over a network connection.</li>
+        <li><strong>PCtoSFIZZ.py</strong> – Translates PC‑style patch numbers to SFIZZ equivalents.</li>
+        <li><strong>DirectoryToHtml.py</strong> – Recursively builds an HTML directory listing.</li>
+        <li><strong>PresetsFromVST.py</strong> – Exports VST plugin presets to a project‑wide format.</li>
+        <li><strong>PresetsFromVST1.py</strong> – Legacy exporter for VST1‑compatible projects.</li>
+        <li><strong>GetEQInfo.py</strong> – Queries the current EQ settings from the audio engine.</li>
+        <li><strong>JSONtoCVS.py</strong> – Converts JSON configuration files to CSV for spreadsheet editing.</li>
+        <li><strong>StartPCtoSFIZZ.py</strong> – Starts the SFIZZ synthesiser with a given program.</li>
+        <li><strong>Startsfizz.sh</strong> – Shell wrapper that launches the SFIZZ daemon.</li>
+        <li><strong>KeepLiveMusicRunning.sh</strong> – Monitors the LiveMusicApp process and restarts it if it crashes.</li>
+        <li><strong>AutoStartLiveMusic.sh</strong> – Starts LiveMusicApp automatically on login.</li>
+        <li><strong>KeepLiveMusicRunning.sh.2026-08-23</strong> – Updated version of the watchdog script.</li>
+        <li>… (additional helper scripts for batch conversion, logging, and UI automation).</li>
+    </ul>
+
+    <h2>How to Use This Documentation</h2>
+    <p>Feel free to adapt the snippets or expand the descriptions as the project evolves.  The HTML file can be opened directly in any browser, or printed to PDF for offline reference.</p>
+
+    <div class="footer">
+        Generated on <script>document.write(new Date().toLocaleString());</script> by the LiveMusicApp assistant.
+    </div>
+</body>
+</html>

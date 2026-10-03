@@ -83,9 +83,9 @@ function FindPort {
 
     local match
     match=$(echo "$list" | head -n 1)
-    if [ -z "$match" ]; then
-        echo "FindPort: no match for [$*]" >&2
-    fi
+    # if [ -z "$match" ]; then
+    #     echo "FindPort: no match for [$*]" >&2
+    # fi
     echo "$match"
 }
 
@@ -169,7 +169,7 @@ do
     #     echo "Launching PCtoSFIZZ.py"
     #     pw-jack bash -c "exec python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py"
     # fi
-    sleep 5
+    sleep 3
     qdbus "$DbusScreensaverService" "$DbusScreensaverPath" SimulateUserActivity
 
 # FluidSynth:output_1
@@ -210,7 +210,9 @@ do
     timeout 1 pw-link "${AppSfizz}:output_1" "${PreFixMix}${FxMixer}:Audio input left 2" >/dev/null 2>&1; true
     timeout 1 pw-link "${AppSfizz}:output_2" "${PreFixMix}${FxMixer}:Audio input right 2" >/dev/null 2>&1; true
     timeout 1 pw-link "${PreFixMix}MIDI Guitar 2:event-out" "${AppSfizz}:input" >/dev/null 2>&1; true
-
+    pw-link "pw-cat:output_1" "${AppSfizz}:input"
+    
+    
     # --- LiveMusic Fluid output -> RtMidiIn (looked up, not literal) ---
     PortLiveMusicFluid=$(FindPort out "${KwLiveMusicOutFluid[@]}")
     PortRtMidiIn=$(FindPort in "${KwRtMidiIn[@]}")

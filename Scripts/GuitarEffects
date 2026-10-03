@@ -59,225 +59,8 @@ function SetDefinitions {
 #
 #-------------------------------------------#
 function SetUpConnections {
-    EffectsConnect.sh
+    EffectsConnect.sh clear
     return
-    # ********************************
-    # **** Alsa  sound if no USB interface
-    # ********************************
-    
-    # Turn on Line input as source.
-    #   amixer cset numid=8,iface=MIXER,name='Input Source' 0
-    
-    # Turn on the Headphone output
-    #    amixer cset numid=6,iface=MIXER,name='Headphone Playback Switch' 1
-    
-    # Turn on the Master output
-    #    amixer cset numid=10,iface=MIXER,name='Master Playback Switch' 1
-    
-    # Set the input mode to be a line level signal not a mic.
-    #    amixer cset numid=5,iface=MIXER,name='Mic Jack Mode' 1
-    
-    #   amixer sset "Mic Boost" 0
-    #   amixer sset "Capture" 70
-    #   amixer cset name='Capture Switch' 2
-    
-    # Max out the USB Device.
-    #    amixer -c 1 sset 'PCM' 128
-    
-
-    amixer -c 0 sset 'Speaker' mute
-    amixer -c 1 sset 'Speaker' mute
-    amixer -c 0 sset 'Speaker' 0
-    amixer -c 1 sset 'Speaker' 0
-    
-    #    amixer sset 'Master' 65535
-    #    amixer sset 'Master' 65%
-    # ********************************
-    # **** Definitions
-    # ********************************
-    MainOut1="jack-volume:input_1"
-    MainOut2="jack-volume:input_2"
-    MainOut3="jack-volume:input_3"
-    MainOut4="jack-volume:input_4"
-    MainOut5="jack-volume:input_5"
-    
-    PedalBoardName="EliasPedal3"
-    KeyBoardMidi="Uno"
-    MidiGuitarMidi="LiveMusic"
-    
-    # ********************************
-    # **** Alsa midi connections
-    # ********************************
-    aconnect "TriplePlay Connect":"0" "LiveMidi":2
-    aconnect "Fishman TriplePlay":"0" "LiveMidi":2
-    
-    # for Keyboard
-    aconnect "USB Uno MIDI Interface":"0" "LiveMidi":2
-    
-    # Pedal Versions
-    aconnect "EliasPedal3":"0" "LiveMusic":"0"
-    aconnect "EliasGuitar":"0" "LiveMusic":"0"
-    aconnect "EliasMidi":"0" "LiveMusic":"0"
-    aconnect "LPD8":"0" "LiveDAW":"1"
-    aconnect "XTONE":"0" "LiveMusic":"0"
-
-    # Midi
-#     aconnect "LiveMusic Output":"0" "FLUID Synth (qsynth)":"0"
-#     # Metronome
-#     aconnect "LiveMusic Output":"5" "FLUID Synth (qsynth)":"0"
-#     # Drum Looper
-#     aconnect "LiveMusic Output":"8" "FLUID Synth (qsynth)":"0"
-    
-    # Temp control for sooper
-    aconnect "LiveMusic Output":"2" "sooperlooper":"0"
-    
-    # TO Pedalboard
-    aconnect "LiveMusic Output":"6" "EliasPedal3":"0"
-    # To Guitar Controller
-    aconnect "LiveMusic Output":"6" "EliasGuitar":"0"
-    aconnect "LiveMusic Output":"6" "EliasMidi":"0"
-    # To KorgNano
-    aconnect "LiveMusic Output":"7" "LPD8":"0"
-    aconnect "LiveMusic Output":"7" "nanoKONTROL2":"0"
-    aconnect "LiveMusic Output":"6" "NMSVE":"0"
-    aconnect "LiveMusic Output":"7" "Reloop KeyFadr":"0"
-    
-    
-#    aconnect "Midi Through":"0" "FLUID Synth (qsynth)":"0"
-    aconnect "Reloop KeyFadr":"0" "LiveDAW":"1"
-    aconnect "nanoKONTROL2":"0" "LiveDAW":"1"
-    aconnect "NMSVE":"0" "LiveMusic":"0"
-    aconnect "Fishman TriplePlay":0 "MusE":0
-    
-    
-#     aconnect -d "Fishman TriplePlay":"0" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "Fishman TriplePlay":"1" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "TriplePlay Connect":"0" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "TriplePlay Connect":"1" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "EliasGuitar":"0" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "System":"1" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "Midi Through":"1" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "Midi Through":"2" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "Midi Through":"3" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "nanoKONTROL2":"0" "FLUID Synth (qsynth)":"0"
-#     aconnect -d "sooperlooper":"0" "FLUID Synth (qsynth)":"0"
-
-    # ********************************
-    # **** Jack audio and midi connections
-    # ********************************
-    # To find devices
-    # jack_lsp -c
-    
-    # Midi Sound generato
-    MidiSoundOut=`jack_lsp -c |  grep "FLUID" | tail -1`
- 
-    
-    # Muse Connection
-    aconnect "Fishman TriplePlay":0  MusE:0
-#    aconnect "MusE":0 "FLUID Synth":0
-    ${PipeStart} jack_connect "MusE:Out 1-0" "system:playback_1"
-    ${PipeStart} jack_connect "MusE:Out 1-1" "system:playback_1"
-    
-
-    
-    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_8) DRLoop" "Midi-Bridge:sooperlooper:(playback_0) sooperlooper"
-
-    # Connect Carla Mixer to Main
-    ${PipeStart} jack_connect "Carla:LSP Mixer x4 Stereo:Output L" system:playback_1
-    ${PipeStart} jack_connect "Carla:LSP Mixer x4 Stereo:Output R" system:playback_2
-
-
-    # Connect Jack_Volume to Main
-    ${PipeStart} jack_connect jack-volume:output_1 system:playback_1
-    ${PipeStart} jack_connect jack-volume:output_1 system:playback_2
-    ${PipeStart} jack_connect jack-volume:output_2 system:playback_1
-    ${PipeStart} jack_connect jack-volume:output_2 system:playback_2
-    ${PipeStart} jack_connect jack-volume:output_3 system:playback_1
-    ${PipeStart} jack_connect jack-volume:output_3 system:playback_2
-    ${PipeStart} jack_connect jack-volume:output_4 system:playback_1
-    ${PipeStart} jack_connect jack-volume:output_4 system:playback_2
-    
-    # pw-jack jack_connect "J3Sink Audio/Sink sink:playback_FL"  "clementine:out_pipeline-2-jackaudiosink_1"
-    
-    # Guitar in goes to effects Rack
-    
-    if [ $MainInputPort == 2 ]; then
-        
-        echo "jack_connect system:capture_1 gx_head_amp:in_1"
-        #    jack_connect system:capture_1 gx_head_amp:in_0
-        ${PipeStart} jack_connect system:capture_2 gx_head_amp:in_0
-        ${PipeStart} jack_connect system:capture_1 system:playback_1
-        ${PipeStart} jack_connect system:capture_1 system:playback_2
-        ${PipeStart} jack_disconnect system:capture_2 system:playback_2
-        ${PipeStart} jack_disconnect system:capture_2 system:playback_1
-    else
-        ${PipeStart} jack_connect system:capture_1 gx_head_amp:in_0
-        ${PipeStart} jack_connect system:capture_2 system:playback_1
-        ${PipeStart} jack_connect system:capture_2 system:playback_2
-        ${PipeStart} jack_disconnect system:capture_1 system:playback_2
-        ${PipeStart} jack_disconnect system:capture_1 system:playback_1
-        
-    fi
-    
-    echo "Guitarix Audio to Jack Volume"
-    ${PipeStart} jack_connect gx_head_fx:out_0 $MainOut1
-    ${PipeStart} jack_connect gx_head_fx:out_1 $MainOut5
-    ${PipeStart} jack_disconnect gx_head_fx:out_1 system:playback_1
-    ${PipeStart} jack_disconnect gx_head_fx:out_0 system:playback_2
-    
-    #    jack_connect gx_head_fx:out_0 loud_comp_mono:in
-    #    jack_connect gx_head_fx:out_1 loud_comp_mono:in
-    #    jack_connect loud_comp_mono:out $MainOut1
-    
-    
-    # Connect Guitarix out to looper in
-    ${PipeStart} jack_connect gx_head_fx:out_1 sooperlooper:common_in_1
-    #   jack_connect gx_head_fx:out_2 sooperlooper:common_in_2
-    
-    # Connect the Looper to the main outputs
-    ${PipeStart} jack_connect sooperlooper:common_out_1 $MainOut4
-    ${PipeStart} jack_connect sooperlooper:common_out_1 $MainOut4
-    ${PipeStart} jack_connect sooperlooper:common_out_2 $MainOut4
-    ${PipeStart} jack_connect sooperlooper:common_out_2 $MainOut4
-    
-    # Soundfont player get connected to the Main playback device.
-    ${PipeStart} jack_connect qsynth:left jack-volume:input_2
-    ${PipeStart} jack_connect qsynth:right jack-volume:input_2
-    ${PipeStart} jack_disconnect qsynth:left system:playback_1
-    ${PipeStart} jack_disconnect qsynth:right system:playback_2
-    
-    # Connect qsynth to the Looper.
-    ${PipeStart} jack_connect qsynth:left sooperlooper:common_in_1
-    ${PipeStart} jack_connect qsynth:left sooperlooper:common_in_2
-    
-    # Drum Machine
-    ${PipeStart} jack_connect Hydrogen:out_L sooperlooper:common_in_1
-    ${PipeStart} jack_connect Hydrogen:out_R sooperlooper:common_in_2
-    ${PipeStart} jack_connect Hydrogen:out_L $MainOut2
-    ${PipeStart} jack_connect Hydrogen:out_R $MainOut2
-    
-    ${PipeStart} jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
-    ${PipeStart} jack_connect clementine:out_jackaudiosink-1_1 $MainOut3
-    
-    ${PipeStart} jack_connect Guitarix:out_1 "ardour:Audio 1/in 1"
-    ${PipeStart} jack_connect gx_head_fx:out_1 "ardour:Audio 1/in 1"
-    aconnect "LiveMusic Output":1 GuitBridge:0
-#    ${PipeStart} jack_connect "GuitBridge:capture" gx_head_amp:midi_in_1
-
-    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix"  gx_head_amp:midi_in_1
-    ${PipeStart} jack_connect "Midi-Bridge:LiveMusic Output:(capture_1) Guitarix" Carla:events-in
-     
-    #    aconnect "TriplePlay Connect":0 MuseBridge:0
-    #    aconnect "Fishman TriplePlay":0  MuseBridge:0
-    #    jack_connect "MuseBridge:capture" mscore:mscore-midiin-1
-    # Transport out
-    #    aconnect "LiveMusic Output":3 Mamba:input
-    
-    # Tempo out
-    #   aconnect "LiveMusic Output":4 Mamba:input
-    
-    #   jack_connect "Mamba:out" "a2j:FLUID Synth (qsynth) (playback): Synth input port (qsynth:0)"    # jack_connect "Mamba:out" "MambaBridge:playback"
-    # aconnect MambaBridge:capture "FLUID Synth":0
 }
 
 #-------------------------------------------#
@@ -545,8 +328,9 @@ ExtraMonitor=`xrandr | grep " connected" | wc -l`
         echo "External Monitor Not Found"
         DisplayTop1=0
         DisplayTop2=0
-        Disp1SizeX=2560
+        Disp1SizeX=2304
         Disp1SizeY=1440
+
     else
         echo "External Monitor Found"
         export ExMonitor=1
@@ -554,6 +338,8 @@ ExtraMonitor=`xrandr | grep " connected" | wc -l`
         DisplayTop2=0
         Disp1SizeX=2176
         Disp1SizeX=2560
+        Disp1SizeY=1440
+        Disp1SizeX=2304
         Disp1SizeY=1440
     fi
 
@@ -784,7 +570,6 @@ BackroundChecker=true
 InternetJamStart=false
 SoundSynth=false
 Version="2.2.2"
-
 
 export PIPEWIRE_AUTOCONNECT=false 
 # export PIPEWIRE_JACK_SERVER_GAIN=25.0
@@ -1125,26 +910,6 @@ SetUpConnections
 python3 /home/elias/workspace/LiveMusicApp/Scripts/PCtoSFIZZ.py
 exit #### EJK
 
-# ejk Check this
-if [[ $UsePipeWire == "Yes" ]]; then
-    PipeConnect.sh 
-fi
-DefaultAudio.sh
-
-SetPlacement
-
-exit 0
-
-# Check for file size on this:
-# /home/elias/.config/guitarix/gx_head_rc
-#
-# lsp-plugins-loud-comp-mono -c /home/elias/LoudCompensation.cfg
-#loud_comp_mono:in
-#loud_comp_mono:out
-
-
-# GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 gtk3-demo
-
 # Pipewire
 # pw-metadata -n settings 0 clock.force-quantum 128
 # PIPEWIRE_LATENCY="128/48000" pw-jack reaper
@@ -1153,38 +918,7 @@ exit 0
 # pw-metadata -n settings 0 clock.rate <value>
 # pw-metadata -n settings 0 clock.force-rate <samplerate>
 # pw-top
-# pw-jack -p 512 -s 44100
-
-# abGate 
-# Thres  Att  Hold  Decay  Range
-# -52    0.1  489    5.0    -46 Acoustic-1
-# -52    0.1  489   5.0     -46 Acoustic
-
-#Comppressor
-# Ratio  Thres Knee Att  Res
-#  20    -30    19.5 0    8.10  Acoustic-1
-# 15.9  -37.9   10.0  0   8.10  Acoustic
-
-
-
-
-
-Acoustic
-Tuner
-abGateCompressor
-Head
-Graphic EQ
-Volume
-ImpulseResponse
-Freeverb
-Loudness
-
-
-exit
-
-0-92 Bowed Glass
-
-wpctl set-volume 90 .5
+# pw-jack -p 512 -s 44100wpctl set-volume 90 .5
 wpctl set-volume 127 1.2
 wpctl status --nick | grep "Arctis Nova 7" | sed '2!d'
 
@@ -1196,5 +930,3 @@ wpctl set-volume $RecordNum 1.2
 export PlaybackNum=`wpctl status --nick | grep "Scarlett Solo USB" | sed '3!d' | awk -F'.' -F' ' '{print $2}' | sed 's/\.//g'`
 wpctl set-volume $PlaybackNum 1.2
 
-
-/usr/src/Music/Impro-Visor10.2/impro-visor

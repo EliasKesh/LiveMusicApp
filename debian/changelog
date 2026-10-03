@@ -1,14 +1,22 @@
 livemusicapp (1.9.6) UNRELEASED; urgency=medium
-2021-10-13
+
+  * 2021-10-13
+
+ -- Elias Kesh <elias@Keshie>  Wed, 13 Oct 2021 00:00:00 -0700
 
 livemusicapp (1.8.2) UNRELEASED; urgency=medium
-2021-03-10 Added Version to LiveMusicCharts
-LiveMusicCharts doesn't create index.html but foldername.html 
-Add multiple colors to buttons to make the title text easier to see
 
+  * 2021-03-10 Added Version to LiveMusicCharts
+  * LiveMusicCharts doesn't create index.html but foldername.html
+  * Add multiple colors to buttons to make the title text easier to see
+
+ -- Elias Kesh <elias@Keshie>  Wed, 10 Mar 2021 00:00:00 -0700
 
 livemusicapp (1.8.1) UNRELEASED; urgency=medium
-2021-03-08 
+
+  * 2021-03-08
+
+ -- Elias Kesh <elias@Keshie>  Mon, 08 Mar 2021 00:00:00 -0700
 
 livemusicapp (1.7.3) UNRELEASED; urgency=medium
 

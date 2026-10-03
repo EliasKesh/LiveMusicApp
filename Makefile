@@ -275,7 +275,7 @@ AUTOHEADER = ${SHELL} '/home/elias/workspace/LiveMusicApp/missing' autoheader
 AUTOMAKE = ${SHELL} '/home/elias/workspace/LiveMusicApp/missing' automake-1.18
 AWK = gawk
 CC = gcc
-CCDEPMODE = depmode=gcc3
+CCDEPMODE = depmode=none
 CFLAGS = -fdiagnostics-color=always
 CPPFLAGS = -fdiagnostics-color=always
 CSCOPE = cscope
@@ -305,7 +305,7 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 JACK_CFLAGS = -I/usr/local/include
 JACK_LIBS = -L/usr/local/lib -ljack
 LD = /usr/bin/x86_64-linux-gnu-ld -m elf_x86_64
-LDFLAGS = 
+LDFLAGS = -Wl,-Bsymbolic-functions -Wl,--package-metadata=%7B%22type%22:%22deb%22%2C%22os%22:%22ubuntu%22%2C%22name%22:%22livemusicapp%22%2C%22version%22:%221.9.6%22%2C%22architecture%22:%22amd64%22%7D -Wl,-z,relro
 LIBLO_CFLAGS = 
 LIBLO_LIBS = -llo
 LIBOBJS = 
@@ -363,7 +363,7 @@ am__untar = tar -xf -
 am__xargs_n = xargs -n
 bindir = ${exec_prefix}/bin
 build = x86_64-pc-linux-gnu
-build_alias = 
+build_alias = x86_64-linux-gnu
 build_cpu = x86_64
 build_os = linux-gnu
 build_vendor = pc
@@ -380,24 +380,24 @@ host_os = linux-gnu
 host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
-infodir = ${datarootdir}/info
+infodir = ${prefix}/share/info
 install_sh = ${SHELL} /home/elias/workspace/LiveMusicApp/install-sh
-libdir = ${exec_prefix}/lib
-libexecdir = ${exec_prefix}/libexec
+libdir = ${prefix}/lib/x86_64-linux-gnu
+libexecdir = ${prefix}/lib/x86_64-linux-gnu
 localedir = ${datarootdir}/locale
-localstatedir = ${prefix}/var
-mandir = ${datarootdir}/man
+localstatedir = /var
+mandir = ${prefix}/share/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr/local
+prefix = /usr
 program_transform_name = s,x,x,
 psdir = ${docdir}
 runstatedir = ${localstatedir}/run
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-sysconfdir = ${prefix}/etc
+sysconfdir = /etc
 target_alias = 
 top_build_prefix = 
 top_builddir = .
@@ -610,22 +610,22 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-Chorder.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-Connections.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-HTML.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-Player.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-Timers.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-transport.Po # am--include-marker
-include src/$(DEPDIR)/LiveMusicApp-wmctrl.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-Chorder.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-Connections.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-HTML.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-Player.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-Timers.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-transport.Po # am--include-marker
+#include src/$(DEPDIR)/LiveMusicApp-wmctrl.Po # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -634,252 +634,252 @@ $(am__depfiles_remade):
 am--depfiles: $(am__depfiles_remade)
 
 .c.o:
-	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-	$(am__mv) $$depbase.Tpo $$depbase.Po
-#	$(AM_V_CC)source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(COMPILE) -c -o $@ $<
+#	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+#	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+#	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CC)source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-	$(am__mv) $$depbase.Tpo $$depbase.Po
-#	$(AM_V_CC)source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+#	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+#	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+#	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CC)source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-	$(am__mv) $$depbase.Tpo $$depbase.Plo
-#	$(AM_V_CC)source='$<' object='$@' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(LTCOMPILE) -c -o $@ $<
+#	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+#	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+#	$(am__mv) $$depbase.Tpo $$depbase.Plo
+#	$(AM_V_CC)source='$<' object='$@' libtool=yes 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $<
 
 src/LiveMusicApp-AlsaUtils.o: src/AlsaUtils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-AlsaUtils.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo -c -o src/LiveMusicApp-AlsaUtils.o `test -f 'src/AlsaUtils.c' || echo '$(srcdir)/'`src/AlsaUtils.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po
-#	$(AM_V_CC)source='src/AlsaUtils.c' object='src/LiveMusicApp-AlsaUtils.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-AlsaUtils.o `test -f 'src/AlsaUtils.c' || echo '$(srcdir)/'`src/AlsaUtils.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-AlsaUtils.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo -c -o src/LiveMusicApp-AlsaUtils.o `test -f 'src/AlsaUtils.c' || echo '$(srcdir)/'`src/AlsaUtils.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po
+#	$(AM_V_CC)source='src/AlsaUtils.c' object='src/LiveMusicApp-AlsaUtils.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-AlsaUtils.o `test -f 'src/AlsaUtils.c' || echo '$(srcdir)/'`src/AlsaUtils.c
 
 src/LiveMusicApp-AlsaUtils.obj: src/AlsaUtils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-AlsaUtils.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo -c -o src/LiveMusicApp-AlsaUtils.obj `if test -f 'src/AlsaUtils.c'; then $(CYGPATH_W) 'src/AlsaUtils.c'; else $(CYGPATH_W) '$(srcdir)/src/AlsaUtils.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po
-#	$(AM_V_CC)source='src/AlsaUtils.c' object='src/LiveMusicApp-AlsaUtils.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-AlsaUtils.obj `if test -f 'src/AlsaUtils.c'; then $(CYGPATH_W) 'src/AlsaUtils.c'; else $(CYGPATH_W) '$(srcdir)/src/AlsaUtils.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-AlsaUtils.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo -c -o src/LiveMusicApp-AlsaUtils.obj `if test -f 'src/AlsaUtils.c'; then $(CYGPATH_W) 'src/AlsaUtils.c'; else $(CYGPATH_W) '$(srcdir)/src/AlsaUtils.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Tpo src/$(DEPDIR)/LiveMusicApp-AlsaUtils.Po
+#	$(AM_V_CC)source='src/AlsaUtils.c' object='src/LiveMusicApp-AlsaUtils.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-AlsaUtils.obj `if test -f 'src/AlsaUtils.c'; then $(CYGPATH_W) 'src/AlsaUtils.c'; else $(CYGPATH_W) '$(srcdir)/src/AlsaUtils.c'; fi`
 
 src/LiveMusicApp-HTML.o: src/HTML.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HTML.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HTML.Tpo -c -o src/LiveMusicApp-HTML.o `test -f 'src/HTML.c' || echo '$(srcdir)/'`src/HTML.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HTML.Tpo src/$(DEPDIR)/LiveMusicApp-HTML.Po
-#	$(AM_V_CC)source='src/HTML.c' object='src/LiveMusicApp-HTML.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HTML.o `test -f 'src/HTML.c' || echo '$(srcdir)/'`src/HTML.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HTML.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HTML.Tpo -c -o src/LiveMusicApp-HTML.o `test -f 'src/HTML.c' || echo '$(srcdir)/'`src/HTML.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HTML.Tpo src/$(DEPDIR)/LiveMusicApp-HTML.Po
+#	$(AM_V_CC)source='src/HTML.c' object='src/LiveMusicApp-HTML.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HTML.o `test -f 'src/HTML.c' || echo '$(srcdir)/'`src/HTML.c
 
 src/LiveMusicApp-HTML.obj: src/HTML.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HTML.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HTML.Tpo -c -o src/LiveMusicApp-HTML.obj `if test -f 'src/HTML.c'; then $(CYGPATH_W) 'src/HTML.c'; else $(CYGPATH_W) '$(srcdir)/src/HTML.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HTML.Tpo src/$(DEPDIR)/LiveMusicApp-HTML.Po
-#	$(AM_V_CC)source='src/HTML.c' object='src/LiveMusicApp-HTML.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HTML.obj `if test -f 'src/HTML.c'; then $(CYGPATH_W) 'src/HTML.c'; else $(CYGPATH_W) '$(srcdir)/src/HTML.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HTML.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HTML.Tpo -c -o src/LiveMusicApp-HTML.obj `if test -f 'src/HTML.c'; then $(CYGPATH_W) 'src/HTML.c'; else $(CYGPATH_W) '$(srcdir)/src/HTML.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HTML.Tpo src/$(DEPDIR)/LiveMusicApp-HTML.Po
+#	$(AM_V_CC)source='src/HTML.c' object='src/LiveMusicApp-HTML.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HTML.obj `if test -f 'src/HTML.c'; then $(CYGPATH_W) 'src/HTML.c'; else $(CYGPATH_W) '$(srcdir)/src/HTML.c'; fi`
 
 src/LiveMusicApp-PrefsFile.o: src/PrefsFile.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsFile.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo -c -o src/LiveMusicApp-PrefsFile.o `test -f 'src/PrefsFile.c' || echo '$(srcdir)/'`src/PrefsFile.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po
-#	$(AM_V_CC)source='src/PrefsFile.c' object='src/LiveMusicApp-PrefsFile.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsFile.o `test -f 'src/PrefsFile.c' || echo '$(srcdir)/'`src/PrefsFile.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsFile.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo -c -o src/LiveMusicApp-PrefsFile.o `test -f 'src/PrefsFile.c' || echo '$(srcdir)/'`src/PrefsFile.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po
+#	$(AM_V_CC)source='src/PrefsFile.c' object='src/LiveMusicApp-PrefsFile.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsFile.o `test -f 'src/PrefsFile.c' || echo '$(srcdir)/'`src/PrefsFile.c
 
 src/LiveMusicApp-PrefsFile.obj: src/PrefsFile.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsFile.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo -c -o src/LiveMusicApp-PrefsFile.obj `if test -f 'src/PrefsFile.c'; then $(CYGPATH_W) 'src/PrefsFile.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsFile.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po
-#	$(AM_V_CC)source='src/PrefsFile.c' object='src/LiveMusicApp-PrefsFile.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsFile.obj `if test -f 'src/PrefsFile.c'; then $(CYGPATH_W) 'src/PrefsFile.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsFile.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsFile.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo -c -o src/LiveMusicApp-PrefsFile.obj `if test -f 'src/PrefsFile.c'; then $(CYGPATH_W) 'src/PrefsFile.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsFile.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsFile.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsFile.Po
+#	$(AM_V_CC)source='src/PrefsFile.c' object='src/LiveMusicApp-PrefsFile.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsFile.obj `if test -f 'src/PrefsFile.c'; then $(CYGPATH_W) 'src/PrefsFile.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsFile.c'; fi`
 
 src/LiveMusicApp-Timers.o: src/Timers.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Timers.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Timers.Tpo -c -o src/LiveMusicApp-Timers.o `test -f 'src/Timers.c' || echo '$(srcdir)/'`src/Timers.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Timers.Tpo src/$(DEPDIR)/LiveMusicApp-Timers.Po
-#	$(AM_V_CC)source='src/Timers.c' object='src/LiveMusicApp-Timers.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Timers.o `test -f 'src/Timers.c' || echo '$(srcdir)/'`src/Timers.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Timers.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Timers.Tpo -c -o src/LiveMusicApp-Timers.o `test -f 'src/Timers.c' || echo '$(srcdir)/'`src/Timers.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Timers.Tpo src/$(DEPDIR)/LiveMusicApp-Timers.Po
+#	$(AM_V_CC)source='src/Timers.c' object='src/LiveMusicApp-Timers.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Timers.o `test -f 'src/Timers.c' || echo '$(srcdir)/'`src/Timers.c
 
 src/LiveMusicApp-Timers.obj: src/Timers.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Timers.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Timers.Tpo -c -o src/LiveMusicApp-Timers.obj `if test -f 'src/Timers.c'; then $(CYGPATH_W) 'src/Timers.c'; else $(CYGPATH_W) '$(srcdir)/src/Timers.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Timers.Tpo src/$(DEPDIR)/LiveMusicApp-Timers.Po
-#	$(AM_V_CC)source='src/Timers.c' object='src/LiveMusicApp-Timers.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Timers.obj `if test -f 'src/Timers.c'; then $(CYGPATH_W) 'src/Timers.c'; else $(CYGPATH_W) '$(srcdir)/src/Timers.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Timers.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Timers.Tpo -c -o src/LiveMusicApp-Timers.obj `if test -f 'src/Timers.c'; then $(CYGPATH_W) 'src/Timers.c'; else $(CYGPATH_W) '$(srcdir)/src/Timers.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Timers.Tpo src/$(DEPDIR)/LiveMusicApp-Timers.Po
+#	$(AM_V_CC)source='src/Timers.c' object='src/LiveMusicApp-Timers.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Timers.obj `if test -f 'src/Timers.c'; then $(CYGPATH_W) 'src/Timers.c'; else $(CYGPATH_W) '$(srcdir)/src/Timers.c'; fi`
 
 src/LiveMusicApp-Chorder.o: src/Chorder.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Chorder.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo -c -o src/LiveMusicApp-Chorder.o `test -f 'src/Chorder.c' || echo '$(srcdir)/'`src/Chorder.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo src/$(DEPDIR)/LiveMusicApp-Chorder.Po
-#	$(AM_V_CC)source='src/Chorder.c' object='src/LiveMusicApp-Chorder.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Chorder.o `test -f 'src/Chorder.c' || echo '$(srcdir)/'`src/Chorder.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Chorder.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo -c -o src/LiveMusicApp-Chorder.o `test -f 'src/Chorder.c' || echo '$(srcdir)/'`src/Chorder.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo src/$(DEPDIR)/LiveMusicApp-Chorder.Po
+#	$(AM_V_CC)source='src/Chorder.c' object='src/LiveMusicApp-Chorder.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Chorder.o `test -f 'src/Chorder.c' || echo '$(srcdir)/'`src/Chorder.c
 
 src/LiveMusicApp-Chorder.obj: src/Chorder.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Chorder.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo -c -o src/LiveMusicApp-Chorder.obj `if test -f 'src/Chorder.c'; then $(CYGPATH_W) 'src/Chorder.c'; else $(CYGPATH_W) '$(srcdir)/src/Chorder.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo src/$(DEPDIR)/LiveMusicApp-Chorder.Po
-#	$(AM_V_CC)source='src/Chorder.c' object='src/LiveMusicApp-Chorder.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Chorder.obj `if test -f 'src/Chorder.c'; then $(CYGPATH_W) 'src/Chorder.c'; else $(CYGPATH_W) '$(srcdir)/src/Chorder.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Chorder.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo -c -o src/LiveMusicApp-Chorder.obj `if test -f 'src/Chorder.c'; then $(CYGPATH_W) 'src/Chorder.c'; else $(CYGPATH_W) '$(srcdir)/src/Chorder.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Chorder.Tpo src/$(DEPDIR)/LiveMusicApp-Chorder.Po
+#	$(AM_V_CC)source='src/Chorder.c' object='src/LiveMusicApp-Chorder.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Chorder.obj `if test -f 'src/Chorder.c'; then $(CYGPATH_W) 'src/Chorder.c'; else $(CYGPATH_W) '$(srcdir)/src/Chorder.c'; fi`
 
 src/LiveMusicApp-LiveMusicApp.o: src/LiveMusicApp.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-LiveMusicApp.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo -c -o src/LiveMusicApp-LiveMusicApp.o `test -f 'src/LiveMusicApp.c' || echo '$(srcdir)/'`src/LiveMusicApp.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po
-#	$(AM_V_CC)source='src/LiveMusicApp.c' object='src/LiveMusicApp-LiveMusicApp.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-LiveMusicApp.o `test -f 'src/LiveMusicApp.c' || echo '$(srcdir)/'`src/LiveMusicApp.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-LiveMusicApp.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo -c -o src/LiveMusicApp-LiveMusicApp.o `test -f 'src/LiveMusicApp.c' || echo '$(srcdir)/'`src/LiveMusicApp.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po
+#	$(AM_V_CC)source='src/LiveMusicApp.c' object='src/LiveMusicApp-LiveMusicApp.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-LiveMusicApp.o `test -f 'src/LiveMusicApp.c' || echo '$(srcdir)/'`src/LiveMusicApp.c
 
 src/LiveMusicApp-LiveMusicApp.obj: src/LiveMusicApp.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-LiveMusicApp.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo -c -o src/LiveMusicApp-LiveMusicApp.obj `if test -f 'src/LiveMusicApp.c'; then $(CYGPATH_W) 'src/LiveMusicApp.c'; else $(CYGPATH_W) '$(srcdir)/src/LiveMusicApp.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po
-#	$(AM_V_CC)source='src/LiveMusicApp.c' object='src/LiveMusicApp-LiveMusicApp.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-LiveMusicApp.obj `if test -f 'src/LiveMusicApp.c'; then $(CYGPATH_W) 'src/LiveMusicApp.c'; else $(CYGPATH_W) '$(srcdir)/src/LiveMusicApp.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-LiveMusicApp.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo -c -o src/LiveMusicApp-LiveMusicApp.obj `if test -f 'src/LiveMusicApp.c'; then $(CYGPATH_W) 'src/LiveMusicApp.c'; else $(CYGPATH_W) '$(srcdir)/src/LiveMusicApp.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Tpo src/$(DEPDIR)/LiveMusicApp-LiveMusicApp.Po
+#	$(AM_V_CC)source='src/LiveMusicApp.c' object='src/LiveMusicApp-LiveMusicApp.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-LiveMusicApp.obj `if test -f 'src/LiveMusicApp.c'; then $(CYGPATH_W) 'src/LiveMusicApp.c'; else $(CYGPATH_W) '$(srcdir)/src/LiveMusicApp.c'; fi`
 
 src/LiveMusicApp-PrefsGui.o: src/PrefsGui.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsGui.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo -c -o src/LiveMusicApp-PrefsGui.o `test -f 'src/PrefsGui.c' || echo '$(srcdir)/'`src/PrefsGui.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po
-#	$(AM_V_CC)source='src/PrefsGui.c' object='src/LiveMusicApp-PrefsGui.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsGui.o `test -f 'src/PrefsGui.c' || echo '$(srcdir)/'`src/PrefsGui.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsGui.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo -c -o src/LiveMusicApp-PrefsGui.o `test -f 'src/PrefsGui.c' || echo '$(srcdir)/'`src/PrefsGui.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po
+#	$(AM_V_CC)source='src/PrefsGui.c' object='src/LiveMusicApp-PrefsGui.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsGui.o `test -f 'src/PrefsGui.c' || echo '$(srcdir)/'`src/PrefsGui.c
 
 src/LiveMusicApp-PrefsGui.obj: src/PrefsGui.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsGui.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo -c -o src/LiveMusicApp-PrefsGui.obj `if test -f 'src/PrefsGui.c'; then $(CYGPATH_W) 'src/PrefsGui.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsGui.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po
-#	$(AM_V_CC)source='src/PrefsGui.c' object='src/LiveMusicApp-PrefsGui.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsGui.obj `if test -f 'src/PrefsGui.c'; then $(CYGPATH_W) 'src/PrefsGui.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsGui.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-PrefsGui.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo -c -o src/LiveMusicApp-PrefsGui.obj `if test -f 'src/PrefsGui.c'; then $(CYGPATH_W) 'src/PrefsGui.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsGui.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-PrefsGui.Tpo src/$(DEPDIR)/LiveMusicApp-PrefsGui.Po
+#	$(AM_V_CC)source='src/PrefsGui.c' object='src/LiveMusicApp-PrefsGui.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-PrefsGui.obj `if test -f 'src/PrefsGui.c'; then $(CYGPATH_W) 'src/PrefsGui.c'; else $(CYGPATH_W) '$(srcdir)/src/PrefsGui.c'; fi`
 
 src/LiveMusicApp-transport.o: src/transport.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-transport.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-transport.Tpo -c -o src/LiveMusicApp-transport.o `test -f 'src/transport.c' || echo '$(srcdir)/'`src/transport.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-transport.Tpo src/$(DEPDIR)/LiveMusicApp-transport.Po
-#	$(AM_V_CC)source='src/transport.c' object='src/LiveMusicApp-transport.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-transport.o `test -f 'src/transport.c' || echo '$(srcdir)/'`src/transport.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-transport.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-transport.Tpo -c -o src/LiveMusicApp-transport.o `test -f 'src/transport.c' || echo '$(srcdir)/'`src/transport.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-transport.Tpo src/$(DEPDIR)/LiveMusicApp-transport.Po
+#	$(AM_V_CC)source='src/transport.c' object='src/LiveMusicApp-transport.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-transport.o `test -f 'src/transport.c' || echo '$(srcdir)/'`src/transport.c
 
 src/LiveMusicApp-transport.obj: src/transport.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-transport.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-transport.Tpo -c -o src/LiveMusicApp-transport.obj `if test -f 'src/transport.c'; then $(CYGPATH_W) 'src/transport.c'; else $(CYGPATH_W) '$(srcdir)/src/transport.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-transport.Tpo src/$(DEPDIR)/LiveMusicApp-transport.Po
-#	$(AM_V_CC)source='src/transport.c' object='src/LiveMusicApp-transport.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-transport.obj `if test -f 'src/transport.c'; then $(CYGPATH_W) 'src/transport.c'; else $(CYGPATH_W) '$(srcdir)/src/transport.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-transport.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-transport.Tpo -c -o src/LiveMusicApp-transport.obj `if test -f 'src/transport.c'; then $(CYGPATH_W) 'src/transport.c'; else $(CYGPATH_W) '$(srcdir)/src/transport.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-transport.Tpo src/$(DEPDIR)/LiveMusicApp-transport.Po
+#	$(AM_V_CC)source='src/transport.c' object='src/LiveMusicApp-transport.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-transport.obj `if test -f 'src/transport.c'; then $(CYGPATH_W) 'src/transport.c'; else $(CYGPATH_W) '$(srcdir)/src/transport.c'; fi`
 
 src/LiveMusicApp-Connections.o: src/Connections.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Connections.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Connections.Tpo -c -o src/LiveMusicApp-Connections.o `test -f 'src/Connections.c' || echo '$(srcdir)/'`src/Connections.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Connections.Tpo src/$(DEPDIR)/LiveMusicApp-Connections.Po
-#	$(AM_V_CC)source='src/Connections.c' object='src/LiveMusicApp-Connections.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Connections.o `test -f 'src/Connections.c' || echo '$(srcdir)/'`src/Connections.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Connections.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Connections.Tpo -c -o src/LiveMusicApp-Connections.o `test -f 'src/Connections.c' || echo '$(srcdir)/'`src/Connections.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Connections.Tpo src/$(DEPDIR)/LiveMusicApp-Connections.Po
+#	$(AM_V_CC)source='src/Connections.c' object='src/LiveMusicApp-Connections.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Connections.o `test -f 'src/Connections.c' || echo '$(srcdir)/'`src/Connections.c
 
 src/LiveMusicApp-Connections.obj: src/Connections.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Connections.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Connections.Tpo -c -o src/LiveMusicApp-Connections.obj `if test -f 'src/Connections.c'; then $(CYGPATH_W) 'src/Connections.c'; else $(CYGPATH_W) '$(srcdir)/src/Connections.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Connections.Tpo src/$(DEPDIR)/LiveMusicApp-Connections.Po
-#	$(AM_V_CC)source='src/Connections.c' object='src/LiveMusicApp-Connections.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Connections.obj `if test -f 'src/Connections.c'; then $(CYGPATH_W) 'src/Connections.c'; else $(CYGPATH_W) '$(srcdir)/src/Connections.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Connections.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Connections.Tpo -c -o src/LiveMusicApp-Connections.obj `if test -f 'src/Connections.c'; then $(CYGPATH_W) 'src/Connections.c'; else $(CYGPATH_W) '$(srcdir)/src/Connections.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Connections.Tpo src/$(DEPDIR)/LiveMusicApp-Connections.Po
+#	$(AM_V_CC)source='src/Connections.c' object='src/LiveMusicApp-Connections.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Connections.obj `if test -f 'src/Connections.c'; then $(CYGPATH_W) 'src/Connections.c'; else $(CYGPATH_W) '$(srcdir)/src/Connections.c'; fi`
 
 src/LiveMusicApp-MyWidgets.o: src/MyWidgets.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-MyWidgets.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo -c -o src/LiveMusicApp-MyWidgets.o `test -f 'src/MyWidgets.c' || echo '$(srcdir)/'`src/MyWidgets.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po
-#	$(AM_V_CC)source='src/MyWidgets.c' object='src/LiveMusicApp-MyWidgets.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-MyWidgets.o `test -f 'src/MyWidgets.c' || echo '$(srcdir)/'`src/MyWidgets.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-MyWidgets.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo -c -o src/LiveMusicApp-MyWidgets.o `test -f 'src/MyWidgets.c' || echo '$(srcdir)/'`src/MyWidgets.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po
+#	$(AM_V_CC)source='src/MyWidgets.c' object='src/LiveMusicApp-MyWidgets.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-MyWidgets.o `test -f 'src/MyWidgets.c' || echo '$(srcdir)/'`src/MyWidgets.c
 
 src/LiveMusicApp-MyWidgets.obj: src/MyWidgets.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-MyWidgets.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo -c -o src/LiveMusicApp-MyWidgets.obj `if test -f 'src/MyWidgets.c'; then $(CYGPATH_W) 'src/MyWidgets.c'; else $(CYGPATH_W) '$(srcdir)/src/MyWidgets.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po
-#	$(AM_V_CC)source='src/MyWidgets.c' object='src/LiveMusicApp-MyWidgets.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-MyWidgets.obj `if test -f 'src/MyWidgets.c'; then $(CYGPATH_W) 'src/MyWidgets.c'; else $(CYGPATH_W) '$(srcdir)/src/MyWidgets.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-MyWidgets.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo -c -o src/LiveMusicApp-MyWidgets.obj `if test -f 'src/MyWidgets.c'; then $(CYGPATH_W) 'src/MyWidgets.c'; else $(CYGPATH_W) '$(srcdir)/src/MyWidgets.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-MyWidgets.Tpo src/$(DEPDIR)/LiveMusicApp-MyWidgets.Po
+#	$(AM_V_CC)source='src/MyWidgets.c' object='src/LiveMusicApp-MyWidgets.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-MyWidgets.obj `if test -f 'src/MyWidgets.c'; then $(CYGPATH_W) 'src/MyWidgets.c'; else $(CYGPATH_W) '$(srcdir)/src/MyWidgets.c'; fi`
 
 src/LiveMusicApp-RightMenuClick.o: src/RightMenuClick.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-RightMenuClick.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo -c -o src/LiveMusicApp-RightMenuClick.o `test -f 'src/RightMenuClick.c' || echo '$(srcdir)/'`src/RightMenuClick.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po
-#	$(AM_V_CC)source='src/RightMenuClick.c' object='src/LiveMusicApp-RightMenuClick.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-RightMenuClick.o `test -f 'src/RightMenuClick.c' || echo '$(srcdir)/'`src/RightMenuClick.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-RightMenuClick.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo -c -o src/LiveMusicApp-RightMenuClick.o `test -f 'src/RightMenuClick.c' || echo '$(srcdir)/'`src/RightMenuClick.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po
+#	$(AM_V_CC)source='src/RightMenuClick.c' object='src/LiveMusicApp-RightMenuClick.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-RightMenuClick.o `test -f 'src/RightMenuClick.c' || echo '$(srcdir)/'`src/RightMenuClick.c
 
 src/LiveMusicApp-RightMenuClick.obj: src/RightMenuClick.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-RightMenuClick.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo -c -o src/LiveMusicApp-RightMenuClick.obj `if test -f 'src/RightMenuClick.c'; then $(CYGPATH_W) 'src/RightMenuClick.c'; else $(CYGPATH_W) '$(srcdir)/src/RightMenuClick.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po
-#	$(AM_V_CC)source='src/RightMenuClick.c' object='src/LiveMusicApp-RightMenuClick.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-RightMenuClick.obj `if test -f 'src/RightMenuClick.c'; then $(CYGPATH_W) 'src/RightMenuClick.c'; else $(CYGPATH_W) '$(srcdir)/src/RightMenuClick.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-RightMenuClick.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo -c -o src/LiveMusicApp-RightMenuClick.obj `if test -f 'src/RightMenuClick.c'; then $(CYGPATH_W) 'src/RightMenuClick.c'; else $(CYGPATH_W) '$(srcdir)/src/RightMenuClick.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Tpo src/$(DEPDIR)/LiveMusicApp-RightMenuClick.Po
+#	$(AM_V_CC)source='src/RightMenuClick.c' object='src/LiveMusicApp-RightMenuClick.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-RightMenuClick.obj `if test -f 'src/RightMenuClick.c'; then $(CYGPATH_W) 'src/RightMenuClick.c'; else $(CYGPATH_W) '$(srcdir)/src/RightMenuClick.c'; fi`
 
 src/LiveMusicApp-wmctrl.o: src/wmctrl.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-wmctrl.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo -c -o src/LiveMusicApp-wmctrl.o `test -f 'src/wmctrl.c' || echo '$(srcdir)/'`src/wmctrl.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo src/$(DEPDIR)/LiveMusicApp-wmctrl.Po
-#	$(AM_V_CC)source='src/wmctrl.c' object='src/LiveMusicApp-wmctrl.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-wmctrl.o `test -f 'src/wmctrl.c' || echo '$(srcdir)/'`src/wmctrl.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-wmctrl.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo -c -o src/LiveMusicApp-wmctrl.o `test -f 'src/wmctrl.c' || echo '$(srcdir)/'`src/wmctrl.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo src/$(DEPDIR)/LiveMusicApp-wmctrl.Po
+#	$(AM_V_CC)source='src/wmctrl.c' object='src/LiveMusicApp-wmctrl.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-wmctrl.o `test -f 'src/wmctrl.c' || echo '$(srcdir)/'`src/wmctrl.c
 
 src/LiveMusicApp-wmctrl.obj: src/wmctrl.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-wmctrl.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo -c -o src/LiveMusicApp-wmctrl.obj `if test -f 'src/wmctrl.c'; then $(CYGPATH_W) 'src/wmctrl.c'; else $(CYGPATH_W) '$(srcdir)/src/wmctrl.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo src/$(DEPDIR)/LiveMusicApp-wmctrl.Po
-#	$(AM_V_CC)source='src/wmctrl.c' object='src/LiveMusicApp-wmctrl.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-wmctrl.obj `if test -f 'src/wmctrl.c'; then $(CYGPATH_W) 'src/wmctrl.c'; else $(CYGPATH_W) '$(srcdir)/src/wmctrl.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-wmctrl.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo -c -o src/LiveMusicApp-wmctrl.obj `if test -f 'src/wmctrl.c'; then $(CYGPATH_W) 'src/wmctrl.c'; else $(CYGPATH_W) '$(srcdir)/src/wmctrl.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-wmctrl.Tpo src/$(DEPDIR)/LiveMusicApp-wmctrl.Po
+#	$(AM_V_CC)source='src/wmctrl.c' object='src/LiveMusicApp-wmctrl.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-wmctrl.obj `if test -f 'src/wmctrl.c'; then $(CYGPATH_W) 'src/wmctrl.c'; else $(CYGPATH_W) '$(srcdir)/src/wmctrl.c'; fi`
 
 src/LiveMusicApp-HIDGrab.o: src/HIDGrab.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HIDGrab.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo -c -o src/LiveMusicApp-HIDGrab.o `test -f 'src/HIDGrab.c' || echo '$(srcdir)/'`src/HIDGrab.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po
-#	$(AM_V_CC)source='src/HIDGrab.c' object='src/LiveMusicApp-HIDGrab.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HIDGrab.o `test -f 'src/HIDGrab.c' || echo '$(srcdir)/'`src/HIDGrab.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HIDGrab.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo -c -o src/LiveMusicApp-HIDGrab.o `test -f 'src/HIDGrab.c' || echo '$(srcdir)/'`src/HIDGrab.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po
+#	$(AM_V_CC)source='src/HIDGrab.c' object='src/LiveMusicApp-HIDGrab.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HIDGrab.o `test -f 'src/HIDGrab.c' || echo '$(srcdir)/'`src/HIDGrab.c
 
 src/LiveMusicApp-HIDGrab.obj: src/HIDGrab.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HIDGrab.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo -c -o src/LiveMusicApp-HIDGrab.obj `if test -f 'src/HIDGrab.c'; then $(CYGPATH_W) 'src/HIDGrab.c'; else $(CYGPATH_W) '$(srcdir)/src/HIDGrab.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po
-#	$(AM_V_CC)source='src/HIDGrab.c' object='src/LiveMusicApp-HIDGrab.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HIDGrab.obj `if test -f 'src/HIDGrab.c'; then $(CYGPATH_W) 'src/HIDGrab.c'; else $(CYGPATH_W) '$(srcdir)/src/HIDGrab.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-HIDGrab.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo -c -o src/LiveMusicApp-HIDGrab.obj `if test -f 'src/HIDGrab.c'; then $(CYGPATH_W) 'src/HIDGrab.c'; else $(CYGPATH_W) '$(srcdir)/src/HIDGrab.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-HIDGrab.Tpo src/$(DEPDIR)/LiveMusicApp-HIDGrab.Po
+#	$(AM_V_CC)source='src/HIDGrab.c' object='src/LiveMusicApp-HIDGrab.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-HIDGrab.obj `if test -f 'src/HIDGrab.c'; then $(CYGPATH_W) 'src/HIDGrab.c'; else $(CYGPATH_W) '$(srcdir)/src/HIDGrab.c'; fi`
 
 src/LiveMusicApp-Player.o: src/Player.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Player.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Player.Tpo -c -o src/LiveMusicApp-Player.o `test -f 'src/Player.c' || echo '$(srcdir)/'`src/Player.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Player.Tpo src/$(DEPDIR)/LiveMusicApp-Player.Po
-#	$(AM_V_CC)source='src/Player.c' object='src/LiveMusicApp-Player.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Player.o `test -f 'src/Player.c' || echo '$(srcdir)/'`src/Player.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Player.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Player.Tpo -c -o src/LiveMusicApp-Player.o `test -f 'src/Player.c' || echo '$(srcdir)/'`src/Player.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Player.Tpo src/$(DEPDIR)/LiveMusicApp-Player.Po
+#	$(AM_V_CC)source='src/Player.c' object='src/LiveMusicApp-Player.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Player.o `test -f 'src/Player.c' || echo '$(srcdir)/'`src/Player.c
 
 src/LiveMusicApp-Player.obj: src/Player.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Player.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Player.Tpo -c -o src/LiveMusicApp-Player.obj `if test -f 'src/Player.c'; then $(CYGPATH_W) 'src/Player.c'; else $(CYGPATH_W) '$(srcdir)/src/Player.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Player.Tpo src/$(DEPDIR)/LiveMusicApp-Player.Po
-#	$(AM_V_CC)source='src/Player.c' object='src/LiveMusicApp-Player.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Player.obj `if test -f 'src/Player.c'; then $(CYGPATH_W) 'src/Player.c'; else $(CYGPATH_W) '$(srcdir)/src/Player.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-Player.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-Player.Tpo -c -o src/LiveMusicApp-Player.obj `if test -f 'src/Player.c'; then $(CYGPATH_W) 'src/Player.c'; else $(CYGPATH_W) '$(srcdir)/src/Player.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-Player.Tpo src/$(DEPDIR)/LiveMusicApp-Player.Po
+#	$(AM_V_CC)source='src/Player.c' object='src/LiveMusicApp-Player.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-Player.obj `if test -f 'src/Player.c'; then $(CYGPATH_W) 'src/Player.c'; else $(CYGPATH_W) '$(srcdir)/src/Player.c'; fi`
 
 src/LiveMusicApp-SooperOSC.o: src/SooperOSC.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-SooperOSC.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo -c -o src/LiveMusicApp-SooperOSC.o `test -f 'src/SooperOSC.c' || echo '$(srcdir)/'`src/SooperOSC.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po
-#	$(AM_V_CC)source='src/SooperOSC.c' object='src/LiveMusicApp-SooperOSC.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-SooperOSC.o `test -f 'src/SooperOSC.c' || echo '$(srcdir)/'`src/SooperOSC.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-SooperOSC.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo -c -o src/LiveMusicApp-SooperOSC.o `test -f 'src/SooperOSC.c' || echo '$(srcdir)/'`src/SooperOSC.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po
+#	$(AM_V_CC)source='src/SooperOSC.c' object='src/LiveMusicApp-SooperOSC.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-SooperOSC.o `test -f 'src/SooperOSC.c' || echo '$(srcdir)/'`src/SooperOSC.c
 
 src/LiveMusicApp-SooperOSC.obj: src/SooperOSC.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-SooperOSC.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo -c -o src/LiveMusicApp-SooperOSC.obj `if test -f 'src/SooperOSC.c'; then $(CYGPATH_W) 'src/SooperOSC.c'; else $(CYGPATH_W) '$(srcdir)/src/SooperOSC.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po
-#	$(AM_V_CC)source='src/SooperOSC.c' object='src/LiveMusicApp-SooperOSC.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-SooperOSC.obj `if test -f 'src/SooperOSC.c'; then $(CYGPATH_W) 'src/SooperOSC.c'; else $(CYGPATH_W) '$(srcdir)/src/SooperOSC.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-SooperOSC.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo -c -o src/LiveMusicApp-SooperOSC.obj `if test -f 'src/SooperOSC.c'; then $(CYGPATH_W) 'src/SooperOSC.c'; else $(CYGPATH_W) '$(srcdir)/src/SooperOSC.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-SooperOSC.Tpo src/$(DEPDIR)/LiveMusicApp-SooperOSC.Po
+#	$(AM_V_CC)source='src/SooperOSC.c' object='src/LiveMusicApp-SooperOSC.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-SooperOSC.obj `if test -f 'src/SooperOSC.c'; then $(CYGPATH_W) 'src/SooperOSC.c'; else $(CYGPATH_W) '$(srcdir)/src/SooperOSC.c'; fi`
 
 src/LiveMusicApp-APlayMidi.o: src/APlayMidi.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-APlayMidi.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo -c -o src/LiveMusicApp-APlayMidi.o `test -f 'src/APlayMidi.c' || echo '$(srcdir)/'`src/APlayMidi.c
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po
-#	$(AM_V_CC)source='src/APlayMidi.c' object='src/LiveMusicApp-APlayMidi.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-APlayMidi.o `test -f 'src/APlayMidi.c' || echo '$(srcdir)/'`src/APlayMidi.c
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-APlayMidi.o -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo -c -o src/LiveMusicApp-APlayMidi.o `test -f 'src/APlayMidi.c' || echo '$(srcdir)/'`src/APlayMidi.c
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po
+#	$(AM_V_CC)source='src/APlayMidi.c' object='src/LiveMusicApp-APlayMidi.o' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-APlayMidi.o `test -f 'src/APlayMidi.c' || echo '$(srcdir)/'`src/APlayMidi.c
 
 src/LiveMusicApp-APlayMidi.obj: src/APlayMidi.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-APlayMidi.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo -c -o src/LiveMusicApp-APlayMidi.obj `if test -f 'src/APlayMidi.c'; then $(CYGPATH_W) 'src/APlayMidi.c'; else $(CYGPATH_W) '$(srcdir)/src/APlayMidi.c'; fi`
-	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po
-#	$(AM_V_CC)source='src/APlayMidi.c' object='src/LiveMusicApp-APlayMidi.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-APlayMidi.obj `if test -f 'src/APlayMidi.c'; then $(CYGPATH_W) 'src/APlayMidi.c'; else $(CYGPATH_W) '$(srcdir)/src/APlayMidi.c'; fi`
+#	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -MT src/LiveMusicApp-APlayMidi.obj -MD -MP -MF src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo -c -o src/LiveMusicApp-APlayMidi.obj `if test -f 'src/APlayMidi.c'; then $(CYGPATH_W) 'src/APlayMidi.c'; else $(CYGPATH_W) '$(srcdir)/src/APlayMidi.c'; fi`
+#	$(AM_V_at)$(am__mv) src/$(DEPDIR)/LiveMusicApp-APlayMidi.Tpo src/$(DEPDIR)/LiveMusicApp-APlayMidi.Po
+#	$(AM_V_CC)source='src/APlayMidi.c' object='src/LiveMusicApp-APlayMidi.obj' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LiveMusicApp_CPPFLAGS) $(CPPFLAGS) $(LiveMusicApp_CFLAGS) $(CFLAGS) -c -o src/LiveMusicApp-APlayMidi.obj `if test -f 'src/APlayMidi.c'; then $(CYGPATH_W) 'src/APlayMidi.c'; else $(CYGPATH_W) '$(srcdir)/src/APlayMidi.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

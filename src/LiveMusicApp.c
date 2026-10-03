@@ -55,7 +55,7 @@ include file.
 #include <pwd.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include <unistd.h>SND_SEQ_EVENT_CONTROLLER
 
 
 // https://docs.gtk.org/gtk4/migrating-3to4.html
@@ -1958,9 +1958,9 @@ void VScale3_Changed(GtkAdjustment *adj) {
     ThisPatchNum = gMyInfo.HardSlider[2];
     ThisPatch = &gMyInfo.MyPatchInfo[ThisPatchNum];
 
-    LogValue=NewValue;
+//    LogValue=NewValue;
     //LogValue = MidiToDB(NewValue);
-    // LogValue = ConvertToLogInt(NewValue);
+    LogValue = ConvertToLogInt(NewValue);
     printd(LogInfo, "Vscale 3 %d %d \n", NewValue, LogValue);
 
     if (ThisPatch->OutPort == InternalPort) {
@@ -2479,7 +2479,7 @@ int CloseHistoryFile(void) {
     return 0;
 }
 
-float ConvertToLogF(float linear)
+float ConvertToLogF_old(float linear)
 {
     const float MIN_DB = -60.0f; // dB at linear = 0.0
     if (linear <= 0.0f)
@@ -2501,54 +2501,21 @@ float ConvertToLogF(float linear)
  * Description:  convert linear to Audio
  *
  *----------------------------------------------*/
-float ConvertToLogF_OLD(float Norm) {
+float ConvertToLogF(float Norm) {
 double LogValue;
 
-    //LogValue = (log10(Norm)/1.8);
-    //LogValue = 255*pow((float)Norm / 255, 4);
-    //LogValue = (int)(24*log2(Norm));
-    //LogValue = (int)(pow(Norm, 0.61) * 7.4) - 10;
-    //LogValue = pow(stop/1, n/(double)(N-1)); 
-    //    VolumeFloat = ((float)Volume / 127);
-//    VolumeFloat = Log(128/(Volume + 1)) * (-10);
-//    VolumeFloat=(exp((float)Volume/128)*74 - 74)/128;
-//    VolumeFloat=(exp((float)Volume/32)*2.5-2.5);
-//    VolumeFloat=(exp((float)Volume/42)*6.5-6.5);
-
-//    VolumeFloat=(exp((float)Volume/60)*17 - 17)/128;
-
-//    VolumeFloat=(exp((float)Volume/50)*11 - 11)/130;
-//    LogValue = ((log(Norm) / (log(10) / 20)) + 32.0)/32.0;
-    // Claude
-//    LogValue = ((log(Norm) / (0.05) + 32.0)/32.0);
-//    LogValue = log10(1 + 9 * Norm);
-
-    // chatGPT 
-//    LogValue = log10(1.0 + 9.0 * pow(Norm, 2.0));
-
-//    double logValue;
-
-    // if (Norm <= 0.5) {
-    //     double x = Norm / 0.5;
-    //     LogValue = 0.85 * log10(1.0 + 9.0 * x);
-    // } else {
-    //     double x = (Norm - 0.5) / 0.5;
-    //     LogValue = 0.85 + 0.15 * log10(1.0 + 9.0 * x);
-    // }
-
-    
-    if (Norm <= 0.35) {
-        double x = Norm / 0.35;
-        LogValue = 0.85 * log10(1.0 + 9.0 * x);
-    } else {
-        double x = (Norm - 0.35) / 0.65;
-        LogValue = 0.85 + 0.15 * log10(1.0 + 9.0 * x);
+    if (Norm <= 0.95)
+    {
+        double x = Norm / 0.95;
+        return 0.5 * pow(x, 0.25);
+    }
+    else
+    {
+        double x = (Norm - 0.95) / 0.05;
+        return 0.5 + 0.5 * pow(x, 0.5);
     }
 
-// ChatGPT DB conversion
-    // double dB = -60.0 + 60.0 * norm;    
-    // double gain = pow(10.0, dB / 20.0);
-    
+
     if (LogValue < 0.0)
         LogValue = 0.0;
 
@@ -2568,7 +2535,7 @@ int ReturnVal;
      */
     if (Value < 0) {
         Value = 0;
-    } else if (Value > 124) {
+    } else if (Value > 127) {
         Value = 127;
     }
     
@@ -2578,7 +2545,7 @@ int ReturnVal;
 
     if (ReturnVal < 0) {
         ReturnVal = 0;
-    } else if (ReturnVal > 124) {
+    } else if (ReturnVal > 127) {
         ReturnVal = 127;
     }
     printd(LogMidi, "ConvertToLogInt %d %d\n",Value, ReturnVal);
@@ -2597,11 +2564,7 @@ int SetExpressionControl(int Controller, int Value) {
     int LogValue = 0;
     float NormValue = 0.0;
 
-//    LogValue = (int)(pow(Value, 0.675) * 4.8) - 1;
-//    NormValue = (float)Value/127;
-//    LogValue = (NormValue / (1 + (1 - NormValue) * 2) * 127);
 
-    LogValue=Value;
     LogValue = ConvertToLogInt(Value);
     printd(LogInfo, "SetExpressionControl %d %d %d\n", Controller, Value,
            LogValue);

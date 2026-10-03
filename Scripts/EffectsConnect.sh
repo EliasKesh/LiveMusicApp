@@ -57,15 +57,15 @@ FxTuner="x42 Instrument Tuner"
 FxMidiGuitar="MIDI Guitar 2"
 FxGate="LSP Gate"
 FxGateMono="LSP Gate Mono"
-FxCompMono="LSP Compressor Mono"
-FxGottComp="GOTT Compressor Mono"
+FxCompMono="Compressor Mono"
+# FxCompMono="GOTT Compressor Mono"
 FxGeq16="LSP Graphic Equalizer x16 Mono"
 FxTubeScreamer="GxTubeScreamer"
 FxAmplifier="GxAmplifier-X"
 FxMuTroMojo="rkr MuTroMojo"
 FxDelay="${PreFixMix}windowswaylodelayUD"
-# MOD 2Voices pitch/harmonizer. It has one mono input and two outputs.
-Fx2Voices="2Voices"
+# MOD TwinPitch pitch/harmonizer. It has one mono input and two outputs.
+FxTwinPitch="TwinPitch"
 FxReverb="GxZita_rev1-Stereo"
 FxLoudnessComp="${PreFixMix}LSP Loudness Compensator Stereo"
 FxMixer="LSP Mixer x4 Stereo"
@@ -417,7 +417,7 @@ function NewRack {
     FindEffects "$FxCompMono"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
-    FindEffects "$FxGottComp"
+    FindEffects "$FxCompMono"
     ChainNext "${ChainOutNextL}" "${ChainOutNextR}"
 
     FindEffects "$FxGeq16"
@@ -438,15 +438,15 @@ function NewRack {
     # FindEffects "$FxMuTroMojo"
 
     # -------------------------------------------------------------------
-    # Waylo + MOD 2Voices are PARALLEL branches.
+    # Waylo + MOD TwinPitch are PARALLEL branches.
     #
-    # Waylo remains the normal stereo doubler/delay branch. MOD 2Voices
+    # Waylo remains the normal stereo doubler/delay branch. MOD TwinPitch
     # receives the guitar signal from the left channel (the guitar source
     # is effectively mono) and produces two independent pitch-shifted
-    # voices. The Waylo stereo output and the two 2Voices outputs are then
+    # voices. The Waylo stereo output and the two TwinPitch outputs are then
     # mixed together before entering the reverb.
     #
-    # 2Voices is not handled by FindEffects because it has ONE input and
+    # TwinPitch is not handled by FindEffects because it has ONE input and
     # TWO outputs, whereas FindEffects assumes a conventional stereo
     # input/output plugin.
     # -------------------------------------------------------------------
@@ -464,11 +464,11 @@ function NewRack {
     DoLink "${ParallelInL}" "${WayloInL}"
     DoLink "${ParallelInR}" "${WayloInR}"
 
-    # --- MOD 2Voices branch --------------------------------------------
+    # --- MOD TwinPitch branch --------------------------------------------
     # Carla exposes the LV2 ports using their LV2 names: In, Out 1, Out 2.
-    TwoVoicesIn="${PreFixMix}${Fx2Voices}:In"
-    TwoVoicesOut1="${PreFixMix}${Fx2Voices}:Out 1"
-    TwoVoicesOut2="${PreFixMix}${Fx2Voices}:Out 2"
+    TwoVoicesIn="${PreFixMix}${FxTwinPitch}:Audio In 1"
+    TwoVoicesOut1="${PreFixMix}${FxTwinPitch}:Audio Out 1"
+    TwoVoicesOut2="${PreFixMix}${FxTwinPitch}:Audio Out 2"
 
     # Feed the mono guitar signal to the harmonizer.
     DoLink "${ParallelInL}" "${TwoVoicesIn}"
@@ -498,9 +498,11 @@ function NewRack {
     echo "$LastEffectOutR"
     echo "$LastEffectOutL"
 
+
     # Sooper Looper
-    DoLink "${LastEffectOutL}" "${LoopIn1}"
-    DoLink "${LastEffectOutR}" "${LoopIn2}"
+#    DoLink "${LastEffectOutL}" "${LoopIn1}"
+#    DoLink "${LastEffectOutR}" "${LoopIn2}"
+
 }
 
 #=======================================================================

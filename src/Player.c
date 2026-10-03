@@ -981,9 +981,6 @@ void SetPlayerFile (char *FileName) {
     WeAreLooping = 1;
     plLoopToggle();
 
-    // EJK check this.
- //   plStop();
-
     ResetPlayer();
 }
 
@@ -1518,6 +1515,8 @@ void PlayerPoll (char How) {
                  */
                 if (DontUpDateSlider == 3) {
                     printd (LogTest, "DontUpDateSlider == 4\n");
+
+		    // Fixes the ability to move the slider.
                     NewSongPosition=CurrentSongPosition;
 
                     plSetPosition(NewSongPosition);
@@ -2299,11 +2298,13 @@ int StartPlayer (void) {
 #if 1 
 // -fs full screen
     
+//              "-use-filedir-conf=./Prefs/mplayer/
     
     if (WeAreLooping) {
-        sprintf (PlayerString,
-//              "-use-filedir-conf=./Prefs/mplayer/
-"PIPEWIRE_PROPS='{ node.autoconnect = false }' mplayer -identify \
+printd (LogPlayer, "Starting Loop \n");
+sprintf (PlayerString,                 
+"PIPEWIRE_PROPS='{ node.autoconnect = false }' mplayer \
+-identify \
 -nocache \
 -slave \
 -ss %f \
@@ -2313,6 +2314,7 @@ int StartPlayer (void) {
 -hr-mp3-seek \
 -fixed-vo \
 -osdlevel 3 \
+-subfont-osd-scale 1 \
 -sub-bg-alpha 40 \
 -sub-bg-color 30 \
 -quiet \
@@ -2326,12 +2328,12 @@ gtk_adjustment_get_value (VolumeAdjustment),
 //              gtk_adjustment_get_value(SpeedAdjustment),
 CurrentSpeed, CurrentFile);
 // -fixed-ao hangs
-        printd (LogPlayer, "calling  Loop %s\n", PlayerString);
+printd (LogPlayer, "calling  Loop %s\n", PlayerString);
 // -ao %s \
 
     }
     else {
-        sprintf (PlayerString,
+sprintf (PlayerString,
 "PIPEWIRE_PROPS='{ node.autoconnect = false }'  mplayer \"%s\" \
 -identify \
 -nocache \
@@ -2343,6 +2345,7 @@ CurrentSpeed, CurrentFile);
 -hr-mp3-seek \
 -fixed-vo \
 -osdlevel 3 \
+-subfont-osd-scale 1 \
 -sub-bg-alpha 40 \
 -sub-bg-color 30 \
 -quiet \
@@ -2353,7 +2356,7 @@ CurrentSpeed, CurrentFile);
 CurrentSongPosition,
 gtk_adjustment_get_value (VolumeAdjustment),
 CurrentSpeed);
-        printd (LogPlayer, "calling %s\n", PlayerString);
+printd (LogPlayer, "calling %s\n", PlayerString);
     }
 
 // Trying to use MPV
@@ -2375,6 +2378,7 @@ CurrentSpeed);
 -hr-mp3-seek \
 -fixed-vo \
 -osdlevel 3 \
+-subfont-osd-scale 1 \
 -quiet \
 -idle \
 -af scaletempo \
@@ -2403,6 +2407,7 @@ CurrentSpeed, CurrentFile);
 -hr-mp3-seek \
 -fixed-vo \
 -osdlevel 3 \
+-subfont-osd-scale 1 \
 -quiet \
 -idle \
 -af scaletempo \
